@@ -1,0 +1,63 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Coverage
+coverage
+.nyc_output
+
+# TypeScript
+*.tsbuildinfo
+
+# Caches
+.eslintcache
+.vite/
+
+# dotenv (do not commit secrets)
+.env
+.env.*
+!.env.example
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Tauri / Rust
+src-tauri/target/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files (macOS / Windows / Linux)
+.DS_Store
+.AppleDouble
+.LSOverride
+# macOS custom folder icon file is named "Icon\r" (carriage return). Avoid a literal CR in this file.
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+.directory
+*~

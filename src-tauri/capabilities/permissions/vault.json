@@ -1,0 +1,10 @@
+{
+  "identifier": "vault",
+  "description": "Allows the main window to access vault-related app commands.",
+  "permissions": [
+    "list-markdown-files",
+    "read-note",
+    "write-note",
+    "find-backlinks"
+  ]
+}

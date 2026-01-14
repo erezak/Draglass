@@ -1,0 +1,53 @@
+[[permission]]
+identifier = "list-markdown-files"
+description = "Allows listing Markdown files in the selected vault."
+commands.allow = ["list-markdown-files"]
+
+[[permission]]
+identifier = "list-markdown-files-legacy"
+description = "Allows listing Markdown files in the selected vault (legacy command name)."
+commands.allow = ["list_markdown_files"]
+
+[[permission]]
+identifier = "read-note"
+description = "Allows reading a note from the selected vault."
+commands.allow = ["read-note"]
+
+[[permission]]
+identifier = "read-note-legacy"
+description = "Allows reading a note from the selected vault (legacy command name)."
+commands.allow = ["read_note"]
+
+[[permission]]
+identifier = "write-note"
+description = "Allows writing a note to the selected vault."
+commands.allow = ["write-note"]
+
+[[permission]]
+identifier = "write-note-legacy"
+description = "Allows writing a note to the selected vault (legacy command name)."
+commands.allow = ["write_note"]
+
+[[permission]]
+identifier = "find-backlinks"
+description = "Allows scanning the vault to find backlinks for a note."
+commands.allow = ["find-backlinks"]
+
+[[permission]]
+identifier = "find-backlinks-legacy"
+description = "Allows scanning the vault to find backlinks for a note (legacy command name)."
+commands.allow = ["find_backlinks"]
+
+[[set]]
+identifier = "vault"
+description = "Allows the main window to access vault-related app commands."
+permissions = [
+  "list-markdown-files",
+  "list-markdown-files-legacy",
+  "read-note",
+  "read-note-legacy",
+  "write-note",
+  "write-note-legacy",
+  "find-backlinks",
+  "find-backlinks-legacy",
+]
