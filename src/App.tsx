@@ -12,6 +12,20 @@ import { useNoteAutosave } from './components/useNoteAutosave'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 
+const WRAP_STORAGE_KEY = 'draglass.editor.wrap.v1'
+
+function loadWrapEnabledFromStorage(): boolean {
+  try {
+    const raw = localStorage.getItem(WRAP_STORAGE_KEY)
+    if (raw == null) return true
+    if (raw === 'true') return true
+    if (raw === 'false') return false
+    return true
+  } catch {
+    return true
+  }
+}
+
 function App() {
   const [vaultPath, setVaultPath] = useState<string | null>(null)
   const [files, setFiles] = useState<NoteEntry[]>([])
@@ -23,6 +37,8 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [backlinks, setBacklinks] = useState<string[]>([])
   const [backlinksBusy, setBacklinksBusy] = useState(false)
+
+  const [wrapEnabled, setWrapEnabled] = useState<boolean>(() => loadWrapEnabledFromStorage())
 
   const backlinksRequestIdRef = useRef(0)
 
@@ -103,6 +119,18 @@ function App() {
   const onEditorSaveRequest = useCallback(() => {
     void flushAutosave()
   }, [flushAutosave])
+
+  const toggleWrap = useCallback(() => {
+    setWrapEnabled((prev) => {
+      const next = !prev
+      try {
+        localStorage.setItem(WRAP_STORAGE_KEY, String(next))
+      } catch {
+        // ignore
+      }
+      return next
+    })
+  }, [])
 
   const pickVault = useCallback(async () => {
     setError(null)
@@ -215,12 +243,23 @@ function App() {
               <div className="panelTitle">{noteTitle ?? 'Editor'}</div>
               <div className="spacer" />
               {activeRelPath ? (
-                <span
-                  className={`saveDot saveDot--${saveStatus}`}
-                  title={saveTitle}
-                  role="img"
-                  aria-label={saveAriaLabel}
-                />
+                <>
+                  <button
+                    type="button"
+                    className={wrapEnabled ? 'wrapToggle wrapToggle--on' : 'wrapToggle'}
+                    aria-pressed={wrapEnabled}
+                    onClick={toggleWrap}
+                    title={wrapEnabled ? 'Soft wrap: On' : 'Soft wrap: Off'}
+                  >
+                    Wrap
+                  </button>
+                  <span
+                    className={`saveDot saveDot--${saveStatus}`}
+                    title={saveTitle}
+                    role="img"
+                    aria-label={saveAriaLabel}
+                  />
+                </>
               ) : null}
             </div>
 
@@ -237,6 +276,7 @@ function App() {
                   value={noteText}
                   onChange={setNoteText}
                   onSaveRequest={onEditorSaveRequest}
+                  wrap={wrapEnabled}
                 />
               </Suspense>
             )}
