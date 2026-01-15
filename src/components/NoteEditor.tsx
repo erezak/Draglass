@@ -17,6 +17,18 @@ export function NoteEditor({ value, onChange, onSaveRequest }: NoteEditorProps) 
   const initialDocRef = useRef<string>(value)
   const [initError, setInitError] = useState<Error | null>(null)
 
+  const onChangeRef = useRef<NoteEditorProps['onChange']>(onChange)
+  const onSaveRequestRef = useRef<NoteEditorProps['onSaveRequest']>(onSaveRequest)
+  const applyingExternalValueRef = useRef(false)
+
+  useEffect(() => {
+    onChangeRef.current = onChange
+  }, [onChange])
+
+  useEffect(() => {
+    onSaveRequestRef.current = onSaveRequest
+  }, [onSaveRequest])
+
   useEffect(() => {
     // Keep the initial doc in sync while the editor view doesn't exist yet.
     // This lets us recreate the view (e.g. when extensions change) without
@@ -48,13 +60,14 @@ export function NoteEditor({ value, onChange, onSaveRequest }: NoteEditorProps) 
       theme,
       EditorView.updateListener.of((update: ViewUpdate) => {
         if (!update.docChanged) return
-        onChange(update.state.doc.toString())
+        if (applyingExternalValueRef.current) return
+        onChangeRef.current(update.state.doc.toString())
       }),
       keymap.of([
         {
           key: 'Mod-s',
           run: () => {
-            onSaveRequest?.()
+            onSaveRequestRef.current?.()
             return true
           },
         },
@@ -63,7 +76,7 @@ export function NoteEditor({ value, onChange, onSaveRequest }: NoteEditorProps) 
         ...historyKeymap,
       ]),
     ]
-  }, [onChange, onSaveRequest])
+  }, [])
 
   useEffect(() => {
     if (!hostRef.current) return
@@ -110,9 +123,14 @@ export function NoteEditor({ value, onChange, onSaveRequest }: NoteEditorProps) 
     const current = view.state.doc.toString()
     if (current === value) return
 
-    view.dispatch({
-      changes: { from: 0, to: current.length, insert: value },
-    })
+    applyingExternalValueRef.current = true
+    try {
+      view.dispatch({
+        changes: { from: 0, to: current.length, insert: value },
+      })
+    } finally {
+      applyingExternalValueRef.current = false
+    }
   }, [value])
 
   if (initError) {

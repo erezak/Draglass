@@ -1,13 +1,14 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useDeferredValue, useMemo, useRef, useState } from 'react'
 import './App.css'
 
 import { open } from '@tauri-apps/plugin-dialog'
 import { findBacklinks, listMarkdownFiles, readNote, writeNote } from './tauri'
 import type { NoteEntry } from './types'
-import { parseWikilinks } from './wikilinks'
+import { normalizeWikiTarget, parseWikilinks } from './wikilinks'
 import { fileStem } from './path'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { FileTree } from './components/FileTree'
+import { useNoteAutosave } from './components/useNoteAutosave'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 
@@ -17,11 +18,6 @@ function App() {
   const [activeRelPath, setActiveRelPath] = useState<string | null>(null)
   const [noteText, setNoteText] = useState('')
   const [savedText, setSavedText] = useState('')
-
-  const noteTextRef = useRef('')
-  useEffect(() => {
-    noteTextRef.current = noteText
-  }, [noteText])
 
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -35,8 +31,13 @@ function App() {
     return fileStem(activeRelPath)
   }, [activeRelPath])
 
-  const outgoingLinks = useMemo(() => parseWikilinks(noteText), [noteText])
+  // Parsing wikilinks can be relatively expensive on large notes.
+  // Defer derived UI updates to keep typing responsive.
+  const deferredNoteText = useDeferredValue(noteText)
+  const outgoingLinks = useMemo(() => parseWikilinks(deferredNoteText), [deferredNoteText])
   const isDirty = noteText !== savedText
+
+  const backlinksTimerRef = useRef<number | null>(null)
 
   const refreshFileList = useCallback(async (vault: string) => {
     const nextFiles = await listMarkdownFiles(vault)
@@ -66,6 +67,43 @@ function App() {
     [],
   )
 
+  const scheduleBacklinksScan = useCallback(
+    (vault: string, relPath: string) => {
+      if (backlinksTimerRef.current != null) {
+        window.clearTimeout(backlinksTimerRef.current)
+        backlinksTimerRef.current = null
+      }
+
+      // Backlinks are O(files) reads right now; debounce scans to avoid churn
+      // when switching notes quickly.
+      const delayMs = 250
+      const title = normalizeWikiTarget(fileStem(relPath))
+      backlinksTimerRef.current = window.setTimeout(() => {
+        backlinksTimerRef.current = null
+        void refreshBacklinks(vault, title)
+      }, delayMs)
+    },
+    [refreshBacklinks],
+  )
+
+  const autosave = useNoteAutosave({
+    enabled: !!vaultPath && !!activeRelPath,
+    vaultPath,
+    relPath: activeRelPath,
+    text: noteText,
+    isDirty,
+    debounceMs: 750,
+    save: writeNote,
+    onSaved: setSavedText,
+  })
+
+  const { flush: flushAutosave, status: saveStatus, title: saveTitle, ariaLabel: saveAriaLabel } =
+    autosave
+
+  const onEditorSaveRequest = useCallback(() => {
+    void flushAutosave()
+  }, [flushAutosave])
+
   const pickVault = useCallback(async () => {
     setError(null)
     const selected = await open({
@@ -82,6 +120,10 @@ function App() {
     setSavedText('')
     setBacklinks([])
     setBacklinksBusy(false)
+    if (backlinksTimerRef.current != null) {
+      window.clearTimeout(backlinksTimerRef.current)
+      backlinksTimerRef.current = null
+    }
     setBusy('Loading files…')
     try {
       await refreshFileList(selected)
@@ -95,6 +137,12 @@ function App() {
   const openNoteByRelPath = useCallback(
     async (relPath: string) => {
       if (!vaultPath) return
+
+      if (activeRelPath && isDirty) {
+        const ok = await flushAutosave()
+        if (!ok) return
+      }
+
       setError(null)
       setBusy('Opening note…')
       try {
@@ -110,34 +158,17 @@ function App() {
         setBusy(null)
       }
 
-      // Scan backlinks after the note is already open.
-      const title = fileStem(relPath)
-      void refreshBacklinks(vaultPath, title)
+      // Scan backlinks after the note is already open, but debounce to avoid
+      // expensive rescans when switching notes quickly.
+      scheduleBacklinksScan(vaultPath, relPath)
     },
-    [refreshBacklinks, vaultPath],
+    [activeRelPath, flushAutosave, isDirty, scheduleBacklinksScan, vaultPath],
   )
-
-  const saveActiveNote = useCallback(async () => {
-    if (!vaultPath || !activeRelPath) return
-    const currentText = noteTextRef.current
-    setError(null)
-    setBusy('Saving…')
-    try {
-      await writeNote(vaultPath, activeRelPath, currentText)
-      setSavedText(currentText)
-    } catch (e) {
-      setError(String(e))
-    } finally {
-      setBusy(null)
-    }
-
-    const title = fileStem(activeRelPath)
-    void refreshBacklinks(vaultPath, title)
-  }, [activeRelPath, refreshBacklinks, vaultPath])
 
   const tryOpenByTitle = useCallback(
     async (title: string) => {
-      const match = files.find((f) => fileStem(f.rel_path) === title)
+      const normalized = normalizeWikiTarget(title)
+      const match = files.find((f) => normalizeWikiTarget(fileStem(f.rel_path)) === normalized)
       if (match) {
         await openNoteByRelPath(match.rel_path)
       }
@@ -183,12 +214,14 @@ function App() {
             <div className="editorHeader">
               <div className="panelTitle">{noteTitle ?? 'Editor'}</div>
               <div className="spacer" />
-              <button
-                onClick={saveActiveNote}
-                disabled={!vaultPath || !activeRelPath || !isDirty || !!busy}
-              >
-                Save
-              </button>
+              {activeRelPath ? (
+                <span
+                  className={`saveDot saveDot--${saveStatus}`}
+                  title={saveTitle}
+                  role="img"
+                  aria-label={saveAriaLabel}
+                />
+              ) : null}
             </div>
 
             {error ? <div className="error">{error}</div> : null}
@@ -203,7 +236,7 @@ function App() {
                 <NoteEditor
                   value={noteText}
                   onChange={setNoteText}
-                  onSaveRequest={saveActiveNote}
+                  onSaveRequest={onEditorSaveRequest}
                 />
               </Suspense>
             )}
@@ -217,9 +250,9 @@ function App() {
               ) : (
                 <ul className="linkList">
                   {outgoingLinks.map((l) => (
-                    <li key={l}>
-                      <button className="linkItem" onClick={() => tryOpenByTitle(l)}>
-                        [[{l}]]
+                    <li key={l.normalized}>
+                      <button className="linkItem" onClick={() => tryOpenByTitle(l.normalized)}>
+                        [[{l.target}]]
                       </button>
                     </li>
                   ))}

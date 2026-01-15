@@ -9,6 +9,7 @@
     "licenses:generate": "node scripts/generate-third-party-licenses.mjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "test": "node scripts/test-wikilinks.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

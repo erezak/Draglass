@@ -10,13 +10,9 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes('node_modules')) return
 
-          // Split CodeMirror so the editor code doesn't bloat the main UI chunk.
-          if (id.includes('@codemirror/lang-markdown') || id.includes('@codemirror/language')) {
-            return 'codemirror-lang'
-          }
-          if (id.includes('@codemirror/')) {
-            return 'codemirror-core'
-          }
+          // Keep CodeMirror isolated so editor deps don't bloat the main UI chunk.
+          // Use a single chunk to avoid circular chunk warnings between packages.
+          if (id.includes('@codemirror/')) return 'codemirror'
 
           // Keep Tauri APIs isolated.
           if (id.includes('@tauri-apps/')) {

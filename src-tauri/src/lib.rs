@@ -154,9 +154,10 @@ fn extract_wikilinks(text: &str) -> Vec<String> {
         if let Some(end) = text[start..].find("]]") {
             let end = start + end;
             let raw = &text[start..end];
-            let target = raw.split('|').next().unwrap_or("").trim();
-            if !target.is_empty() {
-                links.push(target.to_string());
+            let target = raw.split('|').next().unwrap_or("");
+            let normalized = normalize_wikilink_target(target);
+            if !normalized.is_empty() {
+                links.push(normalized);
             }
             idx = end + 2;
         } else {
@@ -166,8 +167,23 @@ fn extract_wikilinks(text: &str) -> Vec<String> {
     links
 }
 
+fn normalize_wikilink_target(target: &str) -> String {
+    let trimmed = target.trim();
+    if trimmed.is_empty() {
+        return String::new();
+    }
+
+    let mut s = trimmed.to_string();
+    if s.to_ascii_lowercase().ends_with(".md") {
+        s.truncate(s.len().saturating_sub(3));
+    }
+
+    s.to_ascii_lowercase()
+}
+
 fn list_markdown_files_impl(vault_path: &str) -> Result<Vec<NoteEntry>, String> {
-    let vault = std::fs::canonicalize(vault_path).map_err(|e| format!("invalid vault path: {e}"))?;
+    let vault =
+        std::fs::canonicalize(vault_path).map_err(|e| format!("invalid vault path: {e}"))?;
     if !vault.is_dir() {
         return Err("vault path is not a directory".to_string());
     }
@@ -197,13 +213,18 @@ fn find_backlinks_impl(vault_path: &str, target_title: &str) -> Result<Vec<Strin
     let files = list_markdown_files_impl(vault_path)?;
     let mut backlinks: Vec<String> = Vec::new();
 
+    let target_title = normalize_wikilink_target(target_title);
+    if target_title.is_empty() {
+        return Ok(backlinks);
+    }
+
     for file in files {
         let text = match read_note_impl(vault_path, &file.rel_path) {
             Ok(t) => t,
             Err(_) => continue,
         };
         let links = extract_wikilinks(&text);
-        if links.iter().any(|l| l == target_title) {
+        if links.iter().any(|l| l == &target_title) {
             backlinks.push(file.rel_path);
         }
     }
