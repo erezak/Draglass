@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useDeferredValue, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 
 import { open } from '@tauri-apps/plugin-dialog'
@@ -9,10 +9,14 @@ import { fileStem } from './path'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { FileTree } from './components/FileTree'
 import { useNoteAutosave } from './components/useNoteAutosave'
+import type { NoteEditorHandle } from './components/NoteEditor'
+import { QuickSwitcher } from './components/QuickSwitcher'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 
 const WRAP_STORAGE_KEY = 'draglass.editor.wrap.v1'
+const RECENT_STORAGE_KEY = 'draglass.quickSwitcher.recent.v1'
+const MAX_RECENT = 20
 
 function loadWrapEnabledFromStorage(): boolean {
   try {
@@ -24,6 +28,35 @@ function loadWrapEnabledFromStorage(): boolean {
   } catch {
     return true
   }
+}
+
+function loadRecentFromStorage(): string[] {
+  try {
+    const raw = localStorage.getItem(RECENT_STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    const next: string[] = []
+    for (const v of parsed) {
+      if (typeof v === 'string') next.push(v)
+    }
+    return next.slice(0, MAX_RECENT)
+  } catch {
+    return []
+  }
+}
+
+function saveRecentToStorage(recent: string[]) {
+  try {
+    localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)))
+  } catch {
+    // ignore
+  }
+}
+
+function isModP(e: KeyboardEvent): boolean {
+  const mod = e.metaKey || e.ctrlKey
+  return mod && !e.altKey && !e.shiftKey && (e.key === 'p' || e.key === 'P')
 }
 
 function App() {
@@ -39,6 +72,12 @@ function App() {
   const [backlinksBusy, setBacklinksBusy] = useState(false)
 
   const [wrapEnabled, setWrapEnabled] = useState<boolean>(() => loadWrapEnabledFromStorage())
+
+  const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false)
+  const [recentRelPaths, setRecentRelPaths] = useState<string[]>(() => loadRecentFromStorage())
+
+  const editorRef = useRef<NoteEditorHandle | null>(null)
+  const openRequestIdRef = useRef(0)
 
   const backlinksRequestIdRef = useRef(0)
 
@@ -132,6 +171,26 @@ function App() {
     })
   }, [])
 
+  const closeQuickSwitcher = useCallback(() => {
+    setQuickSwitcherOpen(false)
+    if (activeRelPath) {
+      queueMicrotask(() => editorRef.current?.focus())
+    }
+  }, [activeRelPath])
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!isModP(e)) return
+      e.preventDefault()
+      e.stopPropagation()
+
+      setQuickSwitcherOpen(true)
+    }
+
+    window.addEventListener('keydown', onKeyDown, true)
+    return () => window.removeEventListener('keydown', onKeyDown, true)
+  }, [])
+
   const pickVault = useCallback(async () => {
     setError(null)
     const selected = await open({
@@ -163,32 +222,50 @@ function App() {
   }, [refreshFileList])
 
   const openNoteByRelPath = useCallback(
-    async (relPath: string) => {
-      if (!vaultPath) return
+    async (relPath: string): Promise<boolean> => {
+      if (!vaultPath) return false
+
+      const requestId = ++openRequestIdRef.current
 
       if (activeRelPath && isDirty) {
         const ok = await flushAutosave()
-        if (!ok) return
+        if (!ok) return false
       }
 
       setError(null)
       setBusy('Opening note…')
       try {
         const text = await readNote(vaultPath, relPath)
+
+        if (openRequestIdRef.current !== requestId) return false
+
         setActiveRelPath(relPath)
         setNoteText(text)
         setSavedText(text)
         setBacklinks([])
         setBacklinksBusy(false)
-      } catch (e) {
-        setError(String(e))
-      } finally {
-        setBusy(null)
-      }
 
-      // Scan backlinks after the note is already open, but debounce to avoid
-      // expensive rescans when switching notes quickly.
-      scheduleBacklinksScan(vaultPath, relPath)
+        // Scan backlinks after the note is already open, but debounce to avoid
+        // expensive rescans when switching notes quickly.
+        scheduleBacklinksScan(vaultPath, relPath)
+
+        setRecentRelPaths((prev) => {
+          const next = [relPath, ...prev.filter((p) => p !== relPath)].slice(0, MAX_RECENT)
+          saveRecentToStorage(next)
+          return next
+        })
+
+        return true
+      } catch (e) {
+        if (openRequestIdRef.current === requestId) {
+          setError(String(e))
+        }
+        return false
+      } finally {
+        if (openRequestIdRef.current === requestId) {
+          setBusy(null)
+        }
+      }
     },
     [activeRelPath, flushAutosave, isDirty, scheduleBacklinksScan, vaultPath],
   )
@@ -233,7 +310,9 @@ function App() {
               <FileTree
                 files={files}
                 activeRelPath={activeRelPath}
-                onOpenFile={openNoteByRelPath}
+                onOpenFile={(p) => {
+                  void openNoteByRelPath(p)
+                }}
               />
             )}
           </aside>
@@ -273,6 +352,7 @@ function App() {
             ) : (
               <Suspense fallback={<div className="panelEmpty">Loading editor…</div>}>
                 <NoteEditor
+                  ref={editorRef}
                   value={noteText}
                   onChange={setNoteText}
                   onSaveRequest={onEditorSaveRequest}
@@ -291,7 +371,12 @@ function App() {
                 <ul className="linkList">
                   {outgoingLinks.map((l) => (
                     <li key={l.normalized}>
-                      <button className="linkItem" onClick={() => tryOpenByTitle(l.normalized)}>
+                      <button
+                        className="linkItem"
+                        onClick={() => {
+                          void tryOpenByTitle(l.normalized)
+                        }}
+                      >
                         [[{l.target}]]
                       </button>
                     </li>
@@ -312,7 +397,12 @@ function App() {
                 <ul className="linkList">
                   {backlinks.map((p) => (
                     <li key={p}>
-                      <button className="linkItem" onClick={() => openNoteByRelPath(p)}>
+                      <button
+                        className="linkItem"
+                        onClick={() => {
+                          void openNoteByRelPath(p)
+                        }}
+                      >
                         {p}
                       </button>
                     </li>
@@ -323,6 +413,14 @@ function App() {
           </aside>
         </div>
       </div>
+
+      <QuickSwitcher
+        open={quickSwitcherOpen}
+        files={files}
+        recentRelPaths={recentRelPaths}
+        onRequestClose={closeQuickSwitcher}
+        onOpenRelPath={openNoteByRelPath}
+      />
     </ErrorBoundary>
   )
 }

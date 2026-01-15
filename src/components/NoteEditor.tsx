@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 
 import { Compartment, EditorState } from '@codemirror/state'
 import { EditorView, keymap, lineNumbers, type ViewUpdate } from '@codemirror/view'
@@ -12,7 +12,14 @@ type NoteEditorProps = {
   wrap?: boolean
 }
 
-export function NoteEditor({ value, onChange, onSaveRequest, wrap = true }: NoteEditorProps) {
+export type NoteEditorHandle = {
+  focus: () => void
+}
+
+export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function NoteEditor(
+  { value, onChange, onSaveRequest, wrap = true },
+  ref,
+) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const viewRef = useRef<EditorView | null>(null)
   const initialDocRef = useRef<string>(value)
@@ -23,6 +30,16 @@ export function NoteEditor({ value, onChange, onSaveRequest, wrap = true }: Note
   if (wrapCompartmentRef.current == null) {
     wrapCompartmentRef.current = new Compartment()
   }
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      focus: () => {
+        viewRef.current?.focus()
+      },
+    }),
+    [],
+  )
 
   const onChangeRef = useRef<NoteEditorProps['onChange']>(onChange)
   const onSaveRequestRef = useRef<NoteEditorProps['onSaveRequest']>(onSaveRequest)
@@ -176,6 +193,6 @@ export function NoteEditor({ value, onChange, onSaveRequest, wrap = true }: Note
   }
 
   return <div className="noteEditor" ref={hostRef} />
-}
+})
 
 export default NoteEditor

@@ -242,6 +242,105 @@
   color: rgba(0, 0, 0, 0.75);
 }
 
+.qsOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 10vh 16px 16px;
+  z-index: 1000;
+}
+
+.qsCard {
+  width: min(720px, 96vw);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(20, 22, 26, 0.92);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.qsInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 12px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.qsMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  opacity: 0.75;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.qsBusy {
+  opacity: 0.9;
+}
+
+.qsList {
+  max-height: min(48vh, 420px);
+  overflow: auto;
+}
+
+.qsEmpty {
+  padding: 12px;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.qsItem {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: transparent;
+  cursor: pointer;
+}
+
+.qsItem:hover {
+  background: rgba(100, 108, 255, 0.08);
+}
+
+.qsItem--selected {
+  background: rgba(100, 108, 255, 0.18);
+}
+
+.qsItemPrimary {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qsItemSecondary {
+  font-size: 12px;
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qsHint {
+  font-size: 12px;
+  opacity: 0.7;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
 @keyframes saveDotPulse {
   0% {
     transform: scale(1);
