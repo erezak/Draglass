@@ -11,11 +11,13 @@ import { FileTree } from './components/FileTree'
 import { useNoteAutosave } from './components/useNoteAutosave'
 import type { NoteEditorHandle } from './components/NoteEditor'
 import { QuickSwitcher } from './components/QuickSwitcher'
+import { isVisibleNoteForNavigation } from './ignore'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 
 const WRAP_STORAGE_KEY = 'draglass.editor.wrap.v1'
 const RECENT_STORAGE_KEY = 'draglass.quickSwitcher.recent.v1'
+const SHOW_HIDDEN_STORAGE_KEY = 'draglass.nav.showHidden.v1'
 const MAX_RECENT = 20
 
 function loadWrapEnabledFromStorage(): boolean {
@@ -54,6 +56,18 @@ function saveRecentToStorage(recent: string[]) {
   }
 }
 
+function loadShowHiddenFromStorage(): boolean {
+  try {
+    const raw = localStorage.getItem(SHOW_HIDDEN_STORAGE_KEY)
+    if (raw == null) return false
+    if (raw === 'true') return true
+    if (raw === 'false') return false
+    return false
+  } catch {
+    return false
+  }
+}
+
 function isModP(e: KeyboardEvent): boolean {
   const mod = e.metaKey || e.ctrlKey
   return mod && !e.altKey && !e.shiftKey && (e.key === 'p' || e.key === 'P')
@@ -72,6 +86,7 @@ function App() {
   const [backlinksBusy, setBacklinksBusy] = useState(false)
 
   const [wrapEnabled, setWrapEnabled] = useState<boolean>(() => loadWrapEnabledFromStorage())
+  const [showHidden, setShowHidden] = useState<boolean>(() => loadShowHiddenFromStorage())
 
   const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false)
   const [recentRelPaths, setRecentRelPaths] = useState<string[]>(() => loadRecentFromStorage())
@@ -85,6 +100,10 @@ function App() {
     if (!activeRelPath) return null
     return fileStem(activeRelPath)
   }, [activeRelPath])
+
+  const navFiles = useMemo(() => {
+    return files.filter((f) => isVisibleNoteForNavigation(f.rel_path, showHidden))
+  }, [files, showHidden])
 
   // Parsing wikilinks can be relatively expensive on large notes.
   // Defer derived UI updates to keep typing responsive.
@@ -164,6 +183,18 @@ function App() {
       const next = !prev
       try {
         localStorage.setItem(WRAP_STORAGE_KEY, String(next))
+      } catch {
+        // ignore
+      }
+      return next
+    })
+  }, [])
+
+  const toggleShowHidden = useCallback(() => {
+    setShowHidden((prev) => {
+      const next = !prev
+      try {
+        localStorage.setItem(SHOW_HIDDEN_STORAGE_KEY, String(next))
       } catch {
         // ignore
       }
@@ -301,14 +332,28 @@ function App() {
 
         <div className="content">
           <aside className="sidebar">
-            <div className="panelTitle">Files</div>
+            <div className="paneHeader">
+              <div className="panelTitle">Files</div>
+              <div className="spacer" />
+              {vaultPath ? (
+                <button
+                  type="button"
+                  className={showHidden ? 'showHiddenToggle showHiddenToggle--on' : 'showHiddenToggle'}
+                  aria-pressed={showHidden}
+                  onClick={toggleShowHidden}
+                  title={showHidden ? 'Showing hidden/ignored paths' : 'Hiding hidden/ignored paths'}
+                >
+                  Show hidden
+                </button>
+              ) : null}
+            </div>
             {!vaultPath ? (
               <div className="panelEmpty">Pick a vault folder to begin.</div>
             ) : files.length === 0 ? (
               <div className="panelEmpty">No Markdown files found.</div>
             ) : (
               <FileTree
-                files={files}
+                files={navFiles}
                 activeRelPath={activeRelPath}
                 onOpenFile={(p) => {
                   void openNoteByRelPath(p)
@@ -416,7 +461,7 @@ function App() {
 
       <QuickSwitcher
         open={quickSwitcherOpen}
-        files={files}
+        files={navFiles}
         recentRelPaths={recentRelPaths}
         onRequestClose={closeQuickSwitcher}
         onOpenRelPath={openNoteByRelPath}

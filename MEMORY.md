@@ -2,6 +2,10 @@
   - Rationale: Keeps outgoing links and backlinks consistent while staying local-first and file-based.
   - Impact: Compare links by normalized target; strip outer spaces inside `[[ ... ]]`, lowercase by default, and treat `[[Note]]` and `[[note.md]]` as the same target.
 
+- 2026-01-15 — Decision: Navigation hides dotpaths and node_modules by default, with a toggle.
+  - Rationale: Keeps vault navigation focused on notes and avoids junk folders/files.
+  - Impact: File tree and Quick Switcher filter out any path segment starting with `.` and `node_modules` unless “Show hidden” is enabled; current open note stays open regardless.
+
 - 2026-01-13 — Decision: Keep all vault file I/O behind Tauri commands.
   - Rationale: Enforces a vault-root boundary and avoids broad filesystem permissions in the frontend.
   - Impact: Frontend must only pass `vault_path` + `rel_path`; Rust rejects absolute paths and `..` traversal.

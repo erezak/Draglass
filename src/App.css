@@ -72,6 +72,29 @@
   margin: 0 0 8px;
 }
 
+.paneHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.showHiddenToggle {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.showHiddenToggle:hover {
+  border-color: rgba(100, 108, 255, 0.7);
+}
+
+.showHiddenToggle--on {
+  border-color: rgba(100, 108, 255, 0.9);
+  background: rgba(100, 108, 255, 0.15);
+}
+
 .panelEmpty {
   font-size: 13px;
   opacity: 0.7;

@@ -4,8 +4,8 @@ import path from 'node:path'
 
 import ts from 'typescript'
 
-function loadWikilinksModule() {
-  const sourcePath = path.resolve('src/wikilinks.ts')
+function loadTsModule(modulePath) {
+  const sourcePath = path.resolve(modulePath)
   const source = fs.readFileSync(sourcePath, 'utf8')
 
   const { outputText } = ts.transpileModule(source, {
@@ -13,14 +13,14 @@ function loadWikilinksModule() {
       target: ts.ScriptTarget.ES2022,
       module: ts.ModuleKind.ESNext,
     },
-    fileName: 'wikilinks.ts',
+    fileName: path.basename(modulePath),
   })
 
   const dataUrl = `data:text/javascript;base64,${Buffer.from(outputText, 'utf8').toString('base64')}`
   return import(dataUrl)
 }
 
-const mod = await loadWikilinksModule()
+const mod = await loadTsModule('src/wikilinks.ts')
 
 assert.equal(mod.normalizeWikiTarget('  Note Name  '), 'note name')
 assert.equal(mod.normalizeWikiTarget(' Note | Alias '), 'note')
@@ -33,3 +33,22 @@ assert.equal(links[0].normalized, 'foo')
 assert.equal(links[0].target, 'Foo')
 
 console.log('wikilinks: ok')
+
+const ignore = await loadTsModule('src/ignore.ts')
+
+assert.equal(ignore.isMarkdownNotePath('a.md'), true)
+assert.equal(ignore.isMarkdownNotePath('a.MD'), true)
+assert.equal(ignore.isMarkdownNotePath('a.markdown'), true)
+assert.equal(ignore.isMarkdownNotePath('a.txt'), false)
+
+assert.equal(ignore.isIgnoredPath('.obsidian/config.md'), true)
+assert.equal(ignore.isIgnoredPath('notes/.hidden/n.md'), true)
+assert.equal(ignore.isIgnoredPath('node_modules/pkg/readme.md'), true)
+assert.equal(ignore.isIgnoredPath('.DS_Store'), true)
+assert.equal(ignore.isIgnoredPath('Notes/Project.md'), false)
+
+assert.equal(ignore.isVisibleNoteForNavigation('Notes/Project.md', false), true)
+assert.equal(ignore.isVisibleNoteForNavigation('.obsidian/config.md', false), false)
+assert.equal(ignore.isVisibleNoteForNavigation('.obsidian/config.md', true), true)
+
+console.log('ignore: ok')
