@@ -1,73 +1,104 @@
-# React + TypeScript + Vite
+# Draglass
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A local-first, cross-platform knowledge base application built with Tauri, React, and TypeScript.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Draglass is a privacy-first, offline-first knowledge management app that stores your notes as plain Markdown files in a local vault folder. It features wikilinks, backlinks, and a clean, focused interface for organizing your thoughts.
 
-## React Compiler
+### Core Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Markdown Notes**: All notes stored as plain `.md` files in your vault folder
+- **Wikilinks & Backlinks**: Link between notes using `[[Note Name]]` syntax with automatic backlink detection
+- **Local-First**: Your data stays on your device - no cloud sync, no telemetry, no network calls
+- **Cross-Platform**: Desktop app built with Tauri (Rust + React)
+- **Privacy-First**: Open source, clean-room implementation with no analytics or tracking
+- **CodeMirror 6**: Powerful, extensible editor with markdown support
 
-## Expanding the ESLint configuration
+## Architecture
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Frontend**: React + TypeScript with Vite
+- **Backend**: Tauri (Rust) for file system operations and vault management
+- **Editor**: CodeMirror 6 for the note editing experience
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Getting Started
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Prerequisites
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- [Node.js](https://nodejs.org/) (recommended: latest LTS)
+- [pnpm](https://pnpm.io/) package manager
+- [Rust](https://rustup.rs/) (for Tauri development)
+
+### Installation
+
+```bash
+# Install dependencies
+pnpm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**Browser Development (Frontend only)**
+```bash
+pnpm dev
 ```
+
+**Desktop Development (Full Tauri app)**
+
+In two separate terminals:
+```bash
+# Terminal 1: Start Vite dev server
+pnpm dev
+
+# Terminal 2: Start Tauri dev mode
+pnpm tauri dev
+```
+
+### Building
+
+```bash
+# Build frontend for production
+pnpm build
+
+# Build desktop application
+pnpm tauri build
+```
+
+## Development Guidelines
+
+For AI coding agents and contributors, see:
+- **[AGENTS.md](./AGENTS.md)** - Development guidelines and coding conventions
+- **[MEMORY.md](./MEMORY.md)** - Key architectural decisions and rationale
+
+### Quick Commands
+
+```bash
+pnpm lint              # Run ESLint
+pnpm test              # Run tests
+pnpm licenses:generate # Generate third-party licenses
+```
+
+## Storage Model
+
+- Vault is a folder containing Markdown files
+- Each note's identity is its relative path from the vault root
+- Wikilink targets are normalized (case-insensitive, filename-stem matching)
+- Hidden files (dotfiles) and `node_modules` are filtered from navigation by default
+
+## Tech Stack
+
+- **Frontend**: React 19, TypeScript, CodeMirror 6, Vite
+- **Backend**: Tauri 2.x, Rust
+- **Tooling**: ESLint, pnpm workspaces
+
+## License
+
+See [LICENSE](./LICENSE) and [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md)
+
+## Philosophy
+
+Draglass is built with these principles:
+- **Clean-room**: No copying from proprietary software
+- **Minimal dependencies**: Only add what's necessary
+- **Small changes**: Prefer reviewable, incremental improvements
+- **Local-first**: User data stays local and private by default
