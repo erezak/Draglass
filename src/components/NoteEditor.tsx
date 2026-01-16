@@ -10,6 +10,7 @@ type NoteEditorProps = {
   onChange: (next: string) => void
   onSaveRequest?: () => void
   wrap?: boolean
+  theme?: 'dark' | 'light'
 }
 
 export type NoteEditorHandle = {
@@ -17,7 +18,7 @@ export type NoteEditorHandle = {
 }
 
 export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function NoteEditor(
-  { value, onChange, onSaveRequest, wrap = true },
+  { value, onChange, onSaveRequest, wrap = true, theme = 'dark' },
   ref,
 ) {
   const hostRef = useRef<HTMLDivElement | null>(null)
@@ -71,18 +72,29 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
   }, [wrap])
 
   const extensions = useMemo(() => {
-    const theme = EditorView.theme(
+    const isDark = theme === 'dark'
+    const editorTheme = EditorView.theme(
       {
         '&': {
           height: '100%',
           fontSize: '14px',
+          backgroundColor: isDark ? '#14161a' : '#f8f9fb',
+          color: isDark ? 'rgba(255, 255, 255, 0.92)' : '#1f2328',
         },
         '.cm-scroller': {
           fontFamily:
             'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
         },
+        '.cm-content': {
+          caretColor: isDark ? '#9da8ff' : '#3b4a9f',
+        },
+        '.cm-gutters': {
+          backgroundColor: isDark ? 'rgba(0, 0, 0, 0.12)' : 'rgba(0, 0, 0, 0.03)',
+          color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.55)',
+          border: 'none',
+        },
       },
-      { dark: true },
+      { dark: isDark },
     )
 
     const wrapCompartment = wrapCompartmentRef.current
@@ -94,7 +106,7 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
       lineNumbers(),
       history(),
       markdown(),
-      theme,
+      editorTheme,
       wrapCompartment.of(initialWrapRef.current ? EditorView.lineWrapping : []),
       EditorView.updateListener.of((update: ViewUpdate) => {
         if (!update.docChanged) return
@@ -114,7 +126,7 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
         ...historyKeymap,
       ]),
     ]
-  }, [])
+  }, [theme])
 
   useEffect(() => {
     if (!hostRef.current) return

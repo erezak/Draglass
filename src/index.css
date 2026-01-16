@@ -4,13 +4,45 @@
   font-weight: 400;
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.92);
   background-color: #14161a;
+
+  --app-bg: #14161a;
+  --panel-bg: rgba(0, 0, 0, 0.22);
+  --panel-solid: #0f1115;
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --panel-border-strong: rgba(255, 255, 255, 0.18);
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --button-bg: rgba(255, 255, 255, 0.08);
+  --button-border: rgba(255, 255, 255, 0.2);
+  --button-hover-border: rgba(100, 108, 255, 0.7);
+  --highlight: rgba(100, 108, 255, 0.15);
+  --overlay-bg: rgba(0, 0, 0, 0.6);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  color: #1f2328;
+  background-color: #f3f4f6;
+
+  --app-bg: #f3f4f6;
+  --panel-bg: rgba(255, 255, 255, 0.8);
+  --panel-solid: #ffffff;
+  --panel-border: rgba(15, 23, 42, 0.12);
+  --panel-border-strong: rgba(15, 23, 42, 0.18);
+  --text-primary: #1f2328;
+  --text-muted: rgba(15, 23, 42, 0.65);
+  --button-bg: rgba(15, 23, 42, 0.06);
+  --button-border: rgba(15, 23, 42, 0.2);
+  --button-hover-border: rgba(59, 74, 159, 0.6);
+  --highlight: rgba(59, 74, 159, 0.18);
+  --overlay-bg: rgba(15, 23, 42, 0.25);
 }
 
 a {
@@ -26,6 +58,8 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--app-bg);
+  color: var(--text-primary);
 }
 
 #root {

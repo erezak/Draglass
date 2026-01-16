@@ -6,6 +6,7 @@ import { fileStem } from '../path'
 type FileTreeProps = {
   files: NoteEntry[]
   activeRelPath: string | null
+  rememberExpanded: boolean
   onOpenFile: (relPath: string) => void
 }
 
@@ -116,13 +117,30 @@ function buildTree(files: NoteEntry[]): FolderNode {
   return toNode(root)
 }
 
-export function FileTree({ files, activeRelPath, onOpenFile }: FileTreeProps) {
+export function FileTree({ files, activeRelPath, rememberExpanded, onOpenFile }: FileTreeProps) {
   const tree = useMemo(() => buildTree(files), [files])
-  const [expanded, setExpanded] = useState<Set<string>>(() => loadExpandedFromStorage())
+  const [expanded, setExpanded] = useState<Set<string>>(() =>
+    rememberExpanded ? loadExpandedFromStorage() : new Set(['']),
+  )
 
   useEffect(() => {
+    if (!rememberExpanded) return
     saveExpandedToStorage(expanded)
-  }, [expanded])
+  }, [expanded, rememberExpanded])
+
+  useEffect(() => {
+    if (rememberExpanded) {
+      setExpanded(loadExpandedFromStorage())
+      return
+    }
+
+    setExpanded(new Set(['']))
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {
+      // ignore
+    }
+  }, [rememberExpanded])
 
   const toggleFolder = (folderPath: string) => {
     setExpanded((prev) => {

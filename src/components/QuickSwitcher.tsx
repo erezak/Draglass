@@ -7,6 +7,9 @@ type QuickSwitcherProps = {
   open: boolean
   files: NoteEntry[]
   recentRelPaths: string[]
+  debounceMs: number
+  maxResults: number
+  maxRecents: number
   onRequestClose: () => void
   onOpenRelPath: (relPath: string) => Promise<boolean>
 }
@@ -56,7 +59,16 @@ function scoreCandidate(queryLower: string, c: Candidate): number | null {
   return null
 }
 
-export function QuickSwitcher({ open, files, recentRelPaths, onRequestClose, onOpenRelPath }: QuickSwitcherProps) {
+export function QuickSwitcher({
+  open,
+  files,
+  recentRelPaths,
+  debounceMs,
+  maxResults,
+  maxRecents,
+  onRequestClose,
+  onOpenRelPath,
+}: QuickSwitcherProps) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const listRef = useRef<HTMLDivElement | null>(null)
 
@@ -86,7 +98,7 @@ export function QuickSwitcher({ open, files, recentRelPaths, onRequestClose, onO
 
     if (!q) {
       const recent = recentRelPaths.filter((p) => fileSet.has(p))
-      const top = recent.slice(0, 20)
+      const top = recent.slice(0, maxRecents)
       return top
         .map((relPath) => {
           const c = candidates.find((x) => x.relPath === relPath)
@@ -108,8 +120,8 @@ export function QuickSwitcher({ open, files, recentRelPaths, onRequestClose, onO
       return a.c.nameLower.localeCompare(b.c.nameLower)
     })
 
-    return scored.slice(0, 50).map((x) => x.c)
-  }, [candidates, debouncedQuery, fileSet, open, recentRelPaths])
+    return scored.slice(0, maxResults).map((x) => x.c)
+  }, [candidates, debouncedQuery, fileSet, maxRecents, maxResults, open, recentRelPaths])
 
   const modeLabel = debouncedQuery.trim() ? 'Search results' : 'Recent'
 
@@ -127,9 +139,9 @@ export function QuickSwitcher({ open, files, recentRelPaths, onRequestClose, onO
   }, [open])
 
   useEffect(() => {
-    const t = window.setTimeout(() => setDebouncedQuery(query), 60)
+    const t = window.setTimeout(() => setDebouncedQuery(query), debounceMs)
     return () => window.clearTimeout(t)
-  }, [query])
+  }, [debounceMs, query])
 
   useEffect(() => {
     // Keep selection in range when results change.

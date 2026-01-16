@@ -11,28 +11,15 @@ import { FileTree } from './components/FileTree'
 import { useNoteAutosave } from './components/useNoteAutosave'
 import type { NoteEditorHandle } from './components/NoteEditor'
 import { QuickSwitcher } from './components/QuickSwitcher'
+import { SettingsScreen } from './components/SettingsScreen'
 import { isVisibleNoteForNavigation } from './ignore'
+import { useSettings } from './settings'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 
-const WRAP_STORAGE_KEY = 'draglass.editor.wrap.v1'
 const RECENT_STORAGE_KEY = 'draglass.quickSwitcher.recent.v1'
-const SHOW_HIDDEN_STORAGE_KEY = 'draglass.nav.showHidden.v1'
-const MAX_RECENT = 20
 
-function loadWrapEnabledFromStorage(): boolean {
-  try {
-    const raw = localStorage.getItem(WRAP_STORAGE_KEY)
-    if (raw == null) return true
-    if (raw === 'true') return true
-    if (raw === 'false') return false
-    return true
-  } catch {
-    return true
-  }
-}
-
-function loadRecentFromStorage(): string[] {
+function loadRecentFromStorage(maxRecent: number): string[] {
   try {
     const raw = localStorage.getItem(RECENT_STORAGE_KEY)
     if (!raw) return []
@@ -42,29 +29,17 @@ function loadRecentFromStorage(): string[] {
     for (const v of parsed) {
       if (typeof v === 'string') next.push(v)
     }
-    return next.slice(0, MAX_RECENT)
+    return next.slice(0, maxRecent)
   } catch {
     return []
   }
 }
 
-function saveRecentToStorage(recent: string[]) {
+function saveRecentToStorage(recent: string[], maxRecent: number) {
   try {
-    localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)))
+    localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recent.slice(0, maxRecent)))
   } catch {
     // ignore
-  }
-}
-
-function loadShowHiddenFromStorage(): boolean {
-  try {
-    const raw = localStorage.getItem(SHOW_HIDDEN_STORAGE_KEY)
-    if (raw == null) return false
-    if (raw === 'true') return true
-    if (raw === 'false') return false
-    return false
-  } catch {
-    return false
   }
 }
 
@@ -74,6 +49,7 @@ function isModP(e: KeyboardEvent): boolean {
 }
 
 function App() {
+  const { settings, updateSettings, resetSettings } = useSettings()
   const [vaultPath, setVaultPath] = useState<string | null>(null)
   const [files, setFiles] = useState<NoteEntry[]>([])
   const [activeRelPath, setActiveRelPath] = useState<string | null>(null)
@@ -85,11 +61,11 @@ function App() {
   const [backlinks, setBacklinks] = useState<string[]>([])
   const [backlinksBusy, setBacklinksBusy] = useState(false)
 
-  const [wrapEnabled, setWrapEnabled] = useState<boolean>(() => loadWrapEnabledFromStorage())
-  const [showHidden, setShowHidden] = useState<boolean>(() => loadShowHiddenFromStorage())
-
   const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false)
-  const [recentRelPaths, setRecentRelPaths] = useState<string[]>(() => loadRecentFromStorage())
+  const [recentRelPaths, setRecentRelPaths] = useState<string[]>(() =>
+    loadRecentFromStorage(settings.quickSwitcherMaxRecents),
+  )
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   const editorRef = useRef<NoteEditorHandle | null>(null)
   const openRequestIdRef = useRef(0)
@@ -101,9 +77,16 @@ function App() {
     return fileStem(activeRelPath)
   }, [activeRelPath])
 
+  const vaultName = useMemo(() => {
+    if (!vaultPath) return null
+    const normalized = vaultPath.replace(/\\/g, '/').replace(/\/+$/, '')
+    const parts = normalized.split('/').filter(Boolean)
+    return parts[parts.length - 1] ?? normalized
+  }, [vaultPath])
+
   const navFiles = useMemo(() => {
-    return files.filter((f) => isVisibleNoteForNavigation(f.rel_path, showHidden))
-  }, [files, showHidden])
+    return files.filter((f) => isVisibleNoteForNavigation(f.rel_path, settings.filesShowHidden))
+  }, [files, settings.filesShowHidden])
 
   // Parsing wikilinks can be relatively expensive on large notes.
   // Defer derived UI updates to keep typing responsive.
@@ -150,23 +133,24 @@ function App() {
 
       // Backlinks are O(files) reads right now; debounce scans to avoid churn
       // when switching notes quickly.
-      const delayMs = 250
+      if (!settings.backlinksEnabled) return
+      const delayMs = settings.backlinksDebounceMs
       const title = normalizeWikiTarget(fileStem(relPath))
       backlinksTimerRef.current = window.setTimeout(() => {
         backlinksTimerRef.current = null
         void refreshBacklinks(vault, title)
       }, delayMs)
     },
-    [refreshBacklinks],
+    [refreshBacklinks, settings.backlinksDebounceMs, settings.backlinksEnabled],
   )
 
   const autosave = useNoteAutosave({
-    enabled: !!vaultPath && !!activeRelPath,
+    enabled: settings.autosaveEnabled && !!vaultPath && !!activeRelPath,
     vaultPath,
     relPath: activeRelPath,
     text: noteText,
     isDirty,
-    debounceMs: 750,
+    debounceMs: settings.autosaveDebounceMs,
     save: writeNote,
     onSaved: setSavedText,
   })
@@ -178,29 +162,27 @@ function App() {
     void flushAutosave()
   }, [flushAutosave])
 
-  const toggleWrap = useCallback(() => {
-    setWrapEnabled((prev) => {
-      const next = !prev
-      try {
-        localStorage.setItem(WRAP_STORAGE_KEY, String(next))
-      } catch {
-        // ignore
-      }
+  useEffect(() => {
+    setRecentRelPaths((prev) => {
+      const next = prev.slice(0, settings.quickSwitcherMaxRecents)
+      saveRecentToStorage(next, settings.quickSwitcherMaxRecents)
       return next
     })
-  }, [])
+  }, [settings.quickSwitcherMaxRecents])
 
-  const toggleShowHidden = useCallback(() => {
-    setShowHidden((prev) => {
-      const next = !prev
-      try {
-        localStorage.setItem(SHOW_HIDDEN_STORAGE_KEY, String(next))
-      } catch {
-        // ignore
-      }
-      return next
-    })
-  }, [])
+  useEffect(() => {
+    if (settings.backlinksEnabled) return
+    if (backlinksTimerRef.current != null) {
+      window.clearTimeout(backlinksTimerRef.current)
+      backlinksTimerRef.current = null
+    }
+    setBacklinksBusy(false)
+  }, [settings.backlinksEnabled])
+
+  useEffect(() => {
+    const root = document.documentElement
+    root.dataset.theme = settings.editorTheme
+  }, [settings.editorTheme])
 
   const closeQuickSwitcher = useCallback(() => {
     setQuickSwitcherOpen(false)
@@ -281,8 +263,11 @@ function App() {
         scheduleBacklinksScan(vaultPath, relPath)
 
         setRecentRelPaths((prev) => {
-          const next = [relPath, ...prev.filter((p) => p !== relPath)].slice(0, MAX_RECENT)
-          saveRecentToStorage(next)
+          const next = [relPath, ...prev.filter((p) => p !== relPath)].slice(
+            0,
+            settings.quickSwitcherMaxRecents,
+          )
+          saveRecentToStorage(next, settings.quickSwitcherMaxRecents)
           return next
         })
 
@@ -298,7 +283,7 @@ function App() {
         }
       }
     },
-    [activeRelPath, flushAutosave, isDirty, scheduleBacklinksScan, vaultPath],
+    [activeRelPath, flushAutosave, isDirty, scheduleBacklinksScan, settings.quickSwitcherMaxRecents, vaultPath],
   )
 
   const tryOpenByTitle = useCallback(
@@ -317,49 +302,60 @@ function App() {
       <div className="appShell">
         <header className="topbar">
           <div className="brand">Draglass</div>
-          <button onClick={pickVault}>Select vault…</button>
+          <button className="vaultButton" onClick={pickVault}>Select vault…</button>
           <div className="spacer" />
-          <div className="status">
-            {vaultPath ? (
-              <span className="vaultPath" title={vaultPath}>
-                {vaultPath}
-              </span>
-            ) : (
-              <span className="muted">No vault selected</span>
-            )}
-          </div>
         </header>
 
         <div className="content">
           <aside className="sidebar">
-            <div className="paneHeader">
-              <div className="panelTitle">Files</div>
-              <div className="spacer" />
-              {vaultPath ? (
-                <button
-                  type="button"
-                  className={showHidden ? 'showHiddenToggle showHiddenToggle--on' : 'showHiddenToggle'}
-                  aria-pressed={showHidden}
-                  onClick={toggleShowHidden}
-                  title={showHidden ? 'Showing hidden/ignored paths' : 'Hiding hidden/ignored paths'}
-                >
-                  Show hidden
-                </button>
-              ) : null}
+            <div className="sidebarBody">
+              <div className="paneHeader">
+                <div className="panelTitle">Files</div>
+                <div className="spacer" />
+              </div>
+              {!vaultPath ? (
+                <div className="panelEmpty">Pick a vault folder to begin.</div>
+              ) : files.length === 0 ? (
+                <div className="panelEmpty">No Markdown files found.</div>
+              ) : (
+                <FileTree
+                  files={navFiles}
+                  activeRelPath={activeRelPath}
+                  rememberExpanded={settings.filesRememberExpandedFolders}
+                  onOpenFile={(p) => {
+                    void openNoteByRelPath(p)
+                  }}
+                />
+              )}
             </div>
-            {!vaultPath ? (
-              <div className="panelEmpty">Pick a vault folder to begin.</div>
-            ) : files.length === 0 ? (
-              <div className="panelEmpty">No Markdown files found.</div>
-            ) : (
-              <FileTree
-                files={navFiles}
-                activeRelPath={activeRelPath}
-                onOpenFile={(p) => {
-                  void openNoteByRelPath(p)
-                }}
-              />
-            )}
+            <div className="sidebarFooter">
+              <div className="sidebarVault" title={vaultPath ?? 'No vault selected'}>
+                {vaultName ? vaultName : <span className="muted">No vault selected</span>}
+              </div>
+              <button
+                type="button"
+                className="settingsButton settingsButton--icon"
+                onClick={() => setSettingsOpen(true)}
+                aria-label="Open settings"
+                title="Settings"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="settingsIcon"
+                  focusable="false"
+                >
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm8.94 3.06-1.74-.3a7.12 7.12 0 0 0-.64-1.55l1.02-1.43a.9.9 0 0 0-.1-1.15l-1.41-1.41a.9.9 0 0 0-1.15-.1l-1.43 1.02c-.5-.28-1.02-.5-1.55-.64l-.3-1.74a.9.9 0 0 0-.9-.75h-2a.9.9 0 0 0-.9.75l-.3 1.74c-.53.14-1.05.36-1.55.64L7.44 5.62a.9.9 0 0 0-1.15.1L4.88 7.13a.9.9 0 0 0-.1 1.15l1.02 1.43c-.28.5-.5 1.02-.64 1.55l-1.74.3a.9.9 0 0 0-.75.9v2c0 .44.31.82.75.9l1.74.3c.14.53.36 1.05.64 1.55l-1.02 1.43a.9.9 0 0 0 .1 1.15l1.41 1.41c.32.32.82.36 1.15.1l1.43-1.02c.5.28 1.02.5 1.55.64l.3 1.74c.08.44.46.75.9.75h2c.44 0 .82-.31.9-.75l.3-1.74c.53-.14 1.05-.36 1.55-.64l1.43 1.02c.34.26.83.22 1.15-.1l1.41-1.41c.32-.32.36-.82.1-1.15l-1.02-1.43c.28-.5.5-1.02.64-1.55l1.74-.3c.44-.08.75-.46.75-.9v-2a.9.9 0 0 0-.75-.9Z"
+                  />
+                </svg>
+              </button>
+            </div>
           </aside>
 
           <main className="editorPane">
@@ -368,15 +364,6 @@ function App() {
               <div className="spacer" />
               {activeRelPath ? (
                 <>
-                  <button
-                    type="button"
-                    className={wrapEnabled ? 'wrapToggle wrapToggle--on' : 'wrapToggle'}
-                    aria-pressed={wrapEnabled}
-                    onClick={toggleWrap}
-                    title={wrapEnabled ? 'Soft wrap: On' : 'Soft wrap: Off'}
-                  >
-                    Wrap
-                  </button>
                   <span
                     className={`saveDot saveDot--${saveStatus}`}
                     title={saveTitle}
@@ -401,7 +388,8 @@ function App() {
                   value={noteText}
                   onChange={setNoteText}
                   onSaveRequest={onEditorSaveRequest}
-                  wrap={wrapEnabled}
+                  wrap={settings.editorWrap}
+                  theme={settings.editorTheme}
                 />
               </Suspense>
             )}
@@ -432,7 +420,9 @@ function App() {
 
             <div className="panel">
               <div className="panelTitle">Backlinks</div>
-              {!noteTitle ? (
+              {!settings.backlinksEnabled ? (
+                <div className="panelEmpty">Backlinks are disabled in settings.</div>
+              ) : !noteTitle ? (
                 <div className="panelEmpty">Open a note to see backlinks.</div>
               ) : backlinksBusy ? (
                 <div className="panelEmpty">Scanning backlinks…</div>
@@ -463,8 +453,19 @@ function App() {
         open={quickSwitcherOpen}
         files={navFiles}
         recentRelPaths={recentRelPaths}
+        debounceMs={settings.quickSwitcherDebounceMs}
+        maxResults={settings.quickSwitcherMaxResults}
+        maxRecents={settings.quickSwitcherMaxRecents}
         onRequestClose={closeQuickSwitcher}
         onOpenRelPath={openNoteByRelPath}
+      />
+
+      <SettingsScreen
+        open={settingsOpen}
+        settings={settings}
+        onChange={updateSettings}
+        onReset={resetSettings}
+        onClose={() => setSettingsOpen(false)}
       />
     </ErrorBoundary>
   )
