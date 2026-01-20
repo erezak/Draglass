@@ -13,13 +13,14 @@ Draglass is a privacy-first, offline-first knowledge management app that stores 
 - **Local-First**: Your data stays on your device - no cloud sync, no telemetry, no network calls
 - **Cross-Platform**: Desktop app built with Tauri (Rust + React)
 - **Privacy-First**: Open source, clean-room implementation with no analytics or tracking
-- **CodeMirror 6**: Powerful, extensible editor with markdown support
+- **CodeMirror 6**: Powerful, extensible editor with markdown support and Live Preview
+- **Live Preview**: Inline rendering with a Source toggle (stored locally)
 
 ## Architecture
 
 - **Frontend**: React + TypeScript with Vite
 - **Backend**: Tauri (Rust) for file system operations and vault management
-- **Editor**: CodeMirror 6 for the note editing experience
+- **Editor**: CodeMirror 6 with Live Preview (default) and Source modes
 
 ## Getting Started
 

@@ -34,6 +34,20 @@ assert.equal(links[0].target, 'Foo')
 
 console.log('wikilinks: ok')
 
+const livePreview = await loadTsModule('src/editor/livePreviewHelpers.ts')
+
+assert.equal(livePreview.shouldHideWikilinkBrackets(10, 20, 0, 5), true)
+assert.equal(livePreview.shouldHideWikilinkBrackets(10, 20, 10, 10), false)
+assert.equal(livePreview.shouldHideWikilinkBrackets(10, 20, 15, 16), false)
+assert.equal(livePreview.shouldHideWikilinkBrackets(10, 20, 21, 25), true)
+
+assert.equal(livePreview.shouldHideMarkup(10, 20, 0, 5), true)
+assert.equal(livePreview.shouldHideMarkup(10, 20, 12, 18), false)
+assert.equal(livePreview.shouldHideMarkup(10, 20, 20, 22), false)
+assert.equal(livePreview.shouldHideMarkup(10, 20, 25, 30), true)
+
+console.log('livePreview helpers: ok')
+
 const ignore = await loadTsModule('src/ignore.ts')
 
 assert.equal(ignore.isMarkdownNotePath('a.md'), true)

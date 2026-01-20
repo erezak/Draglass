@@ -4,12 +4,14 @@ import { Compartment, EditorState } from '@codemirror/state'
 import { EditorView, keymap, lineNumbers, type ViewUpdate } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown } from '@codemirror/lang-markdown'
+import { livePreviewExtension } from '../editor/livePreview'
 
 type NoteEditorProps = {
   value: string
   onChange: (next: string) => void
   onSaveRequest?: () => void
   wrap?: boolean
+  livePreview?: boolean
   theme?: 'dark' | 'light'
 }
 
@@ -18,18 +20,24 @@ export type NoteEditorHandle = {
 }
 
 export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function NoteEditor(
-  { value, onChange, onSaveRequest, wrap = true, theme = 'dark' },
+  { value, onChange, onSaveRequest, wrap = true, livePreview = true, theme = 'dark' },
   ref,
 ) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const viewRef = useRef<EditorView | null>(null)
   const initialDocRef = useRef<string>(value)
   const initialWrapRef = useRef<boolean>(wrap)
+  const initialLivePreviewRef = useRef<boolean>(livePreview)
   const [initError, setInitError] = useState<Error | null>(null)
 
   const wrapCompartmentRef = useRef<Compartment | null>(null)
   if (wrapCompartmentRef.current == null) {
     wrapCompartmentRef.current = new Compartment()
+  }
+
+  const livePreviewCompartmentRef = useRef<Compartment | null>(null)
+  if (livePreviewCompartmentRef.current == null) {
+    livePreviewCompartmentRef.current = new Compartment()
   }
 
   useImperativeHandle(
@@ -71,6 +79,12 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
     }
   }, [wrap])
 
+  useEffect(() => {
+    if (viewRef.current == null) {
+      initialLivePreviewRef.current = livePreview
+    }
+  }, [livePreview])
+
   const extensions = useMemo(() => {
     const isDark = theme === 'dark'
     const editorTheme = EditorView.theme(
@@ -102,12 +116,18 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
       throw new Error('Missing wrap compartment')
     }
 
+    const livePreviewCompartment = livePreviewCompartmentRef.current
+    if (!livePreviewCompartment) {
+      throw new Error('Missing live preview compartment')
+    }
+
     return [
       lineNumbers(),
       history(),
       markdown(),
       editorTheme,
       wrapCompartment.of(initialWrapRef.current ? EditorView.lineWrapping : []),
+      livePreviewCompartment.of(initialLivePreviewRef.current ? [livePreviewExtension] : []),
       EditorView.updateListener.of((update: ViewUpdate) => {
         if (!update.docChanged) return
         if (applyingExternalValueRef.current) return
@@ -194,6 +214,18 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
       effects: wrapCompartment.reconfigure(wrap ? EditorView.lineWrapping : []),
     })
   }, [wrap])
+
+  useEffect(() => {
+    const view = viewRef.current
+    if (!view) return
+
+    const livePreviewCompartment = livePreviewCompartmentRef.current
+    if (!livePreviewCompartment) return
+
+    view.dispatch({
+      effects: livePreviewCompartment.reconfigure(livePreview ? [livePreviewExtension] : []),
+    })
+  }, [livePreview])
 
   if (initError) {
     return (

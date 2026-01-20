@@ -363,6 +363,18 @@ function App() {
               <div className="panelTitle">{noteTitle ?? 'Editor'}</div>
               <div className="spacer" />
               {activeRelPath ? (
+                <button
+                  type="button"
+                  className={`livePreviewToggle ${
+                    settings.editorLivePreview ? 'livePreviewToggle--on' : ''
+                  }`}
+                  onClick={() => updateSettings({ editorLivePreview: !settings.editorLivePreview })}
+                  title={settings.editorLivePreview ? 'Switch to source mode' : 'Switch to live preview'}
+                >
+                  {settings.editorLivePreview ? 'Live Preview' : 'Source'}
+                </button>
+              ) : null}
+              {activeRelPath ? (
                 <>
                   <span
                     className={`saveDot saveDot--${saveStatus}`}
@@ -389,6 +401,7 @@ function App() {
                   onChange={setNoteText}
                   onSaveRequest={onEditorSaveRequest}
                   wrap={settings.editorWrap}
+                  livePreview={settings.editorLivePreview}
                   theme={settings.editorTheme}
                 />
               </Suspense>

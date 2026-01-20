@@ -259,6 +259,24 @@
   background: var(--highlight);
 }
 
+.livePreviewToggle {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border-strong);
+  background: var(--button-bg);
+  color: var(--text-primary);
+}
+
+.livePreviewToggle:hover {
+  border-color: var(--button-hover-border);
+}
+
+.livePreviewToggle--on {
+  border-color: var(--button-hover-border);
+  background: var(--highlight);
+}
+
 .busy {
   padding: 8px 10px;
   font-size: 13px;
@@ -285,6 +303,72 @@
 
 .noteEditor .cm-scroller {
   overflow: auto;
+}
+
+.noteEditor .cm-livePreview-heading {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.noteEditor .cm-livePreview-h1 {
+  font-size: 1.45em;
+}
+
+.noteEditor .cm-livePreview-h2 {
+  font-size: 1.3em;
+}
+
+.noteEditor .cm-livePreview-h3 {
+  font-size: 1.2em;
+}
+
+.noteEditor .cm-livePreview-h4 {
+  font-size: 1.1em;
+}
+
+.noteEditor .cm-livePreview-bold {
+  font-weight: 700;
+}
+
+.noteEditor .cm-livePreview-italic {
+  font-style: italic;
+}
+
+.noteEditor .cm-livePreview-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  background: rgba(100, 108, 255, 0.14);
+  border-radius: 4px;
+  padding: 0 3px;
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-code {
+  background: rgba(59, 74, 159, 0.14);
+}
+
+.noteEditor .cm-livePreview-wikilink {
+  color: #7aa2ff;
+  font-weight: 600;
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-wikilink {
+  color: #3b4a9f;
+}
+
+.noteEditor .cm-livePreview-hidden {
+  display: none;
+}
+
+.noteEditor .cm-livePreview-taskToggle {
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+  vertical-align: text-bottom;
+  accent-color: #7aa2ff;
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-taskToggle {
+  accent-color: #3b4a9f;
 }
 
 .panel {
