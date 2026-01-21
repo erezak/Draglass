@@ -130,12 +130,14 @@ function buildLivePreviewDecorations(view: EditorView): DecorationSet {
         }
       }
 
-      for (const match of text.matchAll(INLINE_CODE_RE)) {
+      const codeRanges: Array<{ from: number; to: number }> = []
+      for (const match of text.matchAll(new RegExp(INLINE_CODE_RE.source, INLINE_CODE_RE.flags))) {
         if (match.index == null) continue
         const start = line.from + match.index + 1
         const end = start + (match[1]?.length ?? 0)
         const markerFrom = line.from + match.index
         const markerTo = end + 1
+        codeRanges.push({ from: markerFrom, to: markerTo })
         addInlineMark(decorations, start, end, 'cm-livePreview-code')
         if (!selectionIntersects(markerFrom, markerTo)) {
           decorations.push({
@@ -151,7 +153,7 @@ function buildLivePreviewDecorations(view: EditorView): DecorationSet {
         }
       }
 
-      for (const match of text.matchAll(BOLD_RE)) {
+      for (const match of text.matchAll(new RegExp(BOLD_RE.source, BOLD_RE.flags))) {
         if (match.index == null) continue
         const start = line.from + match.index + 2
         const end = start + (match[1]?.length ?? 0)
@@ -172,7 +174,7 @@ function buildLivePreviewDecorations(view: EditorView): DecorationSet {
         }
       }
 
-      for (const match of text.matchAll(BOLD_UNDER_RE)) {
+      for (const match of text.matchAll(new RegExp(BOLD_UNDER_RE.source, BOLD_UNDER_RE.flags))) {
         if (match.index == null) continue
         const start = line.from + match.index + 2
         const end = start + (match[1]?.length ?? 0)
@@ -193,7 +195,7 @@ function buildLivePreviewDecorations(view: EditorView): DecorationSet {
         }
       }
 
-      for (const match of text.matchAll(ITALIC_RE)) {
+      for (const match of text.matchAll(new RegExp(ITALIC_RE.source, ITALIC_RE.flags))) {
         if (match.index == null) continue
         const prefixLen = match[1]?.length ?? 0
         const start = line.from + match.index + prefixLen + 1
@@ -215,7 +217,7 @@ function buildLivePreviewDecorations(view: EditorView): DecorationSet {
         }
       }
 
-      for (const match of text.matchAll(ITALIC_UNDER_RE)) {
+      for (const match of text.matchAll(new RegExp(ITALIC_UNDER_RE.source, ITALIC_UNDER_RE.flags))) {
         if (match.index == null) continue
         const prefixLen = match[1]?.length ?? 0
         const start = line.from + match.index + prefixLen + 1
@@ -237,7 +239,7 @@ function buildLivePreviewDecorations(view: EditorView): DecorationSet {
         }
       }
 
-      for (const match of text.matchAll(WIKILINK_RE)) {
+      for (const match of text.matchAll(new RegExp(WIKILINK_RE.source, WIKILINK_RE.flags))) {
         if (match.index == null) continue
         const full = match[0] ?? ''
         const inner = match[1] ?? ''
@@ -245,6 +247,10 @@ function buildLivePreviewDecorations(view: EditorView): DecorationSet {
         const linkTo = linkFrom + full.length
         const innerFrom = linkFrom + 2
         const innerTo = innerFrom + inner.length
+
+        if (codeRanges.some((range) => linkFrom < range.to && linkTo > range.from)) {
+          continue
+        }
 
         addInlineMark(decorations, innerFrom, innerTo, 'cm-livePreview-wikilink')
 
@@ -297,7 +303,6 @@ export type LivePreviewOptions = {
 }
 
 export function createLivePreviewExtension(options: LivePreviewOptions = {}): Extension[] {
-  let mouseDownSelection: { from: number; to: number } | null = null
   let mouseDownCoords: { x: number; y: number } | null = null
   let mouseDownLink: string | null = null
 
@@ -306,10 +311,6 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
       if (event.button !== 0) return false
       const pos = view.posAtCoords({ x: event.clientX, y: event.clientY })
       mouseDownCoords = { x: event.clientX, y: event.clientY }
-      mouseDownSelection = {
-        from: view.state.selection.main.from,
-        to: view.state.selection.main.to,
-      }
       mouseDownLink = null
       if (pos != null) {
         const line = view.state.doc.lineAt(pos)
@@ -330,10 +331,6 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
       const dy = Math.abs(event.clientY - mouseDownCoords.y)
       const dragThreshold = 3
       if (dx > dragThreshold || dy > dragThreshold) return false
-
-      const selection = view.state.selection.main
-      if (!selection.empty) return false
-      if (mouseDownSelection && mouseDownSelection.from !== mouseDownSelection.to) return false
 
       event.preventDefault()
       options.onOpenWikilink(mouseDownLink)

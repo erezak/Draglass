@@ -1,6 +1,6 @@
-- 2026-01-21 — Decision: Editor wikilinks open on plain click when selection is empty.
-  - Rationale: Matches Live Preview expectations while guarding against drag-selection.
-  - Impact: Link interactions should avoid opening when selection is non-empty or a drag occurs.
+- 2026-01-21 — Decision: Editor wikilinks open on plain click with drag threshold guard.
+  - Rationale: Matches Live Preview expectations for single-click navigation.
+  - Impact: Link interactions should open on click unless the user is dragging to select.
 
 - 2026-01-14 — Decision: Wikilink targets are normalized for matching (trim outer spaces, case-insensitive, filename-stem mapping).
   - Rationale: Keeps outgoing links and backlinks consistent while staying local-first and file-based.
