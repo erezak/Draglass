@@ -6,6 +6,7 @@ export type DraglassSettings = {
   editorTheme: 'dark' | 'light'
   filesShowHidden: boolean
   filesRememberExpandedFolders: boolean
+  vaultRememberLast: boolean
 
   autosaveEnabled: boolean
   autosaveDebounceMs: number
@@ -34,6 +35,7 @@ export const DEFAULT_SETTINGS: DraglassSettings = {
   editorTheme: 'dark',
   filesShowHidden: false,
   filesRememberExpandedFolders: true,
+  vaultRememberLast: true,
 
   autosaveEnabled: true,
   autosaveDebounceMs: 750,
@@ -70,6 +72,7 @@ function normalizeSettings(raw: unknown): DraglassSettings {
       r.filesRememberExpandedFolders,
       DEFAULT_SETTINGS.filesRememberExpandedFolders,
     ),
+    vaultRememberLast: asBool(r.vaultRememberLast, DEFAULT_SETTINGS.vaultRememberLast),
 
     autosaveEnabled: asBool(r.autosaveEnabled, DEFAULT_SETTINGS.autosaveEnabled),
     autosaveDebounceMs: clampInt(

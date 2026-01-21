@@ -18,6 +18,7 @@ import { useSettings } from './settings'
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 
 const RECENT_STORAGE_KEY = 'draglass.quickSwitcher.recent.v1'
+const LAST_VAULT_STORAGE_KEY = 'draglass.vault.last.v1'
 
 function stripWikilinkTarget(rawTarget: string): string {
   const base = rawTarget.split('|')[0] ?? ''
@@ -51,6 +52,28 @@ function loadRecentFromStorage(maxRecent: number): string[] {
 function saveRecentToStorage(recent: string[], maxRecent: number) {
   try {
     localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recent.slice(0, maxRecent)))
+  } catch {
+    // ignore
+  }
+}
+
+function loadLastVaultPath(): string | null {
+  try {
+    const raw = localStorage.getItem(LAST_VAULT_STORAGE_KEY)
+    if (!raw) return null
+    return raw
+  } catch {
+    return null
+  }
+}
+
+function saveLastVaultPath(path: string | null) {
+  try {
+    if (!path) {
+      localStorage.removeItem(LAST_VAULT_STORAGE_KEY)
+      return
+    }
+    localStorage.setItem(LAST_VAULT_STORAGE_KEY, path)
   } catch {
     // ignore
   }
@@ -246,6 +269,52 @@ function App() {
       setBusy(null)
     }
   }, [refreshFileList])
+
+  useEffect(() => {
+    if (!settings.vaultRememberLast) return
+    if (vaultPath) return
+    const last = loadLastVaultPath()
+    if (!last) return
+
+    let cancelled = false
+    setVaultPath(last)
+    setActiveRelPath(null)
+    setNoteText('')
+    setSavedText('')
+    setBacklinks([])
+    setBacklinksBusy(false)
+    if (backlinksTimerRef.current != null) {
+      window.clearTimeout(backlinksTimerRef.current)
+      backlinksTimerRef.current = null
+    }
+    setBusy('Loading files…')
+    setError(null)
+    void (async () => {
+      try {
+        await refreshFileList(last)
+        if (cancelled) return
+      } catch (e) {
+        if (cancelled) return
+        setError(String(e))
+        setVaultPath(null)
+        saveLastVaultPath(null)
+      } finally {
+        if (!cancelled) setBusy(null)
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [refreshFileList, settings.vaultRememberLast, vaultPath])
+
+  useEffect(() => {
+    if (!settings.vaultRememberLast) {
+      saveLastVaultPath(null)
+      return
+    }
+    saveLastVaultPath(vaultPath)
+  }, [settings.vaultRememberLast, vaultPath])
 
   const openNoteByRelPath = useCallback(
     async (relPath: string): Promise<boolean> => {

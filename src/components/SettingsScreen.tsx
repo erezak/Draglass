@@ -76,6 +76,14 @@ export function SettingsScreen({ open, settings, onChange, onClose, onReset }: S
           <section className="settingsSection">
             <h3>Files</h3>
             <label className="settingsRow">
+              <span>Remember last vault on startup</span>
+              <input
+                type="checkbox"
+                checked={settings.vaultRememberLast}
+                onChange={onToggle('vaultRememberLast')}
+              />
+            </label>
+            <label className="settingsRow">
               <span>Show hidden/ignored paths</span>
               <input
                 type="checkbox"
