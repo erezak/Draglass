@@ -46,6 +46,13 @@ assert.equal(livePreview.shouldHideMarkup(10, 20, 12, 18), false)
 assert.equal(livePreview.shouldHideMarkup(10, 20, 20, 22), false)
 assert.equal(livePreview.shouldHideMarkup(10, 20, 25, 30), true)
 
+const linkText = 'Start [[Note Name|Alias]] end'
+const match = livePreview.extractWikilinkAt(linkText, 10)
+assert.equal(match?.rawTarget, 'Note Name|Alias')
+assert.equal(match?.from, 6)
+assert.equal(match?.to, 27)
+assert.equal(livePreview.extractWikilinkAt(linkText, 2), null)
+
 console.log('livePreview helpers: ok')
 
 const ignore = await loadTsModule('src/ignore.ts')

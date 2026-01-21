@@ -16,6 +16,7 @@ pub fn run() {
             list_markdown_files,
             read_note,
             write_note,
+            create_note,
             find_backlinks,
         ])
         .run(tauri::generate_context!())
@@ -146,6 +147,27 @@ fn resolve_existing_note_path(vault_path: &str, rel_path: &str) -> Result<PathBu
     Ok(candidate)
 }
 
+fn resolve_note_path_for_create(vault_path: &str, rel_path: &str) -> Result<PathBuf, String> {
+    let vault =
+        std::fs::canonicalize(vault_path).map_err(|e| format!("invalid vault path: {e}"))?;
+    if !vault.is_dir() {
+        return Err("vault path is not a directory".to_string());
+    }
+
+    let rel = sanitize_rel_path(rel_path)?;
+    let candidate = vault.join(rel);
+
+    if !candidate.starts_with(&vault) {
+        return Err("note path escapes vault".to_string());
+    }
+
+    if !is_markdown_file(&candidate) {
+        return Err("note is not a markdown file".to_string());
+    }
+
+    Ok(candidate)
+}
+
 fn extract_wikilinks(text: &str) -> Vec<String> {
     let mut links = Vec::new();
     let mut idx = 0;
@@ -209,6 +231,26 @@ fn write_note_impl(vault_path: &str, rel_path: &str, contents: &str) -> Result<(
     std::fs::write(path, contents).map_err(|e| format!("failed to write note: {e}"))
 }
 
+fn create_note_impl(vault_path: &str, rel_path: &str, contents: &str) -> Result<(), String> {
+    let path = resolve_note_path_for_create(vault_path, rel_path)?;
+    if path.exists() {
+        if !path.is_file() {
+            return Err("note path is not a file".to_string());
+        }
+        if !is_markdown_file(&path) {
+            return Err("note is not a markdown file".to_string());
+        }
+        return Err("note already exists".to_string());
+    }
+
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|e| format!("failed to create note folder: {e}"))?;
+    }
+
+    std::fs::write(path, contents).map_err(|e| format!("failed to create note: {e}"))
+}
+
 fn find_backlinks_impl(vault_path: &str, target_title: &str) -> Result<Vec<String>, String> {
     let files = list_markdown_files_impl(vault_path)?;
     let mut backlinks: Vec<String> = Vec::new();
@@ -250,6 +292,17 @@ async fn read_note(vault_path: String, rel_path: String) -> Result<String, Strin
 #[tauri::command(rename = "write-note")]
 async fn write_note(vault_path: String, rel_path: String, contents: String) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || write_note_impl(&vault_path, &rel_path, &contents))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command(rename = "create-note")]
+async fn create_note(
+    vault_path: String,
+    rel_path: String,
+    contents: String,
+) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || create_note_impl(&vault_path, &rel_path, &contents))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }

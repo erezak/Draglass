@@ -49,6 +49,19 @@ export async function writeNote(
   )
 }
 
+export async function createNote(
+  vaultPath: string,
+  relPath: string,
+  contents: string,
+): Promise<void> {
+  return invokeWithFallback<void>(
+    'create-note',
+    'create_note',
+    { vault_path: vaultPath, rel_path: relPath, contents },
+    { vaultPath, relPath, contents },
+  )
+}
+
 export async function findBacklinks(
   vaultPath: string,
   targetTitle: string,

@@ -1,3 +1,7 @@
+- 2026-01-21 — Decision: Editor wikilinks open on plain click when selection is empty.
+  - Rationale: Matches Live Preview expectations while guarding against drag-selection.
+  - Impact: Link interactions should avoid opening when selection is non-empty or a drag occurs.
+
 - 2026-01-14 — Decision: Wikilink targets are normalized for matching (trim outer spaces, case-insensitive, filename-stem mapping).
   - Rationale: Keeps outgoing links and backlinks consistent while staying local-first and file-based.
   - Impact: Compare links by normalized target; strip outer spaces inside `[[ ... ]]`, lowercase by default, and treat `[[Note]]` and `[[note.md]]` as the same target.

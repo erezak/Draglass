@@ -349,6 +349,14 @@
 .noteEditor .cm-livePreview-wikilink {
   color: #7aa2ff;
   font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.noteEditor .cm-livePreview-wikilink:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
 }
 
 :root[data-theme='light'] .noteEditor .cm-livePreview-wikilink {

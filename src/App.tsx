@@ -2,7 +2,7 @@ import { Suspense, lazy, useCallback, useDeferredValue, useEffect, useMemo, useR
 import './App.css'
 
 import { open } from '@tauri-apps/plugin-dialog'
-import { findBacklinks, listMarkdownFiles, readNote, writeNote } from './tauri'
+import { createNote, findBacklinks, listMarkdownFiles, readNote, writeNote } from './tauri'
 import type { NoteEntry } from './types'
 import { normalizeWikiTarget, parseWikilinks } from './wikilinks'
 import { fileStem } from './path'
@@ -12,12 +12,25 @@ import { useNoteAutosave } from './components/useNoteAutosave'
 import type { NoteEditorHandle } from './components/NoteEditor'
 import { QuickSwitcher } from './components/QuickSwitcher'
 import { SettingsScreen } from './components/SettingsScreen'
-import { isVisibleNoteForNavigation } from './ignore'
+import { isIgnoredPath, isVisibleNoteForNavigation } from './ignore'
 import { useSettings } from './settings'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 
 const RECENT_STORAGE_KEY = 'draglass.quickSwitcher.recent.v1'
+
+function stripWikilinkTarget(rawTarget: string): string {
+  const base = rawTarget.split('|')[0] ?? ''
+  return base.trim()
+}
+
+function targetToRelPath(rawTarget: string): string | null {
+  const trimmed = stripWikilinkTarget(rawTarget)
+  if (!trimmed) return null
+  const lower = trimmed.toLowerCase()
+  if (lower.endsWith('.md') || lower.endsWith('.markdown')) return trimmed
+  return `${trimmed}.md`
+}
 
 function loadRecentFromStorage(maxRecent: number): string[] {
   try {
@@ -297,6 +310,44 @@ function App() {
     [files, openNoteByRelPath],
   )
 
+  const openOrCreateWikilink = useCallback(
+    async (rawTarget: string) => {
+      if (!vaultPath) return
+      const trimmed = stripWikilinkTarget(rawTarget)
+      if (!trimmed) return
+
+      const normalized = normalizeWikiTarget(trimmed)
+      const match = files.find((f) => normalizeWikiTarget(fileStem(f.rel_path)) === normalized)
+      if (match) {
+        await openNoteByRelPath(match.rel_path)
+        return
+      }
+
+      const relPath = targetToRelPath(rawTarget)
+      if (!relPath) return
+      if (isIgnoredPath(relPath)) {
+        setError(`Cannot create note in ignored path: ${relPath}`)
+        return
+      }
+
+      const confirmed = window.confirm(`Create note "${trimmed}"?`)
+      if (!confirmed) return
+
+      setError(null)
+      setBusy('Creating note…')
+      try {
+        await createNote(vaultPath, relPath, '')
+        await refreshFileList(vaultPath)
+        await openNoteByRelPath(relPath)
+      } catch (e) {
+        setError(String(e))
+      } finally {
+        setBusy(null)
+      }
+    },
+    [files, openNoteByRelPath, refreshFileList, vaultPath],
+  )
+
   return (
     <ErrorBoundary fallbackTitle="Draglass hit an error">
       <div className="appShell">
@@ -402,6 +453,7 @@ function App() {
                   onSaveRequest={onEditorSaveRequest}
                   wrap={settings.editorWrap}
                   livePreview={settings.editorLivePreview}
+                  onOpenWikilink={openOrCreateWikilink}
                   theme={settings.editorTheme}
                 />
               </Suspense>

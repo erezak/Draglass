@@ -1,4 +1,4 @@
-import { RangeSetBuilder } from '@codemirror/state'
+import { RangeSetBuilder, type Extension } from '@codemirror/state'
 import {
   Decoration,
   type DecorationSet,
@@ -8,7 +8,7 @@ import {
   WidgetType,
 } from '@codemirror/view'
 
-import { shouldHideMarkup, shouldHideWikilinkBrackets } from './livePreviewHelpers'
+import { extractWikilinkAt, shouldHideMarkup } from './livePreviewHelpers'
 
 const WIKILINK_RE = /\[\[([^\]]+?)\]\]/g
 const INLINE_CODE_RE = /`([^`]+)`/g
@@ -291,3 +291,55 @@ export const livePreviewExtension = ViewPlugin.fromClass(
     decorations: (value) => value.decorations,
   },
 )
+
+export type LivePreviewOptions = {
+  onOpenWikilink?: (rawTarget: string) => void
+}
+
+export function createLivePreviewExtension(options: LivePreviewOptions = {}): Extension[] {
+  let mouseDownSelection: { from: number; to: number } | null = null
+  let mouseDownCoords: { x: number; y: number } | null = null
+  let mouseDownLink: string | null = null
+
+  const handlers = EditorView.domEventHandlers({
+    mousedown: (event, view) => {
+      if (event.button !== 0) return false
+      const pos = view.posAtCoords({ x: event.clientX, y: event.clientY })
+      mouseDownCoords = { x: event.clientX, y: event.clientY }
+      mouseDownSelection = {
+        from: view.state.selection.main.from,
+        to: view.state.selection.main.to,
+      }
+      mouseDownLink = null
+      if (pos != null) {
+        const line = view.state.doc.lineAt(pos)
+        const match = extractWikilinkAt(line.text, pos - line.from)
+        if (match) {
+          mouseDownLink = match.rawTarget
+        }
+      }
+      return false
+    },
+    mouseup: (event, view) => {
+      if (!options.onOpenWikilink) return false
+      if (event.button !== 0) return false
+      if (event.shiftKey || event.altKey) return false
+      if (!mouseDownCoords || !mouseDownLink) return false
+
+      const dx = Math.abs(event.clientX - mouseDownCoords.x)
+      const dy = Math.abs(event.clientY - mouseDownCoords.y)
+      const dragThreshold = 3
+      if (dx > dragThreshold || dy > dragThreshold) return false
+
+      const selection = view.state.selection.main
+      if (!selection.empty) return false
+      if (mouseDownSelection && mouseDownSelection.from !== mouseDownSelection.to) return false
+
+      event.preventDefault()
+      options.onOpenWikilink(mouseDownLink)
+      return false
+    },
+  })
+
+  return [livePreviewExtension, handlers]
+}

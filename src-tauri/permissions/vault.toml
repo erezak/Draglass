@@ -29,6 +29,16 @@ description = "Allows writing a note to the selected vault (legacy command name)
 commands.allow = ["write_note"]
 
 [[permission]]
+identifier = "create-note"
+description = "Allows creating a new note in the selected vault."
+commands.allow = ["create-note"]
+
+[[permission]]
+identifier = "create-note-legacy"
+description = "Allows creating a new note in the selected vault (legacy command name)."
+commands.allow = ["create_note"]
+
+[[permission]]
 identifier = "find-backlinks"
 description = "Allows scanning the vault to find backlinks for a note."
 commands.allow = ["find-backlinks"]
@@ -48,6 +58,8 @@ permissions = [
   "read-note-legacy",
   "write-note",
   "write-note-legacy",
+  "create-note",
+  "create-note-legacy",
   "find-backlinks",
   "find-backlinks-legacy",
 ]
