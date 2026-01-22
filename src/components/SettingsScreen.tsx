@@ -61,6 +61,14 @@ export function SettingsScreen({ open, settings, onChange, onClose, onReset }: S
               <span>Soft wrap</span>
               <input type="checkbox" checked={settings.editorWrap} onChange={onToggle('editorWrap')} />
             </label>
+            <label className="settingsRow">
+              <span>Render diagrams</span>
+              <input
+                type="checkbox"
+                checked={settings.editorRenderDiagrams}
+                onChange={onToggle('editorRenderDiagrams')}
+              />
+            </label>
             <label className="settingsRow settingsRow--select">
               <span>Theme</span>
               <select

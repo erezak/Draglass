@@ -522,6 +522,7 @@ function App() {
                   onSaveRequest={onEditorSaveRequest}
                   wrap={settings.editorWrap}
                   livePreview={settings.editorLivePreview}
+                  renderDiagrams={settings.editorRenderDiagrams}
                   onOpenWikilink={openOrCreateWikilink}
                   theme={settings.editorTheme}
                 />

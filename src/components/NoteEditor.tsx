@@ -12,6 +12,7 @@ type NoteEditorProps = {
   onSaveRequest?: () => void
   wrap?: boolean
   livePreview?: boolean
+  renderDiagrams?: boolean
   onOpenWikilink?: (rawTarget: string) => void
   theme?: 'dark' | 'light'
 }
@@ -21,7 +22,16 @@ export type NoteEditorHandle = {
 }
 
 export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function NoteEditor(
-  { value, onChange, onSaveRequest, wrap = true, livePreview = true, onOpenWikilink, theme = 'dark' },
+  {
+    value,
+    onChange,
+    onSaveRequest,
+    wrap = true,
+    livePreview = true,
+    renderDiagrams = true,
+    onOpenWikilink,
+    theme = 'dark',
+  },
   ref,
 ) {
   const hostRef = useRef<HTMLDivElement | null>(null)
@@ -29,6 +39,7 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
   const initialDocRef = useRef<string>(value)
   const initialWrapRef = useRef<boolean>(wrap)
   const initialLivePreviewRef = useRef<boolean>(livePreview)
+  const initialRenderDiagramsRef = useRef<boolean>(renderDiagrams)
   const initialOpenWikilinkRef = useRef<NoteEditorProps['onOpenWikilink']>(onOpenWikilink)
   const [initError, setInitError] = useState<Error | null>(null)
 
@@ -89,6 +100,12 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
 
   useEffect(() => {
     if (viewRef.current == null) {
+      initialRenderDiagramsRef.current = renderDiagrams
+    }
+  }, [renderDiagrams])
+
+  useEffect(() => {
+    if (viewRef.current == null) {
       initialOpenWikilinkRef.current = onOpenWikilink
     }
   }, [onOpenWikilink])
@@ -137,7 +154,11 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
       wrapCompartment.of(initialWrapRef.current ? EditorView.lineWrapping : []),
       livePreviewCompartment.of(
         initialLivePreviewRef.current
-          ? createLivePreviewExtension({ onOpenWikilink: initialOpenWikilinkRef.current })
+          ? createLivePreviewExtension({
+              onOpenWikilink: initialOpenWikilinkRef.current,
+              renderDiagrams: initialRenderDiagramsRef.current,
+              theme,
+            })
           : [],
       ),
       EditorView.updateListener.of((update: ViewUpdate) => {
@@ -236,10 +257,16 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
 
     view.dispatch({
       effects: livePreviewCompartment.reconfigure(
-        livePreview ? createLivePreviewExtension({ onOpenWikilink }) : [],
+        livePreview
+          ? createLivePreviewExtension({
+              onOpenWikilink,
+              renderDiagrams,
+              theme,
+            })
+          : [],
       ),
     })
-  }, [livePreview, onOpenWikilink])
+  }, [livePreview, onOpenWikilink, renderDiagrams, theme])
 
   if (initError) {
     return (

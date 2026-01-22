@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 export type DraglassSettings = {
   editorWrap: boolean
   editorLivePreview: boolean
+  editorRenderDiagrams: boolean
   editorTheme: 'dark' | 'light'
   filesShowHidden: boolean
   filesRememberExpandedFolders: boolean
@@ -32,6 +33,7 @@ const LEGACY_SHOW_HIDDEN_STORAGE_KEY = 'draglass.nav.showHidden.v1'
 export const DEFAULT_SETTINGS: DraglassSettings = {
   editorWrap: true,
   editorLivePreview: true,
+  editorRenderDiagrams: true,
   editorTheme: 'dark',
   filesShowHidden: false,
   filesRememberExpandedFolders: true,
@@ -66,6 +68,7 @@ function normalizeSettings(raw: unknown): DraglassSettings {
   return {
     editorWrap: asBool(r.editorWrap, DEFAULT_SETTINGS.editorWrap),
     editorLivePreview: asBool(r.editorLivePreview, DEFAULT_SETTINGS.editorLivePreview),
+    editorRenderDiagrams: asBool(r.editorRenderDiagrams, DEFAULT_SETTINGS.editorRenderDiagrams),
     editorTheme: editorTheme ?? DEFAULT_SETTINGS.editorTheme,
     filesShowHidden: asBool(r.filesShowHidden, DEFAULT_SETTINGS.filesShowHidden),
     filesRememberExpandedFolders: asBool(

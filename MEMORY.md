@@ -1,3 +1,11 @@
+- 2026-01-22 — Decision: Mermaid block widgets are provided via a StateField, updated by a ViewPlugin effect.
+  - Rationale: CodeMirror disallows block decorations coming directly from ViewPlugins.
+  - Impact: Mermaid Live Preview updates must dispatch effects to refresh the StateField when the viewport, selection, or document changes.
+
+- 2026-01-22 — Decision: Mermaid diagrams render in the frontend Live Preview with strict security, SVG sanitization, and a content+theme cache limited to visible blocks.
+  - Rationale: Keep rendering local and responsive while minimizing XSS risk and scroll jank.
+  - Impact: Use Mermaid `securityLevel: strict`, sanitize SVG output, render only visible fences, and cache by content+theme; no Rust/Tauri rendering.
+
 - 2026-01-21 — Decision: Editor wikilinks open on plain click with drag threshold guard.
   - Rationale: Matches Live Preview expectations for single-click navigation.
   - Impact: Link interactions should open on click unless the user is dragging to select.

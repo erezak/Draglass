@@ -379,6 +379,98 @@
   accent-color: #3b4a9f;
 }
 
+.noteEditor .cm-livePreview-mermaid {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(100, 108, 255, 0.08);
+  border: 1px solid rgba(100, 108, 255, 0.2);
+  position: relative;
+  color: var(--text-primary);
+  width: fit-content;
+  max-width: 100%;
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-mermaid {
+  background: rgba(59, 74, 159, 0.08);
+  border-color: rgba(59, 74, 159, 0.22);
+}
+
+.noteEditor .cm-livePreview-mermaidSvg {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.noteEditor .cm-livePreview-mermaidSvg svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  color: var(--text-primary);
+}
+
+.noteEditor .cm-livePreview-mermaidSvg svg text {
+  fill: currentColor;
+  color: var(--text-primary);
+  opacity: 1;
+}
+
+.noteEditor .cm-livePreview-mermaidSvg svg tspan {
+  fill: currentColor;
+}
+
+.noteEditor .cm-livePreview-mermaidStatus {
+  color: var(--text-muted);
+  font-size: 0.9em;
+}
+
+.noteEditor .cm-livePreview-mermaidEdit {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.75em;
+  border: 1px solid var(--button-border);
+  background: var(--button-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.noteEditor .cm-livePreview-mermaidEdit:hover {
+  border-color: var(--button-hover-border);
+}
+
+.noteEditor .cm-livePreview-mermaidError {
+  color: var(--text-primary);
+}
+
+.noteEditor .cm-livePreview-mermaidErrorTitle {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.noteEditor .cm-livePreview-mermaidErrorMessage {
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.noteEditor .cm-livePreview-mermaidSource summary {
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.noteEditor .cm-livePreview-mermaidSource pre {
+  margin-top: 6px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  overflow-x: auto;
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-mermaidSource pre {
+  background: rgba(15, 23, 42, 0.08);
+}
+
 .panel {
   margin-bottom: 16px;
 }
