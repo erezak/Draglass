@@ -3,6 +3,7 @@ import {
   Decoration,
   type DecorationSet,
   EditorView,
+  keymap,
   ViewPlugin,
   type ViewUpdate,
   WidgetType,
@@ -209,6 +210,21 @@ function collectMermaidBlock(doc: EditorView['state']['doc'], startLine: number)
 
 function blockIntersectsVisibleRanges(block: MermaidBlock, ranges: readonly { from: number; to: number }[]) {
   return ranges.some((range) => block.from <= range.to && block.to >= range.from)
+}
+
+function findMermaidBlockAtLine(doc: EditorView['state']['doc'], lineNumber: number): MermaidBlock | null {
+  if (lineNumber < 1 || lineNumber > doc.lines) return null
+  const line = doc.line(lineNumber)
+  const lang = getFenceLang(line.text)
+  if (lang !== MERMAID_LANG) return null
+  return collectMermaidBlock(doc, lineNumber)
+}
+
+function getMermaidEnterPosition(block: MermaidBlock, doc: EditorView['state']['doc']): number | null {
+  const firstContentLine = block.startLine + 1
+  if (firstContentLine > doc.lines) return block.from
+  const line = doc.line(firstContentLine)
+  return line.from
 }
 
 function collectVisibleMermaidBlocks(view: EditorView): MermaidBlock[] {
@@ -782,7 +798,7 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
       }
       return false
     },
-    mouseup: (event, _view) => {
+    mouseup: (event) => {
       if (!options.onOpenWikilink) return false
       if (event.button !== 0) return false
       if (event.shiftKey || event.altKey) return false
@@ -799,10 +815,37 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
     },
   })
 
+  const mermaidKeymap = keymap.of([
+    {
+      key: 'ArrowDown',
+      run: (view) => {
+        const selection = view.state.selection.main
+        if (!selection.empty) return false
+
+        const line = view.state.doc.lineAt(selection.head)
+        const nextLineNumber = line.number + 1
+        if (nextLineNumber > view.state.doc.lines) return false
+
+        const block = findMermaidBlockAtLine(view.state.doc, nextLineNumber)
+        if (!block) return false
+
+        const target = getMermaidEnterPosition(block, view.state.doc)
+        if (target == null) return false
+
+        view.dispatch({
+          selection: { anchor: target },
+          scrollIntoView: true,
+        })
+        return true
+      },
+    },
+  ])
+
   return [
     mermaidDecorationsField,
     createMermaidDecorationsPlugin(options),
     createLivePreviewPlugin(),
     handlers,
+    mermaidKeymap,
   ]
 }

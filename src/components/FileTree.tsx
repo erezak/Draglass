@@ -117,7 +117,7 @@ function buildTree(files: NoteEntry[]): FolderNode {
   return toNode(root)
 }
 
-export function FileTree({ files, activeRelPath, rememberExpanded, onOpenFile }: FileTreeProps) {
+function FileTreeInner({ files, activeRelPath, rememberExpanded, onOpenFile }: FileTreeProps) {
   const tree = useMemo(() => buildTree(files), [files])
   const [expanded, setExpanded] = useState<Set<string>>(() =>
     rememberExpanded ? loadExpandedFromStorage() : new Set(['']),
@@ -129,12 +129,7 @@ export function FileTree({ files, activeRelPath, rememberExpanded, onOpenFile }:
   }, [expanded, rememberExpanded])
 
   useEffect(() => {
-    if (rememberExpanded) {
-      setExpanded(loadExpandedFromStorage())
-      return
-    }
-
-    setExpanded(new Set(['']))
+    if (rememberExpanded) return
     try {
       localStorage.removeItem(STORAGE_KEY)
     } catch {
@@ -200,6 +195,11 @@ export function FileTree({ files, activeRelPath, rememberExpanded, onOpenFile }:
 
   const rootChildren = tree.children
   return <div className="fileTree">{rootChildren.map((c) => renderNode(c, 0))}</div>
+}
+
+export function FileTree(props: FileTreeProps) {
+  const key = props.rememberExpanded ? 'remember-expanded' : 'forget-expanded'
+  return <FileTreeInner key={key} {...props} />
 }
 
 export default FileTree
