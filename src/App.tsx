@@ -1,83 +1,20 @@
 import { Suspense, lazy, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 
-import { open } from '@tauri-apps/plugin-dialog'
-import { createNote, findBacklinks, listMarkdownFiles, readNote, writeNote } from './tauri'
-import type { NoteEntry } from './types'
-import { normalizeWikiTarget, parseWikilinks } from './wikilinks'
-import { fileStem } from './path'
+import { parseWikilinks } from './wikilinks'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { FileTree } from './components/FileTree'
-import { useNoteAutosave } from './components/useNoteAutosave'
 import type { NoteEditorHandle } from './components/NoteEditor'
 import { QuickSwitcher } from './components/QuickSwitcher'
 import { SettingsScreen } from './components/SettingsScreen'
-import { isIgnoredPath, isVisibleNoteForNavigation } from './ignore'
 import { useSettings } from './settings'
+import { useBacklinks } from './features/backlinks/useBacklinks'
+import { useNoteManager } from './features/notes/useNoteManager'
+import { useRecentNotes } from './features/recents/useRecentNotes'
+import { useEditorTheme } from './features/theme/useEditorTheme'
+import { useVault } from './features/vault/useVault'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
-
-const RECENT_STORAGE_KEY = 'draglass.quickSwitcher.recent.v1'
-const LAST_VAULT_STORAGE_KEY = 'draglass.vault.last.v1'
-
-function stripWikilinkTarget(rawTarget: string): string {
-  const base = rawTarget.split('|')[0] ?? ''
-  return base.trim()
-}
-
-function targetToRelPath(rawTarget: string): string | null {
-  const trimmed = stripWikilinkTarget(rawTarget)
-  if (!trimmed) return null
-  const lower = trimmed.toLowerCase()
-  if (lower.endsWith('.md') || lower.endsWith('.markdown')) return trimmed
-  return `${trimmed}.md`
-}
-
-function loadRecentFromStorage(maxRecent: number): string[] {
-  try {
-    const raw = localStorage.getItem(RECENT_STORAGE_KEY)
-    if (!raw) return []
-    const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed)) return []
-    const next: string[] = []
-    for (const v of parsed) {
-      if (typeof v === 'string') next.push(v)
-    }
-    return next.slice(0, maxRecent)
-  } catch {
-    return []
-  }
-}
-
-function saveRecentToStorage(recent: string[], maxRecent: number) {
-  try {
-    localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recent.slice(0, maxRecent)))
-  } catch {
-    // ignore
-  }
-}
-
-function loadLastVaultPath(): string | null {
-  try {
-    const raw = localStorage.getItem(LAST_VAULT_STORAGE_KEY)
-    if (!raw) return null
-    return raw
-  } catch {
-    return null
-  }
-}
-
-function saveLastVaultPath(path: string | null) {
-  try {
-    if (!path) {
-      localStorage.removeItem(LAST_VAULT_STORAGE_KEY)
-      return
-    }
-    localStorage.setItem(LAST_VAULT_STORAGE_KEY, path)
-  } catch {
-    // ignore
-  }
-}
 
 function isModP(e: KeyboardEvent): boolean {
   const mod = e.metaKey || e.ctrlKey
@@ -86,111 +23,56 @@ function isModP(e: KeyboardEvent): boolean {
 
 function App() {
   const { settings, updateSettings, resetSettings } = useSettings()
-  const [vaultPath, setVaultPath] = useState<string | null>(null)
-  const [files, setFiles] = useState<NoteEntry[]>([])
-  const [activeRelPath, setActiveRelPath] = useState<string | null>(null)
-  const [noteText, setNoteText] = useState('')
-  const [savedText, setSavedText] = useState('')
-
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [backlinks, setBacklinks] = useState<string[]>([])
-  const [backlinksBusy, setBacklinksBusy] = useState(false)
 
   const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false)
-  const [recentRelPaths, setRecentRelPaths] = useState<string[]>(() =>
-    loadRecentFromStorage(settings.quickSwitcherMaxRecents),
-  )
   const [settingsOpen, setSettingsOpen] = useState(false)
 
   const editorRef = useRef<NoteEditorHandle | null>(null)
-  const openRequestIdRef = useRef(0)
 
-  const backlinksRequestIdRef = useRef(0)
+  const { recentRelPaths, recordRecent } = useRecentNotes(settings.quickSwitcherMaxRecents)
 
-  const noteTitle = useMemo(() => {
-    if (!activeRelPath) return null
-    return fileStem(activeRelPath)
-  }, [activeRelPath])
+  const { vaultPath, files, navFiles, vaultName, refreshFileList, pickVault } = useVault({
+    rememberLast: settings.vaultRememberLast,
+    showHidden: settings.filesShowHidden,
+    onBusy: setBusy,
+    onError: setError,
+  })
 
-  const vaultName = useMemo(() => {
-    if (!vaultPath) return null
-    const normalized = vaultPath.replace(/\\/g, '/').replace(/\/+$/, '')
-    const parts = normalized.split('/').filter(Boolean)
-    return parts[parts.length - 1] ?? normalized
-  }, [vaultPath])
+  const { backlinks, backlinksBusy, scheduleBacklinksScan, resetBacklinks } = useBacklinks({
+    enabled: settings.backlinksEnabled,
+    debounceMs: settings.backlinksDebounceMs,
+    onError: (message) => setError(message),
+  })
 
-  const navFiles = useMemo(() => {
-    return files.filter((f) => isVisibleNoteForNavigation(f.rel_path, settings.filesShowHidden))
-  }, [files, settings.filesShowHidden])
+  const {
+    activeRelPath,
+    noteText,
+    setNoteText,
+    noteTitle,
+    autosave,
+    openNoteByRelPath,
+    tryOpenByTitle,
+    openOrCreateWikilink,
+    resetNoteState,
+  } = useNoteManager({
+    vaultPath,
+    files,
+    refreshFileList,
+    scheduleBacklinksScan,
+    resetBacklinks,
+    autosaveEnabled: settings.autosaveEnabled,
+    autosaveDebounceMs: settings.autosaveDebounceMs,
+    recordRecent,
+    setError,
+    setBusy,
+  })
 
   // Parsing wikilinks can be relatively expensive on large notes.
   // Defer derived UI updates to keep typing responsive.
   const deferredNoteText = useDeferredValue(noteText)
   const outgoingLinks = useMemo(() => parseWikilinks(deferredNoteText), [deferredNoteText])
-  const isDirty = noteText !== savedText
-
-  const backlinksTimerRef = useRef<number | null>(null)
-
-  const refreshFileList = useCallback(async (vault: string) => {
-    const nextFiles = await listMarkdownFiles(vault)
-    setFiles(nextFiles)
-  }, [])
-
-  const refreshBacklinks = useCallback(
-    async (vault: string, title: string) => {
-      const requestId = ++backlinksRequestIdRef.current
-      setBacklinksBusy(true)
-      try {
-        const links = await findBacklinks(vault, title)
-        if (backlinksRequestIdRef.current === requestId) {
-          setBacklinks(links)
-        }
-      } catch (e) {
-        if (backlinksRequestIdRef.current === requestId) {
-          setBacklinks([])
-          setError(String(e))
-        }
-      } finally {
-        if (backlinksRequestIdRef.current === requestId) {
-          setBacklinksBusy(false)
-        }
-      }
-    },
-    [],
-  )
-
-  const scheduleBacklinksScan = useCallback(
-    (vault: string, relPath: string) => {
-      if (backlinksTimerRef.current != null) {
-        window.clearTimeout(backlinksTimerRef.current)
-        backlinksTimerRef.current = null
-      }
-
-      // Backlinks are O(files) reads right now; debounce scans to avoid churn
-      // when switching notes quickly.
-      if (!settings.backlinksEnabled) return
-      const delayMs = settings.backlinksDebounceMs
-      const title = normalizeWikiTarget(fileStem(relPath))
-      backlinksTimerRef.current = window.setTimeout(() => {
-        backlinksTimerRef.current = null
-        void refreshBacklinks(vault, title)
-      }, delayMs)
-    },
-    [refreshBacklinks, settings.backlinksDebounceMs, settings.backlinksEnabled],
-  )
-
-  const autosave = useNoteAutosave({
-    enabled: settings.autosaveEnabled && !!vaultPath && !!activeRelPath,
-    vaultPath,
-    relPath: activeRelPath,
-    text: noteText,
-    isDirty,
-    debounceMs: settings.autosaveDebounceMs,
-    save: writeNote,
-    onSaved: setSavedText,
-  })
-
   const { flush: flushAutosave, status: saveStatus, title: saveTitle, ariaLabel: saveAriaLabel } =
     autosave
 
@@ -198,27 +80,12 @@ function App() {
     void flushAutosave()
   }, [flushAutosave])
 
-  useEffect(() => {
-    setRecentRelPaths((prev) => {
-      const next = prev.slice(0, settings.quickSwitcherMaxRecents)
-      saveRecentToStorage(next, settings.quickSwitcherMaxRecents)
-      return next
-    })
-  }, [settings.quickSwitcherMaxRecents])
+  useEditorTheme(settings.editorTheme)
 
   useEffect(() => {
-    if (settings.backlinksEnabled) return
-    if (backlinksTimerRef.current != null) {
-      window.clearTimeout(backlinksTimerRef.current)
-      backlinksTimerRef.current = null
-    }
-    setBacklinksBusy(false)
-  }, [settings.backlinksEnabled])
-
-  useEffect(() => {
-    const root = document.documentElement
-    root.dataset.theme = settings.editorTheme
-  }, [settings.editorTheme])
+    resetNoteState()
+    resetBacklinks()
+  }, [resetBacklinks, resetNoteState, vaultPath])
 
   const closeQuickSwitcher = useCallback(() => {
     setQuickSwitcherOpen(false)
@@ -239,183 +106,6 @@ function App() {
     window.addEventListener('keydown', onKeyDown, true)
     return () => window.removeEventListener('keydown', onKeyDown, true)
   }, [])
-
-  const pickVault = useCallback(async () => {
-    setError(null)
-    const selected = await open({
-      directory: true,
-      multiple: false,
-      title: 'Select Vault Folder',
-    })
-
-    if (!selected || Array.isArray(selected)) return
-
-    setVaultPath(selected)
-    setActiveRelPath(null)
-    setNoteText('')
-    setSavedText('')
-    setBacklinks([])
-    setBacklinksBusy(false)
-    if (backlinksTimerRef.current != null) {
-      window.clearTimeout(backlinksTimerRef.current)
-      backlinksTimerRef.current = null
-    }
-    setBusy('Loading files…')
-    try {
-      await refreshFileList(selected)
-    } catch (e) {
-      setError(String(e))
-    } finally {
-      setBusy(null)
-    }
-  }, [refreshFileList])
-
-  useEffect(() => {
-    if (!settings.vaultRememberLast) return
-    if (vaultPath) return
-    const last = loadLastVaultPath()
-    if (!last) return
-
-    let cancelled = false
-    setVaultPath(last)
-    setActiveRelPath(null)
-    setNoteText('')
-    setSavedText('')
-    setBacklinks([])
-    setBacklinksBusy(false)
-    if (backlinksTimerRef.current != null) {
-      window.clearTimeout(backlinksTimerRef.current)
-      backlinksTimerRef.current = null
-    }
-    setBusy('Loading files…')
-    setError(null)
-    void (async () => {
-      try {
-        await refreshFileList(last)
-        if (cancelled) return
-      } catch (e) {
-        if (cancelled) return
-        setError(String(e))
-        setVaultPath(null)
-        saveLastVaultPath(null)
-      } finally {
-        if (!cancelled) setBusy(null)
-      }
-    })()
-
-    return () => {
-      cancelled = true
-    }
-  }, [refreshFileList, settings.vaultRememberLast, vaultPath])
-
-  useEffect(() => {
-    if (!settings.vaultRememberLast) {
-      saveLastVaultPath(null)
-      return
-    }
-    saveLastVaultPath(vaultPath)
-  }, [settings.vaultRememberLast, vaultPath])
-
-  const openNoteByRelPath = useCallback(
-    async (relPath: string): Promise<boolean> => {
-      if (!vaultPath) return false
-
-      const requestId = ++openRequestIdRef.current
-
-      if (activeRelPath && isDirty) {
-        const ok = await flushAutosave()
-        if (!ok) return false
-      }
-
-      setError(null)
-      setBusy('Opening note…')
-      try {
-        const text = await readNote(vaultPath, relPath)
-
-        if (openRequestIdRef.current !== requestId) return false
-
-        setActiveRelPath(relPath)
-        setNoteText(text)
-        setSavedText(text)
-        setBacklinks([])
-        setBacklinksBusy(false)
-
-        // Scan backlinks after the note is already open, but debounce to avoid
-        // expensive rescans when switching notes quickly.
-        scheduleBacklinksScan(vaultPath, relPath)
-
-        setRecentRelPaths((prev) => {
-          const next = [relPath, ...prev.filter((p) => p !== relPath)].slice(
-            0,
-            settings.quickSwitcherMaxRecents,
-          )
-          saveRecentToStorage(next, settings.quickSwitcherMaxRecents)
-          return next
-        })
-
-        return true
-      } catch (e) {
-        if (openRequestIdRef.current === requestId) {
-          setError(String(e))
-        }
-        return false
-      } finally {
-        if (openRequestIdRef.current === requestId) {
-          setBusy(null)
-        }
-      }
-    },
-    [activeRelPath, flushAutosave, isDirty, scheduleBacklinksScan, settings.quickSwitcherMaxRecents, vaultPath],
-  )
-
-  const tryOpenByTitle = useCallback(
-    async (title: string) => {
-      const normalized = normalizeWikiTarget(title)
-      const match = files.find((f) => normalizeWikiTarget(fileStem(f.rel_path)) === normalized)
-      if (match) {
-        await openNoteByRelPath(match.rel_path)
-      }
-    },
-    [files, openNoteByRelPath],
-  )
-
-  const openOrCreateWikilink = useCallback(
-    async (rawTarget: string) => {
-      if (!vaultPath) return
-      const trimmed = stripWikilinkTarget(rawTarget)
-      if (!trimmed) return
-
-      const normalized = normalizeWikiTarget(trimmed)
-      const match = files.find((f) => normalizeWikiTarget(fileStem(f.rel_path)) === normalized)
-      if (match) {
-        await openNoteByRelPath(match.rel_path)
-        return
-      }
-
-      const relPath = targetToRelPath(rawTarget)
-      if (!relPath) return
-      if (isIgnoredPath(relPath)) {
-        setError(`Cannot create note in ignored path: ${relPath}`)
-        return
-      }
-
-      const confirmed = window.confirm(`Create note "${trimmed}"?`)
-      if (!confirmed) return
-
-      setError(null)
-      setBusy('Creating note…')
-      try {
-        await createNote(vaultPath, relPath, '')
-        await refreshFileList(vaultPath)
-        await openNoteByRelPath(relPath)
-      } catch (e) {
-        setError(String(e))
-      } finally {
-        setBusy(null)
-      }
-    },
-    [files, openNoteByRelPath, refreshFileList, vaultPath],
-  )
 
   return (
     <ErrorBoundary fallbackTitle="Draglass hit an error">

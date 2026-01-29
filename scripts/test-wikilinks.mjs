@@ -73,3 +73,13 @@ assert.equal(ignore.isVisibleNoteForNavigation('.obsidian/config.md', false), fa
 assert.equal(ignore.isVisibleNoteForNavigation('.obsidian/config.md', true), true)
 
 console.log('ignore: ok')
+
+const noteTargets = await loadTsModule('src/features/notes/noteTargets.ts')
+
+assert.equal(noteTargets.stripWikilinkTarget(' Note | Alias '), 'Note')
+assert.equal(noteTargets.stripWikilinkTarget('  Foo  '), 'Foo')
+assert.equal(noteTargets.targetToRelPath('Foo'), 'Foo.md')
+assert.equal(noteTargets.targetToRelPath('Bar.md'), 'Bar.md')
+assert.equal(noteTargets.targetToRelPath(''), null)
+
+console.log('note targets: ok')
