@@ -1,3 +1,7 @@
+- 2026-01-29 — Decision: Add a fixed-width left Toolbox column for primary actions, with Mod+Shift+P reserved for the Command Palette placeholder.
+  - Rationale: Keep primary navigation always visible without impacting pane scrolling, and align shortcuts with established conventions.
+  - Impact: Future navigation actions should live in the left toolbox, and Mod+Shift+P should open the command palette.
+
 - 2026-01-29 — Decision: Live Preview image paths resolve relative to the note folder with vault-root paths denoted by leading `/`, and remote images are allowed except `javascript:` URLs.
   - Rationale: Support external image embeds while keeping a minimal scheme block for safety.
   - Impact: Image previews must allow http/https/data URLs, treat leading `/` as vault-root, prevent traversal above the vault, and block `javascript:` targets.

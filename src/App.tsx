@@ -7,6 +7,7 @@ import { FileTree } from './components/FileTree'
 import type { NoteEditorHandle } from './components/NoteEditor'
 import { QuickSwitcher } from './components/QuickSwitcher'
 import { SettingsScreen } from './components/SettingsScreen'
+import { Toolbox } from './components/Toolbox'
 import { useSettings } from './settings'
 import { useBacklinks } from './features/backlinks/useBacklinks'
 import { useNoteManager } from './features/notes/useNoteManager'
@@ -21,6 +22,11 @@ function isModP(e: KeyboardEvent): boolean {
   return mod && !e.altKey && !e.shiftKey && (e.key === 'p' || e.key === 'P')
 }
 
+function isModShiftP(e: KeyboardEvent): boolean {
+  const mod = e.metaKey || e.ctrlKey
+  return mod && !e.altKey && e.shiftKey && (e.key === 'p' || e.key === 'P')
+}
+
 function App() {
   const { settings, updateSettings, resetSettings } = useSettings()
   const [busy, setBusy] = useState<string | null>(null)
@@ -28,6 +34,8 @@ function App() {
 
   const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [graphViewOpen, setGraphViewOpen] = useState(false)
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
 
   const editorRef = useRef<NoteEditorHandle | null>(null)
 
@@ -94,18 +102,68 @@ function App() {
     }
   }, [activeRelPath])
 
+  const closeCommandPalette = useCallback(() => {
+    setCommandPaletteOpen(false)
+    if (activeRelPath) {
+      queueMicrotask(() => editorRef.current?.focus())
+    }
+  }, [activeRelPath])
+
+  const openQuickSwitcher = useCallback(() => {
+    setCommandPaletteOpen(false)
+    setQuickSwitcherOpen(true)
+  }, [])
+
+  const toggleGraphView = useCallback(() => {
+    setQuickSwitcherOpen(false)
+    setCommandPaletteOpen(false)
+    setGraphViewOpen((prev) => !prev)
+  }, [])
+
+  const openCommandPalette = useCallback(() => {
+    setQuickSwitcherOpen(false)
+    setCommandPaletteOpen(true)
+  }, [])
+
+  const openNoteAndCloseGraph = useCallback(
+    (relPath: string) => {
+      setGraphViewOpen(false)
+      return openNoteByRelPath(relPath)
+    },
+    [openNoteByRelPath],
+  )
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (!isModP(e)) return
-      e.preventDefault()
-      e.stopPropagation()
+      if (isModShiftP(e)) {
+        e.preventDefault()
+        e.stopPropagation()
+        setCommandPaletteOpen(true)
+        return
+      }
 
-      setQuickSwitcherOpen(true)
+      if (isModP(e)) {
+        e.preventDefault()
+        e.stopPropagation()
+        setQuickSwitcherOpen(true)
+      }
     }
 
     window.addEventListener('keydown', onKeyDown, true)
     return () => window.removeEventListener('keydown', onKeyDown, true)
   }, [])
+
+  useEffect(() => {
+    if (!commandPaletteOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        closeCommandPalette()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown, true)
+    return () => window.removeEventListener('keydown', onKeyDown, true)
+  }, [closeCommandPalette, commandPaletteOpen])
 
   return (
     <ErrorBoundary fallbackTitle="Draglass hit an error">
@@ -117,6 +175,14 @@ function App() {
         </header>
 
         <div className="content">
+          <Toolbox
+            quickSwitcherActive={quickSwitcherOpen}
+            graphViewActive={graphViewOpen}
+            commandPaletteActive={commandPaletteOpen}
+            onOpenQuickSwitcher={openQuickSwitcher}
+            onToggleGraphView={toggleGraphView}
+            onOpenCommandPalette={openCommandPalette}
+          />
           <aside className="sidebar">
             <div className="sidebarBody">
               <div className="paneHeader">
@@ -133,7 +199,7 @@ function App() {
                   activeRelPath={activeRelPath}
                   rememberExpanded={settings.filesRememberExpandedFolders}
                   onOpenFile={(p) => {
-                    void openNoteByRelPath(p)
+                    void openNoteAndCloseGraph(p)
                   }}
                 />
               )}
@@ -170,9 +236,9 @@ function App() {
 
           <main className="editorPane">
             <div className="editorHeader">
-              <div className="panelTitle">{noteTitle ?? 'Editor'}</div>
+              <div className="panelTitle">{graphViewOpen ? 'Graph View' : noteTitle ?? 'Editor'}</div>
               <div className="spacer" />
-              {activeRelPath ? (
+              {activeRelPath && !graphViewOpen ? (
                 <button
                   type="button"
                   className={`livePreviewToggle ${
@@ -184,7 +250,7 @@ function App() {
                   {settings.editorLivePreview ? 'Live Preview' : 'Source'}
                 </button>
               ) : null}
-              {activeRelPath ? (
+              {activeRelPath && !graphViewOpen ? (
                 <>
                   <span
                     className={`saveDot saveDot--${saveStatus}`}
@@ -199,7 +265,14 @@ function App() {
             {error ? <div className="error">{error}</div> : null}
             {busy ? <div className="busy">{busy}</div> : null}
 
-            {!vaultPath ? (
+            {graphViewOpen ? (
+              <div className="placeholderCard" role="status">
+                <div className="placeholderTitle">Graph view is coming soon.</div>
+                <div className="placeholderBody">
+                  This space will visualize connections between your notes once the graph view ships.
+                </div>
+              </div>
+            ) : !vaultPath ? (
               <div className="panelEmpty">Select a vault to edit notes.</div>
             ) : !activeRelPath ? (
               <div className="panelEmpty">Select a file from the list.</div>
@@ -235,6 +308,7 @@ function App() {
                       <button
                         className="linkItem"
                         onClick={() => {
+                          setGraphViewOpen(false)
                           void tryOpenByTitle(l.normalized)
                         }}
                       >
@@ -263,7 +337,7 @@ function App() {
                       <button
                         className="linkItem"
                         onClick={() => {
-                          void openNoteByRelPath(p)
+                          void openNoteAndCloseGraph(p)
                         }}
                       >
                         {p}
@@ -285,7 +359,7 @@ function App() {
         maxResults={settings.quickSwitcherMaxResults}
         maxRecents={settings.quickSwitcherMaxRecents}
         onRequestClose={closeQuickSwitcher}
-        onOpenRelPath={openNoteByRelPath}
+        onOpenRelPath={openNoteAndCloseGraph}
       />
 
       <SettingsScreen
@@ -295,6 +369,32 @@ function App() {
         onReset={resetSettings}
         onClose={() => setSettingsOpen(false)}
       />
+
+      {commandPaletteOpen ? (
+        <div
+          className="placeholderOverlay"
+          role="presentation"
+          onMouseDown={closeCommandPalette}
+        >
+          <div
+            className="placeholderModal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Command Palette"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <div className="placeholderTitle">Command palette is coming soon.</div>
+            <div className="placeholderBody">
+              We’ll bring command-driven workflows here in a future release.
+            </div>
+            <div className="placeholderFooter">
+              <button type="button" className="placeholderClose" onClick={closeCommandPalette}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </ErrorBoundary>
   )
 }

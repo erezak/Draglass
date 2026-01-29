@@ -43,10 +43,62 @@
 
 .content {
   display: grid;
-  grid-template-columns: 240px minmax(320px, 1fr) 260px;
+  grid-template-columns: 52px 240px minmax(320px, 1fr) 260px;
   flex: 1;
   min-height: 0;
   overflow: hidden;
+}
+
+.toolbox {
+  padding: 10px 8px;
+  border-right: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.toolboxButton {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border-strong);
+  background: var(--button-bg);
+  color: var(--toolbox-icon);
+  opacity: 1;
+  padding: 0;
+  line-height: 1;
+}
+
+.toolboxButton:hover {
+  border-color: var(--button-hover-border);
+  background: var(--highlight);
+  color: var(--text-primary);
+  opacity: 1;
+}
+
+.toolboxButton--active {
+  border-color: var(--button-hover-border);
+  background: var(--highlight);
+  color: var(--text-primary);
+  opacity: 1;
+}
+
+.toolboxIcon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  color: var(--toolbox-icon);
+}
+
+.toolboxIcon * {
+  fill: var(--toolbox-icon);
+  stroke: none;
 }
 
 .sidebar,
@@ -161,6 +213,28 @@
   font-size: 13px;
   color: var(--text-muted);
   padding: 8px;
+}
+
+.placeholderCard {
+  margin: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border-strong);
+  background: var(--panel-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-primary);
+}
+
+.placeholderTitle {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.placeholderBody {
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 .fileList,
@@ -806,6 +880,42 @@
 .imageLightboxClose {
   align-self: center;
   padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--button-border);
+  background: var(--button-bg);
+}
+
+.placeholderOverlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 10vh 16px 16px;
+  z-index: 1050;
+}
+
+.placeholderModal {
+  width: min(560px, 92vw);
+  border-radius: 12px;
+  border: 1px solid var(--panel-border-strong);
+  background: var(--panel-solid);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.placeholderFooter {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.placeholderClose {
+  padding: 6px 12px;
   border-radius: 999px;
   border: 1px solid var(--button-border);
   background: var(--button-bg);
