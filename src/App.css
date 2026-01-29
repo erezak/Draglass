@@ -295,6 +295,11 @@
 .noteEditor {
   flex: 1;
   min-height: 0;
+  position: relative;
+}
+
+.noteEditorHost {
+  height: 100%;
 }
 
 .noteEditor .cm-editor {
@@ -365,6 +370,38 @@
 
 .noteEditor .cm-livePreview-hidden {
   display: none;
+}
+
+.noteEditor .cm-livePreview-imageWidget {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.noteEditor .cm-livePreview-imageWidget img {
+  max-width: min(320px, 100%);
+  max-height: 220px;
+  border-radius: 6px;
+  border: 1px solid var(--panel-border);
+  background: rgba(0, 0, 0, 0.15);
+  object-fit: contain;
+  cursor: zoom-in;
+}
+
+.noteEditor .cm-livePreview-imagePlaceholder {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--text-muted);
+  border: 1px dashed var(--panel-border-strong);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-imagePlaceholder {
+  background: rgba(15, 23, 42, 0.04);
 }
 
 .noteEditor .cm-livePreview-taskToggle {
@@ -724,6 +761,54 @@
 .settingsHint {
   font-size: 12px;
   color: var(--text-muted);
+}
+
+.imageLightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1200;
+}
+
+.imageLightboxCard {
+  max-width: min(90vw, 960px);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--panel-solid);
+  border: 1px solid var(--panel-border-strong);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+.imageLightboxCard img {
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  object-fit: contain;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.imageLightboxCaption {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.imageLightboxClose {
+  align-self: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--button-border);
+  background: var(--button-bg);
 }
 
 @keyframes saveDotPulse {

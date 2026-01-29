@@ -8,6 +8,13 @@ pub struct NoteEntry {
     pub display_name: String,
 }
 
+#[derive(Debug, Serialize)]
+pub struct VaultImage {
+    pub bytes: Vec<u8>,
+    pub mime: String,
+    pub mtime_ms: u64,
+}
+
 fn is_markdown_file(path: &Path) -> bool {
     match path.extension().and_then(OsStr::to_str) {
         Some(ext) => {
@@ -122,6 +129,48 @@ fn resolve_existing_note_path(vault_path: &str, rel_path: &str) -> Result<PathBu
     Ok(candidate)
 }
 
+fn resolve_existing_asset_path(vault_path: &str, rel_path: &str) -> Result<PathBuf, String> {
+    let vault =
+        std::fs::canonicalize(vault_path).map_err(|e| format!("invalid vault path: {e}"))?;
+    if !vault.is_dir() {
+        return Err("vault path is not a directory".to_string());
+    }
+
+    let rel = sanitize_rel_path(rel_path)?;
+    let candidate = vault.join(rel);
+    let candidate =
+        std::fs::canonicalize(&candidate).map_err(|e| format!("invalid asset path: {e}"))?;
+
+    if !candidate.starts_with(&vault) {
+        return Err("asset path escapes vault".to_string());
+    }
+    if !candidate.is_file() {
+        return Err("asset path is not a file".to_string());
+    }
+
+    Ok(candidate)
+}
+
+fn mime_for_path(path: &Path) -> String {
+    let ext = path
+        .extension()
+        .and_then(OsStr::to_str)
+        .unwrap_or("")
+        .to_ascii_lowercase();
+    match ext.as_str() {
+        "png" => "image/png",
+        "jpg" | "jpeg" => "image/jpeg",
+        "gif" => "image/gif",
+        "webp" => "image/webp",
+        "svg" => "image/svg+xml",
+        "avif" => "image/avif",
+        "bmp" => "image/bmp",
+        "tif" | "tiff" => "image/tiff",
+        _ => "application/octet-stream",
+    }
+    .to_string()
+}
+
 fn resolve_note_path_for_create(vault_path: &str, rel_path: &str) -> Result<PathBuf, String> {
     let vault =
         std::fs::canonicalize(vault_path).map_err(|e| format!("invalid vault path: {e}"))?;
@@ -189,4 +238,23 @@ pub fn create_note_impl(vault_path: &str, rel_path: &str, contents: &str) -> Res
     }
 
     std::fs::write(path, contents).map_err(|e| format!("failed to create note: {e}"))
+}
+
+pub fn read_vault_image_impl(vault_path: &str, rel_path: &str) -> Result<VaultImage, String> {
+    let path = resolve_existing_asset_path(vault_path, rel_path)?;
+    let bytes = std::fs::read(&path).map_err(|e| format!("failed to read asset: {e}"))?;
+    let metadata = std::fs::metadata(&path).map_err(|e| format!("failed to read metadata: {e}"))?;
+    let modified = metadata
+        .modified()
+        .map_err(|e| format!("failed to read modified time: {e}"))?;
+    let mtime_ms = modified
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_err(|e| format!("invalid modified time: {e}"))?
+        .as_millis() as u64;
+
+    Ok(VaultImage {
+        bytes,
+        mime: mime_for_path(&path),
+        mtime_ms,
+    })
 }

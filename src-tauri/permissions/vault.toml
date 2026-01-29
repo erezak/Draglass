@@ -48,6 +48,16 @@ identifier = "find-backlinks-legacy"
 description = "Allows scanning the vault to find backlinks for a note (legacy command name)."
 commands.allow = ["find_backlinks"]
 
+[[permission]]
+identifier = "read-vault-image"
+description = "Allows reading an image asset from the selected vault."
+commands.allow = ["read-vault-image"]
+
+[[permission]]
+identifier = "read-vault-image-legacy"
+description = "Allows reading an image asset from the selected vault (legacy command name)."
+commands.allow = ["read_vault_image"]
+
 [[set]]
 identifier = "vault"
 description = "Allows the main window to access vault-related app commands."
@@ -62,4 +72,6 @@ permissions = [
   "create-note-legacy",
   "find-backlinks",
   "find-backlinks-legacy",
+  "read-vault-image",
+  "read-vault-image-legacy",
 ]

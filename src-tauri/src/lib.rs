@@ -64,6 +64,7 @@ pub fn run() {
             write_note,
             create_note,
             find_backlinks,
+            read_vault_image,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -112,7 +113,8 @@ fn persist_window_state(
 
 use crate::backlinks::find_backlinks_impl;
 use crate::vault::{
-    create_note_impl, list_markdown_files_impl, read_note_impl, write_note_impl, NoteEntry,
+    create_note_impl, list_markdown_files_impl, read_note_impl, read_vault_image_impl,
+    write_note_impl, NoteEntry, VaultImage,
 };
 
 #[tauri::command(rename = "list-markdown-files")]
@@ -150,6 +152,13 @@ async fn create_note(
 #[tauri::command(rename = "find-backlinks")]
 async fn find_backlinks(vault_path: String, target_title: String) -> Result<Vec<String>, String> {
     tauri::async_runtime::spawn_blocking(move || find_backlinks_impl(&vault_path, &target_title))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command(rename = "read-vault-image")]
+async fn read_vault_image(vault_path: String, rel_path: String) -> Result<VaultImage, String> {
+    tauri::async_runtime::spawn_blocking(move || read_vault_image_impl(&vault_path, &rel_path))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }

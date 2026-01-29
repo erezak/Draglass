@@ -213,6 +213,9 @@ function App() {
                   wrap={settings.editorWrap}
                   livePreview={settings.editorLivePreview}
                   renderDiagrams={settings.editorRenderDiagrams}
+                  renderImages={settings.editorRenderImages}
+                  vaultPath={vaultPath}
+                  noteRelPath={activeRelPath}
                   onOpenWikilink={openOrCreateWikilink}
                   theme={settings.editorTheme}
                 />

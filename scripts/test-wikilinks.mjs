@@ -55,6 +55,39 @@ assert.equal(livePreview.extractWikilinkAt(linkText, 2), null)
 
 console.log('livePreview helpers: ok')
 
+const imageHelpers = await loadTsModule('src/editor/imagePreviewHelpers.ts')
+
+assert.equal(imageHelpers.isRemoteImageTarget('https://example.com/a.png'), true)
+assert.equal(imageHelpers.isRemoteImageTarget('data:image/png;base64,aaa'), true)
+assert.equal(imageHelpers.isRemoteImageTarget('javascript:alert(1)'), true)
+assert.equal(imageHelpers.isRemoteImageTarget('//example.com/a.png'), true)
+assert.equal(imageHelpers.isRemoteImageTarget('images/photo.png'), false)
+
+assert.equal(
+  imageHelpers.resolveImageTarget('notes/idea.md', './images/photo.png'),
+  'notes/images/photo.png',
+)
+assert.equal(
+  imageHelpers.resolveImageTarget('notes/idea.md', 'images\\photo.png'),
+  'notes/images/photo.png',
+)
+assert.equal(
+  imageHelpers.resolveImageTarget('notes/idea.md', '/assets/shared.png'),
+  'assets/shared.png',
+)
+assert.equal(imageHelpers.resolveImageTarget('notes/idea.md', '../oops.png'), null)
+
+const imageTargets = imageHelpers.extractImageMarkups(
+  '![Alt](images/a.png "Title") ![[assets/b.png|Wiki Alt]]',
+)
+assert.equal(imageTargets.length, 2)
+assert.equal(imageTargets[0].target, 'images/a.png')
+assert.equal(imageTargets[0].alt, 'Alt')
+assert.equal(imageTargets[1].target, 'assets/b.png')
+assert.equal(imageTargets[1].alt, 'Wiki Alt')
+
+console.log('image helpers: ok')
+
 const ignore = await loadTsModule('src/ignore.ts')
 
 assert.equal(ignore.isMarkdownNotePath('a.md'), true)

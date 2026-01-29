@@ -5,6 +5,7 @@
     "list-markdown-files",
     "read-note",
     "write-note",
-    "find-backlinks"
+    "find-backlinks",
+    "read-vault-image"
   ]
 }

@@ -1,3 +1,7 @@
+- 2026-01-29 — Decision: Live Preview image paths resolve relative to the note folder, with vault-root paths denoted by leading `/`, and remote URL schemes are blocked.
+  - Rationale: Preserve vault-local safety while supporting common relative and vault-root image references.
+  - Impact: Image previews must reject any scheme-based URLs (http/https/data/javascript/etc.), treat leading `/` as vault-root, and prevent traversal above the vault.
+
 - 2026-01-22 — Decision: Mermaid block widgets are provided via a StateField, updated by a ViewPlugin effect.
   - Rationale: CodeMirror disallows block decorations coming directly from ViewPlugins.
   - Impact: Mermaid Live Preview updates must dispatch effects to refresh the StateField when the viewport, selection, or document changes.

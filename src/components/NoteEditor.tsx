@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 
 import { Compartment, EditorState } from '@codemirror/state'
 import { EditorView, keymap, lineNumbers, type ViewUpdate } from '@codemirror/view'
@@ -13,6 +13,9 @@ type NoteEditorProps = {
   wrap?: boolean
   livePreview?: boolean
   renderDiagrams?: boolean
+  renderImages?: boolean
+  vaultPath?: string | null
+  noteRelPath?: string | null
   onOpenWikilink?: (rawTarget: string) => void
   theme?: 'dark' | 'light'
 }
@@ -29,6 +32,9 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
     wrap = true,
     livePreview = true,
     renderDiagrams = true,
+    renderImages = true,
+    vaultPath = null,
+    noteRelPath = null,
     onOpenWikilink,
     theme = 'dark',
   },
@@ -40,8 +46,18 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
   const initialWrapRef = useRef<boolean>(wrap)
   const initialLivePreviewRef = useRef<boolean>(livePreview)
   const initialRenderDiagramsRef = useRef<boolean>(renderDiagrams)
+  const initialRenderImagesRef = useRef<boolean>(renderImages)
   const initialOpenWikilinkRef = useRef<NoteEditorProps['onOpenWikilink']>(onOpenWikilink)
+  const initialVaultPathRef = useRef<string | null>(vaultPath)
+  const initialNoteRelPathRef = useRef<string | null>(noteRelPath)
   const [initError, setInitError] = useState<Error | null>(null)
+  const [lightbox, setLightbox] = useState<{ src: string; alt?: string } | null>(null)
+
+  const onOpenImage = useCallback((src: string, alt?: string) => {
+    setLightbox({ src, alt })
+  }, [])
+
+  const initialOpenImageRef = useRef<((url: string, alt?: string) => void) | null>(onOpenImage)
 
   const wrapCompartmentRef = useRef<Compartment | null>(null)
   if (wrapCompartmentRef.current == null) {
@@ -106,9 +122,45 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
 
   useEffect(() => {
     if (viewRef.current == null) {
+      initialRenderImagesRef.current = renderImages
+    }
+  }, [renderImages])
+
+  useEffect(() => {
+    if (viewRef.current == null) {
+      initialVaultPathRef.current = vaultPath
+    }
+  }, [vaultPath])
+
+  useEffect(() => {
+    if (viewRef.current == null) {
+      initialNoteRelPathRef.current = noteRelPath
+    }
+  }, [noteRelPath])
+
+  useEffect(() => {
+    if (viewRef.current == null) {
       initialOpenWikilinkRef.current = onOpenWikilink
     }
   }, [onOpenWikilink])
+
+  useEffect(() => {
+    if (viewRef.current == null) {
+      initialOpenImageRef.current = onOpenImage
+    }
+  }, [onOpenImage])
+
+  useEffect(() => {
+    if (!lightbox) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setLightbox(null)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown, true)
+    return () => window.removeEventListener('keydown', onKeyDown, true)
+  }, [lightbox])
 
   const extensions = useMemo(() => {
     const isDark = theme === 'dark'
@@ -157,6 +209,10 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
           ? createLivePreviewExtension({
               onOpenWikilink: initialOpenWikilinkRef.current,
               renderDiagrams: initialRenderDiagramsRef.current,
+              renderImages: initialRenderImagesRef.current,
+              vaultPath: initialVaultPathRef.current ?? undefined,
+              noteRelPath: initialNoteRelPathRef.current ?? undefined,
+              onOpenImage: initialOpenImageRef.current ?? undefined,
               theme,
             })
           : [],
@@ -261,12 +317,16 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
           ? createLivePreviewExtension({
               onOpenWikilink,
               renderDiagrams,
+              renderImages,
+              vaultPath: vaultPath ?? undefined,
+              noteRelPath: noteRelPath ?? undefined,
+              onOpenImage,
               theme,
             })
           : [],
       ),
     })
-  }, [livePreview, onOpenWikilink, renderDiagrams, theme])
+  }, [livePreview, onOpenWikilink, renderDiagrams, renderImages, vaultPath, noteRelPath, onOpenImage, theme])
 
   if (initError) {
     return (
@@ -277,7 +337,30 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
     )
   }
 
-  return <div className="noteEditor" ref={hostRef} />
+  return (
+    <div className="noteEditor">
+      <div className="noteEditorHost" ref={hostRef} />
+      {lightbox ? (
+        <div className="imageLightbox" role="presentation" onMouseDown={() => setLightbox(null)}>
+          <div
+            className="imageLightboxCard"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Image preview"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <img src={lightbox.src} alt={lightbox.alt ?? ''} />
+            {lightbox.alt ? (
+              <div className="imageLightboxCaption">{lightbox.alt}</div>
+            ) : null}
+            <button type="button" className="imageLightboxClose" onClick={() => setLightbox(null)}>
+              Close
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  )
 })
 
 export default NoteEditor

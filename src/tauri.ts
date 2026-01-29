@@ -2,6 +2,12 @@ import { invoke } from '@tauri-apps/api/core'
 
 import type { NoteEntry } from './types'
 
+export type VaultImageResponse = {
+  bytes: number[]
+  mime: string
+  mtime_ms: number
+}
+
 async function invokeWithFallback<T>(
   primaryCommand: string,
   fallbackCommand: string,
@@ -59,6 +65,18 @@ export async function createNote(
     'create_note',
     { vault_path: vaultPath, rel_path: relPath, contents },
     { vaultPath, relPath, contents },
+  )
+}
+
+export async function readVaultImage(
+  vaultPath: string,
+  relPath: string,
+): Promise<VaultImageResponse> {
+  return invokeWithFallback<VaultImageResponse>(
+    'read-vault-image',
+    'read_vault_image',
+    { vault_path: vaultPath, rel_path: relPath },
+    { vaultPath, relPath },
   )
 }
 

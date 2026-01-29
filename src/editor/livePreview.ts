@@ -8,7 +8,11 @@ import { createMermaidDecorationsPlugin, mermaidDecorationsField, type MermaidTh
 
 export type LivePreviewOptions = {
   onOpenWikilink?: (rawTarget: string) => void
+  onOpenImage?: (url: string, alt?: string) => void
   renderDiagrams?: boolean
+  renderImages?: boolean
+  vaultPath?: string
+  noteRelPath?: string
   theme?: MermaidTheme
 }
 
@@ -80,7 +84,12 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
       renderDiagrams: options.renderDiagrams,
       theme: options.theme,
     }),
-    createInlineLivePreviewPlugin(),
+    createInlineLivePreviewPlugin({
+      renderImages: options.renderImages,
+      vaultPath: options.vaultPath,
+      noteRelPath: options.noteRelPath,
+      onOpenImage: options.onOpenImage,
+    }),
     handlers,
     mermaidKeymap,
   ]
