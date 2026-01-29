@@ -57,11 +57,16 @@ console.log('livePreview helpers: ok')
 
 const imageHelpers = await loadTsModule('src/editor/imagePreviewHelpers.ts')
 
-assert.equal(imageHelpers.isRemoteImageTarget('https://example.com/a.png'), true)
-assert.equal(imageHelpers.isRemoteImageTarget('data:image/png;base64,aaa'), true)
-assert.equal(imageHelpers.isRemoteImageTarget('javascript:alert(1)'), true)
-assert.equal(imageHelpers.isRemoteImageTarget('//example.com/a.png'), true)
-assert.equal(imageHelpers.isRemoteImageTarget('images/photo.png'), false)
+assert.equal(imageHelpers.isBlockedImageTarget('https://example.com/a.png'), false)
+assert.equal(imageHelpers.isBlockedImageTarget('data:image/png;base64,aaa'), false)
+assert.equal(imageHelpers.isBlockedImageTarget('javascript:alert(1)'), true)
+assert.equal(imageHelpers.isBlockedImageTarget('//example.com/a.png'), false)
+assert.equal(imageHelpers.isBlockedImageTarget('images/photo.png'), false)
+
+assert.equal(imageHelpers.isExternalImageTarget('https://example.com/a.png'), true)
+assert.equal(imageHelpers.isExternalImageTarget('data:image/png;base64,aaa'), true)
+assert.equal(imageHelpers.isExternalImageTarget('//example.com/a.png'), true)
+assert.equal(imageHelpers.isExternalImageTarget('images/photo.png'), false)
 
 assert.equal(
   imageHelpers.resolveImageTarget('notes/idea.md', './images/photo.png'),

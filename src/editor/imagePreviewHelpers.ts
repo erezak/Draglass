@@ -15,7 +15,13 @@ export function normalizeImageTarget(raw: string): string {
   return raw.trim().replace(/\\/g, '/')
 }
 
-export function isRemoteImageTarget(raw: string): boolean {
+export function isBlockedImageTarget(raw: string): boolean {
+  const normalized = normalizeImageTarget(raw)
+  if (!normalized) return false
+  return normalized.startsWith('javascript:')
+}
+
+export function isExternalImageTarget(raw: string): boolean {
   const normalized = normalizeImageTarget(raw)
   if (!normalized) return false
   if (normalized.startsWith('//')) return true

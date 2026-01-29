@@ -9,7 +9,12 @@ import {
 } from '@codemirror/view'
 
 import { readVaultImage } from '../tauri'
-import { extractImageMarkups, isRemoteImageTarget, resolveImageTarget } from './imagePreviewHelpers'
+import {
+  extractImageMarkups,
+  isBlockedImageTarget,
+  isExternalImageTarget,
+  resolveImageTarget,
+} from './imagePreviewHelpers'
 import { shouldHideMarkup } from './livePreviewHelpers'
 import { findMermaidStartForLine, getFenceLang, MERMAID_LANG } from './mermaidBlocks'
 
@@ -115,6 +120,7 @@ class ImageWidget extends WidgetType {
   private readonly onOpenImage?: (url: string, alt?: string) => void
   private readonly cache: Map<string, ImageCacheEntry>
   private readonly pending: Map<string, Promise<ImageCacheEntry | null>>
+  private readonly directUrl?: string
 
   constructor(options: {
     cacheKey: string
@@ -124,6 +130,7 @@ class ImageWidget extends WidgetType {
     onOpenImage?: (url: string, alt?: string) => void
     cache: Map<string, ImageCacheEntry>
     pending: Map<string, Promise<ImageCacheEntry | null>>
+    directUrl?: string
   }) {
     super()
     this.cacheKey = options.cacheKey
@@ -133,6 +140,7 @@ class ImageWidget extends WidgetType {
     this.onOpenImage = options.onOpenImage
     this.cache = options.cache
     this.pending = options.pending
+    this.directUrl = options.directUrl
   }
 
   eq(other: ImageWidget) {
@@ -149,14 +157,18 @@ class ImageWidget extends WidgetType {
     img.decoding = 'async'
     wrapper.appendChild(img)
 
-    const cached = this.cache.get(this.cacheKey)
-    if (cached) {
-      img.src = cached.url
+    if (this.directUrl) {
+      img.src = this.directUrl
     } else {
-      const debounceMs = 60
-      window.setTimeout(() => {
-        void this.loadImage(img, wrapper)
-      }, debounceMs)
+      const cached = this.cache.get(this.cacheKey)
+      if (cached) {
+        img.src = cached.url
+      } else {
+        const debounceMs = 60
+        window.setTimeout(() => {
+          void this.loadImage(img, wrapper)
+        }, debounceMs)
+      }
     }
 
     if (this.onOpenImage) {
@@ -369,45 +381,75 @@ function buildInlineLivePreviewDecorations(
           }
 
           const altText = image.alt || image.target
-          if (isRemoteImageTarget(image.target)) {
+          if (isBlockedImageTarget(image.target)) {
             decorations.push({
               from: markupFrom,
               to: markupTo,
               decoration: Decoration.replace({
-                widget: new ImagePlaceholderWidget('remote images disabled'),
+                widget: new ImagePlaceholderWidget('image blocked'),
+              }),
+            })
+            continue
+          }
+
+          if (isExternalImageTarget(image.target)) {
+            const cacheKey = `${noteRelPath}:${markupFrom}-${markupTo}:${image.target}`
+            decorations.push({
+              from: markupFrom,
+              to: markupTo,
+              decoration: Decoration.replace({
+                widget: new ImageWidget({
+                  cacheKey,
+                  vaultPath: options.vaultPath ?? '',
+                  relPath: '',
+                  alt: altText,
+                  onOpenImage: options.onOpenImage,
+                  cache,
+                  pending,
+                  directUrl: image.target,
+                }),
               }),
             })
             continue
           }
 
           const resolved = resolveImageTarget(noteRelPath, image.target)
-          if (!resolved) {
+          if (resolved) {
+            const cacheKey = `${noteRelPath}:${markupFrom}-${markupTo}:${resolved}`
             decorations.push({
               from: markupFrom,
               to: markupTo,
               decoration: Decoration.replace({
-                widget: new ImagePlaceholderWidget('image not found'),
+                widget: new ImageWidget({
+                  cacheKey,
+                  vaultPath: options.vaultPath ?? '',
+                  relPath: resolved,
+                  alt: altText,
+                  onOpenImage: options.onOpenImage,
+                  cache,
+                  pending,
+                }),
               }),
             })
-            continue
-          }
-
-          const cacheKey = `${noteRelPath}:${markupFrom}-${markupTo}:${resolved}`
-          decorations.push({
-            from: markupFrom,
-            to: markupTo,
-            decoration: Decoration.replace({
-              widget: new ImageWidget({
-                cacheKey,
-                vaultPath: options.vaultPath ?? '',
-                relPath: resolved,
-                alt: altText,
-                onOpenImage: options.onOpenImage,
-                cache,
-                pending,
+          } else {
+            const cacheKey = `${noteRelPath}:${markupFrom}-${markupTo}:${image.target}`
+            decorations.push({
+              from: markupFrom,
+              to: markupTo,
+              decoration: Decoration.replace({
+                widget: new ImageWidget({
+                  cacheKey,
+                  vaultPath: '',
+                  relPath: '',
+                  alt: altText,
+                  onOpenImage: options.onOpenImage,
+                  cache,
+                  pending,
+                  directUrl: image.target,
+                }),
               }),
-            }),
-          })
+            })
+          }
         }
       }
 

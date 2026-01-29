@@ -17,6 +17,6 @@ Missing image:
 
 ![Missing](missing/does-not-exist.png "Missing image")
 
-Remote URL (should be blocked):
+Remote URL (should load):
 
 ![Remote](https://example.com/remote.png "Remote image")
