@@ -50,7 +50,7 @@ const linkText = 'Start [[Note Name|Alias]] end'
 const match = livePreview.extractWikilinkAt(linkText, 10)
 assert.equal(match?.rawTarget, 'Note Name|Alias')
 assert.equal(match?.from, 6)
-assert.equal(match?.to, 27)
+assert.equal(match?.to, 25)
 assert.equal(livePreview.extractWikilinkAt(linkText, 2), null)
 
 console.log('livePreview helpers: ok')
