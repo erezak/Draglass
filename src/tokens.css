@@ -1,0 +1,265 @@
+/**
+ * IBM Carbon Design System Tokens
+ * 
+ * This file defines design tokens following IBM Carbon principles:
+ * - 8px grid system
+ * - IBM Plex font family
+ * - Carbon color palette (gray scale + semantic colors)
+ * - Structured spacing and elevation
+ * - Strong focus states
+ */
+
+/* ============================================
+   TYPOGRAPHY - IBM Plex Font Family
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root {
+  /* Font families */
+  --font-family-sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-family-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+  /* Font sizes - following 8px grid with type scale */
+  --font-size-01: 12px;  /* Caption */
+  --font-size-02: 14px;  /* Body */
+  --font-size-03: 16px;  /* Heading */
+  --font-size-04: 18px;  /* Subheading */
+  --font-size-05: 20px;  /* Section heading */
+  --font-size-06: 24px;  /* Page title */
+
+  /* Font weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Line heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* ============================================
+     SPACING - 8px Grid System
+     ============================================ */
+  --spacing-01: 2px;
+  --spacing-02: 4px;
+  --spacing-03: 8px;
+  --spacing-04: 12px;
+  --spacing-05: 16px;
+  --spacing-06: 24px;
+  --spacing-07: 32px;
+  --spacing-08: 40px;
+  --spacing-09: 48px;
+  --spacing-10: 64px;
+
+  /* ============================================
+     LAYOUT
+     ============================================ */
+  --layout-01: 16px;  /* Gutter/padding */
+  --layout-02: 24px;
+  --layout-03: 32px;
+  --layout-04: 48px;
+
+  /* Border radius */
+  --radius-01: 0px;    /* None */
+  --radius-02: 2px;    /* Small */
+  --radius-03: 4px;    /* Default */
+  --radius-04: 8px;    /* Large */
+
+  /* ============================================
+     ELEVATION (Box Shadows)
+     ============================================ */
+  --elevation-01: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --elevation-02: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --elevation-03: 0 8px 16px rgba(0, 0, 0, 0.3);
+  --elevation-04: 0 12px 24px rgba(0, 0, 0, 0.3);
+  --elevation-05: 0 16px 32px rgba(0, 0, 0, 0.4);
+
+  /* ============================================
+     DARK MODE COLORS (Default)
+     Carbon Gray Scale + Semantic Colors
+     ============================================ */
+  color-scheme: dark;
+
+  /* Background layers */
+  --layer-00: #161616;  /* Carbon Gray 100 - UI background */
+  --layer-01: #262626;  /* Carbon Gray 90 - Container background */
+  --layer-02: #393939;  /* Carbon Gray 80 - Raised container */
+  --layer-03: #525252;  /* Carbon Gray 70 - Overlay */
+  
+  /* UI layer (for panels, cards) */
+  --ui-background: #262626;  /* Carbon Gray 90 */
+  --ui-01: #393939;          /* Carbon Gray 80 */
+  --ui-02: #525252;          /* Carbon Gray 70 */
+  
+  /* Text colors */
+  --text-primary: #f4f4f4;      /* Carbon Gray 10 */
+  --text-secondary: #c6c6c6;    /* Carbon Gray 30 */
+  --text-placeholder: #8d8d8d;  /* Carbon Gray 50 */
+  --text-disabled: #6f6f6f;     /* Carbon Gray 60 */
+  --text-on-color: #ffffff;
+  --text-helper: #8d8d8d;
+  --text-error: #ff8389;
+
+  /* Link colors */
+  --link-primary: #78a9ff;      /* Carbon Blue 40 */
+  --link-primary-hover: #a6c8ff;
+  --link-visited: #be95ff;      /* Carbon Purple 40 */
+
+  /* Border colors */
+  --border-subtle: #393939;     /* Carbon Gray 80 */
+  --border-strong: #525252;     /* Carbon Gray 70 */
+  --border-inverse: #161616;
+  --border-interactive: #4589ff; /* Carbon Blue 50 */
+  --border-disabled: #525252;
+
+  /* Field colors */
+  --field-01: #262626;
+  --field-02: #393939;
+  --field-03: #525252;
+
+  /* Interactive colors */
+  --interactive-primary: #0f62fe;    /* Carbon Blue 60 */
+  --interactive-hover: #0353e9;      /* Carbon Blue 70 */
+  --interactive-active: #002d9c;     /* Carbon Blue 80 */
+  --interactive-disabled: #525252;
+
+  /* Focus */
+  --focus: #0f62fe;  /* Carbon Blue 60 */
+  --focus-inset: #ffffff;
+  --focus-inverse: #ffffff;
+
+  /* Support colors - Semantic */
+  --support-error: #fa4d56;         /* Carbon Red 50 */
+  --support-success: #42be65;       /* Carbon Green 50 */
+  --support-warning: #f1c21b;       /* Carbon Yellow 30 */
+  --support-info: #4589ff;          /* Carbon Blue 50 */
+
+  /* Icon colors */
+  --icon-primary: #f4f4f4;
+  --icon-secondary: #c6c6c6;
+  --icon-disabled: #6f6f6f;
+  --icon-on-color: #ffffff;
+  --icon-interactive: #4589ff;
+
+  /* Button colors */
+  --button-primary: #0f62fe;
+  --button-primary-hover: #0353e9;
+  --button-primary-active: #002d9c;
+  --button-secondary: #393939;
+  --button-secondary-hover: #474747;
+  --button-secondary-active: #6f6f6f;
+  --button-danger: #da1e28;
+  --button-danger-hover: #ba1b23;
+  --button-danger-active: #750e13;
+
+  /* Overlay */
+  --overlay: rgba(0, 0, 0, 0.65);
+
+  /* Skeleton */
+  --skeleton-background: #353535;
+  --skeleton-element: #525252;
+
+  /* ============================================
+     TRANSITIONS
+     Carbon uses 150-200ms duration
+     ============================================ */
+  --transition-fast: 110ms;
+  --transition-base: 150ms;
+  --transition-moderate: 240ms;
+  --transition-slow: 400ms;
+
+  --transition-timing: cubic-bezier(0.2, 0, 0.38, 0.9);  /* Carbon standard easing */
+}
+
+/* ============================================
+   LIGHT MODE COLORS
+   ============================================ */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  /* Background layers */
+  --layer-00: #ffffff;  /* White - UI background */
+  --layer-01: #f4f4f4;  /* Carbon Gray 10 - Container background */
+  --layer-02: #e0e0e0;  /* Carbon Gray 20 - Raised container */
+  --layer-03: #c6c6c6;  /* Carbon Gray 30 - Overlay */
+
+  /* UI layer */
+  --ui-background: #f4f4f4;
+  --ui-01: #e0e0e0;
+  --ui-02: #c6c6c6;
+
+  /* Text colors */
+  --text-primary: #161616;      /* Carbon Gray 100 */
+  --text-secondary: #525252;    /* Carbon Gray 70 */
+  --text-placeholder: #a8a8a8;  /* Carbon Gray 40 */
+  --text-disabled: #c6c6c6;     /* Carbon Gray 30 */
+  --text-on-color: #ffffff;
+  --text-helper: #6f6f6f;
+  --text-error: #da1e28;
+
+  /* Link colors */
+  --link-primary: #0f62fe;
+  --link-primary-hover: #0043ce;
+  --link-visited: #8a3ffc;
+
+  /* Border colors */
+  --border-subtle: #e0e0e0;
+  --border-strong: #8d8d8d;
+  --border-inverse: #161616;
+  --border-interactive: #0f62fe;
+  --border-disabled: #c6c6c6;
+
+  /* Field colors */
+  --field-01: #f4f4f4;
+  --field-02: #ffffff;
+  --field-03: #e0e0e0;
+
+  /* Interactive colors */
+  --interactive-primary: #0f62fe;
+  --interactive-hover: #0353e9;
+  --interactive-active: #002d9c;
+  --interactive-disabled: #c6c6c6;
+
+  /* Focus */
+  --focus: #0f62fe;
+  --focus-inset: #ffffff;
+  --focus-inverse: #ffffff;
+
+  /* Support colors */
+  --support-error: #da1e28;
+  --support-success: #24a148;
+  --support-warning: #f1c21b;
+  --support-info: #0043ce;
+
+  /* Icon colors */
+  --icon-primary: #161616;
+  --icon-secondary: #525252;
+  --icon-disabled: #c6c6c6;
+  --icon-on-color: #ffffff;
+  --icon-interactive: #0f62fe;
+
+  /* Button colors */
+  --button-primary: #0f62fe;
+  --button-primary-hover: #0353e9;
+  --button-primary-active: #002d9c;
+  --button-secondary: #e0e0e0;
+  --button-secondary-hover: #c6c6c6;
+  --button-secondary-active: #8d8d8d;
+  --button-danger: #da1e28;
+  --button-danger-hover: #ba1b23;
+  --button-danger-active: #750e13;
+
+  /* Overlay */
+  --overlay: rgba(0, 0, 0, 0.5);
+
+  /* Skeleton */
+  --skeleton-background: #e5e5e5;
+  --skeleton-element: #c6c6c6;
+
+  /* Elevation (lighter shadows for light mode) */
+  --elevation-01: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --elevation-02: 0 2px 6px rgba(0, 0, 0, 0.15);
+  --elevation-03: 0 8px 16px rgba(0, 0, 0, 0.15);
+  --elevation-04: 0 12px 24px rgba(0, 0, 0, 0.2);
+  --elevation-05: 0 16px 32px rgba(0, 0, 0, 0.25);
+}
