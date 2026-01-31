@@ -1339,7 +1339,6 @@
   background: var(--layer-01);
   flex-shrink: 0;
 }
-}
 
 .graphSettingsTitle {
   font-size: var(--font-size-03);
