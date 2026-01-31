@@ -52,9 +52,8 @@
   flex: 1;
 }
 
-
 .muted {
-  color: var(--text-muted);
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 .content {
@@ -480,7 +479,7 @@
 
 .noteEditor .cm-livePreview-heading {
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--md-sys-color-on-surface);
 }
 
 .noteEditor .cm-livePreview-h1 {
@@ -508,32 +507,26 @@
 }
 
 .noteEditor .cm-livePreview-code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-    "Courier New", monospace;
-  background: rgba(100, 108, 255, 0.14);
-  border-radius: 4px;
-  padding: 0 3px;
-}
-
-:root[data-theme='light'] .noteEditor .cm-livePreview-code {
-  background: rgba(59, 74, 159, 0.14);
+  font-family: var(--md-sys-typescale-font-family-mono);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  padding: 2px 6px;
 }
 
 .noteEditor .cm-livePreview-wikilink {
-  color: #7aa2ff;
+  color: var(--md-sys-color-primary);
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
 .noteEditor .cm-livePreview-wikilink:hover {
+  opacity: 0.8;
   text-decoration: underline;
-  text-decoration-thickness: 1px;
+  text-decoration-thickness: 2px;
   text-underline-offset: 2px;
-}
-
-:root[data-theme='light'] .noteEditor .cm-livePreview-wikilink {
-  color: #3b4a9f;
 }
 
 .noteEditor .cm-livePreview-hidden {
@@ -543,62 +536,59 @@
 .noteEditor .cm-livePreview-imageWidget {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--md-sys-spacing-2);
   max-width: 100%;
 }
 
 .noteEditor .cm-livePreview-imageWidget img {
   max-width: min(320px, 100%);
   max-height: 220px;
-  border-radius: 6px;
-  border: 1px solid var(--panel-border);
-  background: rgba(0, 0, 0, 0.15);
+  border-radius: var(--md-sys-shape-corner-medium);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface-container-low);
   object-fit: contain;
   cursor: zoom-in;
+  transition: 
+    transform var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard),
+    box-shadow var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard);
+}
+
+.noteEditor .cm-livePreview-imageWidget img:hover {
+  transform: scale(1.02);
+  box-shadow: var(--md-sys-elevation-level1);
 }
 
 .noteEditor .cm-livePreview-imagePlaceholder {
   display: inline-flex;
   align-items: center;
-  padding: 3px 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  color: var(--text-muted);
-  border: 1px dashed var(--panel-border-strong);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-:root[data-theme='light'] .noteEditor .cm-livePreview-imagePlaceholder {
-  background: rgba(15, 23, 42, 0.04);
+  padding: 4px 12px;
+  border-radius: var(--md-sys-shape-corner-full);
+  font-size: var(--md-sys-typescale-label-small-size);
+  line-height: var(--md-sys-typescale-label-small-line-height);
+  color: var(--md-sys-color-on-surface-variant);
+  border: 1px dashed var(--md-sys-color-outline);
+  background: var(--md-sys-color-surface-container);
 }
 
 .noteEditor .cm-livePreview-taskToggle {
-  width: 14px;
-  height: 14px;
-  margin-right: 4px;
+  width: 18px;
+  height: 18px;
+  margin-right: var(--md-sys-spacing-1);
   vertical-align: text-bottom;
-  accent-color: #7aa2ff;
-}
-
-:root[data-theme='light'] .noteEditor .cm-livePreview-taskToggle {
-  accent-color: #3b4a9f;
+  accent-color: var(--md-sys-color-primary);
+  cursor: pointer;
 }
 
 .noteEditor .cm-livePreview-mermaid {
-  margin: 8px 0;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(100, 108, 255, 0.08);
-  border: 1px solid rgba(100, 108, 255, 0.2);
+  margin: var(--md-sys-spacing-2) 0;
+  padding: var(--md-sys-spacing-3) var(--md-sys-spacing-4);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-tertiary-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
   position: relative;
-  color: var(--text-primary);
+  color: var(--md-sys-color-on-tertiary-container);
   width: fit-content;
   max-width: 100%;
-}
-
-:root[data-theme='light'] .noteEditor .cm-livePreview-mermaid {
-  background: rgba(59, 74, 159, 0.08);
-  border-color: rgba(59, 74, 159, 0.22);
 }
 
 .noteEditor .cm-livePreview-mermaidSvg {
@@ -610,12 +600,12 @@
   display: block;
   max-width: 100%;
   height: auto;
-  color: var(--text-primary);
+  color: var(--md-sys-color-on-tertiary-container);
 }
 
 .noteEditor .cm-livePreview-mermaidSvg svg text {
   fill: currentColor;
-  color: var(--text-primary);
+  color: var(--md-sys-color-on-tertiary-container);
   opacity: 1;
 }
 
@@ -624,56 +614,63 @@
 }
 
 .noteEditor .cm-livePreview-mermaidStatus {
-  color: var(--text-muted);
+  color: var(--md-sys-color-on-tertiary-container);
+  opacity: 0.8;
   font-size: 0.9em;
 }
 
 .noteEditor .cm-livePreview-mermaidEdit {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  border-radius: 999px;
-  padding: 2px 10px;
-  font-size: 0.75em;
-  border: 1px solid var(--button-border);
-  background: var(--button-bg);
-  color: var(--text-primary);
+  top: var(--md-sys-spacing-2);
+  right: var(--md-sys-spacing-2);
+  border-radius: var(--md-sys-shape-corner-full);
+  padding: 4px 12px;
+  min-height: 28px;
+  font-size: var(--md-sys-typescale-label-small-size);
+  font-weight: var(--md-sys-typescale-label-small-weight);
+  border: 1px solid var(--md-sys-color-outline);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
   cursor: pointer;
+  transition: 
+    background-color var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard),
+    box-shadow var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard);
 }
 
 .noteEditor .cm-livePreview-mermaidEdit:hover {
-  border-color: var(--button-hover-border);
+  background: var(--md-sys-color-surface-container-highest);
+  box-shadow: var(--md-sys-elevation-level1);
 }
 
 .noteEditor .cm-livePreview-mermaidError {
-  color: var(--text-primary);
+  color: var(--md-sys-color-on-error-container);
 }
 
 .noteEditor .cm-livePreview-mermaidErrorTitle {
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: var(--md-sys-spacing-1);
 }
 
 .noteEditor .cm-livePreview-mermaidErrorMessage {
-  color: var(--text-muted);
-  margin-bottom: 6px;
+  color: var(--md-sys-color-on-error-container);
+  opacity: 0.8;
+  margin-bottom: var(--md-sys-spacing-2);
 }
 
 .noteEditor .cm-livePreview-mermaidSource summary {
   cursor: pointer;
-  color: var(--text-primary);
+  color: var(--md-sys-color-on-error-container);
 }
 
 .noteEditor .cm-livePreview-mermaidSource pre {
-  margin-top: 6px;
-  padding: 8px;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.25);
+  margin-top: var(--md-sys-spacing-2);
+  padding: var(--md-sys-spacing-2);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-on-surface);
   overflow-x: auto;
-}
-
-:root[data-theme='light'] .noteEditor .cm-livePreview-mermaidSource pre {
-  background: rgba(15, 23, 42, 0.08);
+  font-family: var(--md-sys-typescale-font-family-mono);
+  font-size: var(--md-sys-typescale-body-small-size);
 }
 
 .panel {
