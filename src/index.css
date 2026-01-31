@@ -1,25 +1,11 @@
+/* Import design tokens */
+@import './design-tokens.css';
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: dark;
-  color: rgba(255, 255, 255, 0.92);
-  background-color: #14161a;
-
-  --app-bg: #14161a;
-  --panel-bg: rgba(0, 0, 0, 0.22);
-  --panel-solid: #0f1115;
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --panel-border-strong: rgba(255, 255, 255, 0.18);
-  --text-primary: rgba(255, 255, 255, 0.92);
-  --text-muted: rgba(255, 255, 255, 0.7);
-  --button-bg: rgba(255, 255, 255, 0.08);
-  --button-border: rgba(255, 255, 255, 0.2);
-  --button-hover-border: rgba(100, 108, 255, 0.7);
-  --highlight: rgba(100, 108, 255, 0.15);
-  --overlay-bg: rgba(0, 0, 0, 0.6);
-  --toolbox-icon: rgba(255, 255, 255, 0.92);
+  font-family: var(--font-family-sans);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-md);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -27,68 +13,86 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-:root[data-theme='light'] {
-  color-scheme: light;
-  color: #1f2328;
-  background-color: #f3f4f6;
-
-  --app-bg: #f3f4f6;
-  --panel-bg: rgba(255, 255, 255, 0.8);
-  --panel-solid: #ffffff;
-  --panel-border: rgba(15, 23, 42, 0.12);
-  --panel-border-strong: rgba(15, 23, 42, 0.18);
-  --text-primary: #1f2328;
-  --text-muted: rgba(15, 23, 42, 0.65);
-  --button-bg: rgba(15, 23, 42, 0.06);
-  --button-border: rgba(15, 23, 42, 0.2);
-  --button-hover-border: rgba(59, 74, 159, 0.6);
-  --highlight: rgba(59, 74, 159, 0.18);
-  --overlay-bg: rgba(15, 23, 42, 0.25);
-  --toolbox-icon: #1f2328;
-}
-
 a {
-  font-weight: 500;
-  color: #646cff;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-link);
   text-decoration: inherit;
+  transition: color var(--transition-fast);
 }
+
 a:hover {
-  color: #535bf2;
+  color: var(--color-link-pressed);
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: var(--app-bg);
-  color: var(--text-primary);
+  background: var(--color-bg-app);
+  color: var(--color-text);
 }
 
 #root {
   height: 100vh;
 }
 
+/* Typography scale */
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: var(--font-size-xxxl);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
 }
 
+h2 {
+  font-size: var(--font-size-xxl);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+h3 {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+h4 {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+h5, h6 {
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+/* Button reset - will be styled individually in components */
 button {
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: transparent;
+  color: var(--color-text);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all var(--transition-fast);
 }
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
+
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 

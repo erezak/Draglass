@@ -1,0 +1,222 @@
+/**
+ * Design Tokens
+ * Based on Atlassian Design System principles
+ * https://atlassian.design/
+ */
+
+:root {
+  /* === Typography === */
+  --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --font-family-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  
+  /* Font sizes - 8px base scale */
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 24px;
+  --font-size-xxxl: 29px;
+  
+  /* Font weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Line heights */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
+  
+  /* === Spacing (8px grid) === */
+  --space-xxs: 2px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-xxl: 32px;
+  --space-xxxl: 40px;
+  
+  /* === Border Radius === */
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+  
+  /* === Elevation / Shadows === */
+  --shadow-sm: 0 1px 1px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
+  --shadow-md: 0 4px 8px -2px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
+  --shadow-lg: 0 8px 16px -4px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
+  --shadow-xl: 0 12px 24px -6px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
+  
+  /* === Animation / Motion === */
+  --transition-fast: 100ms cubic-bezier(0.2, 0, 0, 1);
+  --transition-normal: 200ms cubic-bezier(0.2, 0, 0, 1);
+  --transition-slow: 300ms cubic-bezier(0.2, 0, 0, 1);
+  
+  /* === Z-index === */
+  --z-dropdown: 400;
+  --z-modal: 500;
+  --z-tooltip: 600;
+  
+  /* === Layout Sizes === */
+  --height-header: 56px;
+  --width-toolbox: 56px;
+  --width-sidebar: 280px;
+  --width-min-editor: 400px;
+  --width-right-pane: 280px;
+}
+
+/* === Dark Theme (Default) === */
+:root {
+  color-scheme: dark;
+  
+  /* Background colors - Atlassian dark neutrals */
+  --color-bg-app: #1D2125;
+  --color-bg-surface: #22272B;
+  --color-bg-surface-raised: #282E33;
+  --color-bg-surface-overlay: #282E33;
+  --color-bg-subtle: rgba(255, 255, 255, 0.04);
+  --color-bg-subtle-hovered: rgba(255, 255, 255, 0.08);
+  --color-bg-subtle-pressed: rgba(255, 255, 255, 0.12);
+  
+  /* Border colors */
+  --color-border: #738496;
+  --color-border-subtle: rgba(151, 171, 196, 0.24);
+  --color-border-focus: #579DFF;
+  --color-border-selected: #579DFF;
+  
+  /* Text colors */
+  --color-text: #B6C2CF;
+  --color-text-subtle: #9FADBC;
+  --color-text-subtlest: #8C9BAB;
+  --color-text-inverse: #1D2125;
+  --color-text-selected: #579DFF;
+  
+  /* Link colors */
+  --color-link: #579DFF;
+  --color-link-pressed: #85B8FF;
+  
+  /* Brand / Accent colors - Atlassian Blue */
+  --color-accent: #579DFF;
+  --color-accent-hovered: #85B8FF;
+  --color-accent-pressed: #388BFF;
+  --color-accent-subtle: rgba(87, 157, 255, 0.16);
+  --color-accent-subtle-hovered: rgba(87, 157, 255, 0.24);
+  --color-accent-subtle-pressed: rgba(87, 157, 255, 0.32);
+  
+  /* Success colors */
+  --color-success: #4BCE97;
+  --color-success-hovered: #7EE2B8;
+  --color-success-pressed: #22A06B;
+  --color-success-subtle: rgba(75, 206, 151, 0.16);
+  
+  /* Warning colors */
+  --color-warning: #F5CD47;
+  --color-warning-hovered: #F8E6A0;
+  --color-warning-pressed: #E2B203;
+  --color-warning-subtle: rgba(245, 205, 71, 0.16);
+  
+  /* Danger colors */
+  --color-danger: #F87168;
+  --color-danger-hovered: #FD9891;
+  --color-danger-pressed: #E2483D;
+  --color-danger-subtle: rgba(248, 113, 104, 0.16);
+  
+  /* Information colors */
+  --color-info: #579DFF;
+  --color-info-hovered: #85B8FF;
+  --color-info-pressed: #388BFF;
+  --color-info-subtle: rgba(87, 157, 255, 0.16);
+  
+  /* Icon colors */
+  --color-icon: #9FADBC;
+  --color-icon-subtle: #8C9BAB;
+  --color-icon-inverse: #1D2125;
+}
+
+/* === Light Theme === */
+:root[data-theme='light'] {
+  color-scheme: light;
+  
+  /* Background colors - Atlassian light neutrals */
+  --color-bg-app: #F7F8F9;
+  --color-bg-surface: #FFFFFF;
+  --color-bg-surface-raised: #FFFFFF;
+  --color-bg-surface-overlay: #FFFFFF;
+  --color-bg-subtle: rgba(9, 30, 66, 0.04);
+  --color-bg-subtle-hovered: rgba(9, 30, 66, 0.08);
+  --color-bg-subtle-pressed: rgba(9, 30, 66, 0.12);
+  
+  /* Border colors */
+  --color-border: #091E4224;
+  --color-border-subtle: rgba(9, 30, 66, 0.14);
+  --color-border-focus: #388BFF;
+  --color-border-selected: #388BFF;
+  
+  /* Text colors */
+  --color-text: #172B4D;
+  --color-text-subtle: #44546F;
+  --color-text-subtlest: #626F86;
+  --color-text-inverse: #FFFFFF;
+  --color-text-selected: #0C66E4;
+  
+  /* Link colors */
+  --color-link: #0C66E4;
+  --color-link-pressed: #0055CC;
+  
+  /* Brand / Accent colors - Atlassian Blue */
+  --color-accent: #0C66E4;
+  --color-accent-hovered: #0055CC;
+  --color-accent-pressed: #09326C;
+  --color-accent-subtle: rgba(12, 102, 228, 0.12);
+  --color-accent-subtle-hovered: rgba(12, 102, 228, 0.18);
+  --color-accent-subtle-pressed: rgba(12, 102, 228, 0.24);
+  
+  /* Success colors */
+  --color-success: #1F845A;
+  --color-success-hovered: #216E4E;
+  --color-success-pressed: #164B35;
+  --color-success-subtle: rgba(31, 132, 90, 0.12);
+  
+  /* Warning colors */
+  --color-warning: #C9791F;
+  --color-warning-hovered: #B38600;
+  --color-warning-pressed: #946F00;
+  --color-warning-subtle: rgba(201, 121, 31, 0.12);
+  
+  /* Danger colors */
+  --color-danger: #CA3521;
+  --color-danger-hovered: #AE2A19;
+  --color-danger-pressed: #601E16;
+  --color-danger-subtle: rgba(202, 53, 33, 0.12);
+  
+  /* Information colors */
+  --color-info: #0C66E4;
+  --color-info-hovered: #0055CC;
+  --color-info-pressed: #09326C;
+  --color-info-subtle: rgba(12, 102, 228, 0.12);
+  
+  /* Icon colors */
+  --color-icon: #44546F;
+  --color-icon-subtle: #626F86;
+  --color-icon-inverse: #FFFFFF;
+  
+  /* Adjusted shadows for light theme */
+  --shadow-sm: 0 1px 1px rgba(9, 30, 66, 0.13), 0 0 1px rgba(9, 30, 66, 0.13);
+  --shadow-md: 0 4px 8px -2px rgba(9, 30, 66, 0.13), 0 0 1px rgba(9, 30, 66, 0.13);
+  --shadow-lg: 0 8px 16px -4px rgba(9, 30, 66, 0.13), 0 0 1px rgba(9, 30, 66, 0.13);
+  --shadow-xl: 0 12px 24px -6px rgba(9, 30, 66, 0.13), 0 0 1px rgba(9, 30, 66, 0.13);
+}
+
+/* === Overlay backgrounds === */
+:root {
+  --color-overlay: rgba(9, 30, 66, 0.54);
+}
+
+:root[data-theme='light'] {
+  --color-overlay: rgba(9, 30, 66, 0.54);
+}
