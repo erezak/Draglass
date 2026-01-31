@@ -312,7 +312,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  margin-left: var(--spacing-lg);
+  padding-left: var(--spacing-lg);
 }
 
 .folderItem {
@@ -844,8 +844,8 @@
 
 .qsItem:hover {
   background: var(--color-accent-subtle);
-  border-left: 2px solid var(--color-accent-default);
-  padding-left: calc(var(--spacing-lg) - 2px);
+  border-left: var(--focus-width) solid var(--color-accent-default);
+  padding-left: calc(var(--spacing-lg) - var(--focus-width));
 }
 
 .qsItem:active {
@@ -854,8 +854,8 @@
 
 .qsItem--selected {
   background: var(--color-accent-subtle-hover);
-  border-left: 2px solid var(--color-accent-default);
-  padding-left: calc(var(--spacing-lg) - 2px);
+  border-left: var(--focus-width) solid var(--color-accent-default);
+  padding-left: calc(var(--spacing-lg) - var(--focus-width));
 }
 
 .qsItemPrimary {
