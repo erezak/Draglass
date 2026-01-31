@@ -1,25 +1,29 @@
+/* Import Fluent 2 design tokens */
+@import './design-tokens.css';
+
+/* Legacy token mappings for compatibility during migration */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  font-family: var(--font-family-base);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-body);
 
-  color-scheme: dark;
-  color: rgba(255, 255, 255, 0.92);
-  background-color: #14161a;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-canvas);
 
-  --app-bg: #14161a;
-  --panel-bg: rgba(0, 0, 0, 0.22);
-  --panel-solid: #0f1115;
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --panel-border-strong: rgba(255, 255, 255, 0.18);
-  --text-primary: rgba(255, 255, 255, 0.92);
-  --text-muted: rgba(255, 255, 255, 0.7);
-  --button-bg: rgba(255, 255, 255, 0.08);
-  --button-border: rgba(255, 255, 255, 0.2);
-  --button-hover-border: rgba(100, 108, 255, 0.7);
-  --highlight: rgba(100, 108, 255, 0.15);
-  --overlay-bg: rgba(0, 0, 0, 0.6);
-  --toolbox-icon: rgba(255, 255, 255, 0.92);
+  --app-bg: var(--color-bg-canvas);
+  --panel-bg: var(--color-bg-acrylic);
+  --panel-solid: var(--color-bg-layer);
+  --panel-border: var(--color-border-default);
+  --panel-border-strong: var(--color-border-strong);
+  --text-primary: var(--color-text-primary);
+  --text-muted: var(--color-text-secondary);
+  --button-bg: var(--color-surface-secondary);
+  --button-border: var(--color-border-default);
+  --button-hover-border: var(--color-accent-default);
+  --highlight: var(--color-accent-subtle);
+  --overlay-bg: var(--color-overlay);
+  --toolbox-icon: var(--color-text-primary);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -27,33 +31,21 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-:root[data-theme='light'] {
-  color-scheme: light;
-  color: #1f2328;
-  background-color: #f3f4f6;
-
-  --app-bg: #f3f4f6;
-  --panel-bg: rgba(255, 255, 255, 0.8);
-  --panel-solid: #ffffff;
-  --panel-border: rgba(15, 23, 42, 0.12);
-  --panel-border-strong: rgba(15, 23, 42, 0.18);
-  --text-primary: #1f2328;
-  --text-muted: rgba(15, 23, 42, 0.65);
-  --button-bg: rgba(15, 23, 42, 0.06);
-  --button-border: rgba(15, 23, 42, 0.2);
-  --button-hover-border: rgba(59, 74, 159, 0.6);
-  --highlight: rgba(59, 74, 159, 0.18);
-  --overlay-bg: rgba(15, 23, 42, 0.25);
-  --toolbox-icon: #1f2328;
-}
-
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent-default);
+  text-decoration: none;
 }
+
 a:hover {
-  color: #535bf2;
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+a:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--radius-sm);
 }
 
 body {
@@ -74,21 +66,37 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all var(--duration-fast) var(--easing-standard);
 }
+
 button:hover {
-  border-color: #646cff;
+  background-color: var(--color-fill-subtle-hover);
+  border-color: var(--color-accent-default);
+  transform: translateY(-1px);
 }
-button:focus,
+
+button:active {
+  transform: translateY(0);
+  background-color: var(--color-fill-subtle-active);
+}
+
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: var(--focus-offset);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
