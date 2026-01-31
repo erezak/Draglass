@@ -1116,7 +1116,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .settingsRow input[type='checkbox']:hover {
-    transform: scale(1.3);
+    transform: scale(1.15);
   }
 }
 
@@ -1731,7 +1731,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .graphSettingRow input[type='checkbox']:hover {
-    transform: scale(1.3);
+    transform: scale(1.15);
   }
 }
 
