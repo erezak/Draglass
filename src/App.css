@@ -697,319 +697,422 @@
   }
 }
 
+/* ============================================
+   QUICK SWITCHER MODAL - Carbon Modal Pattern
+   ============================================ */
 .qsOverlay {
   position: fixed;
   inset: 0;
-  background: var(--overlay-bg);
-  backdrop-filter: blur(8px);
+  background: var(--overlay);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 10vh 16px 16px;
+  padding: 15vh var(--spacing-05) var(--spacing-05);
   z-index: 1000;
+  animation: overlayFadeIn var(--transition-base) var(--transition-timing);
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .qsCard {
-  width: min(720px, 96vw);
-  border-radius: 12px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--panel-solid);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  width: min(640px, 100%);
+  border-radius: 0;
+  border: 1px solid var(--border-strong);
+  background: var(--layer-01);
+  box-shadow: var(--elevation-05);
   overflow: hidden;
+  animation: modalSlideIn var(--transition-moderate) var(--transition-timing);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .qsInput {
   width: 100%;
   box-sizing: border-box;
-  padding: 12px 12px;
+  padding: var(--spacing-05);
   border: none;
+  border-bottom: 1px solid var(--border-subtle);
   outline: none;
-  font-size: 14px;
+  font-size: var(--font-size-03);
+  font-family: var(--font-family-sans);
   color: var(--text-primary);
-  background: var(--button-bg);
+  background: var(--field-02);
+  transition: background-color var(--transition-base) var(--transition-timing);
+}
+
+.qsInput:focus {
+  background: var(--field-02);
+  box-shadow: inset 0 -2px 0 var(--focus);
+}
+
+.qsInput::placeholder {
+  color: var(--text-placeholder);
 }
 
 .qsMeta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  font-size: 12px;
-  color: var(--text-muted);
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--panel-border);
+  gap: var(--spacing-04);
+  font-size: var(--font-size-01);
+  color: var(--text-secondary);
+  padding: var(--spacing-03) var(--spacing-05);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--layer-01);
 }
 
 .qsBusy {
-  opacity: 0.9;
+  color: var(--text-secondary);
 }
 
 .qsList {
-  max-height: min(48vh, 420px);
+  max-height: min(50vh, 480px);
   overflow: auto;
+  background: var(--layer-01);
 }
 
 .qsEmpty {
-  padding: 12px;
-  font-size: 13px;
-  color: var(--text-muted);
+  padding: var(--spacing-06) var(--spacing-05);
+  font-size: var(--font-size-02);
+  color: var(--text-placeholder);
+  text-align: center;
 }
 
 .qsItem {
   width: 100%;
   text-align: left;
-  padding: 10px 12px;
+  padding: var(--spacing-04) var(--spacing-05);
   border: none;
-  border-bottom: 1px solid var(--panel-border);
+  border-left: 3px solid transparent;
   background: transparent;
   cursor: pointer;
+  color: var(--text-primary);
+  transition: background-color var(--transition-base) var(--transition-timing),
+              border-color var(--transition-base) var(--transition-timing);
 }
 
 .qsItem:hover {
-  background: var(--highlight);
+  background: var(--layer-02);
+  border-left-color: var(--border-subtle);
 }
 
 .qsItem--selected {
-  background: var(--highlight);
+  background: var(--layer-02);
+  border-left-color: var(--border-interactive);
 }
 
 .qsItemPrimary {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-size-02);
+  font-weight: var(--font-weight-medium);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: var(--spacing-01);
 }
 
 .qsItemSecondary {
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: var(--font-size-01);
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .qsHint {
-  font-size: 12px;
-  color: var(--text-muted);
-  padding: 10px 12px;
-  background: var(--panel-bg);
+  font-size: var(--font-size-01);
+  color: var(--text-helper);
+  padding: var(--spacing-04) var(--spacing-05);
+  background: var(--layer-01);
+  border-top: 1px solid var(--border-subtle);
 }
 
+/* ============================================
+   SETTINGS MODAL - Carbon Modal Pattern
+   ============================================ */
 .settingsOverlay {
   position: fixed;
   inset: 0;
-  background: var(--overlay-bg);
-  backdrop-filter: blur(8px);
+  background: var(--overlay);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 8vh 16px 16px;
+  padding: 10vh var(--spacing-05) var(--spacing-05);
   z-index: 1100;
+  animation: overlayFadeIn var(--transition-base) var(--transition-timing);
 }
 
 .settingsCard {
-  width: min(760px, 96vw);
-  border-radius: 14px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--panel-solid);
-  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.55);
+  width: min(720px, 100%);
+  border-radius: 0;
+  border: 1px solid var(--border-strong);
+  background: var(--layer-01);
+  box-shadow: var(--elevation-05);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  max-height: min(84vh, 860px);
+  max-height: min(80vh, 800px);
+  animation: modalSlideIn var(--transition-moderate) var(--transition-timing);
 }
 
 .settingsHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--panel-border);
+  padding: var(--spacing-05);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--layer-01);
+  flex-shrink: 0;
 }
 
 .settingsTitle {
-  font-size: 16px;
-  font-weight: 650;
+  font-size: var(--font-size-04);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
 }
 
 .settingsSubtitle {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 4px;
+  font-size: var(--font-size-01);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-02);
 }
 
 .settingsClose {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--button-border);
-  background: var(--button-bg);
+  padding: var(--spacing-03) var(--spacing-05);
+  border-radius: 0;
+  border: none;
+  background: var(--button-secondary);
+  color: var(--text-primary);
+  font-size: var(--font-size-02);
+  transition: background-color var(--transition-base) var(--transition-timing);
+}
+
+.settingsClose:hover {
+  background: var(--button-secondary-hover);
 }
 
 .settingsBody {
-  padding: 18px;
+  padding: var(--spacing-05);
   overflow: auto;
   display: grid;
-  gap: 18px;
+  gap: var(--spacing-06);
+  flex: 1;
 }
 
 .settingsSection h3 {
-  font-size: 12px;
+  font-size: var(--font-size-01);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  margin: 0 0 10px;
+  letter-spacing: 0.32px;
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-04);
 }
 
 .settingsRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-  font-size: 13px;
+  gap: var(--spacing-04);
+  padding: var(--spacing-04) var(--spacing-05);
+  border-radius: 0;
+  border: none;
+  border-left: 3px solid transparent;
+  background: var(--layer-02);
+  font-size: var(--font-size-02);
+  transition: border-color var(--transition-base) var(--transition-timing);
+}
+
+.settingsRow:hover {
+  border-left-color: var(--border-subtle);
 }
 
 .settingsRow input[type='number'] {
-  width: 140px;
+  width: 160px;
+  padding: var(--spacing-03) var(--spacing-04);
 }
 
 .settingsRow select {
-  min-width: 160px;
-  background: var(--button-bg);
-  color: inherit;
-  border: 1px solid var(--button-border);
-  border-radius: 8px;
-  padding: 6px 10px;
+  min-width: 180px;
+  background: var(--field-01);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  padding: var(--spacing-03) var(--spacing-04);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-02);
+}
+
+.settingsRow select:focus {
+  border-color: var(--focus);
+  box-shadow: inset 0 0 0 1px var(--focus);
 }
 
 .settingsRow input[type='checkbox'] {
-  transform: scale(1.1);
+  width: 16px;
+  height: 16px;
+  accent-color: var(--interactive-primary);
+  cursor: pointer;
 }
 
 .settingsFooter {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 14px 18px;
-  border-top: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  gap: var(--spacing-04);
+  padding: var(--spacing-05);
+  border-top: 1px solid var(--border-subtle);
+  background: var(--layer-01);
+  flex-shrink: 0;
 }
 
 .settingsReset {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--button-border);
-  background: var(--button-bg);
+  padding: var(--spacing-03) var(--spacing-05);
+  border-radius: 0;
+  border: none;
+  background: var(--button-danger);
+  color: var(--text-on-color);
+  font-size: var(--font-size-02);
+  transition: background-color var(--transition-base) var(--transition-timing);
+}
+
+.settingsReset:hover {
+  background: var(--button-danger-hover);
 }
 
 .settingsHint {
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: var(--font-size-01);
+  color: var(--text-helper);
 }
 
+/* ============================================
+   IMAGE LIGHTBOX - Carbon Modal Pattern
+   ============================================ */
 .imageLightbox {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: var(--spacing-06);
   z-index: 1200;
+  animation: overlayFadeIn var(--transition-base) var(--transition-timing);
 }
 
 .imageLightboxCard {
-  max-width: min(90vw, 960px);
+  max-width: min(90vw, 1000px);
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 12px;
-  border-radius: 12px;
-  background: var(--panel-solid);
-  border: 1px solid var(--panel-border-strong);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  gap: var(--spacing-04);
+  padding: var(--spacing-05);
+  border-radius: 0;
+  background: var(--layer-01);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--elevation-05);
+  animation: modalSlideIn var(--transition-moderate) var(--transition-timing);
 }
 
 .imageLightboxCard img {
   max-width: 100%;
-  max-height: 70vh;
-  border-radius: 10px;
-  border: 1px solid var(--panel-border);
+  max-height: 75vh;
+  border-radius: 0;
+  border: 1px solid var(--border-subtle);
   object-fit: contain;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--layer-00);
 }
 
 .imageLightboxCaption {
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: var(--font-size-01);
+  color: var(--text-secondary);
   text-align: center;
+  font-family: var(--font-family-mono);
 }
 
 .imageLightboxClose {
   align-self: center;
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--button-border);
-  background: var(--button-bg);
+  padding: var(--spacing-03) var(--spacing-05);
+  border-radius: 0;
+  border: none;
+  background: var(--button-secondary);
+  color: var(--text-primary);
+  transition: background-color var(--transition-base) var(--transition-timing);
 }
 
+.imageLightboxClose:hover {
+  background: var(--button-secondary-hover);
+}
+
+/* ============================================
+   PLACEHOLDER MODAL (Command Palette)
+   ============================================ */
 .placeholderOverlay {
   position: fixed;
   inset: 0;
-  background: var(--overlay-bg);
-  backdrop-filter: blur(8px);
+  background: var(--overlay);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 10vh 16px 16px;
+  padding: 15vh var(--spacing-05) var(--spacing-05);
   z-index: 1050;
+  animation: overlayFadeIn var(--transition-base) var(--transition-timing);
 }
 
 .placeholderModal {
-  width: min(560px, 92vw);
-  border-radius: 12px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--panel-solid);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-  padding: 16px 18px;
+  width: min(560px, 100%);
+  border-radius: 0;
+  border: 1px solid var(--border-strong);
+  background: var(--layer-01);
+  box-shadow: var(--elevation-04);
+  padding: var(--spacing-06);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--spacing-05);
+  animation: modalSlideIn var(--transition-moderate) var(--transition-timing);
 }
 
 .placeholderFooter {
   display: flex;
   justify-content: flex-end;
+  gap: var(--spacing-04);
+  padding-top: var(--spacing-04);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .placeholderClose {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--button-border);
-  background: var(--button-bg);
+  padding: var(--spacing-03) var(--spacing-05);
+  border-radius: 0;
+  border: none;
+  background: var(--button-primary);
+  color: var(--text-on-color);
+  transition: background-color var(--transition-base) var(--transition-timing);
 }
 
-@keyframes saveDotPulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.25);
-  }
-  100% {
-    transform: scale(1);
-  }
+.placeholderClose:hover {
+  background: var(--button-primary-hover);
 }
 
 /* ============================================
-   Graph View Styles
+   GRAPH VIEW STYLES - Carbon Data Visualization
    ============================================ */
 
 .graphViewContainer {
@@ -1018,84 +1121,95 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  background: var(--layer-00);
 }
 
+/* Graph Header */
 .graphHeader {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  gap: var(--spacing-04);
+  padding: 0 var(--spacing-05);
+  height: 48px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--layer-01);
+  flex-shrink: 0;
 }
 
 .graphHeaderSearch {
   flex: 1;
-  max-width: 280px;
+  max-width: 320px;
 }
 
 .graphSearchInput {
   width: 100%;
-  padding: 8px 12px;
-  font-size: 13px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
+  padding: var(--spacing-03) var(--spacing-04);
+  font-size: var(--font-size-02);
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: var(--field-01);
   color: var(--text-primary);
   outline: none;
+  transition: background-color var(--transition-base) var(--transition-timing),
+              border-color var(--transition-base) var(--transition-timing);
 }
 
 .graphSearchInput:focus {
-  border-color: var(--button-hover-border);
+  background: var(--field-02);
+  border-bottom-color: var(--focus);
 }
 
 .graphSearchInput::placeholder {
-  color: var(--text-muted);
+  color: var(--text-placeholder);
 }
 
 .graphHeaderActions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-03);
   margin-left: auto;
 }
 
 .graphScopeToggle {
-  padding: 6px 12px;
-  font-size: 12px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  padding: var(--spacing-03) var(--spacing-04);
+  font-size: var(--font-size-01);
+  border-radius: 0;
+  border: none;
+  background: var(--button-secondary);
   color: var(--text-primary);
+  transition: background-color var(--transition-base) var(--transition-timing);
 }
 
 .graphScopeToggle:hover {
-  border-color: var(--button-hover-border);
+  background: var(--button-secondary-hover);
 }
 
 .graphScopeToggle--local {
-  background: var(--highlight);
-  border-color: var(--button-hover-border);
+  background: var(--button-primary);
+  color: var(--text-on-color);
 }
 
 .graphRefreshButton,
 .graphSettingsButton {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
-  color: var(--text-primary);
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  color: var(--icon-secondary);
   padding: 0;
+  transition: background-color var(--transition-base) var(--transition-timing),
+              color var(--transition-base) var(--transition-timing);
 }
 
 .graphRefreshButton:hover,
 .graphSettingsButton:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--layer-02);
+  color: var(--icon-primary);
 }
 
 .graphRefreshButton:disabled {
@@ -1105,8 +1219,9 @@
 
 .graphRefreshIcon,
 .graphSettingsIcon {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
+  color: currentColor;
 }
 
 .graphRefreshIcon--spinning {
@@ -1122,12 +1237,14 @@
   }
 }
 
+/* Graph Body */
 .graphBody {
   flex: 1;
   display: flex;
   position: relative;
   min-height: 0;
   overflow: hidden;
+  background: var(--layer-00);
 }
 
 .graphCanvas {
@@ -1149,6 +1266,7 @@
   height: 100% !important;
 }
 
+/* Graph Empty and Loading States */
 .graphEmptyState,
 .graphLoadingState {
   flex: 1;
@@ -1156,261 +1274,334 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  color: var(--text-muted);
+  gap: var(--spacing-04);
+  color: var(--text-secondary);
+  padding: var(--spacing-06);
 }
 
 .graphEmptyTitle {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: var(--font-size-04);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 
 .graphEmptyBody {
-  font-size: 13px;
+  font-size: var(--font-size-02);
   text-align: center;
-  max-width: 280px;
+  max-width: 320px;
+  line-height: var(--line-height-relaxed);
+  color: var(--text-secondary);
 }
 
 .graphLoadingSpinner {
-  width: 28px;
-  height: 28px;
-  border: 3px solid var(--panel-border-strong);
-  border-top-color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-subtle);
+  border-top-color: var(--interactive-primary);
   border-radius: 50%;
   animation: graphSpin 0.8s linear infinite;
 }
 
-/* Graph Settings Panel */
-
+/* ============================================
+   GRAPH SETTINGS PANEL
+   ============================================ */
 .graphSettingsPanel {
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   width: min(320px, 90%);
-  background: var(--panel-solid);
-  border-left: 1px solid var(--panel-border);
+  background: var(--layer-01);
+  border-left: 1px solid var(--border-strong);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--elevation-03);
   z-index: 10;
+  animation: panelSlideIn var(--transition-moderate) var(--transition-timing);
+}
+
+@keyframes panelSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .graphSettingsHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--panel-border);
+  padding: var(--spacing-05);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--layer-01);
+  flex-shrink: 0;
+}
 }
 
 .graphSettingsTitle {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.graphSettingsCloseBtn {
-  width: 28px;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text-muted);
-  padding: 0;
-}
-
-.graphSettingsCloseBtn:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  font-size: var(--font-size-03);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 
+.graphSettingsCloseBtn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  color: var(--icon-secondary);
+  padding: 0;
+  transition: background-color var(--transition-base) var(--transition-timing),
+              color var(--transition-base) var(--transition-timing);
+}
+
+.graphSettingsCloseBtn:hover {
+  background: var(--layer-02);
+  color: var(--icon-primary);
+}
+
 .graphCloseIcon {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 }
 
 .graphSettingsBody {
   flex: 1;
   overflow-y: auto;
-  padding: 14px;
+  padding: var(--spacing-05);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--spacing-06);
+  background: var(--layer-01);
 }
 
 .graphSettingsSection h4 {
-  font-size: 11px;
+  font-size: var(--font-size-01);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  margin: 0 0 10px;
+  letter-spacing: 0.32px;
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-04);
 }
 
 .graphSettingRow {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-  font-size: 12px;
-  margin-bottom: 6px;
+  gap: var(--spacing-04);
+  padding: var(--spacing-03) var(--spacing-04);
+  border-radius: 0;
+  border: none;
+  border-left: 3px solid transparent;
+  background: var(--layer-02);
+  font-size: var(--font-size-02);
+  margin-bottom: var(--spacing-02);
+  transition: border-color var(--transition-base) var(--transition-timing);
+}
+
+.graphSettingRow:hover {
+  border-left-color: var(--border-subtle);
 }
 
 .graphSettingRow span:first-child {
   flex: 1;
   min-width: 80px;
+  color: var(--text-primary);
 }
 
 .graphSettingRow input[type='range'] {
   flex: 2;
   min-width: 80px;
+  accent-color: var(--interactive-primary);
 }
 
 .graphSettingRow input[type='checkbox'] {
-  transform: scale(1.1);
+  width: 16px;
+  height: 16px;
+  accent-color: var(--interactive-primary);
+  cursor: pointer;
 }
 
 .graphSettingValue {
   min-width: 40px;
   text-align: right;
   font-variant-numeric: tabular-nums;
-  color: var(--text-muted);
+  font-family: var(--font-family-mono);
+  color: var(--text-secondary);
+  font-size: var(--font-size-01);
 }
 
-/* Groups */
-
+/* Graph Groups */
 .graphGroupsList {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: var(--spacing-03);
+  margin-bottom: var(--spacing-04);
 }
 
 .graphGroupItem {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  gap: var(--spacing-03);
+  padding: var(--spacing-03) var(--spacing-04);
+  border-radius: 0;
+  border: 1px solid var(--border-subtle);
+  background: var(--layer-02);
 }
 
 .graphGroupColor {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   padding: 0;
-  border: 1px solid var(--panel-border);
-  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
   background: transparent;
   cursor: pointer;
+  transition: border-color var(--transition-base) var(--transition-timing);
+}
+
+.graphGroupColor:hover {
+  border-color: var(--border-interactive);
 }
 
 .graphGroupQuery {
   flex: 1;
   min-width: 80px;
-  padding: 6px 8px;
-  font-size: 12px;
-  border-radius: 6px;
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
+  padding: var(--spacing-03) var(--spacing-04);
+  font-size: var(--font-size-02);
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid transparent;
+  background: var(--field-01);
   color: var(--text-primary);
+  font-family: var(--font-family-mono);
+  transition: background-color var(--transition-base) var(--transition-timing),
+              border-color var(--transition-base) var(--transition-timing);
+}
+
+.graphGroupQuery:focus {
+  background: var(--field-02);
+  border-bottom-color: var(--focus);
 }
 
 .graphGroupRemove {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 0;
   border: none;
   background: transparent;
-  color: var(--text-muted);
-  font-size: 16px;
+  color: var(--icon-secondary);
+  font-size: 18px;
   padding: 0;
+  transition: background-color var(--transition-base) var(--transition-timing),
+              color var(--transition-base) var(--transition-timing);
 }
 
 .graphGroupRemove:hover {
-  background: rgba(255, 95, 95, 0.15);
-  color: #ff5f5f;
+  background: var(--button-danger);
+  color: var(--text-on-color);
 }
 
 .graphAddGroupBtn {
-  padding: 8px 12px;
-  font-size: 12px;
-  border-radius: 8px;
-  border: 1px dashed var(--panel-border-strong);
+  padding: var(--spacing-03) var(--spacing-04);
+  font-size: var(--font-size-02);
+  border-radius: 0;
+  border: 1px dashed var(--border-strong);
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-secondary);
+  transition: background-color var(--transition-base) var(--transition-timing),
+              border-color var(--transition-base) var(--transition-timing),
+              color var(--transition-base) var(--transition-timing);
 }
 
 .graphAddGroupBtn:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  border-color: var(--border-interactive);
+  border-style: solid;
+  background: var(--layer-02);
   color: var(--text-primary);
 }
 
 .graphAnimateBtn {
-  padding: 4px 10px;
-  font-size: 11px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  padding: var(--spacing-02) var(--spacing-04);
+  font-size: var(--font-size-01);
+  border-radius: 0;
+  border: none;
+  background: var(--button-secondary);
   color: var(--text-primary);
+  transition: background-color var(--transition-base) var(--transition-timing);
 }
 
 .graphAnimateBtn:hover {
-  border-color: var(--button-hover-border);
+  background: var(--button-secondary-hover);
 }
 
 .graphAnimateBtn--active {
-  background: var(--highlight);
-  border-color: var(--button-hover-border);
+  background: var(--button-primary);
+  color: var(--text-on-color);
 }
 
-/* Context Menu */
-
+/* ============================================
+   GRAPH CONTEXT MENU
+   ============================================ */
 .graphContextMenu {
   position: fixed;
-  min-width: 140px;
-  border-radius: 10px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--panel-solid);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  min-width: 160px;
+  border-radius: 0;
+  border: 1px solid var(--border-strong);
+  background: var(--layer-01);
+  box-shadow: var(--elevation-03);
   overflow: hidden;
   z-index: 1000;
+  animation: contextMenuFadeIn var(--transition-fast) var(--transition-timing);
+}
+
+@keyframes contextMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .graphContextMenuHeader {
-  padding: 8px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  border-bottom: 1px solid var(--panel-border);
+  padding: var(--spacing-03) var(--spacing-04);
+  font-size: var(--font-size-01);
+  font-weight: var(--font-weight-semibold);
+  border-bottom: 1px solid var(--border-subtle);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  background: var(--layer-01);
+  color: var(--text-primary);
 }
 
 .graphContextMenuItem {
   display: block;
   width: 100%;
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: var(--spacing-03) var(--spacing-04);
+  font-size: var(--font-size-02);
   text-align: left;
   border: none;
+  border-left: 3px solid transparent;
   background: transparent;
   color: var(--text-primary);
+  transition: background-color var(--transition-base) var(--transition-timing),
+              border-color var(--transition-base) var(--transition-timing);
 }
 
 .graphContextMenuItem:hover {
-  background: var(--highlight);
+  background: var(--layer-02);
+  border-left-color: var(--border-interactive);
 }
