@@ -39,12 +39,19 @@
 .vaultButton:hover {
   border-color: var(--color-accent-default);
   background: var(--color-accent-subtle-hover);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
-.vaultButton:active {
-  transform: translateY(0);
+@media (prefers-reduced-motion: no-preference) {
+  .vaultButton:hover {
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .vaultButton:active {
+    transform: translateY(0);
+  }
 }
 
 .spacer {
@@ -94,12 +101,17 @@
   border-color: var(--color-accent-default);
   background: var(--color-accent-subtle);
   color: var(--color-text-primary);
-  transform: scale(1.05);
   box-shadow: var(--shadow-sm);
 }
 
-.toolboxButton:active {
-  transform: scale(0.98);
+@media (prefers-reduced-motion: no-preference) {
+  .toolboxButton:hover {
+    transform: scale(1.05);
+  }
+
+  .toolboxButton:active {
+    transform: scale(0.98);
+  }
 }
 
 .toolboxButton--active {
@@ -150,7 +162,7 @@
 }
 
 .sidebarBody::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
 }
 
 .sidebarBody::-webkit-scrollbar-track {
@@ -213,11 +225,16 @@
   border-color: var(--color-accent-default);
   background: var(--color-accent-subtle);
   color: var(--color-text-primary);
-  transform: scale(1.05);
 }
 
-.settingsButton:active {
-  transform: scale(0.98);
+@media (prefers-reduced-motion: no-preference) {
+  .settingsButton:hover {
+    transform: scale(1.05);
+  }
+
+  .settingsButton:active {
+    transform: scale(0.98);
+  }
 }
 
 .rightPane {
@@ -332,7 +349,12 @@
 .folderItem:hover {
   border-color: var(--color-accent-default);
   background: var(--color-accent-subtle);
-  transform: translateX(2px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .folderItem:hover {
+    transform: translateX(2px);
+  }
 }
 
 .caret {
@@ -358,8 +380,14 @@
 .linkItem:hover {
   border-color: var(--color-accent-default);
   background: var(--color-accent-subtle);
-  transform: translateX(2px);
   box-shadow: var(--shadow-sm);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .fileItem:hover,
+  .linkItem:hover {
+    transform: translateX(2px);
+  }
 }
 
 .fileItem.active {
@@ -808,7 +836,7 @@
 }
 
 .qsList::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
 }
 
 .qsList::-webkit-scrollbar-track {
@@ -848,8 +876,10 @@
   padding-left: calc(var(--spacing-lg) - var(--focus-width));
 }
 
-.qsItem:active {
-  transform: scale(0.995);
+@media (prefers-reduced-motion: no-preference) {
+  .qsItem:active {
+    transform: scale(0.995);
+  }
 }
 
 .qsItem--selected {
@@ -972,12 +1002,17 @@
 .settingsClose:hover {
   border-color: var(--color-accent-default);
   background: var(--color-accent-subtle);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
-.settingsClose:active {
-  transform: translateY(0);
+@media (prefers-reduced-motion: no-preference) {
+  .settingsClose:hover {
+    transform: translateY(-1px);
+  }
+
+  .settingsClose:active {
+    transform: translateY(0);
+  }
 }
 
 .settingsBody {
@@ -991,7 +1026,7 @@
 }
 
 .settingsBody::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
 }
 
 .settingsBody::-webkit-scrollbar-track {
@@ -1079,6 +1114,12 @@
   accent-color: var(--color-accent-default);
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .settingsRow input[type='checkbox']:hover {
+    transform: scale(1.3);
+  }
+}
+
 .settingsFooter {
   display: flex;
   align-items: center;
@@ -1104,12 +1145,17 @@
   border-color: var(--color-error);
   background: var(--color-error-bg);
   color: var(--color-error);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
-.settingsReset:active {
-  transform: translateY(0);
+@media (prefers-reduced-motion: no-preference) {
+  .settingsReset:hover {
+    transform: translateY(-1px);
+  }
+
+  .settingsReset:active {
+    transform: translateY(0);
+  }
 }
 
 .settingsHint {
@@ -1200,12 +1246,17 @@
 .imageLightboxClose:hover {
   border-color: var(--color-accent-default);
   background: var(--color-accent-subtle);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
-.imageLightboxClose:active {
-  transform: translateY(0);
+@media (prefers-reduced-motion: no-preference) {
+  .imageLightboxClose:hover {
+    transform: translateY(-1px);
+  }
+
+  .imageLightboxClose:active {
+    transform: translateY(0);
+  }
 }
 
 .placeholderOverlay {
@@ -1277,12 +1328,17 @@
 .placeholderClose:hover {
   border-color: var(--color-accent-default);
   background: var(--color-accent-subtle);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
-.placeholderClose:active {
-  transform: translateY(0);
+@media (prefers-reduced-motion: no-preference) {
+  .placeholderClose:hover {
+    transform: translateY(-1px);
+  }
+
+  .placeholderClose:active {
+    transform: translateY(0);
+  }
 }
 
 @keyframes saveDotPulse {
@@ -1371,12 +1427,17 @@
 .graphScopeToggle:hover {
   border-color: var(--color-accent-default);
   background: var(--color-accent-subtle-hover);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
-.graphScopeToggle:active {
-  transform: translateY(0);
+@media (prefers-reduced-motion: no-preference) {
+  .graphScopeToggle:hover {
+    transform: translateY(-1px);
+  }
+
+  .graphScopeToggle:active {
+    transform: translateY(0);
+  }
 }
 
 .graphScopeToggle--local {
@@ -1406,13 +1467,19 @@
   border-color: var(--color-accent-default);
   background: var(--color-accent-subtle);
   color: var(--color-text-primary);
-  transform: scale(1.05);
   box-shadow: var(--shadow-sm);
 }
 
-.graphRefreshButton:active,
-.graphSettingsButton:active {
-  transform: scale(0.98);
+@media (prefers-reduced-motion: no-preference) {
+  .graphRefreshButton:hover,
+  .graphSettingsButton:hover {
+    transform: scale(1.05);
+  }
+
+  .graphRefreshButton:active,
+  .graphSettingsButton:active {
+    transform: scale(0.98);
+  }
 }
 
 .graphRefreshButton:disabled {
@@ -1568,11 +1635,16 @@
   border-color: var(--color-accent-default);
   background: var(--color-accent-subtle);
   color: var(--color-text-primary);
-  transform: scale(1.05);
 }
 
-.graphSettingsCloseBtn:active {
-  transform: scale(0.98);
+@media (prefers-reduced-motion: no-preference) {
+  .graphSettingsCloseBtn:hover {
+    transform: scale(1.05);
+  }
+
+  .graphSettingsCloseBtn:active {
+    transform: scale(0.98);
+  }
 }
 
 .graphCloseIcon {
@@ -1593,7 +1665,7 @@
 }
 
 .graphSettingsBody::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
 }
 
 .graphSettingsBody::-webkit-scrollbar-track {
@@ -1657,6 +1729,12 @@
   accent-color: var(--color-accent-default);
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .graphSettingRow input[type='checkbox']:hover {
+    transform: scale(1.3);
+  }
+}
+
 .graphSettingValue {
   min-width: 40px;
   text-align: right;
@@ -1703,7 +1781,12 @@
 
 .graphGroupColor:hover {
   border-color: var(--color-accent-default);
-  transform: scale(1.1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .graphGroupColor:hover {
+    transform: scale(1.1);
+  }
 }
 
 .graphGroupQuery {
@@ -1747,11 +1830,16 @@
   background: var(--color-error-bg);
   border-color: var(--color-error);
   color: var(--color-error);
-  transform: scale(1.1);
 }
 
-.graphGroupRemove:active {
-  transform: scale(0.98);
+@media (prefers-reduced-motion: no-preference) {
+  .graphGroupRemove:hover {
+    transform: scale(1.1);
+  }
+
+  .graphGroupRemove:active {
+    transform: scale(0.98);
+  }
 }
 
 .graphAddGroupBtn {
@@ -1770,11 +1858,16 @@
   border-style: solid;
   background: var(--color-accent-subtle);
   color: var(--color-text-primary);
-  transform: translateY(-1px);
 }
 
-.graphAddGroupBtn:active {
-  transform: translateY(0);
+@media (prefers-reduced-motion: no-preference) {
+  .graphAddGroupBtn:hover {
+    transform: translateY(-1px);
+  }
+
+  .graphAddGroupBtn:active {
+    transform: translateY(0);
+  }
 }
 
 .graphAnimateBtn {
@@ -1791,11 +1884,16 @@
 .graphAnimateBtn:hover {
   border-color: var(--color-accent-default);
   background: var(--color-accent-subtle-hover);
-  transform: translateY(-1px);
 }
 
-.graphAnimateBtn:active {
-  transform: translateY(0);
+@media (prefers-reduced-motion: no-preference) {
+  .graphAnimateBtn:hover {
+    transform: translateY(-1px);
+  }
+
+  .graphAnimateBtn:active {
+    transform: translateY(0);
+  }
 }
 
 .graphAnimateBtn--active {
@@ -1859,9 +1957,14 @@
 .graphContextMenuItem:hover {
   background: var(--color-accent-subtle);
   color: var(--color-text-primary);
-  transform: translateX(2px);
 }
 
-.graphContextMenuItem:active {
-  transform: translateX(0);
+@media (prefers-reduced-motion: no-preference) {
+  .graphContextMenuItem:hover {
+    transform: translateX(2px);
+  }
+
+  .graphContextMenuItem:active {
+    transform: translateX(0);
+  }
 }

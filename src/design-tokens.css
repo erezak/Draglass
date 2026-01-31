@@ -57,9 +57,9 @@
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.20), 0 24px 64px rgba(0, 0, 0, 0.16);
   
   /* ===== Motion ===== */
-  --duration-fast: 150ms;
-  --duration-normal: 200ms;
-  --duration-slow: 250ms;
+  --duration-fast: 200ms;
+  --duration-normal: 250ms;
+  --duration-slow: 300ms;
   --easing-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
   --easing-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
   --easing-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
