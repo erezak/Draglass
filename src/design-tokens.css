@@ -1,0 +1,200 @@
+/**
+ * Draglass Design Tokens - Microsoft Fluent 2 Inspired
+ * 
+ * This file defines the core design tokens for the application including:
+ * - Color palette (light and dark modes)
+ * - Typography system (Segoe UI / system fonts)
+ * - Spacing scale (8px grid)
+ * - Border radius values
+ * - Elevation/shadow system
+ * - Motion/transition timings
+ */
+
+:root {
+  /* ===== Typography ===== */
+  --font-family-base: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  
+  /* Font sizes - Fluent type ramp */
+  --font-size-caption: 12px;
+  --font-size-body: 14px;
+  --font-size-body-large: 16px;
+  --font-size-subtitle: 18px;
+  --font-size-title: 22px;
+  --font-size-display: 28px;
+  
+  /* Font weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Line heights */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
+  
+  /* ===== Spacing Scale (8px grid) ===== */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  --spacing-3xl: 48px;
+  
+  /* ===== Border Radius ===== */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  
+  /* ===== Elevation / Shadows ===== */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16), 0 12px 40px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.20), 0 24px 64px rgba(0, 0, 0, 0.16);
+  
+  /* ===== Motion ===== */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 250ms;
+  --easing-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --easing-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --easing-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
+  
+  /* ===== Dark Mode Colors (Default) ===== */
+  color-scheme: dark;
+  
+  /* Neutral palette */
+  --color-bg-canvas: #1c1c1c;
+  --color-bg-layer: #252525;
+  --color-bg-layer-alt: #2d2d2d;
+  --color-bg-elevated: #333333;
+  
+  /* Acrylic/blur backgrounds */
+  --color-bg-acrylic: rgba(44, 44, 44, 0.85);
+  --color-bg-acrylic-alt: rgba(37, 37, 37, 0.92);
+  
+  /* Surface colors */
+  --color-surface-primary: rgba(255, 255, 255, 0.05);
+  --color-surface-secondary: rgba(255, 255, 255, 0.08);
+  --color-surface-tertiary: rgba(255, 255, 255, 0.03);
+  
+  /* Border colors */
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-default: rgba(255, 255, 255, 0.12);
+  --color-border-strong: rgba(255, 255, 255, 0.18);
+  --color-border-divider: rgba(255, 255, 255, 0.10);
+  
+  /* Text colors */
+  --color-text-primary: rgba(255, 255, 255, 0.92);
+  --color-text-secondary: rgba(255, 255, 255, 0.78);
+  --color-text-tertiary: rgba(255, 255, 255, 0.64);
+  --color-text-disabled: rgba(255, 255, 255, 0.38);
+  
+  /* Accent colors - Fluent Blue */
+  --color-accent-default: #60a5fa;
+  --color-accent-hover: #5b9def;
+  --color-accent-active: #4f89da;
+  --color-accent-subtle: rgba(96, 165, 250, 0.12);
+  --color-accent-subtle-hover: rgba(96, 165, 250, 0.18);
+  
+  /* Interactive states */
+  --color-fill-subtle: rgba(255, 255, 255, 0.04);
+  --color-fill-subtle-hover: rgba(255, 255, 255, 0.08);
+  --color-fill-subtle-active: rgba(255, 255, 255, 0.06);
+  
+  /* Status colors */
+  --color-success: #6ecf7d;
+  --color-success-bg: rgba(110, 207, 125, 0.12);
+  --color-warning: #f7c752;
+  --color-warning-bg: rgba(247, 199, 82, 0.12);
+  --color-error: #f87171;
+  --color-error-bg: rgba(248, 113, 113, 0.12);
+  --color-info: #60a5fa;
+  --color-info-bg: rgba(96, 165, 250, 0.12);
+  
+  /* Overlay */
+  --color-overlay: rgba(0, 0, 0, 0.55);
+  --color-overlay-heavy: rgba(0, 0, 0, 0.72);
+  
+  /* Focus indicator */
+  --color-focus: #60a5fa;
+  --focus-width: 2px;
+  --focus-offset: 2px;
+}
+
+/* ===== Light Mode Colors ===== */
+:root[data-theme='light'] {
+  color-scheme: light;
+  
+  /* Neutral palette */
+  --color-bg-canvas: #f5f5f5;
+  --color-bg-layer: #ffffff;
+  --color-bg-layer-alt: #fafafa;
+  --color-bg-elevated: #ffffff;
+  
+  /* Acrylic/blur backgrounds */
+  --color-bg-acrylic: rgba(255, 255, 255, 0.90);
+  --color-bg-acrylic-alt: rgba(250, 250, 250, 0.95);
+  
+  /* Surface colors */
+  --color-surface-primary: rgba(0, 0, 0, 0.04);
+  --color-surface-secondary: rgba(0, 0, 0, 0.06);
+  --color-surface-tertiary: rgba(0, 0, 0, 0.02);
+  
+  /* Border colors */
+  --color-border-subtle: rgba(0, 0, 0, 0.08);
+  --color-border-default: rgba(0, 0, 0, 0.12);
+  --color-border-strong: rgba(0, 0, 0, 0.16);
+  --color-border-divider: rgba(0, 0, 0, 0.10);
+  
+  /* Text colors */
+  --color-text-primary: rgba(0, 0, 0, 0.90);
+  --color-text-secondary: rgba(0, 0, 0, 0.74);
+  --color-text-tertiary: rgba(0, 0, 0, 0.58);
+  --color-text-disabled: rgba(0, 0, 0, 0.38);
+  
+  /* Accent colors - Fluent Blue (adjusted for light mode) */
+  --color-accent-default: #0078d4;
+  --color-accent-hover: #106ebe;
+  --color-accent-active: #005a9e;
+  --color-accent-subtle: rgba(0, 120, 212, 0.10);
+  --color-accent-subtle-hover: rgba(0, 120, 212, 0.16);
+  
+  /* Interactive states */
+  --color-fill-subtle: rgba(0, 0, 0, 0.03);
+  --color-fill-subtle-hover: rgba(0, 0, 0, 0.06);
+  --color-fill-subtle-active: rgba(0, 0, 0, 0.04);
+  
+  /* Status colors */
+  --color-success: #0e8a1e;
+  --color-success-bg: rgba(14, 138, 30, 0.10);
+  --color-warning: #ad6c00;
+  --color-warning-bg: rgba(173, 108, 0, 0.10);
+  --color-error: #d13438;
+  --color-error-bg: rgba(209, 52, 56, 0.10);
+  --color-info: #0078d4;
+  --color-info-bg: rgba(0, 120, 212, 0.10);
+  
+  /* Overlay */
+  --color-overlay: rgba(0, 0, 0, 0.32);
+  --color-overlay-heavy: rgba(0, 0, 0, 0.52);
+  
+  /* Shadows adjusted for light mode */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.10), 0 12px 32px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.14), 0 24px 56px rgba(0, 0, 0, 0.10);
+}
+
+/* ===== Reduced Motion Support ===== */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+  }
+}
