@@ -1,0 +1,214 @@
+/**
+ * Design Tokens
+ * Apple HIG-inspired design system
+ * Based on iOS/macOS aesthetic with clean surfaces, subtle depth, and refined colors
+ */
+
+:root {
+  /* ===== Typography ===== */
+  /* Use SF Pro Display/Text on Apple platforms, fallback to system fonts */
+  --font-family-system: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-family-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  /* Type scale - based on Apple HIG recommendations */
+  --font-size-xxs: 10px;    /* Fine print, captions */
+  --font-size-xs: 11px;     /* Labels, metadata */
+  --font-size-sm: 13px;     /* Body small, secondary text */
+  --font-size-base: 15px;   /* Body text */
+  --font-size-md: 17px;     /* Emphasized body */
+  --font-size-lg: 20px;     /* Headings */
+  --font-size-xl: 28px;     /* Large headings */
+  --font-size-xxl: 34px;    /* Display headings */
+  
+  /* Font weights - SF Pro conventions */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Line heights */
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.4;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
+  
+  /* Letter spacing */
+  --letter-spacing-tight: -0.015em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.02em;
+  --letter-spacing-caps: 0.06em;
+  
+  /* ===== Spacing ===== */
+  /* 8pt base grid with 12pt for larger spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  
+  /* ===== Border Radius ===== */
+  /* Subtle, refined corners */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+  
+  /* ===== Shadows ===== */
+  /* Subtle elevation, inspired by macOS UI */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08);
+  --shadow-2xl: 0 24px 48px rgba(0, 0, 0, 0.16), 0 12px 24px rgba(0, 0, 0, 0.1);
+  
+  /* ===== Motion ===== */
+  /* Smooth, refined animations */
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 250ms;
+  --duration-slower: 300ms;
+  
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* ===== Z-Index Scale ===== */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+  
+  /* ===== Dark Theme Colors ===== */
+  /* Inspired by macOS Big Sur+ dark mode */
+  
+  /* Neutral surfaces */
+  --color-bg-primary: #1c1c1e;        /* Main app background */
+  --color-bg-secondary: #2c2c2e;      /* Elevated surfaces */
+  --color-bg-tertiary: #3a3a3c;       /* Even more elevated */
+  --color-bg-overlay: rgba(0, 0, 0, 0.5);
+  
+  /* Surface overlays - translucent panels */
+  --color-surface-base: rgba(44, 44, 46, 0.85);
+  --color-surface-elevated: rgba(58, 58, 60, 0.9);
+  --color-surface-hover: rgba(255, 255, 255, 0.06);
+  --color-surface-active: rgba(255, 255, 255, 0.1);
+  
+  /* Borders */
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-base: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
+  --color-border-emphasis: rgba(255, 255, 255, 0.2);
+  
+  /* Text */
+  --color-text-primary: rgba(255, 255, 255, 0.95);
+  --color-text-secondary: rgba(255, 255, 255, 0.75);
+  --color-text-tertiary: rgba(255, 255, 255, 0.55);
+  --color-text-disabled: rgba(255, 255, 255, 0.35);
+  --color-text-inverse: rgba(0, 0, 0, 0.85);
+  
+  /* Accent color - Apple blue */
+  --color-accent-50: #e6f0ff;
+  --color-accent-100: #b3d7ff;
+  --color-accent-200: #80bdff;
+  --color-accent-300: #4da3ff;
+  --color-accent-400: #1a8aff;
+  --color-accent-500: #007aff;         /* Primary accent */
+  --color-accent-600: #0062cc;
+  --color-accent-700: #004999;
+  --color-accent-800: #003166;
+  --color-accent-900: #001833;
+  
+  /* Semantic colors */
+  --color-success: #34c759;
+  --color-success-bg: rgba(52, 199, 89, 0.12);
+  --color-success-border: rgba(52, 199, 89, 0.3);
+  
+  --color-warning: #ff9f0a;
+  --color-warning-bg: rgba(255, 159, 10, 0.12);
+  --color-warning-border: rgba(255, 159, 10, 0.3);
+  
+  --color-error: #ff3b30;
+  --color-error-bg: rgba(255, 59, 48, 0.12);
+  --color-error-border: rgba(255, 59, 48, 0.3);
+  
+  --color-info: #5ac8fa;
+  --color-info-bg: rgba(90, 200, 250, 0.12);
+  --color-info-border: rgba(90, 200, 250, 0.3);
+  
+  /* Focus ring - Apple blue glow */
+  --color-focus-ring: rgba(0, 122, 255, 0.6);
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 2px;
+  
+  /* Backdrop blur */
+  --blur-light: blur(20px);
+  --blur-medium: blur(40px);
+  --blur-heavy: blur(60px);
+}
+
+/* ===== Light Theme Override ===== */
+:root[data-theme='light'] {
+  /* Neutral surfaces */
+  --color-bg-primary: #f5f5f7;        /* Main app background - light gray */
+  --color-bg-secondary: #ffffff;      /* Elevated surfaces - pure white */
+  --color-bg-tertiary: #fafafa;       /* Even more elevated */
+  --color-bg-overlay: rgba(0, 0, 0, 0.25);
+  
+  /* Surface overlays */
+  --color-surface-base: rgba(255, 255, 255, 0.9);
+  --color-surface-elevated: rgba(255, 255, 255, 0.95);
+  --color-surface-hover: rgba(0, 0, 0, 0.04);
+  --color-surface-active: rgba(0, 0, 0, 0.08);
+  
+  /* Borders */
+  --color-border-subtle: rgba(0, 0, 0, 0.06);
+  --color-border-base: rgba(0, 0, 0, 0.1);
+  --color-border-strong: rgba(0, 0, 0, 0.15);
+  --color-border-emphasis: rgba(0, 0, 0, 0.2);
+  
+  /* Text */
+  --color-text-primary: rgba(0, 0, 0, 0.9);
+  --color-text-secondary: rgba(0, 0, 0, 0.7);
+  --color-text-tertiary: rgba(0, 0, 0, 0.5);
+  --color-text-disabled: rgba(0, 0, 0, 0.3);
+  --color-text-inverse: rgba(255, 255, 255, 0.95);
+  
+  /* Light mode shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.14), 0 8px 16px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 24px 48px rgba(0, 0, 0, 0.18), 0 12px 24px rgba(0, 0, 0, 0.12);
+  
+  /* Semantic colors - slightly adjusted for light mode */
+  --color-success: #28a745;
+  --color-warning: #ff9500;
+  --color-error: #ff3b30;
+  --color-info: #5ac8fa;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0ms;
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+  }
+}
