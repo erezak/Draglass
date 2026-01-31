@@ -61,6 +61,13 @@
   --z-dropdown: 400;
   --z-modal: 500;
   --z-tooltip: 600;
+  
+  /* === Layout Sizes === */
+  --height-header: 56px;
+  --width-toolbox: 56px;
+  --width-sidebar: 280px;
+  --width-min-editor: 400px;
+  --width-right-pane: 280px;
 }
 
 /* === Dark Theme (Default) === */
