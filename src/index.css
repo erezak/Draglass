@@ -1,25 +1,79 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  /* Typography - Inter or system sans as per spec */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+  line-height: 1.5715;
   font-weight: 400;
+  font-size: 14px;
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.92);
-  background-color: #14161a;
+  
+  /* Ant Design Dark Theme Colors */
+  --ant-primary: #1890ff;
+  --ant-primary-hover: #40a9ff;
+  --ant-primary-active: #096dd9;
+  --ant-success: #52c41a;
+  --ant-warning: #faad14;
+  --ant-error: #ff4d4f;
+  --ant-info: #1890ff;
+  
+  /* Dark theme base colors */
+  color: rgba(255, 255, 255, 0.85);
+  background-color: #141414;
 
-  --app-bg: #14161a;
-  --panel-bg: rgba(0, 0, 0, 0.22);
-  --panel-solid: #0f1115;
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --panel-border-strong: rgba(255, 255, 255, 0.18);
-  --text-primary: rgba(255, 255, 255, 0.92);
-  --text-muted: rgba(255, 255, 255, 0.7);
-  --button-bg: rgba(255, 255, 255, 0.08);
-  --button-border: rgba(255, 255, 255, 0.2);
-  --button-hover-border: rgba(100, 108, 255, 0.7);
-  --highlight: rgba(100, 108, 255, 0.15);
-  --overlay-bg: rgba(0, 0, 0, 0.6);
-  --toolbox-icon: rgba(255, 255, 255, 0.92);
+  --app-bg: #141414;
+  --panel-bg: #1f1f1f;
+  --panel-solid: #1f1f1f;
+  --panel-border: rgba(255, 255, 255, 0.06);
+  --panel-border-strong: rgba(255, 255, 255, 0.12);
+  
+  /* Text colors */
+  --text-primary: rgba(255, 255, 255, 0.85);
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-muted: rgba(255, 255, 255, 0.45);
+  --text-disabled: rgba(255, 255, 255, 0.25);
+  
+  /* Interactive elements */
+  --button-bg: transparent;
+  --button-border: #434343;
+  --button-hover-bg: rgba(255, 255, 255, 0.08);
+  --button-hover-border: #165dff;
+  --button-active-bg: rgba(255, 255, 255, 0.12);
+  
+  /* Primary button */
+  --button-primary-bg: #1890ff;
+  --button-primary-hover: #40a9ff;
+  --button-primary-active: #096dd9;
+  
+  /* Highlight and selection */
+  --highlight: rgba(24, 144, 255, 0.1);
+  --highlight-hover: rgba(24, 144, 255, 0.15);
+  
+  /* Overlay */
+  --overlay-bg: rgba(0, 0, 0, 0.45);
+  
+  /* Icon color */
+  --icon-color: rgba(255, 255, 255, 0.65);
+  --icon-hover: rgba(255, 255, 255, 0.85);
+  
+  /* Shadows - Ant Design elevation system */
+  --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-3: 0 8px 32px rgba(0, 0, 0, 0.35);
+  
+  /* Spacing - 8px grid */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Border radius */
+  --radius-sm: 2px;
+  --radius-base: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 16px;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -29,22 +83,59 @@
 
 :root[data-theme='light'] {
   color-scheme: light;
-  color: #1f2328;
-  background-color: #f3f4f6;
+  
+  /* Ant Design Light Theme Colors */
+  --ant-primary: #1890ff;
+  --ant-primary-hover: #40a9ff;
+  --ant-primary-active: #096dd9;
+  --ant-success: #52c41a;
+  --ant-warning: #faad14;
+  --ant-error: #ff4d4f;
+  --ant-info: #1890ff;
+  
+  /* Light theme base colors */
+  color: rgba(0, 0, 0, 0.85);
+  background-color: #f0f2f5;
 
-  --app-bg: #f3f4f6;
-  --panel-bg: rgba(255, 255, 255, 0.8);
+  --app-bg: #f0f2f5;
+  --panel-bg: #ffffff;
   --panel-solid: #ffffff;
-  --panel-border: rgba(15, 23, 42, 0.12);
-  --panel-border-strong: rgba(15, 23, 42, 0.18);
-  --text-primary: #1f2328;
-  --text-muted: rgba(15, 23, 42, 0.65);
-  --button-bg: rgba(15, 23, 42, 0.06);
-  --button-border: rgba(15, 23, 42, 0.2);
-  --button-hover-border: rgba(59, 74, 159, 0.6);
-  --highlight: rgba(59, 74, 159, 0.18);
-  --overlay-bg: rgba(15, 23, 42, 0.25);
-  --toolbox-icon: #1f2328;
+  --panel-border: #f0f0f0;
+  --panel-border-strong: #d9d9d9;
+  
+  /* Text colors */
+  --text-primary: rgba(0, 0, 0, 0.85);
+  --text-secondary: rgba(0, 0, 0, 0.65);
+  --text-muted: rgba(0, 0, 0, 0.45);
+  --text-disabled: rgba(0, 0, 0, 0.25);
+  
+  /* Interactive elements */
+  --button-bg: transparent;
+  --button-border: #d9d9d9;
+  --button-hover-bg: rgba(0, 0, 0, 0.04);
+  --button-hover-border: #40a9ff;
+  --button-active-bg: rgba(0, 0, 0, 0.08);
+  
+  /* Primary button */
+  --button-primary-bg: #1890ff;
+  --button-primary-hover: #40a9ff;
+  --button-primary-active: #096dd9;
+  
+  /* Highlight and selection */
+  --highlight: rgba(24, 144, 255, 0.1);
+  --highlight-hover: rgba(24, 144, 255, 0.15);
+  
+  /* Overlay */
+  --overlay-bg: rgba(0, 0, 0, 0.45);
+  
+  /* Icon color */
+  --icon-color: rgba(0, 0, 0, 0.45);
+  --icon-hover: rgba(0, 0, 0, 0.85);
+  
+  /* Shadows - Ant Design elevation system */
+  --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-3: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 a {
