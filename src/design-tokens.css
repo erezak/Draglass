@@ -43,6 +43,9 @@
   --spacing-2xl: 32px;
   --spacing-3xl: 48px;
   
+  /* ===== Component Sizes ===== */
+  --checkbox-size: 20px;
+  
   /* ===== Border Radius ===== */
   --radius-sm: 4px;
   --radius-md: 8px;
