@@ -1,6 +1,7 @@
 use tauri::Manager;
 
 mod backlinks;
+mod graph;
 mod vault;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -65,6 +66,7 @@ pub fn run() {
             create_note,
             find_backlinks,
             read_vault_image,
+            build_graph,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -112,6 +114,7 @@ fn persist_window_state(
 }
 
 use crate::backlinks::find_backlinks_impl;
+use crate::graph::{build_graph_impl, GraphData, GraphOptions};
 use crate::vault::{
     create_note_impl, list_markdown_files_impl, read_note_impl, read_vault_image_impl,
     write_note_impl, NoteEntry, VaultImage,
@@ -139,14 +142,12 @@ async fn write_note(vault_path: String, rel_path: String, contents: String) -> R
 }
 
 #[tauri::command(rename = "create-note")]
-async fn create_note(
-    vault_path: String,
-    rel_path: String,
-    contents: String,
-) -> Result<(), String> {
-    tauri::async_runtime::spawn_blocking(move || create_note_impl(&vault_path, &rel_path, &contents))
-        .await
-        .map_err(|e| format!("failed to join task: {e}"))?
+async fn create_note(vault_path: String, rel_path: String, contents: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        create_note_impl(&vault_path, &rel_path, &contents)
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
 }
 
 #[tauri::command(rename = "find-backlinks")]
@@ -159,6 +160,13 @@ async fn find_backlinks(vault_path: String, target_title: String) -> Result<Vec<
 #[tauri::command(rename = "read-vault-image")]
 async fn read_vault_image(vault_path: String, rel_path: String) -> Result<VaultImage, String> {
     tauri::async_runtime::spawn_blocking(move || read_vault_image_impl(&vault_path, &rel_path))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command(rename = "build-graph")]
+async fn build_graph(vault_path: String, options: GraphOptions) -> Result<GraphData, String> {
+    tauri::async_runtime::spawn_blocking(move || build_graph_impl(&vault_path, options))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }

@@ -58,6 +58,16 @@ identifier = "read-vault-image-legacy"
 description = "Allows reading an image asset from the selected vault (legacy command name)."
 commands.allow = ["read_vault_image"]
 
+[[permission]]
+identifier = "build-graph"
+description = "Allows building the graph data from the selected vault."
+commands.allow = ["build-graph"]
+
+[[permission]]
+identifier = "build-graph-legacy"
+description = "Allows building the graph data from the selected vault (legacy command name)."
+commands.allow = ["build_graph"]
+
 [[set]]
 identifier = "vault"
 description = "Allows the main window to access vault-related app commands."
@@ -74,4 +84,6 @@ permissions = [
   "find-backlinks-legacy",
   "read-vault-image",
   "read-vault-image-legacy",
+  "build-graph",
+  "build-graph-legacy",
 ]

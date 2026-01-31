@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core'
 
 import type { NoteEntry } from './types'
+import type { GraphData, GraphOptions } from './features/graph/graphTypes'
 
 export type VaultImageResponse = {
   bytes: number[]
@@ -89,5 +90,17 @@ export async function findBacklinks(
     'find_backlinks',
     { vault_path: vaultPath, target_title: targetTitle },
     { vaultPath, targetTitle },
+  )
+}
+
+export async function buildGraph(
+  vaultPath: string,
+  options: GraphOptions,
+): Promise<GraphData> {
+  return invokeWithFallback<GraphData>(
+    'build-graph',
+    'build_graph',
+    { vault_path: vaultPath, options },
+    { vaultPath, options },
   )
 }

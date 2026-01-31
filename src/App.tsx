@@ -8,6 +8,7 @@ import type { NoteEditorHandle } from './components/NoteEditor'
 import { QuickSwitcher } from './components/QuickSwitcher'
 import { SettingsScreen } from './components/SettingsScreen'
 import { Toolbox } from './components/Toolbox'
+import { GraphView } from './features/graph'
 import { useSettings } from './settings'
 import { useBacklinks } from './features/backlinks/useBacklinks'
 import { useNoteManager } from './features/notes/useNoteManager'
@@ -266,12 +267,13 @@ function App() {
             {busy ? <div className="busy">{busy}</div> : null}
 
             {graphViewOpen ? (
-              <div className="placeholderCard" role="status">
-                <div className="placeholderTitle">Graph view is coming soon.</div>
-                <div className="placeholderBody">
-                  This space will visualize connections between your notes once the graph view ships.
-                </div>
-              </div>
+              <GraphView
+                vaultPath={vaultPath}
+                activeRelPath={activeRelPath}
+                showHidden={settings.filesShowHidden}
+                theme={settings.editorTheme}
+                onOpenNote={openNoteAndCloseGraph}
+              />
             ) : !vaultPath ? (
               <div className="panelEmpty">Select a vault to edit notes.</div>
             ) : !activeRelPath ? (
