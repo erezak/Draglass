@@ -1354,229 +1354,310 @@
   top: 0;
   right: 0;
   bottom: 0;
-  width: min(320px, 90%);
-  background: var(--panel-solid);
-  border-left: 1px solid var(--panel-border);
+  width: min(340px, 85%);
+  background: var(--color-bg-secondary);
+  border-left: 1px solid var(--color-border-base);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-xl);
   z-index: 10;
+  animation: panelSlideIn var(--duration-normal) var(--ease-out);
+}
+
+@keyframes panelSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .graphSettingsHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--panel-border);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border-base);
+  background: var(--color-surface-hover);
 }
 
 .graphSettingsTitle {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
 }
 
 .graphSettingsCloseBtn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   border: 1px solid transparent;
   background: transparent;
-  color: var(--text-muted);
+  color: var(--color-text-secondary);
   padding: 0;
+  transition: all var(--duration-fast) var(--ease-out);
 }
 
 .graphSettingsCloseBtn:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
-  color: var(--text-primary);
+  border-color: var(--color-accent-500);
+  background: var(--color-surface-active);
+  color: var(--color-accent-500);
 }
 
 .graphCloseIcon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 .graphSettingsBody {
   flex: 1;
   overflow-y: auto;
-  padding: 14px;
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--space-5);
 }
 
 .graphSettingsSection h4 {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  margin: 0 0 10px;
+  letter-spacing: var(--letter-spacing-caps);
+  color: var(--color-text-tertiary);
+  margin: 0 0 var(--space-3);
 }
 
 .graphSettingRow {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-  font-size: 12px;
-  margin-bottom: 6px;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-base);
+  background: var(--color-surface-base);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-2);
+  transition: all var(--duration-fast) var(--ease-out);
+  min-height: 40px;
+}
+
+.graphSettingRow:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
 }
 
 .graphSettingRow span:first-child {
   flex: 1;
   min-width: 80px;
+  color: var(--color-text-primary);
 }
 
 .graphSettingRow input[type='range'] {
   flex: 2;
   min-width: 80px;
+  accent-color: var(--color-accent-500);
 }
 
 .graphSettingRow input[type='checkbox'] {
-  transform: scale(1.1);
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-accent-500);
+  cursor: pointer;
 }
 
 .graphSettingValue {
   min-width: 40px;
   text-align: right;
   font-variant-numeric: tabular-nums;
-  color: var(--text-muted);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
 }
 
-/* Groups */
+/* Graph Groups */
 
 .graphGroupsList {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 
 .graphGroupItem {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-base);
+  background: var(--color-surface-base);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.graphGroupItem:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
 }
 
 .graphGroupColor {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   padding: 0;
-  border: 1px solid var(--panel-border);
-  border-radius: 6px;
+  border: 1px solid var(--color-border-base);
+  border-radius: var(--radius-sm);
   background: transparent;
   cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.graphGroupColor:hover {
+  border-color: var(--color-border-strong);
+  transform: scale(1.05);
 }
 
 .graphGroupQuery {
   flex: 1;
   min-width: 80px;
-  padding: 6px 8px;
-  font-size: 12px;
-  border-radius: 6px;
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
-  color: var(--text-primary);
+  padding: var(--space-2);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-base);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.graphGroupQuery:focus {
+  border-color: var(--color-accent-500);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--color-focus-ring);
+  outline: none;
 }
 
 .graphGroupRemove {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   border: none;
   background: transparent;
-  color: var(--text-muted);
-  font-size: 16px;
+  color: var(--color-text-tertiary);
+  font-size: 18px;
   padding: 0;
+  transition: all var(--duration-fast) var(--ease-out);
 }
 
 .graphGroupRemove:hover {
-  background: rgba(255, 95, 95, 0.15);
-  color: #ff5f5f;
+  background: var(--color-error-bg);
+  color: var(--color-error);
 }
 
 .graphAddGroupBtn {
-  padding: 8px 12px;
-  font-size: 12px;
-  border-radius: 8px;
-  border: 1px dashed var(--panel-border-strong);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border-base);
   background: transparent;
-  color: var(--text-muted);
+  color: var(--color-text-tertiary);
+  transition: all var(--duration-fast) var(--ease-out);
+  min-height: 36px;
 }
 
 .graphAddGroupBtn:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
-  color: var(--text-primary);
+  border-color: var(--color-accent-500);
+  background: var(--color-surface-active);
+  color: var(--color-accent-500);
+  border-style: solid;
 }
 
 .graphAnimateBtn {
-  padding: 4px 10px;
-  font-size: 11px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
-  color: var(--text-primary);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-base);
+  background: transparent;
+  color: var(--color-text-secondary);
+  transition: all var(--duration-fast) var(--ease-out);
 }
 
 .graphAnimateBtn:hover {
-  border-color: var(--button-hover-border);
+  border-color: var(--color-accent-500);
+  background: var(--color-surface-active);
+  color: var(--color-accent-500);
 }
 
 .graphAnimateBtn--active {
-  background: var(--highlight);
-  border-color: var(--button-hover-border);
+  background: rgba(0, 122, 255, 0.12);
+  border-color: var(--color-accent-500);
+  color: var(--color-accent-500);
 }
 
-/* Context Menu */
+/* Graph Context Menu */
 
 .graphContextMenu {
   position: fixed;
-  min-width: 140px;
-  border-radius: 10px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--panel-solid);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  min-width: 160px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-bg-secondary);
+  box-shadow: var(--shadow-xl);
   overflow: hidden;
-  z-index: 1000;
+  z-index: var(--z-popover);
+  animation: menuFadeIn var(--duration-fast) var(--ease-out);
+}
+
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .graphContextMenuHeader {
-  padding: 8px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  border-bottom: 1px solid var(--panel-border);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border-base);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  background: var(--color-surface-hover);
 }
 
 .graphContextMenuItem {
   display: block;
   width: 100%;
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
   text-align: left;
   border: none;
   background: transparent;
-  color: var(--text-primary);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  min-height: 36px;
 }
 
 .graphContextMenuItem:hover {
-  background: var(--highlight);
+  background: var(--color-surface-hover);
+  color: var(--color-accent-500);
+}
+
+.graphContextMenuItem:active {
+  background: var(--color-surface-active);
 }
