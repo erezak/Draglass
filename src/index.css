@@ -1,94 +1,122 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* Import IBM Carbon design tokens */
+@import './tokens.css';
 
-  color-scheme: dark;
-  color: rgba(255, 255, 255, 0.92);
-  background-color: #14161a;
-
-  --app-bg: #14161a;
-  --panel-bg: rgba(0, 0, 0, 0.22);
-  --panel-solid: #0f1115;
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --panel-border-strong: rgba(255, 255, 255, 0.18);
-  --text-primary: rgba(255, 255, 255, 0.92);
-  --text-muted: rgba(255, 255, 255, 0.7);
-  --button-bg: rgba(255, 255, 255, 0.08);
-  --button-border: rgba(255, 255, 255, 0.2);
-  --button-hover-border: rgba(100, 108, 255, 0.7);
-  --highlight: rgba(100, 108, 255, 0.15);
-  --overlay-bg: rgba(0, 0, 0, 0.6);
-  --toolbox-icon: rgba(255, 255, 255, 0.92);
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-:root[data-theme='light'] {
-  color-scheme: light;
-  color: #1f2328;
-  background-color: #f3f4f6;
-
-  --app-bg: #f3f4f6;
-  --panel-bg: rgba(255, 255, 255, 0.8);
-  --panel-solid: #ffffff;
-  --panel-border: rgba(15, 23, 42, 0.12);
-  --panel-border-strong: rgba(15, 23, 42, 0.18);
-  --text-primary: #1f2328;
-  --text-muted: rgba(15, 23, 42, 0.65);
-  --button-bg: rgba(15, 23, 42, 0.06);
-  --button-border: rgba(15, 23, 42, 0.2);
-  --button-hover-border: rgba(59, 74, 159, 0.6);
-  --highlight: rgba(59, 74, 159, 0.18);
-  --overlay-bg: rgba(15, 23, 42, 0.25);
-  --toolbox-icon: #1f2328;
+/* Base styles using Carbon tokens */
+* {
+  box-sizing: border-box;
 }
 
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  font-weight: var(--font-weight-medium);
+  color: var(--link-primary);
+  text-decoration: none;
+  transition: color var(--transition-base) var(--transition-timing);
 }
+
 a:hover {
-  color: #535bf2;
+  color: var(--link-primary-hover);
+  text-decoration: underline;
+}
+
+a:visited {
+  color: var(--link-visited);
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: var(--app-bg);
+  background: var(--layer-00);
   color: var(--text-primary);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-02);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-regular);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Heading styles */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: var(--font-size-06);
 }
 
+h2 {
+  font-size: var(--font-size-05);
+}
+
+h3 {
+  font-size: var(--font-size-04);
+}
+
+/* Button base styles - Carbon button principles */
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-02);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  padding: var(--spacing-03) var(--spacing-05);
+  border-radius: var(--radius-03);
+  border: none;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: background-color var(--transition-base) var(--transition-timing),
+              border-color var(--transition-base) var(--transition-timing),
+              box-shadow var(--transition-base) var(--transition-timing);
+  outline: none;
 }
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
+
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Input base styles */
+input, textarea, select {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-02);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  background: var(--field-01);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-03);
+  padding: var(--spacing-03) var(--spacing-04);
+  transition: background-color var(--transition-base) var(--transition-timing),
+              border-color var(--transition-base) var(--transition-timing),
+              box-shadow var(--transition-base) var(--transition-timing);
+  outline: none;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--focus);
+  box-shadow: inset 0 0 0 1px var(--focus);
+}
+
+input:disabled, textarea:disabled, select:disabled {
+  background: var(--field-01);
+  color: var(--text-disabled);
+  border-color: var(--border-disabled);
+  cursor: not-allowed;
+}
+
+/* Code styles */
+code, pre {
+  font-family: var(--font-family-mono);
 }
 
