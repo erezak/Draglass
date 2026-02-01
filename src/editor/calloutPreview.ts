@@ -170,35 +170,44 @@ class CalloutHeaderWidget extends WidgetType {
     const title = document.createElement('span')
     title.className = 'cm-livePreview-calloutTitle'
     title.textContent = this.title
-
-    const chevron = document.createElement('button')
-    chevron.type = 'button'
-    chevron.className = 'cm-livePreview-calloutToggle'
-    chevron.setAttribute('aria-label', this.collapsed ? 'Expand callout' : 'Collapse callout')
-    chevron.setAttribute('aria-expanded', String(!this.collapsed))
-
-    const chevronIcon = document.createElement('span')
-    chevronIcon.className = 'cm-livePreview-calloutChevron'
-    chevron.appendChild(chevronIcon)
-
-    chevron.addEventListener('click', (event) => {
-      event.preventDefault()
-      event.stopPropagation()
-      const next = !this.collapsed
-      setCalloutCollapseState(this.noteRelPath, this.collapseKey, next)
-      view.dispatch({
-        effects: calloutToggleEffect.of({
-          noteRelPath: this.noteRelPath,
-          key: this.collapseKey,
-          collapsed: next,
-        }),
-      })
-      view.focus()
-    })
-
     content.appendChild(icon)
     content.appendChild(title)
-    content.appendChild(chevron)
+
+    if (!this.isSolo) {
+      const chevron = document.createElement('button')
+      chevron.type = 'button'
+      chevron.className = 'cm-livePreview-calloutToggle'
+      chevron.setAttribute('aria-label', this.collapsed ? 'Expand callout' : 'Collapse callout')
+      chevron.setAttribute('aria-expanded', String(!this.collapsed))
+
+      const chevronIcon = document.createElement('span')
+      chevronIcon.className = 'cm-livePreview-calloutChevron'
+      chevron.appendChild(chevronIcon)
+
+      const stopSelection = (event: Event) => {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+
+      chevron.addEventListener('pointerdown', stopSelection)
+      chevron.addEventListener('mousedown', stopSelection)
+      chevron.addEventListener('click', (event) => {
+        event.preventDefault()
+        event.stopPropagation()
+        const next = !this.collapsed
+        setCalloutCollapseState(this.noteRelPath, this.collapseKey, next)
+        view.dispatch({
+          effects: calloutToggleEffect.of({
+            noteRelPath: this.noteRelPath,
+            key: this.collapseKey,
+            collapsed: next,
+          }),
+        })
+        view.focus()
+      })
+
+      content.appendChild(chevron)
+    }
 
     wrapper.appendChild(content)
     return wrapper
