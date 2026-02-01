@@ -24,7 +24,7 @@ const BOLD_RE = /\*\*([^*]+)\*\*/g
 const BOLD_UNDER_RE = /__([^_]+)__/g
 const ITALIC_RE = /(^|[^*])\*([^*]+)\*(?!\*)/g
 const ITALIC_UNDER_RE = /(^|[^_])_([^_]+)_(?!_)/g
-const TASK_RE = /^\s*(?:[-+*])\s+\[( |x|X)\]/
+const TASK_RE = /^\s*(?:[-+*])\s+\[( |x|X|-)\]/
 
 type InlineLivePreviewOptions = {
   renderImages?: boolean
@@ -53,28 +53,38 @@ class HiddenMarkerWidget extends WidgetType {
 }
 
 class TaskCheckboxWidget extends WidgetType {
-  private readonly checked: boolean
+  private readonly state: ' ' | 'x' | '-'
   private readonly togglePos: number
 
-  constructor(checked: boolean, togglePos: number) {
+  constructor(state: ' ' | 'x' | '-', togglePos: number) {
     super()
-    this.checked = checked
+    this.state = state
     this.togglePos = togglePos
   }
 
   eq(other: TaskCheckboxWidget) {
-    return this.checked === other.checked && this.togglePos === other.togglePos
+    return this.state === other.state && this.togglePos === other.togglePos
   }
 
   toDOM(view: EditorView) {
     const input = document.createElement('input')
     input.type = 'checkbox'
-    input.checked = this.checked
     input.className = 'cm-livePreview-taskToggle'
+    input.checked = this.state === 'x'
+    input.indeterminate = this.state === '-'
+    input.setAttribute('aria-checked', this.state === '-' ? 'mixed' : String(this.state === 'x'))
+
+    const stopSelection = (event: Event) => {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+
+    input.addEventListener('pointerdown', stopSelection)
+    input.addEventListener('mousedown', stopSelection)
     input.addEventListener('click', (event) => {
       event.preventDefault()
       event.stopPropagation()
-      const next = this.checked ? ' ' : 'x'
+      const next = this.state === ' ' ? 'x' : this.state === 'x' ? '-' : ' '
       view.dispatch({
         changes: { from: this.togglePos, to: this.togglePos + 1, insert: next },
       })
@@ -333,13 +343,14 @@ function buildInlineLivePreviewDecorations(
         if (bracketIndex >= 0) {
           const bracketFrom = line.from + bracketIndex
           const togglePos = bracketFrom + 1
-          const checked = (taskMatch[1] ?? '').toLowerCase() === 'x'
+          const rawState = (taskMatch[1] ?? ' ').toLowerCase()
+          const state = rawState === 'x' || rawState === '-' ? rawState : ' '
           const bracketTo = bracketFrom + 3
           if (!selectionIntersects(bracketFrom, bracketTo)) {
             decorations.push({
               from: bracketFrom,
               to: bracketTo,
-              decoration: Decoration.replace({ widget: new TaskCheckboxWidget(checked, togglePos) }),
+              decoration: Decoration.replace({ widget: new TaskCheckboxWidget(state, togglePos) }),
             })
           }
         }
