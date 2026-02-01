@@ -318,7 +318,7 @@ function buildInlineLivePreviewDecorations(
           to: line.to,
           decoration: Decoration.mark({ class: `cm-livePreview-heading cm-livePreview-h${level}` }),
         })
-        if (!selectionIntersects(markerFrom, markerTo)) {
+        if (!selectionIntersects(line.from, line.to)) {
           decorations.push({
             from: markerFrom,
             to: markerTo,
