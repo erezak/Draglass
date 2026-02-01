@@ -1,10 +1,47 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 
-import { Compartment, EditorState } from '@codemirror/state'
-import { EditorView, keymap, lineNumbers, type ViewUpdate } from '@codemirror/view'
+import { Compartment, EditorState, RangeSetBuilder, StateEffect, StateField, Transaction } from '@codemirror/state'
+import {
+  Decoration,
+  type DecorationSet,
+  EditorView,
+  keymap,
+  lineNumbers,
+  type ViewUpdate,
+} from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown } from '@codemirror/lang-markdown'
 import { createLivePreviewExtension } from '../editor/livePreview'
+
+const setTaskHighlightEffect = StateEffect.define<number>()
+const clearTaskHighlightEffect = StateEffect.define<void>()
+
+function buildTaskHighlightDecoration(state: EditorState, lineNumber: number): DecorationSet {
+  if (lineNumber < 1 || lineNumber > state.doc.lines) return Decoration.none
+  const line = state.doc.line(lineNumber)
+  const builder = new RangeSetBuilder<Decoration>()
+  builder.add(line.from, line.from, Decoration.line({ class: 'cm-taskJumpHighlight' }))
+  return builder.finish()
+}
+
+const taskHighlightField = StateField.define<DecorationSet>({
+  create: () => Decoration.none,
+  update(value, tr) {
+    for (const effect of tr.effects) {
+      if (effect.is(setTaskHighlightEffect)) {
+        return buildTaskHighlightDecoration(tr.state, effect.value)
+      }
+      if (effect.is(clearTaskHighlightEffect)) {
+        return Decoration.none
+      }
+    }
+    if (tr.docChanged) {
+      return value.map(tr.changes)
+    }
+    return value
+  },
+  provide: (field) => EditorView.decorations.from(field),
+})
 
 type NoteEditorProps = {
   value: string
@@ -23,6 +60,7 @@ type NoteEditorProps = {
 
 export type NoteEditorHandle = {
   focus: () => void
+  revealLine: (lineNumber: number) => void
 }
 
 export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function NoteEditor(
@@ -55,6 +93,8 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
   const initialNoteRelPathRef = useRef<string | null>(noteRelPath)
   const [initError, setInitError] = useState<Error | null>(null)
   const [lightbox, setLightbox] = useState<{ src: string; alt?: string } | null>(null)
+  const highlightTimerRef = useRef<number | null>(null)
+  const pendingRevealRef = useRef<number | null>(null)
 
   const onOpenImage = useCallback((src: string, alt?: string) => {
     setLightbox({ src, alt })
@@ -72,14 +112,47 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
     livePreviewCompartmentRef.current = new Compartment()
   }
 
+  const revealLine = useCallback((lineNumber: number) => {
+    const view = viewRef.current
+    if (!view) {
+      pendingRevealRef.current = lineNumber
+      return
+    }
+
+    const clamped = Math.max(1, Math.min(lineNumber, view.state.doc.lines))
+    const line = view.state.doc.line(clamped)
+
+    if (highlightTimerRef.current != null) {
+      window.clearTimeout(highlightTimerRef.current)
+      highlightTimerRef.current = null
+    }
+
+    view.dispatch({
+      selection: { anchor: line.from },
+      scrollIntoView: true,
+      effects: setTaskHighlightEffect.of(clamped),
+      annotations: Transaction.addToHistory.of(false),
+    })
+
+    highlightTimerRef.current = window.setTimeout(() => {
+      const currentView = viewRef.current
+      if (!currentView) return
+      currentView.dispatch({
+        effects: clearTaskHighlightEffect.of(undefined),
+        annotations: Transaction.addToHistory.of(false),
+      })
+    }, 1200)
+  }, [])
+
   useImperativeHandle(
     ref,
     () => ({
       focus: () => {
         viewRef.current?.focus()
       },
+      revealLine,
     }),
-    [],
+    [revealLine],
   )
 
   const onChangeRef = useRef<NoteEditorProps['onChange']>(onChange)
@@ -160,6 +233,15 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
   }, [onOpenImage])
 
   useEffect(() => {
+    return () => {
+      if (highlightTimerRef.current != null) {
+        window.clearTimeout(highlightTimerRef.current)
+        highlightTimerRef.current = null
+      }
+    }
+  }, [])
+
+  useEffect(() => {
     if (!lightbox) return
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -212,6 +294,7 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
       history(),
       markdown(),
       editorTheme,
+      taskHighlightField,
       wrapCompartment.of(initialWrapRef.current ? EditorView.lineWrapping : []),
       livePreviewCompartment.of(
         initialLivePreviewRef.current
@@ -301,6 +384,14 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
       applyingExternalValueRef.current = false
     }
   }, [value])
+
+  useEffect(() => {
+    const view = viewRef.current
+    const pending = pendingRevealRef.current
+    if (!view || pending == null) return
+    pendingRevealRef.current = null
+    requestAnimationFrame(() => revealLine(pending))
+  }, [revealLine, value])
 
   useEffect(() => {
     const view = viewRef.current

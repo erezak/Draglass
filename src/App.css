@@ -215,6 +215,12 @@
   padding: 8px;
 }
 
+.panelHint {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 0 8px 6px;
+}
+
 .placeholderCard {
   margin: 16px;
   padding: 16px;
@@ -245,6 +251,15 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: min(40vh, 320px);
+  overflow: auto;
+  padding-right: 2px;
 }
 
 .fileTree {
@@ -291,9 +306,26 @@
   background: var(--panel-bg);
 }
 
+.taskItem {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .fileItem:hover,
 .linkItem:hover {
   border-color: var(--button-hover-border);
+}
+
+.taskItem:hover {
+  border-color: var(--button-hover-border);
+  background: var(--highlight);
 }
 
 .fileItem.active {
@@ -488,6 +520,15 @@
 
 :root[data-theme='light'] .noteEditor .cm-livePreview-taskToggle {
   accent-color: #3b4a9f;
+}
+
+.noteEditor .cm-line.cm-taskJumpHighlight {
+  background: rgba(122, 162, 255, 0.18);
+  transition: background 200ms ease;
+}
+
+:root[data-theme='light'] .noteEditor .cm-line.cm-taskJumpHighlight {
+  background: rgba(59, 74, 159, 0.16);
 }
 
 .noteEditor .cm-livePreview-mermaid {

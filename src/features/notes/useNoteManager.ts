@@ -16,6 +16,7 @@ type UseNoteManagerArgs = {
   resetBacklinks: () => void
   autosaveEnabled: boolean
   autosaveDebounceMs: number
+  onDidSaveNote?: (relPath: string, contents: string) => void
   recordRecent: (relPath: string) => void
   setError: (message: string | null) => void
   setBusy: (message: string | null) => void
@@ -29,6 +30,7 @@ export function useNoteManager({
   resetBacklinks,
   autosaveEnabled,
   autosaveDebounceMs,
+  onDidSaveNote,
   recordRecent,
   setError,
   setBusy,
@@ -58,6 +60,16 @@ export function useNoteManager({
 
   const isDirty = noteText !== savedText
 
+  const handleSaved = useCallback(
+    (contents: string) => {
+      setSavedText(contents)
+      if (activeRelPath) {
+        onDidSaveNote?.(activeRelPath, contents)
+      }
+    },
+    [activeRelPath, onDidSaveNote],
+  )
+
   const autosave = useNoteAutosave({
     enabled: autosaveEnabled && !!vaultPath && !!activeRelPath,
     vaultPath,
@@ -66,7 +78,7 @@ export function useNoteManager({
     isDirty,
     debounceMs: autosaveDebounceMs,
     save: writeNote,
-    onSaved: setSavedText,
+    onSaved: handleSaved,
   })
 
   const resetNoteState = useCallback(() => {

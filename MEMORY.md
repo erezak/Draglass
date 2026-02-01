@@ -1,3 +1,7 @@
+- 2026-02-02 — Decision: Tasks use a 3-state checkbox cycle (blank → x → -), and the Tasks panel lives in the right pane and scans the vault by line regex while skipping fenced code and blockquotes.
+  - Rationale: Match Live Preview expectations with minimal parsing while keeping the UI consistent and fast.
+  - Impact: Future task parsing should remain regex-based with the same skip rules, and UI should keep the right-pane placement and 3-state semantics.
+
 - 2026-02-01 — Decision: Live Preview callouts use a fixed canonical type+alias map, unknown types fall back to note styling with the original type as the default title, nesting is supported up to depth 2, and collapse state persists per note using noteRelPath+line+header hash.
   - Rationale: Keep rendering consistent while allowing custom types, bounded nesting, and stable, local-only collapse behavior.
   - Impact: Future callout work must use the same canonical list/aliases, preserve unknown type labels, keep nesting within two blockquote levels, and maintain the collapse key strategy for compatibility.

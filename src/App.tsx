@@ -13,6 +13,7 @@ import { useSettings } from './settings'
 import { useBacklinks } from './features/backlinks/useBacklinks'
 import { useNoteManager } from './features/notes/useNoteManager'
 import { useRecentNotes } from './features/recents/useRecentNotes'
+import { useTasks } from './features/tasks/useTasks'
 import { useEditorTheme } from './features/theme/useEditorTheme'
 import { useVault } from './features/vault/useVault'
 
@@ -39,6 +40,7 @@ function App() {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
 
   const editorRef = useRef<NoteEditorHandle | null>(null)
+  const scheduleTasksScanRef = useRef<() => void>(() => {})
 
   const { recentRelPaths, recordRecent } = useRecentNotes(settings.quickSwitcherMaxRecents)
 
@@ -54,6 +56,10 @@ function App() {
     debounceMs: settings.backlinksDebounceMs,
     onError: (message) => setError(message),
   })
+
+  const onDidSaveNote = useCallback(() => {
+    scheduleTasksScanRef.current()
+  }, [])
 
   const {
     activeRelPath,
@@ -73,10 +79,25 @@ function App() {
     resetBacklinks,
     autosaveEnabled: settings.autosaveEnabled,
     autosaveDebounceMs: settings.autosaveDebounceMs,
+    onDidSaveNote,
     recordRecent,
     setError,
     setBusy,
   })
+
+  const { tasks, tasksBusy, scheduleTasksScan, resetTasks } = useTasks({
+    vaultPath,
+    files,
+    showHidden: settings.filesShowHidden,
+    debounceMs: 400,
+    onError: (message) => setError(message),
+    activeRelPath,
+    activeNoteText: noteText,
+  })
+
+  useEffect(() => {
+    scheduleTasksScanRef.current = scheduleTasksScan
+  }, [scheduleTasksScan])
 
   // Parsing wikilinks can be relatively expensive on large notes.
   // Defer derived UI updates to keep typing responsive.
@@ -94,7 +115,8 @@ function App() {
   useEffect(() => {
     resetNoteState()
     resetBacklinks()
-  }, [resetBacklinks, resetNoteState, vaultPath])
+    resetTasks()
+  }, [resetBacklinks, resetNoteState, resetTasks, vaultPath])
 
   const closeQuickSwitcher = useCallback(() => {
     setQuickSwitcherOpen(false)
@@ -130,6 +152,16 @@ function App() {
     (relPath: string) => {
       setGraphViewOpen(false)
       return openNoteByRelPath(relPath)
+    },
+    [openNoteByRelPath],
+  )
+
+  const onTaskClick = useCallback(
+    async (relPath: string, lineNumber: number) => {
+      setGraphViewOpen(false)
+      const opened = await openNoteByRelPath(relPath)
+      if (!opened) return
+      queueMicrotask(() => editorRef.current?.revealLine(lineNumber))
     },
     [openNoteByRelPath],
   )
@@ -320,6 +352,38 @@ function App() {
                     </li>
                   ))}
                 </ul>
+              )}
+            </div>
+
+            <div className="panel">
+              <div className="panelTitle">Tasks</div>
+              {!vaultPath ? (
+                <div className="panelEmpty">Select a vault to view tasks.</div>
+              ) : tasks.length === 0 ? (
+                <div className="panelEmpty">No open tasks found.</div>
+              ) : (
+                <>
+                  {tasksBusy ? <div className="panelHint">Scanning tasks…</div> : null}
+                  <div className="taskList" role="list">
+                  {tasks.map((task) => (
+                    <button
+                      key={`${task.relPath}:${task.lineNumber}:${task.text}`}
+                      type="button"
+                      className="taskItem"
+                      onClick={() => {
+                        void onTaskClick(task.relPath, task.lineNumber)
+                      }}
+                    >
+                      <div className="taskItemText">
+                        {task.text.length > 0 ? task.text : '(untitled task)'}
+                      </div>
+                      <div className="taskItemMeta">
+                        {task.noteTitle} • {task.relPath}
+                      </div>
+                    </button>
+                  ))}
+                  </div>
+                </>
               )}
             </div>
 
