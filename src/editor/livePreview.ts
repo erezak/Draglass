@@ -2,6 +2,7 @@ import { type Extension } from '@codemirror/state'
 import { EditorView, keymap } from '@codemirror/view'
 
 import { extractWikilinkAt } from './livePreviewHelpers'
+import { calloutDecorationsField, createCalloutDecorationsPlugin } from './calloutPreview'
 import { createInlineLivePreviewPlugin } from './inlinePreview'
 import { findMermaidBlockAtLine, getMermaidEnterPosition } from './mermaidBlocks'
 import { createMermaidDecorationsPlugin, mermaidDecorationsField, type MermaidTheme } from './mermaidPreview'
@@ -11,6 +12,7 @@ export type LivePreviewOptions = {
   onOpenImage?: (url: string, alt?: string) => void
   renderDiagrams?: boolean
   renderImages?: boolean
+  renderCallouts?: boolean
   vaultPath?: string
   noteRelPath?: string
   theme?: MermaidTheme
@@ -83,6 +85,11 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
     createMermaidDecorationsPlugin({
       renderDiagrams: options.renderDiagrams,
       theme: options.theme,
+    }),
+    calloutDecorationsField,
+    createCalloutDecorationsPlugin({
+      renderCallouts: options.renderCallouts,
+      noteRelPath: options.noteRelPath,
     }),
     createInlineLivePreviewPlugin({
       renderImages: options.renderImages,

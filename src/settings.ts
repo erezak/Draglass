@@ -5,6 +5,7 @@ export type DraglassSettings = {
   editorLivePreview: boolean
   editorRenderDiagrams: boolean
   editorRenderImages: boolean
+  editorRenderCallouts: boolean
   editorTheme: 'dark' | 'light'
   filesShowHidden: boolean
   filesRememberExpandedFolders: boolean
@@ -36,6 +37,7 @@ export const DEFAULT_SETTINGS: DraglassSettings = {
   editorLivePreview: true,
   editorRenderDiagrams: true,
   editorRenderImages: true,
+  editorRenderCallouts: true,
   editorTheme: 'dark',
   filesShowHidden: false,
   filesRememberExpandedFolders: true,
@@ -72,6 +74,7 @@ function normalizeSettings(raw: unknown): DraglassSettings {
     editorLivePreview: asBool(r.editorLivePreview, DEFAULT_SETTINGS.editorLivePreview),
     editorRenderDiagrams: asBool(r.editorRenderDiagrams, DEFAULT_SETTINGS.editorRenderDiagrams),
     editorRenderImages: asBool(r.editorRenderImages, DEFAULT_SETTINGS.editorRenderImages),
+    editorRenderCallouts: asBool(r.editorRenderCallouts, DEFAULT_SETTINGS.editorRenderCallouts),
     editorTheme: editorTheme ?? DEFAULT_SETTINGS.editorTheme,
     filesShowHidden: asBool(r.filesShowHidden, DEFAULT_SETTINGS.filesShowHidden),
     filesRememberExpandedFolders: asBool(

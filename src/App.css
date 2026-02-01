@@ -547,6 +547,203 @@
   cursor: pointer;
 }
 
+.noteEditor .cm-livePreview-callout {
+  --callout-accent: #6aa5ff;
+  --callout-bg: rgba(106, 165, 255, 0.12);
+  position: relative;
+  padding: 6px 10px 6px 16px;
+  background: var(--callout-bg);
+  color: var(--text-primary);
+  box-sizing: border-box;
+}
+
+.noteEditor .cm-livePreview-callout::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--callout-accent);
+  border-radius: 4px 0 0 4px;
+}
+
+.noteEditor .cm-livePreview-calloutStart {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  margin-top: 6px;
+}
+
+.noteEditor .cm-livePreview-calloutEnd {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  margin-bottom: 6px;
+}
+
+.noteEditor .cm-livePreview-calloutHeader {
+  margin: 0;
+}
+
+.noteEditor .cm-livePreview-calloutHeaderContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.noteEditor .cm-livePreview-calloutIcon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.noteEditor .cm-livePreview-calloutTitle {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.noteEditor .cm-livePreview-calloutToggle {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+.noteEditor .cm-livePreview-calloutChevron {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 120ms ease;
+}
+
+.noteEditor .cm-livePreview-callout--collapsed .cm-livePreview-calloutChevron {
+  transform: rotate(-45deg);
+}
+
+.noteEditor .cm-line.cm-livePreview-calloutBody {
+  padding: 2px 10px 2px 16px;
+}
+
+.noteEditor .cm-line.cm-livePreview-calloutBody.cm-livePreview-callout--collapsed {
+  display: none;
+}
+
+.noteEditor .cm-livePreview-callout--note {
+  --callout-accent: #6aa5ff;
+  --callout-bg: rgba(106, 165, 255, 0.12);
+}
+
+.noteEditor .cm-livePreview-callout--abstract {
+  --callout-accent: #5dd9c1;
+  --callout-bg: rgba(93, 217, 193, 0.12);
+}
+
+.noteEditor .cm-livePreview-callout--info {
+  --callout-accent: #5fc0ff;
+  --callout-bg: rgba(95, 192, 255, 0.12);
+}
+
+.noteEditor .cm-livePreview-callout--tip {
+  --callout-accent: #6ee787;
+  --callout-bg: rgba(110, 231, 135, 0.12);
+}
+
+.noteEditor .cm-livePreview-callout--success {
+  --callout-accent: #4ade80;
+  --callout-bg: rgba(74, 222, 128, 0.12);
+}
+
+.noteEditor .cm-livePreview-callout--question {
+  --callout-accent: #f6c453;
+  --callout-bg: rgba(246, 196, 83, 0.12);
+}
+
+.noteEditor .cm-livePreview-callout--warning {
+  --callout-accent: #f59f4c;
+  --callout-bg: rgba(245, 159, 76, 0.12);
+}
+
+.noteEditor .cm-livePreview-callout--failure {
+  --callout-accent: #f47067;
+  --callout-bg: rgba(244, 112, 103, 0.12);
+}
+
+.noteEditor .cm-livePreview-callout--danger {
+  --callout-accent: #ef4444;
+  --callout-bg: rgba(239, 68, 68, 0.12);
+}
+
+.noteEditor .cm-livePreview-callout--bug {
+  --callout-accent: #d081ff;
+  --callout-bg: rgba(208, 129, 255, 0.12);
+}
+
+.noteEditor .cm-livePreview-callout--example {
+  --callout-accent: #8be9fd;
+  --callout-bg: rgba(139, 233, 253, 0.12);
+}
+
+.noteEditor .cm-livePreview-callout--quote {
+  --callout-accent: #b6b6b6;
+  --callout-bg: rgba(182, 182, 182, 0.12);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-callout {
+  --callout-bg: rgba(106, 165, 255, 0.16);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-callout--note {
+  --callout-bg: rgba(106, 165, 255, 0.16);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-callout--abstract {
+  --callout-bg: rgba(93, 217, 193, 0.16);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-callout--info {
+  --callout-bg: rgba(95, 192, 255, 0.16);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-callout--tip {
+  --callout-bg: rgba(110, 231, 135, 0.16);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-callout--success {
+  --callout-bg: rgba(74, 222, 128, 0.16);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-callout--question {
+  --callout-bg: rgba(246, 196, 83, 0.18);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-callout--warning {
+  --callout-bg: rgba(245, 159, 76, 0.18);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-callout--failure {
+  --callout-bg: rgba(244, 112, 103, 0.18);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-callout--danger {
+  --callout-bg: rgba(239, 68, 68, 0.18);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-callout--bug {
+  --callout-bg: rgba(208, 129, 255, 0.18);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-callout--example {
+  --callout-bg: rgba(139, 233, 253, 0.18);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-callout--quote {
+  --callout-bg: rgba(182, 182, 182, 0.16);
+}
+
 .noteEditor .cm-livePreview-mermaidEdit:hover {
   border-color: var(--button-hover-border);
 }

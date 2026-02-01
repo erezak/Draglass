@@ -1,3 +1,7 @@
+- 2026-02-01 — Decision: Live Preview callouts use a fixed canonical type+alias map, unknown types fall back to note styling with the original type as the default title, nesting is supported up to depth 2, and collapse state persists per note using noteRelPath+line+header hash.
+  - Rationale: Keep rendering consistent while allowing custom types, bounded nesting, and stable, local-only collapse behavior.
+  - Impact: Future callout work must use the same canonical list/aliases, preserve unknown type labels, keep nesting within two blockquote levels, and maintain the collapse key strategy for compatibility.
+
 - 2026-01-29 — Decision: Add a fixed-width left Toolbox column for primary actions, with Mod+Shift+P reserved for the Command Palette placeholder.
   - Rationale: Keep primary navigation always visible without impacting pane scrolling, and align shortcuts with established conventions.
   - Impact: Future navigation actions should live in the left toolbox, and Mod+Shift+P should open the command palette.

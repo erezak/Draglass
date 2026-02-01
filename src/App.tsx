@@ -289,6 +289,7 @@ function App() {
                   livePreview={settings.editorLivePreview}
                   renderDiagrams={settings.editorRenderDiagrams}
                   renderImages={settings.editorRenderImages}
+                  renderCallouts={settings.editorRenderCallouts}
                   vaultPath={vaultPath}
                   noteRelPath={activeRelPath}
                   onOpenWikilink={openOrCreateWikilink}

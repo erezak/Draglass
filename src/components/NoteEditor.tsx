@@ -14,6 +14,7 @@ type NoteEditorProps = {
   livePreview?: boolean
   renderDiagrams?: boolean
   renderImages?: boolean
+  renderCallouts?: boolean
   vaultPath?: string | null
   noteRelPath?: string | null
   onOpenWikilink?: (rawTarget: string) => void
@@ -33,6 +34,7 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
     livePreview = true,
     renderDiagrams = true,
     renderImages = true,
+    renderCallouts = true,
     vaultPath = null,
     noteRelPath = null,
     onOpenWikilink,
@@ -47,6 +49,7 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
   const initialLivePreviewRef = useRef<boolean>(livePreview)
   const initialRenderDiagramsRef = useRef<boolean>(renderDiagrams)
   const initialRenderImagesRef = useRef<boolean>(renderImages)
+  const initialRenderCalloutsRef = useRef<boolean>(renderCallouts)
   const initialOpenWikilinkRef = useRef<NoteEditorProps['onOpenWikilink']>(onOpenWikilink)
   const initialVaultPathRef = useRef<string | null>(vaultPath)
   const initialNoteRelPathRef = useRef<string | null>(noteRelPath)
@@ -125,6 +128,12 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
       initialRenderImagesRef.current = renderImages
     }
   }, [renderImages])
+
+  useEffect(() => {
+    if (viewRef.current == null) {
+      initialRenderCalloutsRef.current = renderCallouts
+    }
+  }, [renderCallouts])
 
   useEffect(() => {
     if (viewRef.current == null) {
@@ -210,6 +219,7 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
               onOpenWikilink: initialOpenWikilinkRef.current,
               renderDiagrams: initialRenderDiagramsRef.current,
               renderImages: initialRenderImagesRef.current,
+              renderCallouts: initialRenderCalloutsRef.current,
               vaultPath: initialVaultPathRef.current ?? undefined,
               noteRelPath: initialNoteRelPathRef.current ?? undefined,
               onOpenImage: initialOpenImageRef.current ?? undefined,
@@ -318,6 +328,7 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
               onOpenWikilink,
               renderDiagrams,
               renderImages,
+              renderCallouts,
               vaultPath: vaultPath ?? undefined,
               noteRelPath: noteRelPath ?? undefined,
               onOpenImage,
@@ -326,7 +337,17 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
           : [],
       ),
     })
-  }, [livePreview, onOpenWikilink, renderDiagrams, renderImages, vaultPath, noteRelPath, onOpenImage, theme])
+  }, [
+    livePreview,
+    onOpenWikilink,
+    renderDiagrams,
+    renderImages,
+    renderCallouts,
+    vaultPath,
+    noteRelPath,
+    onOpenImage,
+    theme,
+  ])
 
   if (initError) {
     return (

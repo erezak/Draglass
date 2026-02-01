@@ -77,6 +77,14 @@ export function SettingsScreen({ open, settings, onChange, onClose, onReset }: S
                 onChange={onToggle('editorRenderImages')}
               />
             </label>
+            <label className="settingsRow">
+              <span>Render callouts</span>
+              <input
+                type="checkbox"
+                checked={settings.editorRenderCallouts}
+                onChange={onToggle('editorRenderCallouts')}
+              />
+            </label>
             <label className="settingsRow settingsRow--select">
               <span>Theme</span>
               <select
