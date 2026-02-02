@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { buildGraph } from '../../tauri'
 import type { GraphData, GraphEdge, GraphFilters, GraphNode, GraphScope } from './graphTypes'
@@ -193,20 +193,22 @@ export function useGraph({
     void refresh()
   }, [refresh])
 
-  // Compute filtered nodes and edges based on scope and filters
-  let scopedNodes = nodes
-  let scopedEdges = edges
+  const { scopedNodes, scopedEdges } = useMemo<{ scopedNodes: GraphNode[]; scopedEdges: GraphEdge[] }>(() => {
+    if (scope === 'local' && activeNodeId) {
+      const local = computeLocalGraph(nodes, edges, activeNodeId, localDepth)
+      return { scopedNodes: local.nodes, scopedEdges: local.edges }
+    }
+    return { scopedNodes: nodes, scopedEdges: edges }
+  }, [nodes, edges, scope, activeNodeId, localDepth])
 
-  if (scope === 'local' && activeNodeId) {
-    const local = computeLocalGraph(nodes, edges, activeNodeId, localDepth)
-    scopedNodes = local.nodes
-    scopedEdges = local.edges
-  }
-
-  const { nodes: filteredNodes, edges: filteredEdges } = applyFilters(
-    scopedNodes,
-    scopedEdges,
-    filters,
+  const { nodes: filteredNodes, edges: filteredEdges } = useMemo(
+    () => applyFilters(scopedNodes, scopedEdges, filters),
+    [
+      scopedNodes,
+      scopedEdges,
+      filters.searchQuery,
+      filters.showOrphans,
+    ],
   )
 
   return {

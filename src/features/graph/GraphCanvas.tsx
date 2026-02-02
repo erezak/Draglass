@@ -117,6 +117,7 @@ export function GraphCanvas({
     viewY: 0,
   })
   const renderFnRef = useRef<(() => void) | null>(null)
+  const initialBackgroundRef = useRef<number | null>(null)
   const [initialized, setInitialized] = useState(false)
 
   // Use refs for callbacks to avoid effect re-runs
@@ -125,7 +126,18 @@ export function GraphCanvas({
   const onNodeRightClickRef = useRef(onNodeRightClick)
   onNodeRightClickRef.current = onNodeRightClick
 
+  const animatingRef = useRef(animating)
+  animatingRef.current = animating
+  const animationProgressRef = useRef(animationProgress)
+  animationProgressRef.current = animationProgress
+  const displayRef = useRef(display)
+  displayRef.current = display
+
   const colors = THEME_COLORS[theme]
+
+  if (initialBackgroundRef.current === null) {
+    initialBackgroundRef.current = colors.background
+  }
 
   // Get node color based on groups (first match wins)
   const getNodeColor = useCallback(
@@ -164,13 +176,17 @@ export function GraphCanvas({
       const app = new Application()
       
       await app.init({
-        background: colors.background,
+        background: initialBackgroundRef.current ?? colors.background,
         width: rect.width,
         height: rect.height,
         antialias: true,
         resolution: window.devicePixelRatio || 1,
         autoDensity: true,
       })
+
+      // Stop the default ticker; render only on explicit updates.
+      app.ticker.stop()
+      app.ticker.autoStart = false
 
       // Check if we were cancelled during async init
       if (cancelled) {
@@ -219,14 +235,7 @@ export function GraphCanvas({
       simulationRef.current = null
       setInitialized(false)
     }
-  }, [colors.background])
-
-  // Update background color when theme changes
-  useEffect(() => {
-    if (appRef.current) {
-      appRef.current.renderer.background.color = colors.background
-    }
-  }, [colors.background])
+  }, [])
 
   // Initialize simulation and nodes when data changes
   useEffect(() => {
@@ -329,6 +338,8 @@ export function GraphCanvas({
     // Simulation tick handler - we manually trigger renders on tick via requestAnimationFrame
     // The actual render function is defined later and will re-render on each frame
     let animationId: number | null = null
+    const startTime = Date.now()
+    const maxSimMs = 2000
     const scheduleRender = () => {
       if (animationId !== null) return
       animationId = requestAnimationFrame(() => {
@@ -337,11 +348,29 @@ export function GraphCanvas({
         renderFnRef.current?.()
       })
     }
-    simulation.on('tick', scheduleRender)
+    const stopSimulation = () => {
+      simulation.stop()
+      simulation.on('tick', null)
+      simulation.on('end', null)
+      renderFnRef.current?.()
+    }
+    const handleTick = () => {
+      scheduleRender()
+      const elapsed = Date.now() - startTime
+      if (simulation.alpha() <= 0.01 || elapsed >= maxSimMs) {
+        stopSimulation()
+      }
+    }
+    simulation.on('tick', handleTick)
+    simulation.on('end', () => {
+      stopSimulation()
+    })
 
     return () => {
       simulation.stop()
       if (animationId !== null) cancelAnimationFrame(animationId)
+      simulation.on('tick', null)
+      simulation.on('end', null)
     }
   }, [
     initialized,
@@ -398,16 +427,19 @@ export function GraphCanvas({
     const viewport = viewportRef.current
     const simNodes = nodesRef.current
     const simEdges = edgesRef.current
+    const currentDisplay = displayRef.current
+    const currentAnimating = animatingRef.current
+    const currentAnimationProgress = animationProgressRef.current
 
     // Calculate which nodes are visible in animation
     const visibleNodeIds = new Set<string>()
-    if (animating && animationProgress < 1) {
+    if (currentAnimating && currentAnimationProgress < 1) {
       const sortedNodes = [...simNodes].sort((a, b) => {
         const aTime = a.createdAt ?? a.modifiedAt ?? 0
         const bTime = b.createdAt ?? b.modifiedAt ?? 0
         return aTime - bTime
       })
-      const visibleCount = Math.max(1, Math.floor(sortedNodes.length * animationProgress))
+      const visibleCount = Math.max(1, Math.floor(sortedNodes.length * currentAnimationProgress))
       for (let i = 0; i < visibleCount; i++) {
         visibleNodeIds.add(sortedNodes[i].id)
       }
@@ -441,14 +473,14 @@ export function GraphCanvas({
 
       edgeGraphics.moveTo(sx, sy)
       edgeGraphics.lineTo(tx, ty)
-      edgeGraphics.stroke({ width: display.linkThickness, color: edgeColor, alpha: edgeAlpha })
+      edgeGraphics.stroke({ width: currentDisplay.linkThickness, color: edgeColor, alpha: edgeAlpha })
 
       // Draw arrows if enabled
-      if (display.showArrows) {
+      if (currentDisplay.showArrows) {
         const angle = Math.atan2(ty - sy, tx - sx)
         const arrowSize = 6 * viewport.scale
-        const arrowX = tx - Math.cos(angle) * (display.nodeSize * viewport.scale + 4)
-        const arrowY = ty - Math.sin(angle) * (display.nodeSize * viewport.scale + 4)
+        const arrowX = tx - Math.cos(angle) * (currentDisplay.nodeSize * viewport.scale + 4)
+        const arrowY = ty - Math.sin(angle) * (currentDisplay.nodeSize * viewport.scale + 4)
 
         edgeGraphics.moveTo(arrowX, arrowY)
         edgeGraphics.lineTo(
@@ -460,7 +492,7 @@ export function GraphCanvas({
           arrowX - Math.cos(angle + Math.PI / 6) * arrowSize,
           arrowY - Math.sin(angle + Math.PI / 6) * arrowSize,
         )
-        edgeGraphics.stroke({ width: display.linkThickness, color: edgeColor, alpha: edgeAlpha })
+        edgeGraphics.stroke({ width: currentDisplay.linkThickness, color: edgeColor, alpha: edgeAlpha })
       }
     }
 
@@ -480,7 +512,7 @@ export function GraphCanvas({
       const y = node.y * viewport.scale + viewport.y
 
       // Calculate node radius based on degree
-      const baseRadius = display.nodeSize
+      const baseRadius = currentDisplay.nodeSize
       const degreeScale = Math.log2(node.degreeIn + 2) * 0.5
       const radius = (baseRadius + degreeScale * 2) * viewport.scale
 
@@ -509,16 +541,16 @@ export function GraphCanvas({
       label.position.set(x, y + radius + 4)
 
       // Apply text fade threshold based on zoom
-      const labelAlpha = viewport.scale >= display.textFadeThreshold ? 1 : viewport.scale / display.textFadeThreshold
+      const labelAlpha = viewport.scale >= currentDisplay.textFadeThreshold ? 1 : viewport.scale / currentDisplay.textFadeThreshold
       label.alpha = labelAlpha
       label.visible = visible && labelAlpha > 0.1
     }
+
+    // Explicit render since the Pixi ticker is stopped.
+    app.renderer.render(app.stage)
   }, [
     selectedNodeId,
     activeNodeId,
-    animating,
-    animationProgress,
-    display,
     colors,
     getNodeColor,
   ])
@@ -528,10 +560,38 @@ export function GraphCanvas({
     renderFnRef.current = renderGraph
   }, [renderGraph])
 
-  // Re-render when display settings change
   useEffect(() => {
-    renderGraph()
-  }, [renderGraph])
+    renderFnRef.current?.()
+  }, [
+    display.showArrows,
+    display.textFadeThreshold,
+    display.nodeSize,
+    display.linkThickness,
+    animating,
+    animationProgress,
+    selectedNodeId,
+    activeNodeId,
+    getNodeColor,
+  ])
+
+  useEffect(() => {
+    if (appRef.current) {
+      appRef.current.renderer.background.color = colors.background
+    }
+
+    if (labelSpritesRef.current.size > 0) {
+      const updatedStyle = new TextStyle({
+        fontSize: 11,
+        fill: colors.text,
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+      })
+      labelSpritesRef.current.forEach((label) => {
+        label.style = updatedStyle
+      })
+    }
+
+    renderFnRef.current?.()
+  }, [colors.background, colors.text])
 
   // Handle wheel zoom
   useEffect(() => {
