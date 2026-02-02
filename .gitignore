@@ -45,8 +45,6 @@ src-tauri/target/
 .DS_Store
 .AppleDouble
 .LSOverride
-# macOS custom folder icon file is named "Icon\r" (carriage return). Avoid a literal CR in this file.
-Icon?
 ._*
 .Spotlight-V100
 .Trashes
