@@ -300,7 +300,7 @@ class LockedPlaceholderWidget extends WidgetType {
     const hint = document.createElement('button')
     hint.type = 'button'
     hint.className = 'cm-livePreview-lockedPlaceholderHint'
-    hint.textContent = 'Click lock to unlock'
+    hint.textContent = 'Click lock to reveal'
 
     const stopSelection = (event: Event) => {
       event.preventDefault()
@@ -347,6 +347,7 @@ function buildLockedSectionDecorations(
   const isUnlocked = options.isVaultUnlocked ?? false
 
   const selectionIntersects = (from: number, to: number) =>
+    isUnlocked &&
     selections.some((range) => shouldHideMarkup(from, to, range.from, range.to) === false)
 
   // Process explicitly locked headers
