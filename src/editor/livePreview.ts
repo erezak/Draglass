@@ -46,19 +46,40 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
       }
       return false
     },
-    mouseup: (event) => {
+    mouseup: (event, view) => {
       if (!options.onOpenWikilink) return false
       if (event.button !== 0) return false
       if (event.shiftKey || event.altKey) return false
-      if (!mouseDownCoords || !mouseDownLink) return false
 
-      const dx = Math.abs(event.clientX - mouseDownCoords.x)
-      const dy = Math.abs(event.clientY - mouseDownCoords.y)
-      const dragThreshold = 3
-      if (dx > dragThreshold || dy > dragThreshold) return false
+      // Ignore drags
+      if (mouseDownCoords) {
+        const dx = Math.abs(event.clientX - mouseDownCoords.x)
+        const dy = Math.abs(event.clientY - mouseDownCoords.y)
+        const dragThreshold = 3
+        if (dx > dragThreshold || dy > dragThreshold) return false
+      }
 
-      event.preventDefault()
-      options.onOpenWikilink(mouseDownLink)
+      // Prefer resolving a wikilink at the mouseup coordinates. This handles
+      // cases where decorations weren't applied (so the markdown is visible)
+      // but the user intent is navigation.
+      const pos = view.posAtCoords({ x: event.clientX, y: event.clientY })
+      if (pos != null) {
+        const line = view.state.doc.lineAt(pos)
+        const match = extractWikilinkAt(line.text, pos - line.from)
+        if (match) {
+          event.preventDefault()
+          options.onOpenWikilink(match.rawTarget)
+          return false
+        }
+      }
+
+      // Fallback to previously captured mouseDownLink
+      if (mouseDownLink) {
+        event.preventDefault()
+        options.onOpenWikilink(mouseDownLink)
+        return false
+      }
+
       return false
     },
   })
