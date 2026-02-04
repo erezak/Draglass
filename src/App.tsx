@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import './App.css'
 
 import { parseWikilinks } from './wikilinks'
@@ -9,6 +9,7 @@ import type { NoteEditorHandle } from './components/NoteEditor'
 import { QuickSwitcher } from './components/QuickSwitcher'
 import { SettingsScreen } from './components/SettingsScreen'
 import { Toolbox } from './components/Toolbox'
+import { PaneIcon } from './components/icons/PaneIcon'
 import { VaultAuthModal, type VaultAuthModalMode } from './components/VaultAuthModal'
 import { CommandPalette, type Command } from './components/CommandPalette'
 import { GraphView } from './features/graph'
@@ -33,6 +34,21 @@ function isModShiftP(e: KeyboardEvent): boolean {
   return mod && !e.altKey && e.shiftKey && (e.key === 'p' || e.key === 'P')
 }
 
+function isModB(e: KeyboardEvent): boolean {
+  const mod = e.metaKey || e.ctrlKey
+  return mod && !e.altKey && !e.shiftKey && (e.key === 'b' || e.key === 'B')
+}
+
+function isModShiftB(e: KeyboardEvent): boolean {
+  const mod = e.metaKey || e.ctrlKey
+  return mod && !e.altKey && e.shiftKey && (e.key === 'b' || e.key === 'B')
+}
+
+function isModAltB(e: KeyboardEvent): boolean {
+  const mod = e.metaKey || e.ctrlKey
+  return mod && e.altKey && !e.shiftKey && (e.key === 'b' || e.key === 'B')
+}
+
 function App() {
   const { settings, updateSettings, resetSettings } = useSettings()
   const [busy, setBusy] = useState<string | null>(null)
@@ -42,6 +58,9 @@ function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [graphViewOpen, setGraphViewOpen] = useState(false)
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
+
+  const leftPaneOpen = settings.leftPaneOpen
+  const rightPaneOpen = settings.rightPaneOpen
 
   const editorRef = useRef<NoteEditorHandle | null>(null)
   const scheduleTasksScanRef = useRef<() => void>(() => {})
@@ -227,6 +246,31 @@ function App() {
     }
   }, [activeRelPath])
 
+  const toggleLeftPane = useCallback(() => {
+    updateSettings((prev) => ({
+      ...prev,
+      leftPaneOpen: !prev.leftPaneOpen,
+    }))
+  }, [updateSettings])
+
+  const toggleRightPane = useCallback(() => {
+    updateSettings((prev) => ({
+      ...prev,
+      rightPaneOpen: !prev.rightPaneOpen,
+    }))
+  }, [updateSettings])
+
+  const toggleBothPanes = useCallback(() => {
+    updateSettings((prev) => {
+      const nextOpen = !(prev.leftPaneOpen || prev.rightPaneOpen)
+      return {
+        ...prev,
+        leftPaneOpen: nextOpen,
+        rightPaneOpen: nextOpen,
+      }
+    })
+  }, [updateSettings])
+
   // Command palette commands
   const vaultHasPassword = vaultPath ? hasVaultPassword(vaultPath) : false
   const commands = useMemo<Command[]>(() => [
@@ -311,6 +355,27 @@ function App() {
         return
       }
 
+      if (isModAltB(e)) {
+        e.preventDefault()
+        e.stopPropagation()
+        toggleBothPanes()
+        return
+      }
+
+      if (isModShiftB(e)) {
+        e.preventDefault()
+        e.stopPropagation()
+        toggleRightPane()
+        return
+      }
+
+      if (isModB(e)) {
+        e.preventDefault()
+        e.stopPropagation()
+        toggleLeftPane()
+        return
+      }
+
       if (isModP(e)) {
         e.preventDefault()
         e.stopPropagation()
@@ -320,7 +385,7 @@ function App() {
 
     window.addEventListener('keydown', onKeyDown, true)
     return () => window.removeEventListener('keydown', onKeyDown, true)
-  }, [])
+  }, [toggleBothPanes, toggleLeftPane, toggleRightPane])
 
   useEffect(() => {
     if (!commandPaletteOpen) return
@@ -334,25 +399,66 @@ function App() {
     return () => window.removeEventListener('keydown', onKeyDown, true)
   }, [closeCommandPalette, commandPaletteOpen])
 
+  const contentStyle = useMemo(
+    () =>
+      ({
+        '--toolbox-width': leftPaneOpen ? '52px' : '0px',
+        '--sidebar-width': leftPaneOpen ? '240px' : '0px',
+        '--right-pane-width': rightPaneOpen ? '260px' : '0px',
+      }) as CSSProperties,
+    [leftPaneOpen, rightPaneOpen],
+  )
+
+  const contentClassName = useMemo(() => {
+    if (leftPaneOpen && rightPaneOpen) return 'content'
+    if (!leftPaneOpen && rightPaneOpen) return 'content content--left-collapsed'
+    if (leftPaneOpen && !rightPaneOpen) return 'content content--right-collapsed'
+    return 'content content--both-collapsed'
+  }, [leftPaneOpen, rightPaneOpen])
+
   return (
     <ErrorBoundary fallbackTitle="Draglass hit an error">
       <div className="appShell">
         <header className="topbar">
-          <div className="brand">Draglass</div>
-          <button className="vaultButton" onClick={pickVault}>Select vault…</button>
+          <div className="topbarLeft">
+            <button
+              type="button"
+              className="iconButton"
+              onClick={toggleLeftPane}
+              title="Toggle left pane (Mod+B)"
+              aria-label="Toggle left pane (Mod+B)"
+            >
+              <PaneIcon side="left" state={leftPaneOpen ? 'open' : 'closed'} />
+            </button>
+            <div className="brand">Draglass</div>
+            <button className="vaultButton" onClick={pickVault}>Select vault…</button>
+          </div>
           <div className="spacer" />
+          <div className="topbarActions">
+            <button
+              type="button"
+              className="iconButton"
+              onClick={toggleRightPane}
+              title="Toggle right pane (Mod+Shift+B)"
+              aria-label="Toggle right pane (Mod+Shift+B)"
+            >
+              <PaneIcon side="right" state={rightPaneOpen ? 'open' : 'closed'} />
+            </button>
+          </div>
         </header>
 
-        <div className="content">
-          <Toolbox
-            quickSwitcherActive={quickSwitcherOpen}
-            graphViewActive={graphViewOpen}
-            commandPaletteActive={commandPaletteOpen}
-            onOpenQuickSwitcher={openQuickSwitcher}
-            onToggleGraphView={toggleGraphView}
-            onOpenCommandPalette={openCommandPalette}
-          />
-          <aside className="sidebar">
+        <div className={contentClassName} style={contentStyle}>
+          <div className={leftPaneOpen ? 'paneWrapper' : 'paneWrapper paneHidden'}>
+            <Toolbox
+              quickSwitcherActive={quickSwitcherOpen}
+              graphViewActive={graphViewOpen}
+              commandPaletteActive={commandPaletteOpen}
+              onOpenQuickSwitcher={openQuickSwitcher}
+              onToggleGraphView={toggleGraphView}
+              onOpenCommandPalette={openCommandPalette}
+            />
+          </div>
+          <aside className={leftPaneOpen ? 'sidebar' : 'sidebar paneHidden'}>
             <div className="sidebarBody">
               <div className="paneHeader">
                 <div className="panelTitle">Files</div>
@@ -472,7 +578,7 @@ function App() {
             )}
           </main>
 
-          <aside className="rightPane">
+          <aside className={rightPaneOpen ? 'rightPane' : 'rightPane paneHidden'}>
             <div className="panel">
               <div className="panelTitle">Outgoing links</div>
               {outgoingLinks.length === 0 ? (

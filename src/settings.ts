@@ -11,6 +11,9 @@ export type DraglassSettings = {
   filesRememberExpandedFolders: boolean
   vaultRememberLast: boolean
 
+  leftPaneOpen: boolean
+  rightPaneOpen: boolean
+
   autosaveEnabled: boolean
   autosaveDebounceMs: number
 
@@ -42,6 +45,9 @@ export const DEFAULT_SETTINGS: DraglassSettings = {
   filesShowHidden: false,
   filesRememberExpandedFolders: true,
   vaultRememberLast: true,
+
+  leftPaneOpen: true,
+  rightPaneOpen: true,
 
   autosaveEnabled: true,
   autosaveDebounceMs: 750,
@@ -82,6 +88,9 @@ function normalizeSettings(raw: unknown): DraglassSettings {
       DEFAULT_SETTINGS.filesRememberExpandedFolders,
     ),
     vaultRememberLast: asBool(r.vaultRememberLast, DEFAULT_SETTINGS.vaultRememberLast),
+
+    leftPaneOpen: asBool(r.leftPaneOpen, DEFAULT_SETTINGS.leftPaneOpen),
+    rightPaneOpen: asBool(r.rightPaneOpen, DEFAULT_SETTINGS.rightPaneOpen),
 
     autosaveEnabled: asBool(r.autosaveEnabled, DEFAULT_SETTINGS.autosaveEnabled),
     autosaveDebounceMs: clampInt(
