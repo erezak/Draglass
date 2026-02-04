@@ -1,3 +1,19 @@
+- 2026-02-03 — Decision: Locked Sections use `{locked}` inline attribute on ATX headings, parsed via pure regex in both TS and Rust.
+  - Rationale: Simple, file-based markup that integrates with existing Markdown without special frontmatter or YAML; child sections inherit lock status from parents.
+  - Impact: Locked section parsing must use ATX heading detection with `{locked}` anywhere in the line; child headings automatically inherit; future block-level locking should extend this pattern.
+
+- 2026-02-03 — Decision: Vault authentication uses Argon2id with a single password per vault, stored as hash+salt in localStorage keyed by vault path.
+  - Rationale: Strong KDF for password protection, session-level unlock, no server dependency, fully local-first.
+  - Impact: Password hashing must use Argon2id (memory: 16MB, iterations: 2, parallelism: 1); auth state is per-session; changing vault clears unlock state.
+
+- 2026-02-03 — Decision: Locked section bodies are excluded from backlinks, graph edges, and tasks when vault is not unlocked.
+  - Rationale: Prevents data leakage of locked content through derived features; links/tasks should only be visible when user has authenticated.
+  - Impact: All link extraction and task scanning must accept an `exclude_locked` flag and filter line ranges accordingly; unlocking must trigger rescan.
+
+- 2026-02-03 — Decision: Live Preview locked sections use fold state persisted to localStorage with noteRelPath+line+headerHash key.
+  - Rationale: Consistent collapse behavior across sessions; mirrors callout collapse strategy.
+  - Impact: Fold toggle must update localStorage immediately; section hide/show decorations must check both vault lock state and fold state.
+
 - 2026-02-02 — Decision: Tasks use a 3-state checkbox cycle (blank → x → -), and the Tasks panel lives in the right pane and scans the vault by line regex while skipping fenced code and blockquotes.
   - Rationale: Match Live Preview expectations with minimal parsing while keeping the UI consistent and fast.
   - Impact: Future task parsing should remain regex-based with the same skip rules, and UI should keep the right-pane placement and 3-state semantics.

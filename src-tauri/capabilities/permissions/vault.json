@@ -3,9 +3,22 @@
   "description": "Allows the main window to access vault-related app commands.",
   "permissions": [
     "list-markdown-files",
+    "list-markdown-files-legacy",
     "read-note",
+    "read-note-legacy",
     "write-note",
+    "write-note-legacy",
+    "create-note",
+    "create-note-legacy",
     "find-backlinks",
-    "read-vault-image"
+    "find-backlinks-legacy",
+    "read-vault-image",
+    "read-vault-image-legacy",
+    "build-graph",
+    "build-graph-legacy",
+    "hash-vault-password",
+    "hash-vault-password-legacy",
+    "verify-vault-password",
+    "verify-vault-password-legacy"
   ]
 }

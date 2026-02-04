@@ -6,6 +6,11 @@ import { calloutDecorationsField, createCalloutDecorationsPlugin } from './callo
 import { createInlineLivePreviewPlugin } from './inlinePreview'
 import { findMermaidBlockAtLine, getMermaidEnterPosition } from './mermaidBlocks'
 import { createMermaidDecorationsPlugin, mermaidDecorationsField, type MermaidTheme } from './mermaidPreview'
+import {
+  lockedSectionDecorationsField,
+  createLockedSectionDecorationsPlugin,
+} from './lockedSectionPreview'
+import type { HeadingSection, LockedBodyRange } from '../lockedSections'
 
 export type LivePreviewOptions = {
   onOpenWikilink?: (rawTarget: string) => void
@@ -13,9 +18,13 @@ export type LivePreviewOptions = {
   renderDiagrams?: boolean
   renderImages?: boolean
   renderCallouts?: boolean
+  renderLockedSections?: boolean
   vaultPath?: string
   noteRelPath?: string
   theme?: MermaidTheme
+  isVaultUnlocked?: boolean
+  onRequestUnlock?: () => void
+  onLockedSectionsDetected?: (sections: HeadingSection[], ranges: LockedBodyRange[]) => void
 }
 
 export function createLivePreviewExtension(options: LivePreviewOptions = {}): Extension[] {
@@ -90,6 +99,14 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
     createCalloutDecorationsPlugin({
       renderCallouts: options.renderCallouts,
       noteRelPath: options.noteRelPath,
+    }),
+    lockedSectionDecorationsField,
+    createLockedSectionDecorationsPlugin({
+      renderLockedSections: options.renderLockedSections,
+      noteRelPath: options.noteRelPath,
+      isVaultUnlocked: options.isVaultUnlocked,
+      onRequestUnlock: options.onRequestUnlock,
+      onLockedSectionsDetected: options.onLockedSectionsDetected,
     }),
     createInlineLivePreviewPlugin({
       renderImages: options.renderImages,

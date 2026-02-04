@@ -42,8 +42,10 @@ export const calloutDecorationsField = StateField.define<DecorationSet>({
         return effect.value
       }
     }
+    // Map decorations through doc changes to preserve them
+    // until the ViewPlugin dispatches new decorations
     if (tr.docChanged) {
-      return Decoration.none
+      return value.map(tr.changes)
     }
     return value
   },

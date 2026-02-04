@@ -5,7 +5,7 @@ import { readNote } from '../../tauri'
 import { fileStem } from '../../path'
 import { isVisibleNoteForNavigation } from '../../ignore'
 import {
-  extractTasksFromText,
+  extractTasksFromTextWithLockFilter,
   filterTaskEntries,
   type TaskState,
 } from './taskScanner'
@@ -26,6 +26,7 @@ type UseTasksArgs = {
   onError: (message: string) => void
   activeRelPath: string | null
   activeNoteText: string
+  isVaultUnlocked: boolean
 }
 
 export function useTasks({
@@ -36,6 +37,7 @@ export function useTasks({
   onError,
   activeRelPath,
   activeNoteText,
+  isVaultUnlocked,
 }: UseTasksArgs): {
   tasks: TaskItem[]
   tasksBusy: boolean
@@ -61,7 +63,8 @@ export function useTasks({
     async (vault: string, entry: NoteEntry): Promise<TaskItem[]> => {
       try {
         const contents = await readNote(vault, entry.rel_path)
-        const matches = extractTasksFromText(contents)
+        // When vault is locked, exclude tasks from locked sections
+        const matches = extractTasksFromTextWithLockFilter(contents, !isVaultUnlocked)
         return matches
           .filter((task) => task.state !== 'x')
           .map((task) => ({
@@ -75,11 +78,12 @@ export function useTasks({
         return []
       }
     },
-    [],
+    [isVaultUnlocked],
   )
 
   const buildTasksForText = useCallback((relPath: string, text: string): TaskItem[] => {
-    const matches = extractTasksFromText(text)
+    // When vault is locked, exclude tasks from locked sections
+    const matches = extractTasksFromTextWithLockFilter(text, !isVaultUnlocked)
     return matches
       .filter((task) => task.state !== 'x')
       .map((task) => ({
@@ -89,7 +93,7 @@ export function useTasks({
         text: task.text,
         state: task.state,
       }))
-  }, [])
+  }, [isVaultUnlocked])
 
   const replaceTasksForRelPath = useCallback(
     (relPath: string, nextTasks: TaskItem[]) => {

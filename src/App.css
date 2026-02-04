@@ -1577,3 +1577,307 @@
 .graphContextMenuItem:hover {
   background: var(--highlight);
 }
+
+/* ============================================
+   Locked Sections Styles
+   ============================================ */
+
+.noteEditor .cm-livePreview-lockedHeader {
+  display: block;
+  padding: 6px 10px;
+  background: rgba(255, 180, 96, 0.08);
+  border-left: 3px solid rgba(255, 180, 96, 0.6);
+  border-radius: 4px;
+  margin: 4px 0;
+}
+
+.noteEditor .cm-livePreview-lockedHeader--unlocked {
+  background: rgba(110, 231, 135, 0.08);
+  border-left-color: rgba(110, 231, 135, 0.6);
+}
+
+.noteEditor .cm-livePreview-lockedHeaderContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.noteEditor .cm-livePreview-lockButton {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: rgba(255, 180, 96, 0.9);
+  cursor: pointer;
+  padding: 0;
+  border-radius: 4px;
+}
+
+.noteEditor .cm-livePreview-lockButton:hover {
+  background: rgba(255, 180, 96, 0.15);
+}
+
+.noteEditor .cm-livePreview-lockButton--unlocked {
+  color: rgba(110, 231, 135, 0.9);
+}
+
+.noteEditor .cm-livePreview-lockButton--unlocked:hover {
+  background: rgba(110, 231, 135, 0.15);
+}
+
+.noteEditor .cm-livePreview-lockButton svg {
+  width: 14px;
+  height: 14px;
+}
+
+.noteEditor .cm-livePreview-lockedTitle {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.noteEditor .cm-livePreview-lockedHeader--h1 .cm-livePreview-lockedTitle {
+  font-size: 1.45em;
+}
+
+.noteEditor .cm-livePreview-lockedHeader--h2 .cm-livePreview-lockedTitle {
+  font-size: 1.3em;
+}
+
+.noteEditor .cm-livePreview-lockedHeader--h3 .cm-livePreview-lockedTitle {
+  font-size: 1.2em;
+}
+
+.noteEditor .cm-livePreview-lockedHeader--h4 .cm-livePreview-lockedTitle {
+  font-size: 1.1em;
+}
+
+.noteEditor .cm-livePreview-foldToggle {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+.noteEditor .cm-livePreview-foldChevron {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 120ms ease;
+}
+
+.noteEditor .cm-livePreview-lockedHeader--folded .cm-livePreview-foldChevron {
+  transform: rotate(-45deg);
+}
+
+.noteEditor .cm-livePreview-lockedPlaceholder {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: rgba(255, 180, 96, 0.06);
+  border: 1px dashed rgba(255, 180, 96, 0.3);
+  border-radius: 6px;
+  margin: 4px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.noteEditor .cm-livePreview-lockedPlaceholderIcon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  color: rgba(255, 180, 96, 0.7);
+}
+
+.noteEditor .cm-livePreview-lockedPlaceholderText {
+  font-style: italic;
+}
+
+.noteEditor .cm-livePreview-lockedPlaceholderHint {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.noteEditor .cm-livePreview-lockedPlaceholderHint:hover {
+  background: rgba(255, 180, 96, 0.12);
+  color: rgba(255, 180, 96, 0.9);
+}
+
+.noteEditor .cm-line.cm-livePreview-lockedBody {
+  background: rgba(110, 231, 135, 0.04);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-lockedHeader {
+  background: rgba(245, 159, 76, 0.1);
+  border-left-color: rgba(245, 159, 76, 0.7);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-lockedHeader--unlocked {
+  background: rgba(74, 222, 128, 0.1);
+  border-left-color: rgba(74, 222, 128, 0.7);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-lockButton {
+  color: rgba(245, 159, 76, 0.9);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-lockButton--unlocked {
+  color: rgba(74, 222, 128, 0.9);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-lockedPlaceholder {
+  background: rgba(245, 159, 76, 0.08);
+  border-color: rgba(245, 159, 76, 0.35);
+}
+
+:root[data-theme='light'] .noteEditor .cm-livePreview-lockedPlaceholderIcon {
+  color: rgba(245, 159, 76, 0.8);
+}
+
+:root[data-theme='light'] .noteEditor .cm-line.cm-livePreview-lockedBody {
+  background: rgba(74, 222, 128, 0.06);
+}
+
+/* Vault Unlock Modal */
+
+.vaultAuthOverlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 10vh 16px 16px;
+  z-index: 1500;
+}
+
+.vaultAuthModal {
+  width: min(400px, 92vw);
+  border-radius: 12px;
+  border: 1px solid var(--panel-border-strong);
+  background: var(--panel-solid);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.vaultAuthHeader {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vaultAuthIcon {
+  width: 24px;
+  height: 24px;
+  color: rgba(255, 180, 96, 0.9);
+}
+
+.vaultAuthTitle {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.vaultAuthBody {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vaultAuthLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.vaultAuthLabel span {
+  color: var(--text-muted);
+}
+
+.vaultAuthInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--button-bg);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.vaultAuthInput:focus {
+  border-color: var(--button-hover-border);
+}
+
+.vaultAuthError {
+  padding: 10px 12px;
+  font-size: 13px;
+  border-radius: 8px;
+  background: rgba(255, 95, 95, 0.1);
+  border: 1px solid rgba(255, 95, 95, 0.3);
+  color: #ff6b6b;
+}
+
+.vaultAuthHint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.vaultAuthFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+}
+
+.vaultAuthCancel,
+.vaultAuthSubmit {
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid var(--button-border);
+  background: var(--button-bg);
+  color: var(--text-primary);
+}
+
+.vaultAuthCancel:hover,
+.vaultAuthSubmit:hover {
+  border-color: var(--button-hover-border);
+}
+
+.vaultAuthSubmit {
+  background: rgba(110, 231, 135, 0.15);
+  border-color: rgba(110, 231, 135, 0.4);
+}
+
+.vaultAuthSubmit:hover {
+  background: rgba(110, 231, 135, 0.25);
+}
+
+.vaultAuthSubmit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

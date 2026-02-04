@@ -1,4 +1,8 @@
 import type { NoteEntry } from '../../types'
+import {
+  parseLockedSections,
+  type LockedBodyRange,
+} from '../../lockedSections'
 
 export type TaskState = ' ' | 'x' | '-'
 
@@ -67,6 +71,39 @@ export function extractTasksFromText(text: string): TaskMatch[] {
   }
 
   return tasks
+}
+
+/**
+ * Filter out tasks that fall within locked body ranges.
+ * Use this when the vault is NOT unlocked to prevent leaking locked content.
+ */
+export function filterTasksFromLockedSections(
+  tasks: TaskMatch[],
+  lockedRanges: LockedBodyRange[],
+): TaskMatch[] {
+  if (lockedRanges.length === 0) return tasks
+  return tasks.filter((task) => {
+    const lineNum = task.lineNumber
+    return !lockedRanges.some(
+      (range) => lineNum >= range.fromLine && lineNum < range.toLineExclusive,
+    )
+  })
+}
+
+/**
+ * Extract tasks from text, optionally excluding those in locked sections.
+ * @param text - The note content
+ * @param excludeLockedContent - If true, locked section bodies are excluded
+ */
+export function extractTasksFromTextWithLockFilter(
+  text: string,
+  excludeLockedContent: boolean,
+): TaskMatch[] {
+  const tasks = extractTasksFromText(text)
+  if (!excludeLockedContent) return tasks
+
+  const { lockedBodyRanges } = parseLockedSections(text)
+  return filterTasksFromLockedSections(tasks, lockedBodyRanges)
 }
 
 export function filterTaskEntries(

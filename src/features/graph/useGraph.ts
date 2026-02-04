@@ -11,6 +11,7 @@ type UseGraphArgs = {
   localDepth: number
   filters: GraphFilters
   onError: (message: string) => void
+  isVaultUnlocked: boolean
 }
 
 export type UseGraphResult = {
@@ -136,6 +137,7 @@ export function useGraph({
   localDepth,
   filters,
   onError,
+  isVaultUnlocked,
 }: UseGraphArgs): UseGraphResult {
   const [nodes, setNodes] = useState<GraphNode[]>([])
   const [edges, setEdges] = useState<GraphEdge[]>([])
@@ -168,7 +170,9 @@ export function useGraph({
     setIsLoading(true)
 
     try {
-      const data: GraphData = await buildGraph(vaultPath, { showHidden })
+      // Exclude links from locked sections when vault is locked
+      const excludeLocked = !isVaultUnlocked
+      const data: GraphData = await buildGraph(vaultPath, { showHidden, excludeLocked })
 
       if (requestIdRef.current === requestId) {
         setNodes(data.nodes)
@@ -186,7 +190,7 @@ export function useGraph({
         setIsLoading(false)
       }
     }
-  }, [vaultPath, showHidden])
+  }, [vaultPath, showHidden, isVaultUnlocked])
 
   // Refresh when vault or showHidden changes
   useEffect(() => {

@@ -13,6 +13,7 @@ type GraphViewProps = {
   showHidden: boolean
   theme: 'dark' | 'light'
   onOpenNote: (relPath: string) => void
+  isVaultUnlocked: boolean
 }
 
 export function GraphView({
@@ -21,6 +22,7 @@ export function GraphView({
   showHidden,
   theme,
   onOpenNote,
+  isVaultUnlocked,
 }: GraphViewProps) {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [animating, setAnimating] = useState(false)
@@ -63,6 +65,7 @@ export function GraphView({
     localDepth: settings.localDepth,
     filters: settings.filters,
     onError: (msg) => console.error('Graph error:', msg),
+    isVaultUnlocked,
   })
 
   // Handle opening a note from graph

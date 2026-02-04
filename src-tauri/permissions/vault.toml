@@ -68,6 +68,26 @@ identifier = "build-graph-legacy"
 description = "Allows building the graph data from the selected vault (legacy command name)."
 commands.allow = ["build_graph"]
 
+[[permission]]
+identifier = "hash-vault-password"
+description = "Allows hashing a password for vault authentication."
+commands.allow = ["hash-vault-password"]
+
+[[permission]]
+identifier = "hash-vault-password-legacy"
+description = "Allows hashing a password for vault authentication (legacy command name)."
+commands.allow = ["hash_vault_password"]
+
+[[permission]]
+identifier = "verify-vault-password"
+description = "Allows verifying a vault password."
+commands.allow = ["verify-vault-password"]
+
+[[permission]]
+identifier = "verify-vault-password-legacy"
+description = "Allows verifying a vault password (legacy command name)."
+commands.allow = ["verify_vault_password"]
+
 [[set]]
 identifier = "vault"
 description = "Allows the main window to access vault-related app commands."
@@ -86,4 +106,8 @@ permissions = [
   "read-vault-image-legacy",
   "build-graph",
   "build-graph-legacy",
+  "hash-vault-password",
+  "hash-vault-password-legacy",
+  "verify-vault-password",
+  "verify-vault-password-legacy",
 ]

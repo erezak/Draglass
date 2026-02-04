@@ -84,12 +84,13 @@ export async function readVaultImage(
 export async function findBacklinks(
   vaultPath: string,
   targetTitle: string,
+  excludeLocked: boolean = false,
 ): Promise<string[]> {
   return invokeWithFallback<string[]>(
     'find-backlinks',
     'find_backlinks',
-    { vault_path: vaultPath, target_title: targetTitle },
-    { vaultPath, targetTitle },
+    { vault_path: vaultPath, target_title: targetTitle, exclude_locked: excludeLocked },
+    { vaultPath, targetTitle, excludeLocked },
   )
 }
 
@@ -102,5 +103,34 @@ export async function buildGraph(
     'build_graph',
     { vault_path: vaultPath, options },
     { vaultPath, options },
+  )
+}
+
+export type HashResult = {
+  hash: string
+  salt: string
+}
+
+export async function hashVaultPassword(
+  password: string,
+  salt: string | null,
+): Promise<HashResult> {
+  return invokeWithFallback<HashResult>(
+    'hash-vault-password',
+    'hash_vault_password',
+    { password, salt },
+    { password, salt },
+  )
+}
+
+export async function verifyVaultPassword(
+  password: string,
+  hash: string,
+): Promise<boolean> {
+  return invokeWithFallback<boolean>(
+    'verify-vault-password',
+    'verify_vault_password',
+    { password, hash },
+    { password, hash },
   )
 }

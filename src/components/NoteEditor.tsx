@@ -12,6 +12,7 @@ import {
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown } from '@codemirror/lang-markdown'
 import { createLivePreviewExtension } from '../editor/livePreview'
+import type { HeadingSection, LockedBodyRange } from '../lockedSections'
 
 const setTaskHighlightEffect = StateEffect.define<number>()
 const clearTaskHighlightEffect = StateEffect.define<void>()
@@ -52,15 +53,20 @@ type NoteEditorProps = {
   renderDiagrams?: boolean
   renderImages?: boolean
   renderCallouts?: boolean
+  renderLockedSections?: boolean
   vaultPath?: string | null
   noteRelPath?: string | null
   onOpenWikilink?: (rawTarget: string) => void
   theme?: 'dark' | 'light'
+  isVaultUnlocked?: boolean
+  onRequestUnlock?: () => void
+  onLockedSectionsDetected?: (sections: HeadingSection[], ranges: LockedBodyRange[]) => void
 }
 
 export type NoteEditorHandle = {
   focus: () => void
   revealLine: (lineNumber: number) => void
+  lockCurrentHeading: () => boolean
 }
 
 export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function NoteEditor(
@@ -73,10 +79,14 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
     renderDiagrams = true,
     renderImages = true,
     renderCallouts = true,
+    renderLockedSections = true,
     vaultPath = null,
     noteRelPath = null,
     onOpenWikilink,
     theme = 'dark',
+    isVaultUnlocked = false,
+    onRequestUnlock,
+    onLockedSectionsDetected,
   },
   ref,
 ) {
@@ -144,6 +154,52 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
     }, 1200)
   }, [])
 
+  /**
+   * Find the heading containing the cursor and add {locked} marker if not present.
+   * Returns true if a heading was found and modified, false otherwise.
+   */
+  const lockCurrentHeading = useCallback(() => {
+    const view = viewRef.current
+    if (!view) return false
+
+    const { state } = view
+    const cursorPos = state.selection.main.head
+    const cursorLine = state.doc.lineAt(cursorPos)
+
+    // ATX heading pattern: 1-6 #, followed by space and content
+    const ATX_HEADING_RE = /^\s*(#{1,6})\s+(.*)$/
+    const LOCKED_MARKER_RE = /\{locked\}/i
+
+    // Search backwards from cursor line to find containing heading
+    for (let lineNum = cursorLine.number; lineNum >= 1; lineNum--) {
+      const line = state.doc.line(lineNum)
+      const lineText = line.text
+      const match = ATX_HEADING_RE.exec(lineText)
+
+      if (match) {
+        // Found a heading - check if it already has {locked}
+        if (LOCKED_MARKER_RE.test(lineText)) {
+          // Already locked, nothing to do
+          return false
+        }
+
+        // Add {locked} at end of heading line
+        const newText = lineText.trimEnd() + ' {locked}'
+        view.dispatch({
+          changes: {
+            from: line.from,
+            to: line.to,
+            insert: newText,
+          },
+        })
+        return true
+      }
+    }
+
+    // No heading found above cursor
+    return false
+  }, [])
+
   useImperativeHandle(
     ref,
     () => ({
@@ -151,8 +207,9 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
         viewRef.current?.focus()
       },
       revealLine,
+      lockCurrentHeading,
     }),
-    [revealLine],
+    [revealLine, lockCurrentHeading],
   )
 
   const onChangeRef = useRef<NoteEditorProps['onChange']>(onChange)
@@ -303,10 +360,14 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
               renderDiagrams: initialRenderDiagramsRef.current,
               renderImages: initialRenderImagesRef.current,
               renderCallouts: initialRenderCalloutsRef.current,
+              renderLockedSections: renderLockedSections,
               vaultPath: initialVaultPathRef.current ?? undefined,
               noteRelPath: initialNoteRelPathRef.current ?? undefined,
               onOpenImage: initialOpenImageRef.current ?? undefined,
               theme,
+              isVaultUnlocked,
+              onRequestUnlock,
+              onLockedSectionsDetected,
             })
           : [],
       ),
@@ -328,7 +389,7 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
         ...historyKeymap,
       ]),
     ]
-  }, [theme])
+  }, [theme, renderLockedSections, isVaultUnlocked, onRequestUnlock, onLockedSectionsDetected])
 
   useEffect(() => {
     if (!hostRef.current) return
@@ -357,6 +418,11 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
       viewRef.current = view
       return () => {
         cancelled = true
+        // Preserve document content before destroying view so it can be
+        // restored if extensions change triggers view recreation
+        if (viewRef.current) {
+          initialDocRef.current = viewRef.current.state.doc.toString()
+        }
         viewRef.current = null
         view.destroy()
       }
@@ -420,10 +486,14 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
               renderDiagrams,
               renderImages,
               renderCallouts,
+              renderLockedSections,
               vaultPath: vaultPath ?? undefined,
               noteRelPath: noteRelPath ?? undefined,
               onOpenImage,
               theme,
+              isVaultUnlocked,
+              onRequestUnlock,
+              onLockedSectionsDetected,
             })
           : [],
       ),
@@ -434,10 +504,14 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
     renderDiagrams,
     renderImages,
     renderCallouts,
+    renderLockedSections,
     vaultPath,
     noteRelPath,
     onOpenImage,
     theme,
+    isVaultUnlocked,
+    onRequestUnlock,
+    onLockedSectionsDetected,
   ])
 
   if (initError) {

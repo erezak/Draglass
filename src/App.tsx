@@ -2,12 +2,15 @@ import { Suspense, lazy, useCallback, useDeferredValue, useEffect, useMemo, useR
 import './App.css'
 
 import { parseWikilinks } from './wikilinks'
+import { filterLockedContent, type HeadingSection, type LockedBodyRange } from './lockedSections'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { FileTree } from './components/FileTree'
 import type { NoteEditorHandle } from './components/NoteEditor'
 import { QuickSwitcher } from './components/QuickSwitcher'
 import { SettingsScreen } from './components/SettingsScreen'
 import { Toolbox } from './components/Toolbox'
+import { VaultAuthModal, type VaultAuthModalMode } from './components/VaultAuthModal'
+import { CommandPalette, type Command } from './components/CommandPalette'
 import { GraphView } from './features/graph'
 import { useSettings } from './settings'
 import { useBacklinks } from './features/backlinks/useBacklinks'
@@ -16,6 +19,7 @@ import { useRecentNotes } from './features/recents/useRecentNotes'
 import { useTasks } from './features/tasks/useTasks'
 import { useEditorTheme } from './features/theme/useEditorTheme'
 import { useVault } from './features/vault/useVault'
+import { useVaultAuth, hasVaultPassword, checkVaultPassword } from './features/vault/useVaultAuth'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 
@@ -51,10 +55,29 @@ function App() {
     onError: setError,
   })
 
+  // Vault authentication for locked sections
+  // Must be early so other hooks can use vaultAuthState
+  const {
+    authState: vaultAuthState,
+    authBusy: vaultAuthBusy,
+    authError: vaultAuthError,
+    unlock: unlockVault,
+    lock: lockVault,
+    setPassword: setVaultPassword,
+    hasLockedContent,
+    setHasLockedContent,
+  } = useVaultAuth({
+    vaultPath,
+    onError: (message) => setError(message),
+  })
+
+  const isVaultUnlocked = vaultAuthState === 'unlocked'
+
   const { backlinks, backlinksBusy, scheduleBacklinksScan, resetBacklinks } = useBacklinks({
     enabled: settings.backlinksEnabled,
     debounceMs: settings.backlinksDebounceMs,
     onError: (message) => setError(message),
+    isVaultUnlocked,
   })
 
   const onDidSaveNote = useCallback(() => {
@@ -93,7 +116,72 @@ function App() {
     onError: (message) => setError(message),
     activeRelPath,
     activeNoteText: noteText,
+    isVaultUnlocked,
   })
+
+  const [vaultAuthModalOpen, setVaultAuthModalOpen] = useState(false)
+  const [vaultAuthModalMode, setVaultAuthModalMode] = useState<VaultAuthModalMode>('reveal')
+  const [vaultAuthModalError, setVaultAuthModalError] = useState<string | null>(null)
+  const [currentLockedRanges, setCurrentLockedRanges] = useState<LockedBodyRange[]>([])
+
+  const onRequestUnlock = useCallback(() => {
+    if (!vaultPath) return
+    const hasPassword = hasVaultPassword(vaultPath)
+    setVaultAuthModalMode(hasPassword ? 'reveal' : 'set-password')
+    setVaultAuthModalOpen(true)
+  }, [vaultPath])
+
+  const onVaultAuthModalClose = useCallback(() => {
+    setVaultAuthModalOpen(false)
+    setVaultAuthModalError(null)
+  }, [])
+
+  const onVaultAuthModalSubmit = useCallback(
+    async (password: string, confirmPassword?: string, currentPassword?: string) => {
+      setVaultAuthModalError(null)
+      if (vaultAuthModalMode === 'change-password' && confirmPassword !== undefined && currentPassword !== undefined) {
+        // Verify current password first
+        if (!vaultPath) return
+        const isValid = await checkVaultPassword(vaultPath, currentPassword)
+        if (!isValid) {
+          setVaultAuthModalError('Current password is incorrect')
+          return
+        }
+        // Set new password
+        const success = await setVaultPassword(password)
+        if (success) {
+          setVaultAuthModalOpen(false)
+          setVaultAuthModalError(null)
+        }
+      } else if (vaultAuthModalMode === 'set-password' && confirmPassword !== undefined) {
+        const success = await setVaultPassword(password)
+        if (success) {
+          setVaultAuthModalOpen(false)
+        }
+      } else {
+        const success = await unlockVault(password)
+        if (success) {
+          setVaultAuthModalOpen(false)
+        }
+      }
+    },
+    [vaultAuthModalMode, vaultPath, setVaultPassword, unlockVault],
+  )
+
+  const openChangePasswordModal = useCallback(() => {
+    if (!vaultPath) return
+    setVaultAuthModalMode('change-password')
+    setVaultAuthModalOpen(true)
+  }, [vaultPath])
+
+  const onLockedSectionsDetected = useCallback(
+    (sections: HeadingSection[], ranges: LockedBodyRange[]) => {
+      const hasLocked = sections.some((s) => s.isExplicitlyLocked || s.isLockedByParent)
+      setHasLockedContent(hasLocked)
+      setCurrentLockedRanges(ranges)
+    },
+    [setHasLockedContent],
+  )
 
   useEffect(() => {
     scheduleTasksScanRef.current = scheduleTasksScan
@@ -101,8 +189,15 @@ function App() {
 
   // Parsing wikilinks can be relatively expensive on large notes.
   // Defer derived UI updates to keep typing responsive.
+  // Filter out locked content when vault is not authenticated
   const deferredNoteText = useDeferredValue(noteText)
-  const outgoingLinks = useMemo(() => parseWikilinks(deferredNoteText), [deferredNoteText])
+  const visibleNoteText = useMemo(() => {
+    if (isVaultUnlocked || currentLockedRanges.length === 0) {
+      return deferredNoteText
+    }
+    return filterLockedContent(deferredNoteText, currentLockedRanges)
+  }, [deferredNoteText, isVaultUnlocked, currentLockedRanges])
+  const outgoingLinks = useMemo(() => parseWikilinks(visibleNoteText), [visibleNoteText])
   const { flush: flushAutosave, status: saveStatus, title: saveTitle, ariaLabel: saveAriaLabel } =
     autosave
 
@@ -131,6 +226,47 @@ function App() {
       queueMicrotask(() => editorRef.current?.focus())
     }
   }, [activeRelPath])
+
+  // Command palette commands
+  const vaultHasPassword = vaultPath ? hasVaultPassword(vaultPath) : false
+  const commands = useMemo<Command[]>(() => [
+    {
+      id: 'lock-current-heading',
+      label: 'Lock Current Heading',
+      description: 'Add {locked} marker to the heading containing cursor',
+      enabled: !!activeRelPath,
+      onExecute: () => {
+        editorRef.current?.lockCurrentHeading()
+      },
+    },
+    {
+      id: 'reveal-private-sections',
+      label: 'Reveal Private Sections',
+      description: 'Enter password to view and edit locked sections',
+      enabled: !isVaultUnlocked && hasLockedContent && vaultHasPassword,
+      onExecute: () => {
+        onRequestUnlock()
+      },
+    },
+    {
+      id: 'hide-private-sections',
+      label: 'Hide Private Sections',
+      description: 'Hide all private sections until password is entered again',
+      enabled: isVaultUnlocked && hasLockedContent,
+      onExecute: () => {
+        lockVault()
+      },
+    },
+    {
+      id: 'change-vault-password',
+      label: 'Change Vault Password',
+      description: 'Set a new password for this vault',
+      enabled: vaultHasPassword,
+      onExecute: () => {
+        openChangePasswordModal()
+      },
+    },
+  ], [activeRelPath, isVaultUnlocked, hasLockedContent, vaultHasPassword, lockVault, onRequestUnlock, openChangePasswordModal])
 
   const openQuickSwitcher = useCallback(() => {
     setCommandPaletteOpen(false)
@@ -305,6 +441,7 @@ function App() {
                 showHidden={settings.filesShowHidden}
                 theme={settings.editorTheme}
                 onOpenNote={openNoteAndCloseGraph}
+                isVaultUnlocked={isVaultUnlocked}
               />
             ) : !vaultPath ? (
               <div className="panelEmpty">Select a vault to edit notes.</div>
@@ -322,10 +459,14 @@ function App() {
                   renderDiagrams={settings.editorRenderDiagrams}
                   renderImages={settings.editorRenderImages}
                   renderCallouts={settings.editorRenderCallouts}
+                  renderLockedSections={true}
                   vaultPath={vaultPath}
                   noteRelPath={activeRelPath}
                   onOpenWikilink={openOrCreateWikilink}
                   theme={settings.editorTheme}
+                  isVaultUnlocked={isVaultUnlocked}
+                  onRequestUnlock={onRequestUnlock}
+                  onLockedSectionsDetected={onLockedSectionsDetected}
                 />
               </Suspense>
             )}
@@ -437,31 +578,23 @@ function App() {
         onClose={() => setSettingsOpen(false)}
       />
 
-      {commandPaletteOpen ? (
-        <div
-          className="placeholderOverlay"
-          role="presentation"
-          onMouseDown={closeCommandPalette}
-        >
-          <div
-            className="placeholderModal"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Command Palette"
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            <div className="placeholderTitle">Command palette is coming soon.</div>
-            <div className="placeholderBody">
-              We’ll bring command-driven workflows here in a future release.
-            </div>
-            <div className="placeholderFooter">
-              <button type="button" className="placeholderClose" onClick={closeCommandPalette}>
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <CommandPalette
+        open={commandPaletteOpen}
+        commands={commands}
+        onRequestClose={closeCommandPalette}
+      />
+
+      {vaultAuthModalOpen && (
+        <VaultAuthModal
+          key={`vault-auth-${vaultAuthModalMode}`}
+          open={vaultAuthModalOpen}
+          mode={vaultAuthModalMode}
+          busy={vaultAuthBusy}
+          error={vaultAuthModalError ?? vaultAuthError}
+          onSubmit={onVaultAuthModalSubmit}
+          onClose={onVaultAuthModalClose}
+        />
+      )}
     </ErrorBoundary>
   )
 }

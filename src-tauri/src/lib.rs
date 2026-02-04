@@ -1,7 +1,9 @@
 use tauri::Manager;
 
+mod auth;
 mod backlinks;
 mod graph;
+mod locked_sections;
 mod vault;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -67,6 +69,8 @@ pub fn run() {
             find_backlinks,
             read_vault_image,
             build_graph,
+            hash_vault_password,
+            verify_vault_password,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -113,6 +117,7 @@ fn persist_window_state(
     std::fs::write(path, json)
 }
 
+use crate::auth::{hash_password_impl, verify_password_impl, HashResult};
 use crate::backlinks::find_backlinks_impl;
 use crate::graph::{build_graph_impl, GraphData, GraphOptions};
 use crate::vault::{
@@ -151,10 +156,16 @@ async fn create_note(vault_path: String, rel_path: String, contents: String) -> 
 }
 
 #[tauri::command(rename = "find-backlinks")]
-async fn find_backlinks(vault_path: String, target_title: String) -> Result<Vec<String>, String> {
-    tauri::async_runtime::spawn_blocking(move || find_backlinks_impl(&vault_path, &target_title))
-        .await
-        .map_err(|e| format!("failed to join task: {e}"))?
+async fn find_backlinks(
+    vault_path: String,
+    target_title: String,
+    exclude_locked: bool,
+) -> Result<Vec<String>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        find_backlinks_impl(&vault_path, &target_title, exclude_locked)
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
 }
 
 #[tauri::command(rename = "read-vault-image")]
@@ -167,6 +178,22 @@ async fn read_vault_image(vault_path: String, rel_path: String) -> Result<VaultI
 #[tauri::command(rename = "build-graph")]
 async fn build_graph(vault_path: String, options: GraphOptions) -> Result<GraphData, String> {
     tauri::async_runtime::spawn_blocking(move || build_graph_impl(&vault_path, options))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command(rename = "hash-vault-password")]
+async fn hash_vault_password(password: String, salt: Option<String>) -> Result<HashResult, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        hash_password_impl(&password, salt.as_deref())
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command(rename = "verify-vault-password")]
+async fn verify_vault_password(password: String, hash: String) -> Result<bool, String> {
+    tauri::async_runtime::spawn_blocking(move || verify_password_impl(&password, &hash))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }

@@ -38,6 +38,8 @@ export type GraphData = {
 
 export type GraphOptions = {
   showHidden: boolean
+  /** When true, exclude links from locked sections (vault locked) */
+  excludeLocked?: boolean
 }
 
 /** Group for coloring nodes by query match */

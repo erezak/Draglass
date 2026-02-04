@@ -8,6 +8,10 @@
   "permissions": [
     "core:default",
     "dialog:allow-open",
-    "vault"
+    "vault",
+    "hash-vault-password",
+    "hash-vault-password-legacy",
+    "verify-vault-password",
+    "verify-vault-password-legacy"
   ]
 }

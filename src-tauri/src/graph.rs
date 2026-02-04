@@ -4,6 +4,8 @@ use std::ffi::OsStr;
 use std::path::{Component, Path};
 use std::time::UNIX_EPOCH;
 
+use crate::locked_sections::{get_locked_body_ranges, is_line_in_locked_range, parse_heading_sections};
+
 /// A node in the graph representing a note.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -50,6 +52,9 @@ pub struct GraphData {
 #[serde(rename_all = "camelCase")]
 pub struct GraphOptions {
     pub show_hidden: bool,
+    /// When true, exclude links from locked sections
+    #[serde(default)]
+    pub exclude_locked: bool,
 }
 
 /// Check if a path segment represents a hidden/ignored item.
@@ -132,22 +137,52 @@ fn normalize_wikilink_target(target: &str) -> String {
     s.to_ascii_lowercase()
 }
 
-/// Extract wikilinks from note text.
-fn extract_wikilinks(text: &str) -> Vec<String> {
+/// Extract wikilinks from note text, optionally excluding locked sections.
+fn extract_wikilinks_with_lock_filter(text: &str, exclude_locked: bool) -> Vec<String> {
     let mut links = Vec::new();
     let mut seen = HashSet::new();
-    let mut idx = 0;
 
+    // Pre-compute locked ranges if needed
+    let locked_ranges = if exclude_locked {
+        let sections = parse_heading_sections(text);
+        get_locked_body_ranges(&sections)
+    } else {
+        Vec::new()
+    };
+
+    // Build line starts for offset-to-line conversion
+    let mut line_starts: Vec<usize> = vec![0];
+    for (i, ch) in text.char_indices() {
+        if ch == '\n' {
+            line_starts.push(i + 1);
+        }
+    }
+
+    let offset_to_line = |offset: usize| -> usize {
+        match line_starts.binary_search(&offset) {
+            Ok(i) => i + 1,
+            Err(i) => i,
+        }
+    };
+
+    let mut idx = 0;
     while let Some(start) = text[idx..].find("[[") {
-        let start = idx + start + 2;
-        if let Some(end) = text[start..].find("]]") {
-            let end = start + end;
-            let raw = &text[start..end];
+        let abs_start = idx + start;
+        let content_start = abs_start + 2;
+        if let Some(end) = text[content_start..].find("]]") {
+            let content_end = content_start + end;
+            let raw = &text[content_start..content_end];
             let normalized = normalize_wikilink_target(raw);
-            if !normalized.is_empty() && seen.insert(normalized.clone()) {
-                links.push(normalized);
+
+            if !normalized.is_empty() {
+                let line_num = offset_to_line(abs_start);
+                let in_locked = exclude_locked && is_line_in_locked_range(line_num, &locked_ranges);
+
+                if !in_locked && seen.insert(normalized.clone()) {
+                    links.push(normalized);
+                }
             }
-            idx = end + 2;
+            idx = content_end + 2;
         } else {
             break;
         }
@@ -242,7 +277,7 @@ pub fn build_graph_impl(vault_path: &str, options: GraphOptions) -> Result<Graph
             Err(_) => continue,
         };
 
-        let links = extract_wikilinks(&content);
+        let links = extract_wikilinks_with_lock_filter(&content, options.exclude_locked);
         out_degree.insert(rel_path.clone(), links.len() as u32);
 
         for link in links {
@@ -350,7 +385,7 @@ pub fn build_graph_impl(vault_path: &str, options: GraphOptions) -> Result<Graph
 
 #[cfg(test)]
 mod tests {
-    use super::{extract_wikilinks, is_hidden_path, normalize_wikilink_target};
+    use super::{extract_wikilinks_with_lock_filter, is_hidden_path, normalize_wikilink_target};
 
     #[test]
     fn normalize_targets() {
@@ -364,10 +399,10 @@ mod tests {
 
     #[test]
     fn extract_links() {
-        let links = extract_wikilinks("[[Foo]] [[ foo ]] [[FOO|bar]]");
+        let links = extract_wikilinks_with_lock_filter("[[Foo]] [[ foo ]] [[FOO|bar]]", false);
         assert_eq!(links, vec!["foo".to_string()]);
 
-        let links2 = extract_wikilinks("See [[Note A]] and [[Note B]].");
+        let links2 = extract_wikilinks_with_lock_filter("See [[Note A]] and [[Note B]].", false);
         assert_eq!(links2, vec!["note a".to_string(), "note b".to_string()]);
     }
 
