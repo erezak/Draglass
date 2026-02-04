@@ -419,11 +419,12 @@ function App() {
   return (
     <ErrorBoundary fallbackTitle="Draglass hit an error">
       <div className="appShell">
-        <header className="topbar">
+        <header className="topbar" data-tauri-drag-region>
           <div className="topbarLeft">
             <button
               type="button"
               className="iconButton"
+              data-tauri-drag-region="false"
               onClick={toggleLeftPane}
               title="Toggle left pane (Mod+B)"
               aria-label="Toggle left pane (Mod+B)"
@@ -431,13 +432,16 @@ function App() {
               <PaneIcon side="left" state={leftPaneOpen ? 'open' : 'closed'} />
             </button>
             <div className="brand">Draglass</div>
-            <button className="vaultButton" onClick={pickVault}>Select vault…</button>
+            <button className="vaultButton" onClick={pickVault} data-tauri-drag-region="false">
+              Select vault…
+            </button>
           </div>
           <div className="spacer" />
           <div className="topbarActions">
             <button
               type="button"
               className="iconButton"
+              data-tauri-drag-region="false"
               onClick={toggleRightPane}
               title="Toggle right pane (Mod+Shift+B)"
               aria-label="Toggle right pane (Mod+Shift+B)"
