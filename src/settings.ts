@@ -13,6 +13,8 @@ export type DraglassSettings = {
 
   leftPaneOpen: boolean
   rightPaneOpen: boolean
+  leftPaneWidth: number
+  rightPaneWidth: number
 
   autosaveEnabled: boolean
   autosaveDebounceMs: number
@@ -48,6 +50,8 @@ export const DEFAULT_SETTINGS: DraglassSettings = {
 
   leftPaneOpen: true,
   rightPaneOpen: true,
+  leftPaneWidth: 240,
+  rightPaneWidth: 260,
 
   autosaveEnabled: true,
   autosaveDebounceMs: 750,
@@ -91,6 +95,8 @@ function normalizeSettings(raw: unknown): DraglassSettings {
 
     leftPaneOpen: asBool(r.leftPaneOpen, DEFAULT_SETTINGS.leftPaneOpen),
     rightPaneOpen: asBool(r.rightPaneOpen, DEFAULT_SETTINGS.rightPaneOpen),
+    leftPaneWidth: clampInt(r.leftPaneWidth, DEFAULT_SETTINGS.leftPaneWidth, 80, 1400),
+    rightPaneWidth: clampInt(r.rightPaneWidth, DEFAULT_SETTINGS.rightPaneWidth, 80, 1400),
 
     autosaveEnabled: asBool(r.autosaveEnabled, DEFAULT_SETTINGS.autosaveEnabled),
     autosaveDebounceMs: clampInt(

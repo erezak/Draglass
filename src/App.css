@@ -2,6 +2,13 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
+  --toolbox-width: 52px;
+  --sidebar-width: 240px;
+  --right-pane-width: 260px;
+  --left-pane-header-width: calc(var(--toolbox-width) + var(--sidebar-width));
+  --topbar-padding-left: 12px;
+  --topbar-padding-right: 12px;
+  --left-pane-border-gap: 80px;
 }
 
 .topbar {
@@ -9,14 +16,25 @@
   align-items: center;
   gap: 12px;
   height: 44px;
-  padding: 0 12px;
+  padding: 0 var(--topbar-padding-right) 0 var(--topbar-padding-left);
   border-bottom: 1px solid var(--panel-border);
   background: var(--panel-bg);
   backdrop-filter: blur(10px);
 }
 
 .platform-mac .topbar {
-  padding-left: 88px;
+  --topbar-padding-left: 88px;
+}
+
+.topbarLeftPane {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+  width: var(--left-pane-header-width);
+  min-width: var(--left-pane-header-width);
+  box-sizing: border-box;
+  padding-right: var(--left-pane-border-gap);
 }
 
 .topbarLeft {
@@ -33,6 +51,10 @@
   border-radius: 999px;
   border: 1px solid var(--panel-border-strong);
   background: var(--button-bg);
+}
+
+.leftPaneCollapseButton {
+  margin-left: auto;
 }
 
 .topbarActions {
@@ -94,32 +116,65 @@
 
 .content {
   display: grid;
-  --toolbox-width: 52px;
-  --sidebar-width: 240px;
-  --right-pane-width: 260px;
   grid-template-columns:
     var(--toolbox-width)
     var(--sidebar-width)
-    minmax(320px, 1fr)
+    minmax(0, 1fr)
     var(--right-pane-width);
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  position: relative;
 }
 
 .content--left-collapsed {
-  grid-template-columns: minmax(320px, 1fr) var(--right-pane-width);
+  grid-template-columns: minmax(0, 1fr) var(--right-pane-width);
 }
 
 .content--right-collapsed {
   grid-template-columns:
     var(--toolbox-width)
     var(--sidebar-width)
-    minmax(320px, 1fr);
+    minmax(0, 1fr);
 }
 
 .content--both-collapsed {
-  grid-template-columns: minmax(320px, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.paneResizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  z-index: 5;
+  touch-action: none;
+}
+
+.paneResizer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: var(--panel-border-strong);
+  opacity: 0.7;
+}
+
+.paneResizer--left {
+  left: calc(var(--toolbox-width) + var(--sidebar-width) - 4px);
+}
+
+.paneResizer--right {
+  right: calc(var(--right-pane-width) - 4px);
+}
+
+.paneResizer:hover::after {
+  background: var(--button-hover-border);
+  opacity: 1;
 }
 
 .paneWrapper {
@@ -247,9 +302,10 @@
 }
 
 .leftPaneActions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
   gap: 6px;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .leftPaneActionButton {
@@ -258,6 +314,7 @@
   justify-content: center;
   gap: 6px;
   padding: 6px 8px;
+  min-width: 48px;
   font-size: 12px;
   border-radius: 8px;
   border: 1px solid var(--panel-border-strong);

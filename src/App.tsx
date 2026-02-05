@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { Suspense, lazy, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import { confirm } from '@tauri-apps/plugin-dialog'
 import './App.css'
 
@@ -26,6 +26,23 @@ import { useVault } from './features/vault/useVault'
 import { useVaultAuth, hasVaultPassword, checkVaultPassword } from './features/vault/useVaultAuth'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
+
+const TOOLBOX_WIDTH = 52
+const LEFT_PANE_COLLAPSE_GAP = 8
+const RIGHT_PANE_MIN_WIDTH = 160
+
+type DragState = {
+  side: 'left' | 'right'
+  startX: number
+  startLeftTotalWidth: number
+  startRightWidth: number
+  contentWidth: number
+  minLeftTotalWidth?: number
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max)
+}
 
 function isModP(e: KeyboardEvent): boolean {
   const mod = e.metaKey || e.ctrlKey
@@ -68,6 +85,19 @@ function App() {
 
   const leftPaneOpen = settings.leftPaneOpen
   const rightPaneOpen = settings.rightPaneOpen
+
+  const [leftPaneWidth, setLeftPaneWidth] = useState(settings.leftPaneWidth)
+  const [rightPaneWidth, setRightPaneWidth] = useState(settings.rightPaneWidth)
+  const [leftPaneMinTotalWidth, setLeftPaneMinTotalWidth] = useState(TOOLBOX_WIDTH + 160)
+
+  const leftPaneWidthRef = useRef(leftPaneWidth)
+  const rightPaneWidthRef = useRef(rightPaneWidth)
+  const isDraggingRef = useRef(false)
+  const dragStateRef = useRef<DragState | null>(null)
+  const appShellRef = useRef<HTMLDivElement | null>(null)
+  const contentRef = useRef<HTMLDivElement | null>(null)
+  const leftPaneViewToggleRef = useRef<HTMLDivElement | null>(null)
+  const leftPaneCollapseRef = useRef<HTMLButtonElement | null>(null)
 
   const editorRef = useRef<NoteEditorHandle | null>(null)
   const titleInputRef = useRef<HTMLInputElement | null>(null)
@@ -250,6 +280,55 @@ function App() {
     if (titleEditing) return
     setTitleDraft(noteTitle ?? '')
   }, [noteTitle, titleEditing])
+
+  useEffect(() => {
+    if (isDraggingRef.current) return
+    setLeftPaneWidth(settings.leftPaneWidth)
+  }, [settings.leftPaneWidth])
+
+  useEffect(() => {
+    if (isDraggingRef.current) return
+    setRightPaneWidth(settings.rightPaneWidth)
+  }, [settings.rightPaneWidth])
+
+  useEffect(() => {
+    leftPaneWidthRef.current = leftPaneWidth
+  }, [leftPaneWidth])
+
+  useEffect(() => {
+    rightPaneWidthRef.current = rightPaneWidth
+  }, [rightPaneWidth])
+
+  const computeLeftPaneMinTotalWidth = useCallback(() => {
+    const viewToggle = leftPaneViewToggleRef.current
+    const collapseButton = leftPaneCollapseRef.current
+    const shell = appShellRef.current
+    if (!viewToggle || !collapseButton || !shell) return leftPaneMinTotalWidth
+    const viewWidth = viewToggle.getBoundingClientRect().width
+    const collapseWidth = collapseButton.getBoundingClientRect().width
+    const computed = getComputedStyle(shell)
+    const borderGapRaw = computed.getPropertyValue('--left-pane-border-gap')
+    const borderGap = Number.parseFloat(borderGapRaw) || 0
+    return Math.ceil(viewWidth + collapseWidth + LEFT_PANE_COLLAPSE_GAP + borderGap)
+  }, [leftPaneMinTotalWidth])
+
+  useEffect(() => {
+    const updateMinWidth = () => {
+      setLeftPaneMinTotalWidth(computeLeftPaneMinTotalWidth())
+    }
+
+    updateMinWidth()
+    window.addEventListener('resize', updateMinWidth)
+    return () => window.removeEventListener('resize', updateMinWidth)
+  }, [computeLeftPaneMinTotalWidth])
+
+  useEffect(() => {
+    if (!leftPaneOpen || isDraggingRef.current) return
+    const minSidebar = Math.max(0, leftPaneMinTotalWidth - TOOLBOX_WIDTH)
+    if (leftPaneWidthRef.current >= minSidebar) return
+    setLeftPaneWidth(minSidebar)
+    updateSettings({ leftPaneWidth: Math.round(minSidebar) })
+  }, [leftPaneMinTotalWidth, leftPaneOpen, updateSettings])
 
   const closeQuickSwitcher = useCallback(() => {
     setQuickSwitcherOpen(false)
@@ -490,6 +569,84 @@ function App() {
     return () => window.removeEventListener('keydown', onKeyDown, true)
   }, [toggleBothPanes, toggleLeftPane, toggleRightPane])
 
+  const onResizerPointerMove = useCallback(
+    (event: PointerEvent) => {
+      const dragState = dragStateRef.current
+      if (!dragState) return
+      const delta = event.clientX - dragState.startX
+
+      if (dragState.side === 'left') {
+        const minTotal = Math.max(dragState.minLeftTotalWidth ?? leftPaneMinTotalWidth, TOOLBOX_WIDTH)
+        const rightWidth = rightPaneOpen ? dragState.startRightWidth : 0
+        const maxTotal = Math.max(minTotal, dragState.contentWidth - rightWidth)
+        const nextTotal = clamp(dragState.startLeftTotalWidth + delta, minTotal, maxTotal)
+        setLeftPaneWidth(Math.max(0, nextTotal - TOOLBOX_WIDTH))
+      } else {
+        const minRight = RIGHT_PANE_MIN_WIDTH
+        const leftTotal = leftPaneOpen ? dragState.startLeftTotalWidth : 0
+        const maxRight = Math.max(minRight, dragState.contentWidth - leftTotal)
+        const nextRight = clamp(dragState.startRightWidth - delta, minRight, maxRight)
+        setRightPaneWidth(nextRight)
+      }
+    },
+    [leftPaneMinTotalWidth, leftPaneOpen, rightPaneOpen],
+  )
+
+  const onResizerPointerUp = useCallback(() => {
+    if (!dragStateRef.current) return
+    dragStateRef.current = null
+    isDraggingRef.current = false
+    window.removeEventListener('pointermove', onResizerPointerMove)
+    window.removeEventListener('pointerup', onResizerPointerUp)
+    updateSettings({
+      leftPaneWidth: Math.round(leftPaneWidthRef.current),
+      rightPaneWidth: Math.round(rightPaneWidthRef.current),
+    })
+  }, [onResizerPointerMove, updateSettings])
+
+  const onLeftResizerPointerDown = useCallback(
+    (event: ReactPointerEvent) => {
+      if (event.button !== 0 || !contentRef.current) return
+      event.preventDefault()
+      const contentRect = contentRef.current.getBoundingClientRect()
+      const minLeftTotalWidth = computeLeftPaneMinTotalWidth()
+      setLeftPaneMinTotalWidth(minLeftTotalWidth)
+      const startLeftTotalWidth = TOOLBOX_WIDTH + leftPaneWidthRef.current
+      dragStateRef.current = {
+        side: 'left',
+        startX: event.clientX,
+        startLeftTotalWidth,
+        startRightWidth: rightPaneWidthRef.current,
+        contentWidth: contentRect.width,
+        minLeftTotalWidth,
+      }
+      isDraggingRef.current = true
+      window.addEventListener('pointermove', onResizerPointerMove)
+      window.addEventListener('pointerup', onResizerPointerUp)
+    },
+    [onResizerPointerMove, onResizerPointerUp],
+  )
+
+  const onRightResizerPointerDown = useCallback(
+    (event: ReactPointerEvent) => {
+      if (event.button !== 0 || !contentRef.current) return
+      event.preventDefault()
+      const contentRect = contentRef.current.getBoundingClientRect()
+      const startLeftTotalWidth = leftPaneOpen ? TOOLBOX_WIDTH + leftPaneWidthRef.current : 0
+      dragStateRef.current = {
+        side: 'right',
+        startX: event.clientX,
+        startLeftTotalWidth,
+        startRightWidth: rightPaneWidthRef.current,
+        contentWidth: contentRect.width,
+      }
+      isDraggingRef.current = true
+      window.addEventListener('pointermove', onResizerPointerMove)
+      window.addEventListener('pointerup', onResizerPointerUp)
+    },
+    [leftPaneOpen, onResizerPointerMove, onResizerPointerUp],
+  )
+
   useEffect(() => {
     if (!commandPaletteOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
@@ -502,15 +659,18 @@ function App() {
     return () => window.removeEventListener('keydown', onKeyDown, true)
   }, [closeCommandPalette, commandPaletteOpen])
 
-  const contentStyle = useMemo(
-    () =>
-      ({
-        '--toolbox-width': leftPaneOpen ? '52px' : '0px',
-        '--sidebar-width': leftPaneOpen ? '240px' : '0px',
-        '--right-pane-width': rightPaneOpen ? '260px' : '0px',
-      }) as CSSProperties,
-    [leftPaneOpen, rightPaneOpen],
-  )
+  const appShellStyle = useMemo(() => {
+    const leftTotalWidth = leftPaneOpen ? TOOLBOX_WIDTH + leftPaneWidth : 0
+    const leftHeaderWidth = leftPaneOpen
+      ? leftTotalWidth
+      : Math.max(leftPaneMinTotalWidth, TOOLBOX_WIDTH)
+    return {
+      '--toolbox-width': leftPaneOpen ? `${TOOLBOX_WIDTH}px` : '0px',
+      '--sidebar-width': leftPaneOpen ? `${leftPaneWidth}px` : '0px',
+      '--right-pane-width': rightPaneOpen ? `${rightPaneWidth}px` : '0px',
+      '--left-pane-header-width': `calc(${leftHeaderWidth}px - var(--topbar-padding-left))`,
+    } as CSSProperties
+  }, [leftPaneMinTotalWidth, leftPaneOpen, leftPaneWidth, rightPaneOpen, rightPaneWidth])
 
   const contentClassName = useMemo(() => {
     if (leftPaneOpen && rightPaneOpen) return 'content'
@@ -521,20 +681,15 @@ function App() {
 
   return (
     <ErrorBoundary fallbackTitle="Draglass hit an error">
-      <div className="appShell">
+      <div className="appShell" style={appShellStyle} ref={appShellRef}>
         <header className="topbar" data-tauri-drag-region>
-          <div className="topbarLeft">
-            <button
-              type="button"
-              className="iconButton"
-              data-tauri-drag-region="false"
-              onClick={toggleLeftPane}
-              title="Toggle left pane (Mod+B)"
-              aria-label="Toggle left pane (Mod+B)"
+          <div className="topbarLeftPane">
+            <div
+              className="topbarViewToggle"
+              role="tablist"
+              aria-label="Sidebar view"
+              ref={leftPaneViewToggleRef}
             >
-              <PaneIcon side="left" state={leftPaneOpen ? 'open' : 'closed'} />
-            </button>
-            <div className="topbarViewToggle" role="tablist" aria-label="Sidebar view">
               <button
                 type="button"
                 role="tab"
@@ -588,6 +743,19 @@ function App() {
                 </svg>
               </button>
             </div>
+            <button
+              type="button"
+              className="iconButton leftPaneCollapseButton"
+              data-tauri-drag-region="false"
+              onClick={toggleLeftPane}
+              title="Toggle left pane (Mod+B)"
+              aria-label="Toggle left pane (Mod+B)"
+              ref={leftPaneCollapseRef}
+            >
+              <PaneIcon side="left" state={leftPaneOpen ? 'open' : 'closed'} />
+            </button>
+          </div>
+          <div className="topbarLeft">
             <div className="brand">Draglass</div>
             <button
               type="button"
@@ -624,7 +792,7 @@ function App() {
           </div>
         </header>
 
-        <div className={contentClassName} style={contentStyle}>
+        <div className={contentClassName} ref={contentRef}>
           <div className={leftPaneOpen ? 'paneWrapper' : 'paneWrapper paneHidden'}>
             <Toolbox
               quickSwitcherActive={quickSwitcherOpen}
@@ -702,6 +870,16 @@ function App() {
               </button>
             </div>
           </aside>
+
+          {leftPaneOpen ? (
+            <div
+              className="paneResizer paneResizer--left"
+              role="separator"
+              aria-orientation="vertical"
+              aria-label="Resize left pane"
+              onPointerDown={onLeftResizerPointerDown}
+            />
+          ) : null}
 
           <main className="editorPane">
             <div className="editorHeader">
@@ -797,6 +975,16 @@ function App() {
               </Suspense>
             )}
           </main>
+
+          {rightPaneOpen ? (
+            <div
+              className="paneResizer paneResizer--right"
+              role="separator"
+              aria-orientation="vertical"
+              aria-label="Resize right pane"
+              onPointerDown={onRightResizerPointerDown}
+            />
+          ) : null}
 
           <aside className={rightPaneOpen ? 'rightPane' : 'rightPane paneHidden'}>
             <div className="panel">
