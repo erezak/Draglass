@@ -10,6 +10,8 @@
     "dialog:allow-open",
     "dialog:allow-confirm",
     "vault",
+    "search-vault",
+    "search-vault-legacy",
     "hash-vault-password",
     "hash-vault-password-legacy",
     "verify-vault-password",

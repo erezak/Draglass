@@ -9,6 +9,14 @@ pub struct NoteEntry {
 }
 
 #[derive(Debug, Serialize)]
+pub struct SearchHit {
+    pub rel_path: String,
+    pub line_number: usize, // 1-based
+    pub offset: usize,      // 0-based offset in line
+    pub snippet: String,
+}
+
+#[derive(Debug, Serialize)]
 pub struct VaultImage {
     pub bytes: Vec<u8>,
     pub mime: String,
@@ -320,4 +328,99 @@ pub fn read_vault_image_impl(vault_path: &str, rel_path: &str) -> Result<VaultIm
         mime: mime_for_path(&path),
         mtime_ms,
     })
+}
+
+pub fn search_vault_impl(
+    vault_path: &str,
+    query: &str,
+    case_sensitive: bool,
+    exclude_locked: bool,
+    show_hidden: bool,
+) -> Result<Vec<SearchHit>, String> {
+    if query.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let vault = std::fs::canonicalize(vault_path).map_err(|e| format!("invalid vault path: {e}"))?;
+    if !vault.is_dir() {
+        return Err("vault path is not a directory".to_string());
+    }
+
+    let mut hits = Vec::new();
+    let query_lower = if !case_sensitive {
+        Some(query.to_lowercase())
+    } else {
+        None
+    };
+
+    let mut entries = Vec::new();
+    collect_markdown_files(&vault, &vault, &mut entries)?;
+
+    for entry in entries {
+        let rel_path = Path::new(&entry.rel_path);
+        if !show_hidden && is_ignored_rel(rel_path) {
+            continue;
+        }
+
+        let full_path = vault.join(rel_path);
+        let content = match std::fs::read_to_string(&full_path) {
+            Ok(c) => c,
+            Err(_) => continue,
+        };
+
+        let locked_ranges = if exclude_locked {
+            let sections = crate::locked_sections::parse_heading_sections(&content);
+            Some(crate::locked_sections::get_locked_body_ranges(&sections))
+        } else {
+            None
+        };
+
+        for (i, line) in content.lines().enumerate() {
+            let line_number = i + 1;
+
+            if let Some(ref ranges) = locked_ranges {
+                if crate::locked_sections::is_line_in_locked_range(line_number, ranges) {
+                    continue;
+                }
+            }
+
+            let (search_line, target_query) = if let Some(ref q_lower) = query_lower {
+                (line.to_lowercase(), q_lower.as_str())
+            } else {
+                (line.to_string(), query)
+            };
+
+            let mut start = 0;
+            while let Some(pos) = search_line[start..].find(target_query) {
+                let actual_pos = start + pos;
+                hits.push(SearchHit {
+                    rel_path: entry.rel_path.clone(),
+                    line_number,
+                    offset: actual_pos,
+                    snippet: line.to_string(),
+                });
+                start = actual_pos + target_query.len();
+                if start >= search_line.len() {
+                    break;
+                }
+            }
+        }
+    }
+
+    Ok(hits)
+}
+
+fn is_ignored_rel(path: &Path) -> bool {
+    for component in path.components() {
+        if let Component::Normal(os_str) = component {
+            let s = os_str.to_string_lossy();
+            if s.starts_with('.') {
+                return true;
+            }
+            if s == "node_modules" {
+                return true;
+            }
+        }
+    }
+    false
 }

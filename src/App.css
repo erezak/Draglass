@@ -2142,3 +2142,141 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ============================================
+   Global Search Styles
+   ============================================ */
+
+.globalSearch {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  overflow: hidden;
+  padding: 8px;
+}
+
+.searchBar {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--button-bg);
+  border: 1px solid var(--panel-border-strong);
+  border-radius: 10px;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+}
+
+.searchExtraToggle {
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  border: 1px solid var(--panel-border-strong);
+  background: var(--button-bg);
+  color: var(--text-muted);
+}
+
+.searchExtraToggle--active {
+  border-color: var(--button-hover-border);
+  background: var(--highlight);
+  color: var(--text-primary);
+}
+
+.searchResults {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-right: 4px;
+}
+
+.searchStatus,
+.searchEmpty,
+.searchError {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 8px;
+}
+
+.searchError {
+  color: #ff5f5f;
+}
+
+.searchGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.searchGroupHeader {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.searchGroupHits {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.searchHit {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  display: flex;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.searchHit:hover {
+  border-color: var(--button-hover-border);
+  background: var(--highlight);
+}
+
+.searchHitLineNumber {
+  flex: 0 0 24px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+
+.searchHitSnippet {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.searchHighlight {
+  background: rgba(122, 162, 255, 0.4);
+  color: inherit;
+  border-radius: 2px;
+}
+
+:root[data-theme='light'] .searchHighlight {
+  background: rgba(59, 74, 159, 0.3);
+}

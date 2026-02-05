@@ -1,3 +1,11 @@
+- 2026-02-05 — Decision: All new Tauri commands must be explicitly authorized in both `src-tauri/permissions/` (TOML) and `src-tauri/capabilities/` (JSON).
+  - Rationale: Tauri v2 requires a strict security manifest for command execution; commands not listed in capabilities will fail with "not allowed".
+  - Impact: When adding an `#[tauri::command]`, create/update a permission in `permissions/` and add it to the relevant capability in `capabilities/`.
+
+- 2026-02-05 — Decision: Global Search uses Rust-side scanning for performance with debounced (300ms) frontend updates.
+  - Rationale: Scanning a few thousand notes in Rust is significantly faster and keeps the UI thread responsive; debouncing prevents excessive IO on every keystroke.
+  - Impact: Search must happen via the `search-vault` Tauri command; use standard `SearchHit` type (relPath, line, offset, snippet); results group by note in UI.
+
 - 2026-02-03 — Decision: Locked Sections use `{locked}` inline attribute on ATX headings, parsed via pure regex in both TS and Rust.
   - Rationale: Simple, file-based markup that integrates with existing Markdown without special frontmatter or YAML; child sections inherit lock status from parents.
   - Impact: Locked section parsing must use ATX heading detection with `{locked}` anywhere in the line; child headings automatically inherit; future block-level locking should extend this pattern.

@@ -99,6 +99,16 @@ description = "Allows building the graph data from the selected vault (legacy co
 commands.allow = ["build_graph"]
 
 [[permission]]
+identifier = "search-vault"
+description = "Allows searching the vault for content."
+commands.allow = ["search-vault"]
+
+[[permission]]
+identifier = "search-vault-legacy"
+description = "Allows searching the vault for content (legacy command name)."
+commands.allow = ["search_vault"]
+
+[[permission]]
 identifier = "hash-vault-password"
 description = "Allows hashing a password for vault authentication."
 commands.allow = ["hash-vault-password"]
@@ -142,6 +152,8 @@ permissions = [
   "read-vault-image-legacy",
   "build-graph",
   "build-graph-legacy",
+  "search-vault",
+  "search-vault-legacy",
   "hash-vault-password",
   "hash-vault-password-legacy",
   "verify-vault-password",

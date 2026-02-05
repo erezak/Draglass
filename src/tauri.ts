@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 
-import type { NoteEntry } from './types'
+import type { NoteEntry, SearchHit } from './types'
 import type { GraphData, GraphOptions } from './features/graph/graphTypes'
 
 export type VaultImageResponse = {
@@ -122,6 +122,33 @@ export async function findBacklinks(
     'find_backlinks',
     { vault_path: vaultPath, target_title: targetTitle, exclude_locked: excludeLocked },
     { vaultPath, targetTitle, excludeLocked },
+  )
+}
+
+export async function searchVault(
+  vaultPath: string,
+  query: string,
+  caseSensitive: boolean,
+  excludeLocked: boolean,
+  showHidden: boolean,
+): Promise<SearchHit[]> {
+  return invokeWithFallback<SearchHit[]>(
+    'search-vault',
+    'search_vault',
+    {
+      vault_path: vaultPath,
+      query,
+      case_sensitive: caseSensitive,
+      exclude_locked: excludeLocked,
+      show_hidden: showHidden,
+    },
+    {
+      vaultPath,
+      query,
+      caseSensitive,
+      excludeLocked,
+      showHidden,
+    },
   )
 }
 

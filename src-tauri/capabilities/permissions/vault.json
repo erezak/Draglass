@@ -22,6 +22,8 @@
     "read-vault-image-legacy",
     "build-graph",
     "build-graph-legacy",
+    "search-vault",
+    "search-vault-legacy",
     "hash-vault-password",
     "hash-vault-password-legacy",
     "verify-vault-password",

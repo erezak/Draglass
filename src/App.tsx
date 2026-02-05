@@ -14,6 +14,7 @@ import { Toolbox } from './components/Toolbox'
 import { PaneIcon } from './components/icons/PaneIcon'
 import { VaultAuthModal, type VaultAuthModalMode } from './components/VaultAuthModal'
 import { CommandPalette, type Command } from './components/CommandPalette'
+import { GlobalSearch } from './components/GlobalSearch'
 import { GraphView } from './features/graph'
 import { createUniqueFolder, createUniqueNote } from './fs'
 import { useSettings } from './settings'
@@ -52,6 +53,11 @@ function isModP(e: KeyboardEvent): boolean {
 function isModShiftP(e: KeyboardEvent): boolean {
   const mod = e.metaKey || e.ctrlKey
   return mod && !e.altKey && e.shiftKey && (e.key === 'p' || e.key === 'P')
+}
+
+function isModShiftF(e: KeyboardEvent): boolean {
+  const mod = e.metaKey || e.ctrlKey
+  return mod && !e.altKey && e.shiftKey && (e.key === 'f' || e.key === 'F')
 }
 
 function isModB(e: KeyboardEvent): boolean {
@@ -518,6 +524,17 @@ function App() {
     [openNoteByRelPath],
   )
 
+  const onSearchHitClick = useCallback(
+    async (relPath: string, lineNumber: number) => {
+      void flushAutosave()
+      setGraphViewOpen(false)
+      const opened = await openNoteByRelPath(relPath)
+      if (!opened) return
+      queueMicrotask(() => editorRef.current?.revealLine(lineNumber))
+    },
+    [flushAutosave, openNoteByRelPath],
+  )
+
   const commitTitleRename = useCallback(async () => {
     if (!activeRelPath) return
     if (!noteTitle) return
@@ -530,6 +547,14 @@ function App() {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (isModShiftF(e)) {
+        e.preventDefault()
+        e.stopPropagation()
+        setLeftPaneView('search')
+        updateSettings({ leftPaneOpen: true })
+        return
+      }
+
       if (isModShiftP(e)) {
         e.preventDefault()
         e.stopPropagation()
@@ -814,15 +839,12 @@ function App() {
                 {!vaultPath ? (
                   <div className="panelEmpty">Pick a vault folder to begin.</div>
                 ) : leftPaneView === 'search' ? (
-                  <div className="searchStub">
-                    <input
-                      className="searchStubInput"
-                      placeholder="Search..."
-                      disabled
-                      aria-label="Search"
-                    />
-                    <div className="panelEmpty">Search coming soon.</div>
-                  </div>
+                  <GlobalSearch
+                    vaultPath={vaultPath}
+                    showHidden={settings.filesShowHidden}
+                    isVaultUnlocked={isVaultUnlocked}
+                    onOpenResult={onSearchHitClick}
+                  />
                 ) : navFiles.length === 0 ? (
                   <div className="panelEmpty">No Markdown files found.</div>
                 ) : (

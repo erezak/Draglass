@@ -72,6 +72,7 @@ pub fn run() {
             find_backlinks,
             read_vault_image,
             build_graph,
+            search_vault,
             hash_vault_password,
             verify_vault_password,
         ])
@@ -125,8 +126,8 @@ use crate::backlinks::find_backlinks_impl;
 use crate::graph::{build_graph_impl, GraphData, GraphOptions};
 use crate::vault::{
     create_dir_impl, create_note_impl, delete_note_impl, list_markdown_files_impl,
-    read_note_impl, read_vault_image_impl, rename_note_impl, write_note_impl, NoteEntry,
-    VaultImage,
+    read_note_impl, read_vault_image_impl, rename_note_impl, search_vault_impl, write_note_impl,
+    NoteEntry, SearchHit, VaultImage,
 };
 
 #[tauri::command(rename = "list-markdown-files")]
@@ -200,6 +201,21 @@ async fn read_vault_image(vault_path: String, rel_path: String) -> Result<VaultI
     tauri::async_runtime::spawn_blocking(move || read_vault_image_impl(&vault_path, &rel_path))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command(rename = "search-vault")]
+async fn search_vault(
+    vault_path: String,
+    query: String,
+    case_sensitive: bool,
+    exclude_locked: bool,
+    show_hidden: bool,
+) -> Result<Vec<SearchHit>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        search_vault_impl(&vault_path, &query, case_sensitive, exclude_locked, show_hidden)
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
 }
 
 #[tauri::command(rename = "build-graph")]
