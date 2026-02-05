@@ -192,6 +192,23 @@ fn resolve_note_path_for_create(vault_path: &str, rel_path: &str) -> Result<Path
     Ok(candidate)
 }
 
+fn resolve_folder_path_for_create(vault_path: &str, rel_path: &str) -> Result<PathBuf, String> {
+    let vault =
+        std::fs::canonicalize(vault_path).map_err(|e| format!("invalid vault path: {e}"))?;
+    if !vault.is_dir() {
+        return Err("vault path is not a directory".to_string());
+    }
+
+    let rel = sanitize_rel_path(rel_path)?;
+    let candidate = vault.join(rel);
+
+    if !candidate.starts_with(&vault) {
+        return Err("folder path escapes vault".to_string());
+    }
+
+    Ok(candidate)
+}
+
 pub fn list_markdown_files_impl(vault_path: &str) -> Result<Vec<NoteEntry>, String> {
     let vault =
         std::fs::canonicalize(vault_path).map_err(|e| format!("invalid vault path: {e}"))?;
@@ -238,6 +255,52 @@ pub fn create_note_impl(vault_path: &str, rel_path: &str, contents: &str) -> Res
     }
 
     std::fs::write(path, contents).map_err(|e| format!("failed to create note: {e}"))
+}
+
+pub fn rename_note_impl(
+    vault_path: &str,
+    from_rel_path: &str,
+    to_rel_path: &str,
+) -> Result<(), String> {
+    let from = resolve_existing_note_path(vault_path, from_rel_path)?;
+    let to = resolve_note_path_for_create(vault_path, to_rel_path)?;
+
+    if from == to {
+        return Ok(());
+    }
+
+    if to.exists() {
+        return Err("note already exists".to_string());
+    }
+
+    if let Some(parent) = to.parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|e| format!("failed to create note folder: {e}"))?;
+    }
+
+    std::fs::rename(&from, &to).map_err(|e| format!("failed to rename note: {e}"))
+}
+
+pub fn delete_note_impl(vault_path: &str, rel_path: &str) -> Result<(), String> {
+    let path = resolve_existing_note_path(vault_path, rel_path)?;
+    std::fs::remove_file(path).map_err(|e| format!("failed to delete note: {e}"))
+}
+
+pub fn create_dir_impl(vault_path: &str, rel_path: &str) -> Result<(), String> {
+    let path = resolve_folder_path_for_create(vault_path, rel_path)?;
+    if path.exists() {
+        if path.is_dir() {
+            return Err("folder already exists".to_string());
+        }
+        return Err("folder path is not a directory".to_string());
+    }
+
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|e| format!("failed to create folder parent: {e}"))?;
+    }
+
+    std::fs::create_dir(&path).map_err(|e| format!("failed to create folder: {e}"))
 }
 
 pub fn read_vault_image_impl(vault_path: &str, rel_path: &str) -> Result<VaultImage, String> {

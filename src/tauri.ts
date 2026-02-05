@@ -69,6 +69,37 @@ export async function createNote(
   )
 }
 
+export async function createDir(vaultPath: string, relPath: string): Promise<void> {
+  return invokeWithFallback<void>(
+    'create-dir',
+    'create_dir',
+    { vault_path: vaultPath, rel_path: relPath },
+    { vaultPath, relPath },
+  )
+}
+
+export async function renameNote(
+  vaultPath: string,
+  fromRelPath: string,
+  toRelPath: string,
+): Promise<void> {
+  return invokeWithFallback<void>(
+    'rename-note',
+    'rename_note',
+    { vault_path: vaultPath, from_rel_path: fromRelPath, to_rel_path: toRelPath },
+    { vaultPath, fromRelPath, toRelPath },
+  )
+}
+
+export async function deleteNote(vaultPath: string, relPath: string): Promise<void> {
+  return invokeWithFallback<void>(
+    'delete-note',
+    'delete_note',
+    { vault_path: vaultPath, rel_path: relPath },
+    { vaultPath, relPath },
+  )
+}
+
 export async function readVaultImage(
   vaultPath: string,
   relPath: string,

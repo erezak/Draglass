@@ -26,6 +26,15 @@
   height: 100%;
 }
 
+.topbarViewToggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border-strong);
+  background: var(--button-bg);
+}
+
 .topbarActions {
   display: flex;
   align-items: center;
@@ -39,16 +48,12 @@
 }
 
 .vaultButton {
-  padding: 6px 12px;
-  font-size: 12px;
   border-radius: 10px;
-  border: 1px solid var(--button-border);
-  background: var(--button-bg);
-  color: var(--text-primary);
 }
 
-.vaultButton:hover {
-  border-color: var(--button-hover-border);
+.vaultButtonIcon {
+  width: 16px;
+  height: 16px;
 }
 
 .spacer {
@@ -198,10 +203,108 @@
 .sidebarBody {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebarScroll {
+  flex: 1;
+  min-height: 0;
   overflow: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.leftPaneToolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: var(--panel-bg);
+}
+
+.leftPaneToggleButton {
+  padding: 6px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 12px;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.leftPaneToggleButton--active {
+  border-color: var(--button-hover-border);
+  background: var(--highlight);
+  color: var(--text-primary);
+}
+
+.leftPaneActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.leftPaneActionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border-strong);
+  background: var(--button-bg);
+  color: var(--text-primary);
+}
+
+.leftPaneActionButton:hover {
+  border-color: var(--button-hover-border);
+  background: var(--highlight);
+}
+
+.leftPaneActionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.leftPaneActionIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.leftPaneToggleIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.searchStub {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px 8px;
+}
+
+.searchStubInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--button-bg);
+  color: var(--text-primary);
+}
+
+.searchStubInput:disabled {
+  opacity: 0.6;
 }
 
 .sidebarFooter {
@@ -365,6 +468,11 @@
   gap: 6px;
 }
 
+.folderItem--selected {
+  border-color: var(--button-hover-border);
+  background: var(--highlight);
+}
+
 .folderItem:hover {
   border-color: var(--button-hover-border);
 }
@@ -425,6 +533,23 @@
   gap: 10px;
   padding: 10px;
   border-bottom: 1px solid var(--panel-border);
+}
+
+.editorTitleInput {
+  min-width: 140px;
+  width: min(40ch, 50vw);
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--button-bg);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+}
+
+.editorTitleInput:focus {
+  border-color: var(--button-hover-border);
 }
 
 .wrapToggle {

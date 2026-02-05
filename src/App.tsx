@@ -1,10 +1,12 @@
 import { Suspense, lazy, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { confirm } from '@tauri-apps/plugin-dialog'
 import './App.css'
 
 import { parseWikilinks } from './wikilinks'
 import { filterLockedContent, type HeadingSection, type LockedBodyRange } from './lockedSections'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { FileTree } from './components/FileTree'
+import { LeftPaneToolbar } from './components/LeftPaneToolbar'
 import type { NoteEditorHandle } from './components/NoteEditor'
 import { QuickSwitcher } from './components/QuickSwitcher'
 import { SettingsScreen } from './components/SettingsScreen'
@@ -13,6 +15,7 @@ import { PaneIcon } from './components/icons/PaneIcon'
 import { VaultAuthModal, type VaultAuthModalMode } from './components/VaultAuthModal'
 import { CommandPalette, type Command } from './components/CommandPalette'
 import { GraphView } from './features/graph'
+import { createUniqueFolder, createUniqueNote } from './fs'
 import { useSettings } from './settings'
 import { useBacklinks } from './features/backlinks/useBacklinks'
 import { useNoteManager } from './features/notes/useNoteManager'
@@ -58,11 +61,16 @@ function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [graphViewOpen, setGraphViewOpen] = useState(false)
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
+  const [leftPaneView, setLeftPaneView] = useState<'files' | 'search'>('files')
+  const [selectedFolderPath, setSelectedFolderPath] = useState<string | null>(null)
+  const [revealFolderPath, setRevealFolderPath] = useState<string | null>(null)
+  const [extraFolders, setExtraFolders] = useState<string[]>([])
 
   const leftPaneOpen = settings.leftPaneOpen
   const rightPaneOpen = settings.rightPaneOpen
 
   const editorRef = useRef<NoteEditorHandle | null>(null)
+  const titleInputRef = useRef<HTMLInputElement | null>(null)
   const scheduleTasksScanRef = useRef<() => void>(() => {})
 
   const { recentRelPaths, recordRecent } = useRecentNotes(settings.quickSwitcherMaxRecents)
@@ -112,6 +120,8 @@ function App() {
     openNoteByRelPath,
     tryOpenByTitle,
     openOrCreateWikilink,
+    renameActiveNote,
+    deleteActiveNote,
     resetNoteState,
   } = useNoteManager({
     vaultPath,
@@ -142,6 +152,8 @@ function App() {
   const [vaultAuthModalMode, setVaultAuthModalMode] = useState<VaultAuthModalMode>('reveal')
   const [vaultAuthModalError, setVaultAuthModalError] = useState<string | null>(null)
   const [currentLockedRanges, setCurrentLockedRanges] = useState<LockedBodyRange[]>([])
+  const [titleDraft, setTitleDraft] = useState('')
+  const [titleEditing, setTitleEditing] = useState(false)
 
   const onRequestUnlock = useCallback(() => {
     if (!vaultPath) return
@@ -230,7 +242,14 @@ function App() {
     resetNoteState()
     resetBacklinks()
     resetTasks()
+    setSelectedFolderPath(null)
+    setExtraFolders([])
   }, [resetBacklinks, resetNoteState, resetTasks, vaultPath])
+
+  useEffect(() => {
+    if (titleEditing) return
+    setTitleDraft(noteTitle ?? '')
+  }, [noteTitle, titleEditing])
 
   const closeQuickSwitcher = useCallback(() => {
     setQuickSwitcherOpen(false)
@@ -271,9 +290,107 @@ function App() {
     })
   }, [updateSettings])
 
+  const openQuickSwitcher = useCallback(() => {
+    setCommandPaletteOpen(false)
+    setQuickSwitcherOpen(true)
+  }, [])
+
+  const toggleGraphView = useCallback(() => {
+    setQuickSwitcherOpen(false)
+    setCommandPaletteOpen(false)
+    setGraphViewOpen((prev) => !prev)
+  }, [])
+
+  const openCommandPalette = useCallback(() => {
+    setQuickSwitcherOpen(false)
+    setCommandPaletteOpen(true)
+  }, [])
+
+  const openNoteAndCloseGraph = useCallback(
+    (relPath: string) => {
+      setGraphViewOpen(false)
+      return openNoteByRelPath(relPath)
+    },
+    [openNoteByRelPath],
+  )
+
+  const createNewNote = useCallback(async () => {
+    if (!vaultPath) return
+    setError(null)
+    setBusy('Creating note…')
+    try {
+      const relPath = await createUniqueNote(vaultPath, selectedFolderPath)
+      await refreshFileList(vaultPath)
+      const opened = await openNoteByRelPath(relPath)
+      if (opened) {
+        queueMicrotask(() => editorRef.current?.focus())
+      }
+    } catch (e) {
+      setError(String(e))
+    } finally {
+      setBusy(null)
+    }
+  }, [openNoteByRelPath, refreshFileList, selectedFolderPath, setBusy, setError, vaultPath])
+
+  const createNewFolder = useCallback(async () => {
+    if (!vaultPath) return
+    setError(null)
+    setBusy('Creating folder…')
+    try {
+      const relPath = await createUniqueFolder(vaultPath, selectedFolderPath)
+      await refreshFileList(vaultPath)
+      setSelectedFolderPath(relPath)
+      setRevealFolderPath(relPath)
+      setExtraFolders((prev) => (prev.includes(relPath) ? prev : [...prev, relPath]))
+    } catch (e) {
+      setError(String(e))
+    } finally {
+      setBusy(null)
+    }
+  }, [refreshFileList, selectedFolderPath, setBusy, setError, vaultPath])
+
   // Command palette commands
   const vaultHasPassword = vaultPath ? hasVaultPassword(vaultPath) : false
   const commands = useMemo<Command[]>(() => [
+    {
+      id: 'new-note',
+      label: 'New Note',
+      description: 'Create a new note in the current folder',
+      enabled: !!vaultPath,
+      onExecute: () => {
+        void createNewNote()
+      },
+    },
+    {
+      id: 'rename-current-note',
+      label: 'Rename Current Note',
+      description: 'Edit the current note filename',
+      enabled: !!activeRelPath && !graphViewOpen,
+      onExecute: () => {
+        setTitleEditing(true)
+        queueMicrotask(() => {
+          titleInputRef.current?.focus()
+          titleInputRef.current?.select()
+        })
+      },
+    },
+    {
+      id: 'delete-current-note',
+      label: 'Delete Current Note',
+      description: 'Delete the active note (confirmation required)',
+      enabled: !!activeRelPath && !graphViewOpen,
+      onExecute: () => {
+        void (async () => {
+          if (!noteTitle) return
+          const ok = await confirm(`Delete note "${noteTitle}"?`, {
+            title: 'Delete Note',
+            kind: 'warning',
+          })
+          if (!ok) return
+          await deleteActiveNote()
+        })()
+      },
+    },
     {
       id: 'lock-current-heading',
       label: 'Lock Current Heading',
@@ -310,31 +427,7 @@ function App() {
         openChangePasswordModal()
       },
     },
-  ], [activeRelPath, isVaultUnlocked, hasLockedContent, vaultHasPassword, lockVault, onRequestUnlock, openChangePasswordModal])
-
-  const openQuickSwitcher = useCallback(() => {
-    setCommandPaletteOpen(false)
-    setQuickSwitcherOpen(true)
-  }, [])
-
-  const toggleGraphView = useCallback(() => {
-    setQuickSwitcherOpen(false)
-    setCommandPaletteOpen(false)
-    setGraphViewOpen((prev) => !prev)
-  }, [])
-
-  const openCommandPalette = useCallback(() => {
-    setQuickSwitcherOpen(false)
-    setCommandPaletteOpen(true)
-  }, [])
-
-  const openNoteAndCloseGraph = useCallback(
-    (relPath: string) => {
-      setGraphViewOpen(false)
-      return openNoteByRelPath(relPath)
-    },
-    [openNoteByRelPath],
-  )
+  ], [activeRelPath, createNewNote, deleteActiveNote, graphViewOpen, hasLockedContent, isVaultUnlocked, lockVault, noteTitle, onRequestUnlock, openChangePasswordModal, vaultHasPassword, vaultPath])
 
   const onTaskClick = useCallback(
     async (relPath: string, lineNumber: number) => {
@@ -345,6 +438,16 @@ function App() {
     },
     [openNoteByRelPath],
   )
+
+  const commitTitleRename = useCallback(async () => {
+    if (!activeRelPath) return
+    if (!noteTitle) return
+    const ok = await renameActiveNote(titleDraft)
+    if (!ok) {
+      setTitleDraft(noteTitle)
+    }
+    setTitleEditing(false)
+  }, [activeRelPath, noteTitle, renameActiveNote, titleDraft])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -431,9 +534,79 @@ function App() {
             >
               <PaneIcon side="left" state={leftPaneOpen ? 'open' : 'closed'} />
             </button>
+            <div className="topbarViewToggle" role="tablist" aria-label="Sidebar view">
+              <button
+                type="button"
+                role="tab"
+                className={
+                  leftPaneView === 'files'
+                    ? 'leftPaneToggleButton leftPaneToggleButton--active'
+                    : 'leftPaneToggleButton'
+                }
+                aria-selected={leftPaneView === 'files'}
+                aria-label="Files view"
+                title="Files"
+                data-tauri-drag-region="false"
+                onClick={() => setLeftPaneView('files')}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="leftPaneToggleIcon" focusable="false">
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 7h6l2 2h8v8a2 2 0 0 1-2 2H4z"
+                  />
+                </svg>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                className={
+                  leftPaneView === 'search'
+                    ? 'leftPaneToggleButton leftPaneToggleButton--active'
+                    : 'leftPaneToggleButton'
+                }
+                aria-selected={leftPaneView === 'search'}
+                aria-label="Search view"
+                title="Search"
+                data-tauri-drag-region="false"
+                onClick={() => setLeftPaneView('search')}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="leftPaneToggleIcon" focusable="false">
+                  <circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                  <rect
+                    x="16"
+                    y="16"
+                    width="6"
+                    height="2.4"
+                    rx="1.2"
+                    transform="rotate(45 16 16)"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </div>
             <div className="brand">Draglass</div>
-            <button className="vaultButton" onClick={pickVault} data-tauri-drag-region="false">
-              Select vault…
+            <button
+              type="button"
+              className="iconButton vaultButton"
+              onClick={pickVault}
+              data-tauri-drag-region="false"
+              title="Select vault"
+              aria-label="Select vault"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="vaultButtonIcon" focusable="false">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 7h6l2 2h8v8a2 2 0 0 1-2 2H4z"
+                />
+              </svg>
             </button>
           </div>
           <div className="spacer" />
@@ -464,24 +637,41 @@ function App() {
           </div>
           <aside className={leftPaneOpen ? 'sidebar' : 'sidebar paneHidden'}>
             <div className="sidebarBody">
-              <div className="paneHeader">
-                <div className="panelTitle">Files</div>
-                <div className="spacer" />
+              <LeftPaneToolbar
+                onNewNote={createNewNote}
+                onNewFolder={createNewFolder}
+                actionsDisabled={!vaultPath}
+              />
+              <div className="sidebarScroll">
+                {!vaultPath ? (
+                  <div className="panelEmpty">Pick a vault folder to begin.</div>
+                ) : leftPaneView === 'search' ? (
+                  <div className="searchStub">
+                    <input
+                      className="searchStubInput"
+                      placeholder="Search..."
+                      disabled
+                      aria-label="Search"
+                    />
+                    <div className="panelEmpty">Search coming soon.</div>
+                  </div>
+                ) : navFiles.length === 0 ? (
+                  <div className="panelEmpty">No Markdown files found.</div>
+                ) : (
+                  <FileTree
+                    files={navFiles}
+                    extraFolders={extraFolders}
+                    activeRelPath={activeRelPath}
+                    rememberExpanded={settings.filesRememberExpandedFolders}
+                    onSelectFolder={setSelectedFolderPath}
+                    selectedFolderPath={selectedFolderPath}
+                    revealFolderPath={revealFolderPath}
+                    onOpenFile={(p) => {
+                      void openNoteAndCloseGraph(p)
+                    }}
+                  />
+                )}
               </div>
-              {!vaultPath ? (
-                <div className="panelEmpty">Pick a vault folder to begin.</div>
-              ) : files.length === 0 ? (
-                <div className="panelEmpty">No Markdown files found.</div>
-              ) : (
-                <FileTree
-                  files={navFiles}
-                  activeRelPath={activeRelPath}
-                  rememberExpanded={settings.filesRememberExpandedFolders}
-                  onOpenFile={(p) => {
-                    void openNoteAndCloseGraph(p)
-                  }}
-                />
-              )}
             </div>
             <div className="sidebarFooter">
               <div className="sidebarVault" title={vaultPath ?? 'No vault selected'}>
@@ -515,7 +705,33 @@ function App() {
 
           <main className="editorPane">
             <div className="editorHeader">
-              <div className="panelTitle">{graphViewOpen ? 'Graph View' : noteTitle ?? 'Editor'}</div>
+              {graphViewOpen ? (
+                <div className="panelTitle">Graph View</div>
+              ) : activeRelPath ? (
+                <input
+                  ref={titleInputRef}
+                  className="editorTitleInput"
+                  value={titleDraft}
+                  onChange={(event) => setTitleDraft(event.target.value)}
+                  onFocus={() => setTitleEditing(true)}
+                  onBlur={() => {
+                    void commitTitleRename()
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.currentTarget.blur()
+                    }
+                    if (event.key === 'Escape') {
+                      setTitleDraft(noteTitle ?? '')
+                      setTitleEditing(false)
+                      event.currentTarget.blur()
+                    }
+                  }}
+                  aria-label="Rename file"
+                />
+              ) : (
+                <div className="panelTitle">Editor</div>
+              )}
               <div className="spacer" />
               {activeRelPath && !graphViewOpen ? (
                 <button

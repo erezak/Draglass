@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 import type { NoteEntry } from '../../types'
-import { createNote, readNote, writeNote } from '../../tauri'
+import { createNote, deleteNote, readNote, renameNote, writeNote } from '../../tauri'
 import { fileStem } from '../../path'
 import { isIgnoredPath } from '../../ignore'
 import { normalizeWikiTarget } from '../../wikilinks'
@@ -45,6 +45,8 @@ export function useNoteManager({
   openNoteByRelPath: (relPath: string) => Promise<boolean>
   tryOpenByTitle: (title: string) => Promise<void>
   openOrCreateWikilink: (rawTarget: string) => Promise<void>
+  renameActiveNote: (nextTitle: string) => Promise<boolean>
+  deleteActiveNote: () => Promise<boolean>
   resetNoteState: () => void
 } {
   const [activeRelPath, setActiveRelPath] = useState<string | null>(null)
@@ -179,6 +181,84 @@ export function useNoteManager({
     [files, openNoteByRelPath, refreshFileList, setBusy, setError, vaultPath],
   )
 
+  const renameActiveNote = useCallback(
+    async (nextTitle: string): Promise<boolean> => {
+      if (!vaultPath || !activeRelPath) return false
+
+      const trimmed = nextTitle.trim()
+      if (!trimmed) {
+        setError('Filename cannot be empty')
+        return false
+      }
+
+      const sanitized = trimmed.replace(/[\\/]/g, '-').replace(/\s+/g, ' ')
+      const lower = sanitized.toLowerCase()
+      const fileName = lower.endsWith('.md') || lower.endsWith('.markdown')
+        ? sanitized
+        : `${sanitized}.md`
+
+      const parts = activeRelPath.split('/')
+      const dir = parts.slice(0, -1).join('/')
+      const nextRelPath = dir ? `${dir}/${fileName}` : fileName
+
+      if (nextRelPath === activeRelPath) return true
+      if (isIgnoredPath(nextRelPath)) {
+        setError(`Cannot rename to ignored path: ${nextRelPath}`)
+        return false
+      }
+
+      if (isDirty) {
+        const ok = await autosave.flush()
+        if (!ok) return false
+      }
+
+      setError(null)
+      setBusy('Renaming note…')
+      try {
+        await renameNote(vaultPath, activeRelPath, nextRelPath)
+        await refreshFileList(vaultPath)
+        setActiveRelPath(nextRelPath)
+        resetBacklinks()
+        scheduleBacklinksScan(vaultPath, nextRelPath)
+        recordRecent(nextRelPath)
+        return true
+      } catch (e) {
+        setError(String(e))
+        return false
+      } finally {
+        setBusy(null)
+      }
+    },
+    [activeRelPath, autosave, isDirty, recordRecent, refreshFileList, resetBacklinks, scheduleBacklinksScan, setBusy, setError, vaultPath],
+  )
+
+  const deleteActiveNote = useCallback(
+    async (): Promise<boolean> => {
+      if (!vaultPath || !activeRelPath) return false
+
+      if (isDirty) {
+        const ok = await autosave.flush()
+        if (!ok) return false
+      }
+
+      setError(null)
+      setBusy('Deleting note…')
+      try {
+        await deleteNote(vaultPath, activeRelPath)
+        await refreshFileList(vaultPath)
+        resetNoteState()
+        resetBacklinks()
+        return true
+      } catch (e) {
+        setError(String(e))
+        return false
+      } finally {
+        setBusy(null)
+      }
+    },
+    [activeRelPath, autosave, isDirty, refreshFileList, resetBacklinks, resetNoteState, setBusy, setError, vaultPath],
+  )
+
   return {
     activeRelPath,
     noteText,
@@ -190,6 +270,8 @@ export function useNoteManager({
     openNoteByRelPath,
     tryOpenByTitle,
     openOrCreateWikilink,
+    renameActiveNote,
+    deleteActiveNote,
     resetNoteState,
   }
 }

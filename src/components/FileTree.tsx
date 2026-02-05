@@ -5,9 +5,13 @@ import { fileStem } from '../path'
 
 type FileTreeProps = {
   files: NoteEntry[]
+  extraFolders?: string[]
   activeRelPath: string | null
   rememberExpanded: boolean
   onOpenFile: (relPath: string) => void
+  onSelectFolder?: (relPath: string | null) => void
+  selectedFolderPath?: string | null
+  revealFolderPath?: string | null
 }
 
 const STORAGE_KEY = 'draglass.fileTree.expanded.v1'
@@ -64,12 +68,28 @@ function displayLabelForFile(relPath: string): string {
   return isMarkdownPath(relPath) ? fileStem(relPath) : relPath.split('/').pop() ?? relPath
 }
 
-function buildTree(files: NoteEntry[]): FolderNode {
+function buildTree(files: NoteEntry[], extraFolders: string[]): FolderNode {
   const root: FolderBuilder = {
     name: '',
     path: '',
     folders: new Map(),
     files: new Map(),
+  }
+
+  for (const folderPath of extraFolders) {
+    const parts = folderPath.split('/').filter(Boolean)
+    if (parts.length === 0) continue
+
+    let cursor = root
+    for (const seg of parts) {
+      const nextPath = cursor.path ? `${cursor.path}/${seg}` : seg
+      let next = cursor.folders.get(seg)
+      if (!next) {
+        next = { name: seg, path: nextPath, folders: new Map(), files: new Map() }
+        cursor.folders.set(seg, next)
+      }
+      cursor = next
+    }
   }
 
   for (const f of files) {
@@ -117,8 +137,20 @@ function buildTree(files: NoteEntry[]): FolderNode {
   return toNode(root)
 }
 
-function FileTreeInner({ files, activeRelPath, rememberExpanded, onOpenFile }: FileTreeProps) {
-  const tree = useMemo(() => buildTree(files), [files])
+function FileTreeInner({
+  files,
+  extraFolders,
+  activeRelPath,
+  rememberExpanded,
+  onOpenFile,
+  onSelectFolder,
+  selectedFolderPath = null,
+  revealFolderPath = null,
+}: FileTreeProps) {
+  const tree = useMemo(
+    () => buildTree(files, extraFolders ?? []),
+    [extraFolders, files],
+  )
   const [expanded, setExpanded] = useState<Set<string>>(() =>
     rememberExpanded ? loadExpandedFromStorage() : new Set(['']),
   )
@@ -136,6 +168,23 @@ function FileTreeInner({ files, activeRelPath, rememberExpanded, onOpenFile }: F
       // ignore
     }
   }, [rememberExpanded])
+
+  useEffect(() => {
+    if (!revealFolderPath) return
+    const parts = revealFolderPath.split('/').filter(Boolean)
+    if (parts.length === 0) return
+
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      next.add('')
+      let current = ''
+      for (const part of parts) {
+        current = current ? `${current}/${part}` : part
+        next.add(current)
+      }
+      return next
+    })
+  }, [revealFolderPath])
 
   const toggleFolder = (folderPath: string) => {
     setExpanded((prev) => {
@@ -159,9 +208,16 @@ function FileTreeInner({ files, activeRelPath, rememberExpanded, onOpenFile }: F
           {node.path !== '' ? (
             <button
               type="button"
-              className="folderItem"
+              className={
+                selectedFolderPath === node.path
+                  ? 'folderItem folderItem--selected'
+                  : 'folderItem'
+              }
               style={{ paddingLeft: 10 + depth * 14 }}
-              onClick={() => toggleFolder(node.path)}
+              onClick={() => {
+                onSelectFolder?.(node.path)
+                toggleFolder(node.path)
+              }}
               aria-expanded={isOpen}
             >
               <span className="caret">{caret}</span>
@@ -185,7 +241,10 @@ function FileTreeInner({ files, activeRelPath, rememberExpanded, onOpenFile }: F
           type="button"
           className={isActive ? 'fileItem active' : 'fileItem'}
           style={{ paddingLeft: 10 + depth * 14 }}
-          onClick={() => onOpenFile(node.relPath)}
+          onClick={() => {
+            onSelectFolder?.(null)
+            onOpenFile(node.relPath)
+          }}
         >
           {node.name}
         </button>

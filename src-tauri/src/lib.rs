@@ -66,6 +66,9 @@ pub fn run() {
             read_note,
             write_note,
             create_note,
+            rename_note,
+            delete_note,
+            create_dir,
             find_backlinks,
             read_vault_image,
             build_graph,
@@ -121,8 +124,9 @@ use crate::auth::{hash_password_impl, verify_password_impl, HashResult};
 use crate::backlinks::find_backlinks_impl;
 use crate::graph::{build_graph_impl, GraphData, GraphOptions};
 use crate::vault::{
-    create_note_impl, list_markdown_files_impl, read_note_impl, read_vault_image_impl,
-    write_note_impl, NoteEntry, VaultImage,
+    create_dir_impl, create_note_impl, delete_note_impl, list_markdown_files_impl,
+    read_note_impl, read_vault_image_impl, rename_note_impl, write_note_impl, NoteEntry,
+    VaultImage,
 };
 
 #[tauri::command(rename = "list-markdown-files")]
@@ -153,6 +157,29 @@ async fn create_note(vault_path: String, rel_path: String, contents: String) -> 
     })
     .await
     .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command(rename = "rename-note")]
+async fn rename_note(vault_path: String, from_rel_path: String, to_rel_path: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        rename_note_impl(&vault_path, &from_rel_path, &to_rel_path)
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command(rename = "delete-note")]
+async fn delete_note(vault_path: String, rel_path: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || delete_note_impl(&vault_path, &rel_path))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command(rename = "create-dir")]
+async fn create_dir(vault_path: String, rel_path: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || create_dir_impl(&vault_path, &rel_path))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
 }
 
 #[tauri::command(rename = "find-backlinks")]

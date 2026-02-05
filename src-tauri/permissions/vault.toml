@@ -39,6 +39,36 @@ description = "Allows creating a new note in the selected vault (legacy command 
 commands.allow = ["create_note"]
 
 [[permission]]
+identifier = "rename-note"
+description = "Allows renaming a note in the selected vault."
+commands.allow = ["rename-note"]
+
+[[permission]]
+identifier = "rename-note-legacy"
+description = "Allows renaming a note in the selected vault (legacy command name)."
+commands.allow = ["rename_note"]
+
+[[permission]]
+identifier = "delete-note"
+description = "Allows deleting a note in the selected vault."
+commands.allow = ["delete-note"]
+
+[[permission]]
+identifier = "delete-note-legacy"
+description = "Allows deleting a note in the selected vault (legacy command name)."
+commands.allow = ["delete_note"]
+
+[[permission]]
+identifier = "create-dir"
+description = "Allows creating a folder in the selected vault."
+commands.allow = ["create-dir"]
+
+[[permission]]
+identifier = "create-dir-legacy"
+description = "Allows creating a folder in the selected vault (legacy command name)."
+commands.allow = ["create_dir"]
+
+[[permission]]
 identifier = "find-backlinks"
 description = "Allows scanning the vault to find backlinks for a note."
 commands.allow = ["find-backlinks"]
@@ -100,6 +130,12 @@ permissions = [
   "write-note-legacy",
   "create-note",
   "create-note-legacy",
+  "rename-note",
+  "rename-note-legacy",
+  "delete-note",
+  "delete-note-legacy",
+  "create-dir",
+  "create-dir-legacy",
   "find-backlinks",
   "find-backlinks-legacy",
   "read-vault-image",
