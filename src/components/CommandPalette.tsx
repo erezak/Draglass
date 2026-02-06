@@ -74,23 +74,27 @@ export function CommandPalette({
     return scored.map((x) => x.cmd)
   }, [enabledCommands, open, query])
 
-  useEffect(() => {
-    if (!open) return
+  // Reset state when palette opens (render-time adjustment, not an effect)
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open && !prevOpen) {
     setQuery('')
     setSelectedIndex(0)
+  }
+  if (open !== prevOpen) setPrevOpen(open)
 
+  useEffect(() => {
+    if (!open) return
     queueMicrotask(() => {
       inputRef.current?.focus()
       inputRef.current?.select()
     })
   }, [open])
 
-  useEffect(() => {
-    setSelectedIndex((prev) => {
-      if (results.length === 0) return 0
-      return Math.max(0, Math.min(prev, results.length - 1))
-    })
-  }, [results.length])
+  // Clamp selectedIndex when results shrink (render-time adjustment)
+  const clampedIndex = results.length === 0 ? 0 : Math.min(selectedIndex, results.length - 1)
+  if (clampedIndex !== selectedIndex) {
+    setSelectedIndex(clampedIndex)
+  }
 
   useEffect(() => {
     if (!open) return

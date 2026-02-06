@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type Ref } from 'react'
 
 import { Compartment, EditorState, RangeSetBuilder, StateEffect, StateField, Transaction } from '@codemirror/state'
 import {
@@ -45,6 +45,7 @@ const taskHighlightField = StateField.define<DecorationSet>({
 })
 
 type NoteEditorProps = {
+  ref?: Ref<NoteEditorHandle>
   value: string
   onChange: (next: string) => void
   onSaveRequest?: () => void
@@ -69,8 +70,7 @@ export type NoteEditorHandle = {
   lockCurrentHeading: () => boolean
 }
 
-export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function NoteEditor(
-  {
+export const NoteEditor = function NoteEditor({
     value,
     onChange,
     onSaveRequest,
@@ -87,9 +87,8 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
     isVaultUnlocked = false,
     onRequestUnlock,
     onLockedSectionsDetected,
-  },
-  ref,
-) {
+    ref,
+  }: NoteEditorProps) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const viewRef = useRef<EditorView | null>(null)
   const initialDocRef = useRef<string>(value)
@@ -547,6 +546,6 @@ export const NoteEditor = forwardRef<NoteEditorHandle, NoteEditorProps>(function
       ) : null}
     </div>
   )
-})
+}
 
 export default NoteEditor

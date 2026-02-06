@@ -197,13 +197,23 @@ export function useTasks({
     }, 150)
   }, [activeNoteText, activeRelPath, buildTasksForText, replaceTasksForRelPath])
 
+  // Clear task state immediately when vault is removed (render-time adjustment)
+  const [prevVaultPath, setPrevVaultPath] = useState(vaultPath)
+  if (vaultPath !== prevVaultPath) {
+    setPrevVaultPath(vaultPath)
+    if (!vaultPath) {
+      setTasks([])
+      setTasksBusy(false)
+    }
+  }
+
   useEffect(() => {
     if (!vaultPath) {
-      resetTasks()
+      clearTimer()
       return
     }
     scheduleTasksScan()
-  }, [files, resetTasks, scheduleTasksScan, showHidden, vaultPath])
+  }, [clearTimer, files, scheduleTasksScan, showHidden, vaultPath])
 
   useEffect(() => {
     return () => {

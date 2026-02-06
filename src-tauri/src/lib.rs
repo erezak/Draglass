@@ -2,6 +2,7 @@ use tauri::Manager;
 
 mod auth;
 mod backlinks;
+mod common;
 mod graph;
 mod locked_sections;
 mod vault;
@@ -130,28 +131,28 @@ use crate::vault::{
     NoteEntry, SearchHit, VaultImage,
 };
 
-#[tauri::command(rename = "list-markdown-files")]
+#[tauri::command]
 async fn list_markdown_files(vault_path: String) -> Result<Vec<NoteEntry>, String> {
     tauri::async_runtime::spawn_blocking(move || list_markdown_files_impl(&vault_path))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }
 
-#[tauri::command(rename = "read-note")]
+#[tauri::command]
 async fn read_note(vault_path: String, rel_path: String) -> Result<String, String> {
     tauri::async_runtime::spawn_blocking(move || read_note_impl(&vault_path, &rel_path))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }
 
-#[tauri::command(rename = "write-note")]
+#[tauri::command]
 async fn write_note(vault_path: String, rel_path: String, contents: String) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || write_note_impl(&vault_path, &rel_path, &contents))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }
 
-#[tauri::command(rename = "create-note")]
+#[tauri::command]
 async fn create_note(vault_path: String, rel_path: String, contents: String) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || {
         create_note_impl(&vault_path, &rel_path, &contents)
@@ -160,7 +161,7 @@ async fn create_note(vault_path: String, rel_path: String, contents: String) -> 
     .map_err(|e| format!("failed to join task: {e}"))?
 }
 
-#[tauri::command(rename = "rename-note")]
+#[tauri::command]
 async fn rename_note(vault_path: String, from_rel_path: String, to_rel_path: String) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || {
         rename_note_impl(&vault_path, &from_rel_path, &to_rel_path)
@@ -169,21 +170,21 @@ async fn rename_note(vault_path: String, from_rel_path: String, to_rel_path: Str
     .map_err(|e| format!("failed to join task: {e}"))?
 }
 
-#[tauri::command(rename = "delete-note")]
+#[tauri::command]
 async fn delete_note(vault_path: String, rel_path: String) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || delete_note_impl(&vault_path, &rel_path))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }
 
-#[tauri::command(rename = "create-dir")]
+#[tauri::command]
 async fn create_dir(vault_path: String, rel_path: String) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || create_dir_impl(&vault_path, &rel_path))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }
 
-#[tauri::command(rename = "find-backlinks")]
+#[tauri::command]
 async fn find_backlinks(
     vault_path: String,
     target_title: String,
@@ -196,14 +197,14 @@ async fn find_backlinks(
     .map_err(|e| format!("failed to join task: {e}"))?
 }
 
-#[tauri::command(rename = "read-vault-image")]
+#[tauri::command]
 async fn read_vault_image(vault_path: String, rel_path: String) -> Result<VaultImage, String> {
     tauri::async_runtime::spawn_blocking(move || read_vault_image_impl(&vault_path, &rel_path))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }
 
-#[tauri::command(rename = "search-vault")]
+#[tauri::command]
 async fn search_vault(
     vault_path: String,
     query: String,
@@ -218,14 +219,14 @@ async fn search_vault(
     .map_err(|e| format!("failed to join task: {e}"))?
 }
 
-#[tauri::command(rename = "build-graph")]
+#[tauri::command]
 async fn build_graph(vault_path: String, options: GraphOptions) -> Result<GraphData, String> {
     tauri::async_runtime::spawn_blocking(move || build_graph_impl(&vault_path, options))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }
 
-#[tauri::command(rename = "hash-vault-password")]
+#[tauri::command]
 async fn hash_vault_password(password: String, salt: Option<String>) -> Result<HashResult, String> {
     tauri::async_runtime::spawn_blocking(move || {
         hash_password_impl(&password, salt.as_deref())
@@ -234,7 +235,7 @@ async fn hash_vault_password(password: String, salt: Option<String>) -> Result<H
     .map_err(|e| format!("failed to join task: {e}"))?
 }
 
-#[tauri::command(rename = "verify-vault-password")]
+#[tauri::command]
 async fn verify_vault_password(password: String, hash: String) -> Result<bool, String> {
     tauri::async_runtime::spawn_blocking(move || verify_password_impl(&password, &hash))
         .await

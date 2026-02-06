@@ -1,7 +1,7 @@
 [[permission]]
 identifier = "list-markdown-files"
 description = "Allows listing Markdown files in the selected vault."
-commands.allow = ["list-markdown-files"]
+commands.allow = ["list_markdown_files"]
 
 [[permission]]
 identifier = "list-markdown-files-legacy"
@@ -11,7 +11,7 @@ commands.allow = ["list_markdown_files"]
 [[permission]]
 identifier = "read-note"
 description = "Allows reading a note from the selected vault."
-commands.allow = ["read-note"]
+commands.allow = ["read_note"]
 
 [[permission]]
 identifier = "read-note-legacy"
@@ -21,7 +21,7 @@ commands.allow = ["read_note"]
 [[permission]]
 identifier = "write-note"
 description = "Allows writing a note to the selected vault."
-commands.allow = ["write-note"]
+commands.allow = ["write_note"]
 
 [[permission]]
 identifier = "write-note-legacy"
@@ -31,7 +31,7 @@ commands.allow = ["write_note"]
 [[permission]]
 identifier = "create-note"
 description = "Allows creating a new note in the selected vault."
-commands.allow = ["create-note"]
+commands.allow = ["create_note"]
 
 [[permission]]
 identifier = "create-note-legacy"
@@ -41,7 +41,7 @@ commands.allow = ["create_note"]
 [[permission]]
 identifier = "rename-note"
 description = "Allows renaming a note in the selected vault."
-commands.allow = ["rename-note"]
+commands.allow = ["rename_note"]
 
 [[permission]]
 identifier = "rename-note-legacy"
@@ -51,7 +51,7 @@ commands.allow = ["rename_note"]
 [[permission]]
 identifier = "delete-note"
 description = "Allows deleting a note in the selected vault."
-commands.allow = ["delete-note"]
+commands.allow = ["delete_note"]
 
 [[permission]]
 identifier = "delete-note-legacy"
@@ -61,7 +61,7 @@ commands.allow = ["delete_note"]
 [[permission]]
 identifier = "create-dir"
 description = "Allows creating a folder in the selected vault."
-commands.allow = ["create-dir"]
+commands.allow = ["create_dir"]
 
 [[permission]]
 identifier = "create-dir-legacy"
@@ -71,7 +71,7 @@ commands.allow = ["create_dir"]
 [[permission]]
 identifier = "find-backlinks"
 description = "Allows scanning the vault to find backlinks for a note."
-commands.allow = ["find-backlinks"]
+commands.allow = ["find_backlinks"]
 
 [[permission]]
 identifier = "find-backlinks-legacy"
@@ -81,7 +81,7 @@ commands.allow = ["find_backlinks"]
 [[permission]]
 identifier = "read-vault-image"
 description = "Allows reading an image asset from the selected vault."
-commands.allow = ["read-vault-image"]
+commands.allow = ["read_vault_image"]
 
 [[permission]]
 identifier = "read-vault-image-legacy"
@@ -91,7 +91,7 @@ commands.allow = ["read_vault_image"]
 [[permission]]
 identifier = "build-graph"
 description = "Allows building the graph data from the selected vault."
-commands.allow = ["build-graph"]
+commands.allow = ["build_graph"]
 
 [[permission]]
 identifier = "build-graph-legacy"
@@ -101,7 +101,7 @@ commands.allow = ["build_graph"]
 [[permission]]
 identifier = "search-vault"
 description = "Allows searching the vault for content."
-commands.allow = ["search-vault"]
+commands.allow = ["search_vault"]
 
 [[permission]]
 identifier = "search-vault-legacy"
@@ -111,7 +111,7 @@ commands.allow = ["search_vault"]
 [[permission]]
 identifier = "hash-vault-password"
 description = "Allows hashing a password for vault authentication."
-commands.allow = ["hash-vault-password"]
+commands.allow = ["hash_vault_password"]
 
 [[permission]]
 identifier = "hash-vault-password-legacy"
@@ -121,7 +121,7 @@ commands.allow = ["hash_vault_password"]
 [[permission]]
 identifier = "verify-vault-password"
 description = "Allows verifying a vault password."
-commands.allow = ["verify-vault-password"]
+commands.allow = ["verify_vault_password"]
 
 [[permission]]
 identifier = "verify-vault-password-legacy"

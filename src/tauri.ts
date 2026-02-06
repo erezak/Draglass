@@ -9,38 +9,15 @@ export type VaultImageResponse = {
   mtime_ms: number
 }
 
-async function invokeWithFallback<T>(
-  primaryCommand: string,
-  fallbackCommand: string,
-  args: Record<string, unknown>,
-  fallbackArgs: Record<string, unknown>,
-): Promise<T> {
-  try {
-    return await invoke<T>(primaryCommand, args)
-  } catch (e) {
-    const message = String(e)
-    const notFound = /command\s+.+\s+not\s+found/i.test(message)
-    if (!notFound) throw e
-    return invoke<T>(fallbackCommand, fallbackArgs)
-  }
-}
+// Tauri v2 IPC: command names = Rust fn names (snake_case),
+// arg keys = Rust param names auto-converted to camelCase.
 
 export async function listMarkdownFiles(vaultPath: string): Promise<NoteEntry[]> {
-  return invokeWithFallback<NoteEntry[]>(
-    'list-markdown-files',
-    'list_markdown_files',
-    { vault_path: vaultPath },
-    { vaultPath },
-  )
+  return invoke<NoteEntry[]>('list_markdown_files', { vaultPath })
 }
 
 export async function readNote(vaultPath: string, relPath: string): Promise<string> {
-  return invokeWithFallback<string>(
-    'read-note',
-    'read_note',
-    { vault_path: vaultPath, rel_path: relPath },
-    { vaultPath, relPath },
-  )
+  return invoke<string>('read_note', { vaultPath, relPath })
 }
 
 export async function writeNote(
@@ -48,12 +25,7 @@ export async function writeNote(
   relPath: string,
   contents: string,
 ): Promise<void> {
-  return invokeWithFallback<void>(
-    'write-note',
-    'write_note',
-    { vault_path: vaultPath, rel_path: relPath, contents },
-    { vaultPath, relPath, contents },
-  )
+  return invoke<void>('write_note', { vaultPath, relPath, contents })
 }
 
 export async function createNote(
@@ -61,21 +33,11 @@ export async function createNote(
   relPath: string,
   contents: string,
 ): Promise<void> {
-  return invokeWithFallback<void>(
-    'create-note',
-    'create_note',
-    { vault_path: vaultPath, rel_path: relPath, contents },
-    { vaultPath, relPath, contents },
-  )
+  return invoke<void>('create_note', { vaultPath, relPath, contents })
 }
 
 export async function createDir(vaultPath: string, relPath: string): Promise<void> {
-  return invokeWithFallback<void>(
-    'create-dir',
-    'create_dir',
-    { vault_path: vaultPath, rel_path: relPath },
-    { vaultPath, relPath },
-  )
+  return invoke<void>('create_dir', { vaultPath, relPath })
 }
 
 export async function renameNote(
@@ -83,33 +45,18 @@ export async function renameNote(
   fromRelPath: string,
   toRelPath: string,
 ): Promise<void> {
-  return invokeWithFallback<void>(
-    'rename-note',
-    'rename_note',
-    { vault_path: vaultPath, from_rel_path: fromRelPath, to_rel_path: toRelPath },
-    { vaultPath, fromRelPath, toRelPath },
-  )
+  return invoke<void>('rename_note', { vaultPath, fromRelPath, toRelPath })
 }
 
 export async function deleteNote(vaultPath: string, relPath: string): Promise<void> {
-  return invokeWithFallback<void>(
-    'delete-note',
-    'delete_note',
-    { vault_path: vaultPath, rel_path: relPath },
-    { vaultPath, relPath },
-  )
+  return invoke<void>('delete_note', { vaultPath, relPath })
 }
 
 export async function readVaultImage(
   vaultPath: string,
   relPath: string,
 ): Promise<VaultImageResponse> {
-  return invokeWithFallback<VaultImageResponse>(
-    'read-vault-image',
-    'read_vault_image',
-    { vault_path: vaultPath, rel_path: relPath },
-    { vaultPath, relPath },
-  )
+  return invoke<VaultImageResponse>('read_vault_image', { vaultPath, relPath })
 }
 
 export async function findBacklinks(
@@ -117,12 +64,7 @@ export async function findBacklinks(
   targetTitle: string,
   excludeLocked: boolean = false,
 ): Promise<string[]> {
-  return invokeWithFallback<string[]>(
-    'find-backlinks',
-    'find_backlinks',
-    { vault_path: vaultPath, target_title: targetTitle, exclude_locked: excludeLocked },
-    { vaultPath, targetTitle, excludeLocked },
-  )
+  return invoke<string[]>('find_backlinks', { vaultPath, targetTitle, excludeLocked })
 }
 
 export async function searchVault(
@@ -132,36 +74,20 @@ export async function searchVault(
   excludeLocked: boolean,
   showHidden: boolean,
 ): Promise<SearchHit[]> {
-  return invokeWithFallback<SearchHit[]>(
-    'search-vault',
-    'search_vault',
-    {
-      vault_path: vaultPath,
-      query,
-      case_sensitive: caseSensitive,
-      exclude_locked: excludeLocked,
-      show_hidden: showHidden,
-    },
-    {
-      vaultPath,
-      query,
-      caseSensitive,
-      excludeLocked,
-      showHidden,
-    },
-  )
+  return invoke<SearchHit[]>('search_vault', {
+    vaultPath,
+    query,
+    caseSensitive,
+    excludeLocked,
+    showHidden,
+  })
 }
 
 export async function buildGraph(
   vaultPath: string,
   options: GraphOptions,
 ): Promise<GraphData> {
-  return invokeWithFallback<GraphData>(
-    'build-graph',
-    'build_graph',
-    { vault_path: vaultPath, options },
-    { vaultPath, options },
-  )
+  return invoke<GraphData>('build_graph', { vaultPath, options })
 }
 
 export type HashResult = {
@@ -173,22 +99,12 @@ export async function hashVaultPassword(
   password: string,
   salt: string | null,
 ): Promise<HashResult> {
-  return invokeWithFallback<HashResult>(
-    'hash-vault-password',
-    'hash_vault_password',
-    { password, salt },
-    { password, salt },
-  )
+  return invoke<HashResult>('hash_vault_password', { password, salt })
 }
 
 export async function verifyVaultPassword(
   password: string,
   hash: string,
 ): Promise<boolean> {
-  return invokeWithFallback<boolean>(
-    'verify-vault-password',
-    'verify_vault_password',
-    { password, hash },
-    { password, hash },
-  )
+  return invoke<boolean>('verify_vault_password', { password, hash })
 }

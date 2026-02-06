@@ -122,16 +122,19 @@ export function GraphCanvas({
 
   // Use refs for callbacks to avoid effect re-runs
   const onNodeClickRef = useRef(onNodeClick)
-  onNodeClickRef.current = onNodeClick
   const onNodeRightClickRef = useRef(onNodeRightClick)
-  onNodeRightClickRef.current = onNodeRightClick
 
   const animatingRef = useRef(animating)
-  animatingRef.current = animating
   const animationProgressRef = useRef(animationProgress)
-  animationProgressRef.current = animationProgress
   const displayRef = useRef(display)
-  displayRef.current = display
+
+  useEffect(() => {
+    onNodeClickRef.current = onNodeClick
+    onNodeRightClickRef.current = onNodeRightClick
+    animatingRef.current = animating
+    animationProgressRef.current = animationProgress
+    displayRef.current = display
+  })
 
   const colors = THEME_COLORS[theme]
 

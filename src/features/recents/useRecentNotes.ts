@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 const RECENT_STORAGE_KEY = 'draglass.quickSwitcher.recent.v1'
 
@@ -34,13 +34,16 @@ export function useRecentNotes(maxRecents: number): {
     loadRecentFromStorage(maxRecents),
   )
 
-  useEffect(() => {
+  // Trim recents when maxRecents shrinks (render-time adjustment)
+  const [prevMaxRecents, setPrevMaxRecents] = useState(maxRecents)
+  if (maxRecents !== prevMaxRecents) {
+    setPrevMaxRecents(maxRecents)
     setRecentRelPaths((prev) => {
       const next = prev.slice(0, maxRecents)
       saveRecentToStorage(next, maxRecents)
       return next
     })
-  }, [maxRecents])
+  }
 
   const recordRecent = useCallback(
     (relPath: string) => {

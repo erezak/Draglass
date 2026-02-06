@@ -2,6 +2,10 @@ use serde::Serialize;
 use std::ffi::OsStr;
 use std::path::{Component, Path, PathBuf};
 
+use crate::common::{
+    collect_markdown_file_paths, is_hidden_path, is_markdown_file,
+};
+
 #[derive(Debug, Serialize)]
 pub struct NoteEntry {
     pub rel_path: String,
@@ -23,32 +27,6 @@ pub struct VaultImage {
     pub mtime_ms: u64,
 }
 
-fn is_markdown_file(path: &Path) -> bool {
-    match path.extension().and_then(OsStr::to_str) {
-        Some(ext) => {
-            let ext = ext.to_ascii_lowercase();
-            ext == "md" || ext == "markdown"
-        }
-        None => false,
-    }
-}
-
-fn path_to_rel_string(vault: &Path, path: &Path) -> Result<String, String> {
-    let rel = path
-        .strip_prefix(vault)
-        .map_err(|_| "path escapes vault".to_string())?;
-
-    let mut parts: Vec<String> = Vec::new();
-    for component in rel.components() {
-        match component {
-            Component::Normal(p) => parts.push(p.to_string_lossy().to_string()),
-            Component::CurDir => {}
-            _ => return Err("unsupported path component".to_string()),
-        }
-    }
-    Ok(parts.join("/"))
-}
-
 fn display_name_for_path(path: &Path) -> String {
     let name = path
         .file_name()
@@ -61,31 +39,6 @@ fn display_name_for_path(path: &Path) -> String {
         }
     }
     name.to_string()
-}
-
-fn collect_markdown_files(
-    vault: &Path,
-    dir: &Path,
-    entries: &mut Vec<NoteEntry>,
-) -> Result<(), String> {
-    let read_dir = std::fs::read_dir(dir).map_err(|e| format!("failed to read directory: {e}"))?;
-    for entry in read_dir {
-        let entry = entry.map_err(|e| format!("failed to read entry: {e}"))?;
-        let path = entry.path();
-        if path.is_dir() {
-            collect_markdown_files(vault, &path, entries)?;
-            continue;
-        }
-        if path.is_file() && is_markdown_file(&path) {
-            let rel_path = path_to_rel_string(vault, &path)?;
-            entries.push(NoteEntry {
-                rel_path,
-                display_name: display_name_for_path(&path),
-            });
-        }
-    }
-
-    Ok(())
 }
 
 fn sanitize_rel_path(rel_path: &str) -> Result<PathBuf, String> {
@@ -224,8 +177,16 @@ pub fn list_markdown_files_impl(vault_path: &str) -> Result<Vec<NoteEntry>, Stri
         return Err("vault path is not a directory".to_string());
     }
 
-    let mut entries: Vec<NoteEntry> = Vec::new();
-    collect_markdown_files(&vault, &vault, &mut entries)?;
+    let mut file_paths: Vec<(String, PathBuf)> = Vec::new();
+    collect_markdown_file_paths(&vault, &vault, &mut file_paths)?;
+
+    let mut entries: Vec<NoteEntry> = file_paths
+        .into_iter()
+        .map(|(rel_path, path)| NoteEntry {
+            display_name: display_name_for_path(&path),
+            rel_path,
+        })
+        .collect();
 
     entries.sort_by(|a, b| {
         a.display_name
@@ -353,16 +314,15 @@ pub fn search_vault_impl(
         None
     };
 
-    let mut entries = Vec::new();
-    collect_markdown_files(&vault, &vault, &mut entries)?;
+    let mut file_paths: Vec<(String, PathBuf)> = Vec::new();
+    collect_markdown_file_paths(&vault, &vault, &mut file_paths)?;
 
-    for entry in entries {
-        let rel_path = Path::new(&entry.rel_path);
-        if !show_hidden && is_ignored_rel(rel_path) {
+    for (rel_path_str, _) in file_paths {
+        if !show_hidden && is_hidden_path(&rel_path_str) {
             continue;
         }
 
-        let full_path = vault.join(rel_path);
+        let full_path = vault.join(Path::new(&rel_path_str));
         let content = match std::fs::read_to_string(&full_path) {
             Ok(c) => c,
             Err(_) => continue,
@@ -394,7 +354,7 @@ pub fn search_vault_impl(
             while let Some(pos) = search_line[start..].find(target_query) {
                 let actual_pos = start + pos;
                 hits.push(SearchHit {
-                    rel_path: entry.rel_path.clone(),
+                    rel_path: rel_path_str.clone(),
                     line_number,
                     offset: actual_pos,
                     snippet: line.to_string(),
@@ -408,19 +368,4 @@ pub fn search_vault_impl(
     }
 
     Ok(hits)
-}
-
-fn is_ignored_rel(path: &Path) -> bool {
-    for component in path.components() {
-        if let Component::Normal(os_str) = component {
-            let s = os_str.to_string_lossy();
-            if s.starts_with('.') {
-                return true;
-            }
-            if s == "node_modules" {
-                return true;
-            }
-        }
-    }
-    false
 }

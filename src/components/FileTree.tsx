@@ -169,22 +169,26 @@ function FileTreeInner({
     }
   }, [rememberExpanded])
 
-  useEffect(() => {
-    if (!revealFolderPath) return
-    const parts = revealFolderPath.split('/').filter(Boolean)
-    if (parts.length === 0) return
-
-    setExpanded((prev) => {
-      const next = new Set(prev)
-      next.add('')
-      let current = ''
-      for (const part of parts) {
-        current = current ? `${current}/${part}` : part
-        next.add(current)
+  // Expand ancestor folders when revealFolderPath changes (render-time adjustment)
+  const [prevRevealPath, setPrevRevealPath] = useState(revealFolderPath)
+  if (revealFolderPath !== prevRevealPath) {
+    setPrevRevealPath(revealFolderPath)
+    if (revealFolderPath) {
+      const parts = revealFolderPath.split('/').filter(Boolean)
+      if (parts.length > 0) {
+        setExpanded((prev) => {
+          const next = new Set(prev)
+          next.add('')
+          let current = ''
+          for (const part of parts) {
+            current = current ? `${current}/${part}` : part
+            next.add(current)
+          }
+          return next
+        })
       }
-      return next
-    })
-  }, [revealFolderPath])
+    }
+  }
 
   const toggleFolder = (folderPath: string) => {
     setExpanded((prev) => {
