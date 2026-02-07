@@ -27,6 +27,8 @@
     "hash-vault-password",
     "hash-vault-password-legacy",
     "verify-vault-password",
-    "verify-vault-password-legacy"
+    "verify-vault-password-legacy",
+    "get-demo-vault-path",
+    "get-demo-vault-path-legacy"
   ]
 }

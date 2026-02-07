@@ -11,6 +11,7 @@ const LAST_VAULT_STORAGE_KEY = 'draglass.vault.last.v1'
 type UseVaultArgs = {
   rememberLast: boolean
   showHidden: boolean
+  openDemoOnEmpty: boolean
   onBusy: (message: string | null) => void
   onError: (message: string | null) => void
 }
@@ -37,7 +38,7 @@ function saveLastVaultPath(path: string | null) {
   }
 }
 
-export function useVault({ rememberLast, showHidden, onBusy, onError }: UseVaultArgs): {
+export function useVault({ rememberLast, showHidden, openDemoOnEmpty, onBusy, onError }: UseVaultArgs): {
   vaultPath: string | null
   files: NoteEntry[]
   navFiles: NoteEntry[]
@@ -50,6 +51,9 @@ export function useVault({ rememberLast, showHidden, onBusy, onError }: UseVault
   const [files, setFiles] = useState<NoteEntry[]>([])
 
   const loadRequestIdRef = useRef(0)
+  const hadPreviousVaultRef = useRef(false)
+  const hasAttemptedLastVaultLoadRef = useRef(false)
+  const isLoadingLastVaultRef = useRef(false)
 
   const vaultName = useMemo(() => {
     if (!vaultPath) return null
@@ -106,18 +110,66 @@ export function useVault({ rememberLast, showHidden, onBusy, onError }: UseVault
   }, [loadVault, onError])
 
   useEffect(() => {
-    if (!rememberLast) return
+    if (!rememberLast) {
+      hasAttemptedLastVaultLoadRef.current = true
+      return
+    }
     if (vaultPath) return
     const last = loadLastVaultPath()
+    if (last) {
+      hadPreviousVaultRef.current = true
+      isLoadingLastVaultRef.current = true
+    }
+    hasAttemptedLastVaultLoadRef.current = true
     if (!last) return
-    void loadVault(last)
+    void loadVault(last).then(() => {
+      isLoadingLastVaultRef.current = false
+    })
   }, [loadVault, rememberLast, vaultPath])
+
+  useEffect(() => {
+    // Auto-open demo vault if no vault is loaded and openDemoOnEmpty is true
+    if (!openDemoOnEmpty) return
+    if (vaultPath) return
+    // Wait until we've attempted to load the last vault
+    if (!hasAttemptedLastVaultLoadRef.current) return
+    // Wait until we've finished loading the last vault (if there was one)
+    if (isLoadingLastVaultRef.current) return
+    // Double-check: if there was a previous vault, never auto-open demo
+    if (hadPreviousVaultRef.current) return
+    if (rememberLast && loadLastVaultPath()) return // Don't open demo if there's a remembered vault
+
+    void (async () => {
+      try {
+        const { getDemoVaultPath } = await import('../../tauri')
+        const demoPath = await getDemoVaultPath()
+        await loadVault(demoPath)
+      } catch (e) {
+        // Silently fail - user can open vault manually
+        console.warn('Failed to auto-open demo vault:', e)
+      }
+    })()
+  }, [loadVault, openDemoOnEmpty, rememberLast, vaultPath])
 
   useEffect(() => {
     if (!rememberLast) {
       saveLastVaultPath(null)
       return
     }
+    
+    // Check if current vault is the demo vault by checking if path ends with 'demo-vault'
+    const isDemoVault = vaultPath && (
+      vaultPath.endsWith('/demo-vault') || 
+      vaultPath.endsWith('\\demo-vault') ||
+      vaultPath.endsWith('/demo-vault/') ||
+      vaultPath.endsWith('\\demo-vault\\')
+    )
+    
+    // Don't save demo vault as last vault if there was a previous vault at startup
+    if (isDemoVault && hadPreviousVaultRef.current) {
+      return
+    }
+    
     saveLastVaultPath(vaultPath)
   }, [rememberLast, vaultPath])
 

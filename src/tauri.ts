@@ -108,3 +108,7 @@ export async function verifyVaultPassword(
 ): Promise<boolean> {
   return invoke<boolean>('verify_vault_password', { password, hash })
 }
+
+export async function getDemoVaultPath(): Promise<string> {
+  return invoke<string>('get_demo_vault_path')
+}

@@ -3,6 +3,7 @@ use tauri::Manager;
 mod auth;
 mod backlinks;
 mod common;
+mod demo_vault;
 mod graph;
 mod locked_sections;
 mod vault;
@@ -76,6 +77,7 @@ pub fn run() {
             search_vault,
             hash_vault_password,
             verify_vault_password,
+            get_demo_vault_path,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -124,6 +126,7 @@ fn persist_window_state(
 
 use crate::auth::{hash_password_impl, verify_password_impl, HashResult};
 use crate::backlinks::find_backlinks_impl;
+use crate::demo_vault::get_demo_vault_path_impl;
 use crate::graph::{build_graph_impl, GraphData, GraphOptions};
 use crate::vault::{
     create_dir_impl, create_note_impl, delete_note_impl, list_markdown_files_impl,
@@ -238,6 +241,13 @@ async fn hash_vault_password(password: String, salt: Option<String>) -> Result<H
 #[tauri::command]
 async fn verify_vault_password(password: String, hash: String) -> Result<bool, String> {
     tauri::async_runtime::spawn_blocking(move || verify_password_impl(&password, &hash))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn get_demo_vault_path(app_handle: tauri::AppHandle) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || get_demo_vault_path_impl(&app_handle))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }
