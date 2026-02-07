@@ -49,8 +49,7 @@ class InMemoryVault {
         }
       }
       return count > 0
-    } catch (e) {
-      console.warn('Failed to load vault from localStorage:', e)
+    } catch {
       return false
     }
   }
@@ -107,8 +106,8 @@ class InMemoryVault {
         const key = STORAGE_PREFIX + relPath
         localStorage.setItem(key, JSON.stringify(note))
       }
-    } catch (e) {
-      console.warn('Failed to save vault to localStorage:', e)
+    } catch {
+      // Ignore storage errors (e.g., quota exceeded)
     }
   }
 
@@ -175,7 +174,7 @@ class InMemoryVault {
     // Clean up old storage entry and save new one
     try {
       localStorage.removeItem(STORAGE_PREFIX + fromRelPath)
-    } catch (e) {
+    } catch {
       // ignore
     }
     this.saveToStorage()
@@ -188,7 +187,7 @@ class InMemoryVault {
     this.notes.delete(relPath)
     try {
       localStorage.removeItem(STORAGE_PREFIX + relPath)
-    } catch (e) {
+    } catch {
       // ignore
     }
   }
@@ -341,7 +340,7 @@ class InMemoryVault {
     return { nodes, edges }
   }
 
-  readVaultImage(_relPath: string): VaultImageResponse {
+  readVaultImage(): VaultImageResponse {
     // Images not supported in web mode
     throw new Error('Image reading not supported in web mode')
   }
@@ -363,7 +362,7 @@ export function getWebVaultPath(): string {
 }
 
 // Mock implementations of Tauri commands for web mode
-export async function webListMarkdownFiles(_vaultPath: string): Promise<NoteEntry[]> {
+export async function webListMarkdownFiles(): Promise<NoteEntry[]> {
   const vault = await getWebVault()
   return vault.listFiles()
 }
@@ -410,12 +409,9 @@ export async function webDeleteNote(_vaultPath: string, relPath: string): Promis
   vault.deleteNote(relPath)
 }
 
-export async function webReadVaultImage(
-  _vaultPath: string,
-  relPath: string,
-): Promise<VaultImageResponse> {
+export async function webReadVaultImage(): Promise<VaultImageResponse> {
   const vault = await getWebVault()
-  return vault.readVaultImage(relPath)
+  return vault.readVaultImage()
 }
 
 export async function webFindBacklinks(
@@ -446,18 +442,12 @@ export async function webBuildGraph(
   return vault.buildGraph(options)
 }
 
-export async function webHashVaultPassword(
-  _password: string,
-  _salt: string | null,
-): Promise<{ hash: string; salt: string }> {
+export async function webHashVaultPassword(): Promise<{ hash: string; salt: string }> {
   // Password hashing not supported in web mode
   throw new Error('Vault passwords not supported in web mode')
 }
 
-export async function webVerifyVaultPassword(
-  _password: string,
-  _hash: string,
-): Promise<boolean> {
+export async function webVerifyVaultPassword(): Promise<boolean> {
   // Password verification not supported in web mode
   throw new Error('Vault passwords not supported in web mode')
 }

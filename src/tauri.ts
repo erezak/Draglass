@@ -27,7 +27,7 @@ export async function listMarkdownFiles(vaultPath: string): Promise<NoteEntry[]>
     return tauriListMarkdownFiles(vaultPath)
   } else {
     const { webListMarkdownFiles } = await import('./webVault')
-    return webListMarkdownFiles(vaultPath)
+    return webListMarkdownFiles()
   }
 }
 
@@ -148,7 +148,7 @@ export async function readVaultImage(
     return tauriReadVaultImage(vaultPath, relPath)
   } else {
     const { webReadVaultImage } = await import('./webVault')
-    return webReadVaultImage(vaultPath, relPath)
+    return webReadVaultImage()
   }
 }
 
@@ -243,7 +243,7 @@ export async function hashVaultPassword(
     return tauriHashVaultPassword(password, salt)
   } else {
     const { webHashVaultPassword } = await import('./webVault')
-    return webHashVaultPassword(password, salt)
+    return webHashVaultPassword()
   }
 }
 
@@ -262,7 +262,7 @@ export async function verifyVaultPassword(
     return tauriVerifyVaultPassword(password, hash)
   } else {
     const { webVerifyVaultPassword } = await import('./webVault')
-    return webVerifyVaultPassword(password, hash)
+    return webVerifyVaultPassword()
   }
 }
 
