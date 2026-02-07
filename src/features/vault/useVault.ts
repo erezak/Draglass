@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { open } from '@tauri-apps/plugin-dialog'
 
-import { listMarkdownFiles } from '../../tauri'
+import { listMarkdownFiles, isTauri } from '../../tauri'
 import type { NoteEntry } from '../../types'
 import { isVisibleNoteForNavigation } from '../../ignore'
 
@@ -97,6 +97,13 @@ export function useVault({ rememberLast, showHidden, openDemoOnEmpty, onBusy, on
 
   const pickVault = useCallback(async () => {
     onError(null)
+    
+    // In web mode, we can't pick a vault - inform the user
+    if (!isTauri()) {
+      onError('Vault selection is only available in the desktop app. The web version uses an in-memory demo vault.')
+      return null
+    }
+    
     const selected = await open({
       directory: true,
       multiple: false,
