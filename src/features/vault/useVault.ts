@@ -53,6 +53,7 @@ export function useVault({ rememberLast, showHidden, openDemoOnEmpty, onBusy, on
   const loadRequestIdRef = useRef(0)
   const hadPreviousVaultRef = useRef(false)
   const hasAttemptedLastVaultLoadRef = useRef(false)
+  const isLoadingLastVaultRef = useRef(false)
 
   const vaultName = useMemo(() => {
     if (!vaultPath) return null
@@ -117,10 +118,13 @@ export function useVault({ rememberLast, showHidden, openDemoOnEmpty, onBusy, on
     const last = loadLastVaultPath()
     if (last) {
       hadPreviousVaultRef.current = true
+      isLoadingLastVaultRef.current = true
     }
     hasAttemptedLastVaultLoadRef.current = true
     if (!last) return
-    void loadVault(last)
+    void loadVault(last).then(() => {
+      isLoadingLastVaultRef.current = false
+    })
   }, [loadVault, rememberLast, vaultPath])
 
   useEffect(() => {
@@ -129,6 +133,10 @@ export function useVault({ rememberLast, showHidden, openDemoOnEmpty, onBusy, on
     if (vaultPath) return
     // Wait until we've attempted to load the last vault
     if (!hasAttemptedLastVaultLoadRef.current) return
+    // Wait until we've finished loading the last vault (if there was one)
+    if (isLoadingLastVaultRef.current) return
+    // Double-check: if there was a previous vault, never auto-open demo
+    if (hadPreviousVaultRef.current) return
     if (rememberLast && loadLastVaultPath()) return // Don't open demo if there's a remembered vault
 
     void (async () => {
