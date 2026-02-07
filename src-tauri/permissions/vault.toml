@@ -128,6 +128,16 @@ identifier = "verify-vault-password-legacy"
 description = "Allows verifying a vault password (legacy command name)."
 commands.allow = ["verify_vault_password"]
 
+[[permission]]
+identifier = "get-demo-vault-path"
+description = "Allows getting the path to the demo vault."
+commands.allow = ["get_demo_vault_path"]
+
+[[permission]]
+identifier = "get-demo-vault-path-legacy"
+description = "Allows getting the path to the demo vault (legacy command name)."
+commands.allow = ["get_demo_vault_path"]
+
 [[set]]
 identifier = "vault"
 description = "Allows the main window to access vault-related app commands."
@@ -158,4 +168,6 @@ permissions = [
   "hash-vault-password-legacy",
   "verify-vault-password",
   "verify-vault-password-legacy",
+  "get-demo-vault-path",
+  "get-demo-vault-path-legacy",
 ]
