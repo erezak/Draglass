@@ -51,7 +51,6 @@ export function useVault({ rememberLast, showHidden, openDemoOnEmpty, onBusy, on
   const [files, setFiles] = useState<NoteEntry[]>([])
 
   const loadRequestIdRef = useRef(0)
-  const isDemoVaultAutoOpenedRef = useRef(false)
   const hadPreviousVaultRef = useRef(false)
 
   const vaultName = useMemo(() => {
@@ -129,7 +128,6 @@ export function useVault({ rememberLast, showHidden, openDemoOnEmpty, onBusy, on
       try {
         const { getDemoVaultPath } = await import('../../tauri')
         const demoPath = await getDemoVaultPath()
-        isDemoVaultAutoOpenedRef.current = true
         await loadVault(demoPath)
       } catch (e) {
         // Silently fail - user can open vault manually
@@ -144,8 +142,16 @@ export function useVault({ rememberLast, showHidden, openDemoOnEmpty, onBusy, on
       return
     }
     
-    // Don't save demo vault as last vault if it was auto-opened and there was a previous vault
-    if (isDemoVaultAutoOpenedRef.current && hadPreviousVaultRef.current) {
+    // Check if current vault is the demo vault by checking if path ends with 'demo-vault'
+    const isDemoVault = vaultPath && (
+      vaultPath.endsWith('/demo-vault') || 
+      vaultPath.endsWith('\\demo-vault') ||
+      vaultPath.endsWith('/demo-vault/') ||
+      vaultPath.endsWith('\\demo-vault\\')
+    )
+    
+    // Don't save demo vault as last vault if there was a previous vault at startup
+    if (isDemoVault && hadPreviousVaultRef.current) {
       return
     }
     
