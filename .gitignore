@@ -27,6 +27,7 @@ node_modules
 dist
 dist-ssr
 *.local
+package-lock.json
 
 # Tauri / Rust
 src-tauri/target/
