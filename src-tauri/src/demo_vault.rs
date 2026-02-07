@@ -1,4 +1,5 @@
 use std::path::PathBuf;
+use tauri::Manager;
 
 /// Get the path to the demo vault, creating/copying it if necessary
 pub fn get_demo_vault_path_impl(app_handle: &tauri::AppHandle) -> Result<String, String> {
