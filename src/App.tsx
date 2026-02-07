@@ -111,9 +111,10 @@ function App() {
 
   const { recentRelPaths, recordRecent } = useRecentNotes(settings.quickSwitcherMaxRecents)
 
-  const { vaultPath, files, navFiles, vaultName, refreshFileList, pickVault } = useVault({
+  const { vaultPath, files, navFiles, vaultName, refreshFileList, pickVault, loadVault } = useVault({
     rememberLast: settings.vaultRememberLast,
     showHidden: settings.filesShowHidden,
+    openDemoOnEmpty: true, // Auto-open demo vault if no vault is loaded
     onBusy: setBusy,
     onError: setError,
   })
@@ -512,7 +513,24 @@ function App() {
         openChangePasswordModal()
       },
     },
-  ], [activeRelPath, createNewNote, deleteActiveNote, graphViewOpen, hasLockedContent, isVaultUnlocked, lockVault, noteTitle, onRequestUnlock, openChangePasswordModal, vaultHasPassword, vaultPath])
+    {
+      id: 'open-demo-vault',
+      label: 'Open Demo Vault',
+      description: 'Open the demo vault with example notes',
+      enabled: true,
+      onExecute: () => {
+        void (async () => {
+          try {
+            const { getDemoVaultPath } = await import('./tauri')
+            const demoPath = await getDemoVaultPath()
+            await loadVault(demoPath)
+          } catch (e) {
+            setError(String(e))
+          }
+        })()
+      },
+    },
+  ], [activeRelPath, createNewNote, deleteActiveNote, graphViewOpen, hasLockedContent, isVaultUnlocked, loadVault, lockVault, noteTitle, onRequestUnlock, openChangePasswordModal, setError, vaultHasPassword, vaultPath])
 
   const onTaskClick = useCallback(
     async (relPath: string, lineNumber: number) => {

@@ -11,6 +11,7 @@ const LAST_VAULT_STORAGE_KEY = 'draglass.vault.last.v1'
 type UseVaultArgs = {
   rememberLast: boolean
   showHidden: boolean
+  openDemoOnEmpty: boolean
   onBusy: (message: string | null) => void
   onError: (message: string | null) => void
 }
@@ -37,7 +38,7 @@ function saveLastVaultPath(path: string | null) {
   }
 }
 
-export function useVault({ rememberLast, showHidden, onBusy, onError }: UseVaultArgs): {
+export function useVault({ rememberLast, showHidden, openDemoOnEmpty, onBusy, onError }: UseVaultArgs): {
   vaultPath: string | null
   files: NoteEntry[]
   navFiles: NoteEntry[]
@@ -112,6 +113,24 @@ export function useVault({ rememberLast, showHidden, onBusy, onError }: UseVault
     if (!last) return
     void loadVault(last)
   }, [loadVault, rememberLast, vaultPath])
+
+  useEffect(() => {
+    // Auto-open demo vault if no vault is loaded and openDemoOnEmpty is true
+    if (!openDemoOnEmpty) return
+    if (vaultPath) return
+    if (rememberLast && loadLastVaultPath()) return // Don't open demo if there's a remembered vault
+
+    void (async () => {
+      try {
+        const { getDemoVaultPath } = await import('../../tauri')
+        const demoPath = await getDemoVaultPath()
+        await loadVault(demoPath)
+      } catch (e) {
+        // Silently fail - user can open vault manually
+        console.warn('Failed to auto-open demo vault:', e)
+      }
+    })()
+  }, [loadVault, openDemoOnEmpty, rememberLast, vaultPath])
 
   useEffect(() => {
     if (!rememberLast) {
