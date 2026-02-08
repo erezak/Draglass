@@ -27,6 +27,8 @@ export function GraphView({
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [animating, setAnimating] = useState(false)
   const [animationProgress, setAnimationProgress] = useState(1)
+  const [graphError, setGraphError] = useState<string | null>(null)
+  const [renderError, setRenderError] = useState<string | null>(null)
   const [contextMenu, setContextMenu] = useState<{
     nodeId: string
     x: number
@@ -64,9 +66,19 @@ export function GraphView({
     scope: settings.scope,
     localDepth: settings.localDepth,
     filters: settings.filters,
-    onError: (msg) => console.error('Graph error:', msg),
+    onError: (msg) => {
+      setGraphError(msg)
+      console.error('Graph error:', msg)
+    },
     isVaultUnlocked,
   })
+
+  useEffect(() => {
+    if (isLoading) {
+      setGraphError(null)
+      setRenderError(null)
+    }
+  }, [isLoading])
 
   // Handle opening a note from graph
   const handleNodeClick = useCallback(
@@ -113,6 +125,12 @@ export function GraphView({
   const handleToggleSettings = useCallback(() => {
     setSettingsOpen((prev) => !prev)
   }, [])
+
+  const handleRefresh = useCallback(async () => {
+    setGraphError(null)
+    setRenderError(null)
+    await refresh()
+  }, [refresh])
 
   const handleSearchChange = useCallback(
     (query: string) => {
@@ -181,6 +199,8 @@ export function GraphView({
     )
   }
 
+  const errorMessage = renderError ?? graphError
+
   return (
     <div className="graphViewContainer">
       <GraphHeader
@@ -189,12 +209,21 @@ export function GraphView({
         searchQuery={settings.filters.searchQuery}
         onSearchChange={handleSearchChange}
         onScopeChange={setScope}
-        onRefresh={refresh}
+        onRefresh={handleRefresh}
         onToggleSettings={handleToggleSettings}
       />
 
       <div className="graphBody">
-        {isLoading && filteredNodes.length === 0 ? (
+        {!isLoading && errorMessage ? (
+          <div className="graphEmptyState">
+            <div className="graphEmptyTitle">Graph unavailable</div>
+            <div className="graphEmptyBody">{errorMessage}</div>
+            <div className="graphEmptyBody">
+              Try refreshing or reopening the vault. If this only happens in the
+              built app, the diagnostic text above will help pinpoint the cause.
+            </div>
+          </div>
+        ) : isLoading && filteredNodes.length === 0 ? (
           <div className="graphLoadingState">
             <div className="graphLoadingSpinner" />
             <div>Building graph…</div>
@@ -225,6 +254,7 @@ export function GraphView({
             onNodeRightClick={handleNodeRightClick}
             onNodeHover={setHoveredNodeId}
             onBackgroundClick={handleBackgroundClick}
+            onRenderError={setRenderError}
           />
         )}
 

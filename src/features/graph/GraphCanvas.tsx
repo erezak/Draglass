@@ -14,6 +14,9 @@ import {
   Graphics,
   Text,
   TextStyle,
+  extensions,
+  ResizePlugin,
+  TickerPlugin,
 } from 'pixi.js'
 import type { ContainerChild } from 'pixi.js'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -44,6 +47,16 @@ type GraphCanvasProps = {
   onNodeRightClick: (nodeId: string, x: number, y: number) => void
   onNodeHover: (nodeId: string | null) => void
   onBackgroundClick: () => void
+  onRenderError?: (message: string | null) => void
+}
+
+let pixiPluginsRegistered = false
+
+function ensurePixiPluginsRegistered() {
+  if (pixiPluginsRegistered) return
+  extensions.remove(ResizePlugin)
+  extensions.add(TickerPlugin)
+  pixiPluginsRegistered = true
 }
 
 // Theme colors
@@ -94,6 +107,7 @@ export function GraphCanvas({
   onNodeRightClick,
   onNodeHover: _onNodeHover,
   onBackgroundClick,
+  onRenderError,
 }: GraphCanvasProps) {
   void _hoveredNodeId // reserved for future hover highlighting
   void _onNodeHover // reserved for future hover highlighting
@@ -123,6 +137,7 @@ export function GraphCanvas({
   // Use refs for callbacks to avoid effect re-runs
   const onNodeClickRef = useRef(onNodeClick)
   const onNodeRightClickRef = useRef(onNodeRightClick)
+  const onRenderErrorRef = useRef(onRenderError)
 
   const animatingRef = useRef(animating)
   const animationProgressRef = useRef(animationProgress)
@@ -131,6 +146,7 @@ export function GraphCanvas({
   useEffect(() => {
     onNodeClickRef.current = onNodeClick
     onNodeRightClickRef.current = onNodeRightClick
+    onRenderErrorRef.current = onRenderError
     animatingRef.current = animating
     animationProgressRef.current = animationProgress
     displayRef.current = display
@@ -140,6 +156,20 @@ export function GraphCanvas({
 
   if (initialBackgroundRef.current === null) {
     initialBackgroundRef.current = colors.background
+  }
+
+  const reportRenderError = useCallback((message: string | null) => {
+    onRenderErrorRef.current?.(message)
+  }, [])
+
+  const isWebglAvailable = (): boolean => {
+    try {
+      const canvas = document.createElement('canvas')
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+      return Boolean(gl)
+    } catch {
+      return false
+    }
   }
 
   // Get node color based on groups (first match wins)
@@ -167,6 +197,8 @@ export function GraphCanvas({
     let cancelled = false
 
     const initApp = async () => {
+      ensurePixiPluginsRegistered()
+      reportRenderError(null)
       // Wait for container to have dimensions
       const container = containerRef.current!
       const rect = container.getBoundingClientRect()
@@ -177,19 +209,29 @@ export function GraphCanvas({
       }
       
       const app = new Application()
-      
-      await app.init({
-        background: initialBackgroundRef.current ?? colors.background,
-        width: rect.width,
-        height: rect.height,
-        antialias: true,
-        resolution: window.devicePixelRatio || 1,
-        autoDensity: true,
-      })
+
+      const webglAvailable = isWebglAvailable()
+      try {
+        await app.init({
+          background: initialBackgroundRef.current ?? colors.background,
+          width: rect.width,
+          height: rect.height,
+          antialias: true,
+          resolution: window.devicePixelRatio || 1,
+          autoDensity: true,
+        })
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err)
+        const suffix = webglAvailable ? '' : ' (WebGL unavailable)'
+        reportRenderError(`Pixi init failed: ${message}${suffix}`)
+        return
+      }
 
       // Stop the default ticker; render only on explicit updates.
-      app.ticker.stop()
-      app.ticker.autoStart = false
+      if (app.ticker) {
+        app.ticker.stop()
+        app.ticker.autoStart = false
+      }
 
       // Check if we were cancelled during async init
       if (cancelled) {
@@ -221,7 +263,11 @@ export function GraphCanvas({
       setInitialized(true)
     }
 
-    initApp().catch(err => console.error('[GraphCanvas] Init error:', err))
+    initApp().catch(err => {
+      const message = err instanceof Error ? err.message : String(err)
+      reportRenderError(`Pixi init failed: ${message}`)
+      console.error('[GraphCanvas] Init error:', err)
+    })
 
     return () => {
       cancelled = true
