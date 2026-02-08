@@ -133,6 +133,36 @@ Raw Markdown editing view showing all formatting syntax.
 
 ---
 
+## Workflow Note (Mermaid + Callout)
+
+Live Preview rendering of a workflow note with a Mermaid diagram and callout block.
+
+![Workflow Note](screenshots/workflow-note.png)
+
+**Features shown**:
+- Mermaid diagram rendered inline
+- Callout block with icon and accent color
+- Wikilinks connected across the note
+- Live Preview formatting with inline emphasis
+- Sidebars visible for context
+
+---
+
+## Tasks Panel Focus
+
+Task list aggregation alongside an editable checklist note.
+
+![Tasks Panel](screenshots/tasks-panel.png)
+
+**Features shown**:
+- Tasks panel listing open items from the vault
+- Clickable checkboxes in Live Preview mode
+- Right sidebar tabs with Tasks selected
+- Editor showing checkbox syntax and live toggles
+- Left sidebar file tree for navigation
+
+---
+
 ## Interface Components
 
 ### Left Sidebar - Files View

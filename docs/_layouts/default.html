@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en" }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {% seo %}
+    <link
+      rel="stylesheet"
+      href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}"
+    />
+  </head>
+  <body>
+    <div class="site-shell">
+      <aside class="site-sidebar">
+        <a class="brand" href="{{ '/' | relative_url }}">Draglass</a>
+        <p class="brand-tagline">Local-first knowledge base</p>
+        <nav class="sidebar-nav">
+          <span class="nav-title">Explore</span>
+          <ul>
+            {% assign current_url = page.url | relative_url %}
+            {% for item in site.navigation %}
+              {% assign item_url = item.url | relative_url %}
+              <li class="{% if current_url == item_url %}active{% endif %}">
+                <a href="{{ item_url }}">{{ item.title }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </nav>
+        <div class="sidebar-actions">
+          <a class="button primary" href="{{ '/download' | relative_url }}">Get Draglass</a>
+          <a class="button ghost" href="{{ site.github.repository_url }}">View on GitHub</a>
+        </div>
+        <div class="sidebar-footer">
+          <p>Open source · Offline-first · Built with Tauri + React</p>
+        </div>
+      </aside>
+      <div class="site-main">
+        <header class="site-topbar">
+          <div class="topbar-content">
+            <span class="topbar-title">{{ page.title }}</span>
+            <div class="topbar-links">
+              <a href="{{ '/getting-started' | relative_url }}">Getting Started</a>
+              <a class="topbar-cta" href="{{ '/download' | relative_url }}">Download</a>
+            </div>
+          </div>
+        </header>
+        <main class="page-content">{{ content }}</main>
+        <footer class="site-footer">
+          <p>
+            © {{ site.time | date: '%Y' }} Draglass. Built for local-first knowledge work.
+          </p>
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>
