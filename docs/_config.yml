@@ -1,0 +1,43 @@
+title: Draglass
+description: A local-first, cross-platform knowledge base application
+author: Draglass Team
+baseurl: "/Draglass"
+url: "https://erezak.github.io"
+
+theme: jekyll-theme-cayman
+
+# SEO settings
+lang: en
+logo: /screenshots/main-interface.png
+
+# Navigation
+navigation:
+  - title: Home
+    url: /
+  - title: Features
+    url: /features
+  - title: Getting Started
+    url: /getting-started
+  - title: Screenshots
+    url: /screenshots
+  - title: Download
+    url: /download
+
+# GitHub metadata
+github:
+  repository_url: https://github.com/erezak/Draglass
+  repository_name: erezak/Draglass
+
+# Plugins
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+
+# Exclude from processing
+exclude:
+  - fixtures/
+  - mermaid-sample.md
