@@ -6,15 +6,26 @@ A local-first, cross-platform knowledge base application built with Tauri, React
 
 Draglass is a privacy-first, offline-first knowledge management app that stores your notes as plain Markdown files in a local vault folder. It features wikilinks, backlinks, and a clean, focused interface for organizing your thoughts.
 
+> **Try it now**: Run `npm install && npm run dev` to try the web version with the built-in Demo Vault.  
+> **Documentation**: Visit the [Draglass website](https://erezak.github.io/Draglass/) for detailed guides and screenshots.
+
 ### Core Features
 
 - **Markdown Notes**: All notes stored as plain `.md` files in your vault folder
 - **Wikilinks & Backlinks**: Link between notes using `[[Note Name]]` syntax with automatic backlink detection
+- **Quick Switcher** (`Cmd/Ctrl + P`): Fuzzy search to instantly jump to any note
+- **Command Palette** (`Cmd/Ctrl + Shift + P`): Searchable list of all app commands
+- **Global Search** (`Cmd/Ctrl + Shift + F`): Full-text search across your entire vault
+- **Graph View**: Visual network diagram showing all notes and their connections (global and local modes)
+- **Tasks and Checklists**: Automatic scanning and collection of `- [ ]` checkboxes across all notes
 - **Local-First**: Your data stays on your device - no cloud sync, no telemetry, no network calls
 - **Cross-Platform**: Desktop app built with Tauri (Rust + React)
 - **Privacy-First**: Open source, clean-room implementation with no analytics or tracking
+- **Locked Sections**: Password-protect sensitive content by marking headings with `{locked}`
 - **CodeMirror 6**: Powerful, extensible editor with markdown support and Live Preview
-- **Live Preview**: Inline rendering with a Source toggle (stored locally)
+- **Live Preview**: Inline rendering with a Source toggle, including Mermaid diagrams, callouts, and image lightbox
+- **Customizable**: Dark/Light themes, resizable panes, configurable autosave and settings
+- **Demo Vault**: Built-in interactive guide that showcases all features
 
 ## Architecture
 
