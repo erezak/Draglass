@@ -10,6 +10,7 @@ import {
   lockedSectionDecorationsField,
   createLockedSectionDecorationsPlugin,
 } from './lockedSectionPreview'
+import { createTablePreviewPlugin, tableDecorationsField } from './tablePreview'
 import type { HeadingSection, LockedBodyRange } from '../lockedSections'
 
 export type LivePreviewOptions = {
@@ -111,6 +112,8 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
   ])
 
   return [
+    tableDecorationsField,
+    createTablePreviewPlugin(),
     mermaidDecorationsField,
     createMermaidDecorationsPlugin({
       renderDiagrams: options.renderDiagrams,
