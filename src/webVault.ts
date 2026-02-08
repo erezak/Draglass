@@ -1,13 +1,19 @@
 // Web-mode in-memory vault implementation
 // This module provides a browser-compatible vault that stores notes in memory
-// and persists them to localStorage
 
 import type { NoteEntry, SearchHit } from './types'
 import type { GraphData, GraphOptions } from './features/graph/graphTypes'
 import type { VaultImageResponse } from './tauri'
 import { parseWikilinks } from './wikilinks'
 
-const STORAGE_PREFIX = 'draglass.web_vault.'
+// Import all demo vault markdown files at build time (like Rust's include_str!).
+// Vite bundles the raw file contents directly into the JS — no runtime fetch needed.
+const demoVaultRaw = import.meta.glob('./demo-vault/*.md', {
+  eager: true,
+  query: '?raw',
+  import: 'default',
+}) as Record<string, string>
+
 const WEB_VAULT_PATH = '/web-demo-vault'
 
 interface StoredNote {
@@ -22,92 +28,20 @@ class InMemoryVault {
   async initialize(): Promise<void> {
     if (this.initialized) return
 
-    // Try to load from localStorage first
-    const hasStoredData = this.loadFromStorage()
-
-    // If no stored data, load demo vault from public directory
-    if (!hasStoredData) {
-      await this.loadDemoVault()
-    }
+    this.loadDemoVault()
 
     this.initialized = true
   }
 
-  private loadFromStorage(): boolean {
-    try {
-      const keys = Object.keys(localStorage)
-      let count = 0
-      for (const key of keys) {
-        if (key.startsWith(STORAGE_PREFIX)) {
-          const relPath = key.substring(STORAGE_PREFIX.length)
-          const data = localStorage.getItem(key)
-          if (data) {
-            const stored: StoredNote = JSON.parse(data)
-            this.notes.set(relPath, stored)
-            count++
-          }
-        }
-      }
-      return count > 0
-    } catch {
-      return false
-    }
-  }
-
-  private async loadDemoVault(): Promise<void> {
-    // List of demo vault files
-    const demoFiles = [
-      'Welcome to Draglass.md',
-      'Quick Start Guide.md',
-      'Creating Notes.md',
-      'Wikilinks.md',
-      'Backlinks.md',
-      'Organization Strategies.md',
-      'Graph View.md',
-      'Philosophy.md',
-      'Science.md',
-      'Technology.md',
-      'Literature.md',
-      'History.md',
-      'Markdown Syntax.md',
-      'Daily Notes.md',
-      'Workflow.md',
-      'Computer Science.md',
-      'Mathematics.md',
-      'Ancient Greece.md',
-      'Enlightenment.md',
-      'Critical Thinking.md',
-      'Political Theory.md',
-      'Education.md',
-      'Innovation.md',
-    ]
-
+  private loadDemoVault(): void {
     const now = Date.now()
 
-    for (const fileName of demoFiles) {
-      try {
-        const response = await fetch(`/demo-vault/${encodeURIComponent(fileName)}`)
-        if (response.ok) {
-          const content = await response.text()
-          this.notes.set(fileName, { content, mtime_ms: now })
-        }
-      } catch (e) {
-        console.warn(`Failed to load demo file ${fileName}:`, e)
-      }
-    }
-
-    // Save to localStorage
-    this.saveToStorage()
-  }
-
-  private saveToStorage(): void {
-    try {
-      for (const [relPath, note] of this.notes.entries()) {
-        const key = STORAGE_PREFIX + relPath
-        localStorage.setItem(key, JSON.stringify(note))
-      }
-    } catch {
-      // Ignore storage errors (e.g., quota exceeded)
+    for (const [path, content] of Object.entries(demoVaultRaw)) {
+      // path looks like "../public/demo-vault/Live Preview.md"
+      // Extract just the filename
+      const fileName = path.split('/').pop()
+      if (!fileName) continue
+      this.notes.set(fileName, { content, mtime_ms: now })
     }
   }
 
@@ -141,7 +75,6 @@ class InMemoryVault {
       throw new Error(`Note not found: ${relPath}`)
     }
     this.notes.set(relPath, { content: contents, mtime_ms: Date.now() })
-    this.saveToStorage()
   }
 
   createNote(relPath: string, contents: string): void {
@@ -149,7 +82,6 @@ class InMemoryVault {
       throw new Error(`Note already exists: ${relPath}`)
     }
     this.notes.set(relPath, { content: contents, mtime_ms: Date.now() })
-    this.saveToStorage()
   }
 
   createDir(relPath: string): void {
@@ -170,14 +102,6 @@ class InMemoryVault {
     }
     this.notes.delete(fromRelPath)
     this.notes.set(toRelPath, { ...note, mtime_ms: Date.now() })
-    
-    // Clean up old storage entry and save new one
-    try {
-      localStorage.removeItem(STORAGE_PREFIX + fromRelPath)
-    } catch {
-      // ignore
-    }
-    this.saveToStorage()
   }
 
   deleteNote(relPath: string): void {
@@ -185,11 +109,6 @@ class InMemoryVault {
       throw new Error(`Note not found: ${relPath}`)
     }
     this.notes.delete(relPath)
-    try {
-      localStorage.removeItem(STORAGE_PREFIX + relPath)
-    } catch {
-      // ignore
-    }
   }
 
   findBacklinks(targetTitle: string, excludeLocked: boolean): string[] {

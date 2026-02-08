@@ -23,7 +23,9 @@ From there, the notes below explore different parts of the app by putting them t
 - [[Markdown Syntax]] — headings, lists, code, callouts, diagrams, and task checkboxes
 - [[Tasks and Checklists]] — how Draglass scans your vault for open to-dos
 - [[Privacy and Security]] — locked sections, vault passwords, and the local-first promise
+- [[Locked Sections]] — protect sensitive content behind a vault password
 - [[Customizing Draglass]] — themes, pane layout, autosave timing, and every setting
+- [[Demo Vault]] — what this demo vault is and how it works
 
 ## The knowledge-base side
 
