@@ -13,7 +13,7 @@ See Draglass in action with these screenshots from the web version running the D
 
 The Draglass interface with the editor in Live Preview mode, showing a note from the Demo Vault with all sidebars visible.
 
-![Main Interface](https://github.com/user-attachments/assets/d76ca78e-848f-466b-b89d-4736ab3c9f78)
+![Main Interface](screenshots/main-interface.png)
 
 **Features shown**:
 - Left sidebar with file tree showing 28 demo notes
@@ -30,7 +30,7 @@ The Draglass interface with the editor in Live Preview mode, showing a note from
 
 Interactive force-directed network visualization of the entire Demo Vault showing how notes connect through wikilinks.
 
-![Graph View](https://github.com/user-attachments/assets/f558eca4-a7b9-41ed-bc09-226de8a52423)
+![Graph View](screenshots/graph-view.png)
 
 **Features shown**:
 - Global mode showing all 28 notes as nodes
@@ -48,7 +48,7 @@ Interactive force-directed network visualization of the entire Demo Vault showin
 
 Fuzzy search interface for instantly jumping to any note by name.
 
-![Quick Switcher](https://github.com/user-attachments/assets/8e3fcb10-28f1-4387-944d-bee89b0870d0)
+![Quick Switcher](screenshots/quick-switcher.png)
 
 **Features shown**:
 - Modal overlay with search field

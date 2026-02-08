@@ -80,7 +80,7 @@ Full-text search across your entire vault:
 - Click any result to jump to that line
 - Respects locked sections (excluded when vault is locked)
 
-![Quick Switcher](https://github.com/user-attachments/assets/8e3fcb10-28f1-4387-944d-bee89b0870d0)
+![Quick Switcher](screenshots/quick-switcher.png)
 
 ---
 
@@ -88,7 +88,7 @@ Full-text search across your entire vault:
 
 Visualize your vault as an interactive force-directed network diagram. Every note is a node, every wikilink is an edge.
 
-![Graph View](https://github.com/user-attachments/assets/f558eca4-a7b9-41ed-bc09-226de8a52423)
+![Graph View](screenshots/graph-view.png)
 
 ### Global and Local Modes
 - **Global**: See your entire vault at once—all notes, all connections
