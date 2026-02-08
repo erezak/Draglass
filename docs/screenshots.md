@@ -13,7 +13,7 @@ See Draglass in action with these screenshots from the web version running the D
 
 The Draglass interface with the editor in Live Preview mode, showing a note from the Demo Vault with all sidebars visible.
 
-![Main Interface](https://github.com/user-attachments/assets/d76ca78e-848f-466b-b89d-4736ab3c9f78)
+![Main Interface](screenshots/main-interface.png)
 
 **Features shown**:
 - Left sidebar with file tree showing 28 demo notes
@@ -30,7 +30,7 @@ The Draglass interface with the editor in Live Preview mode, showing a note from
 
 Interactive force-directed network visualization of the entire Demo Vault showing how notes connect through wikilinks.
 
-![Graph View](https://github.com/user-attachments/assets/f558eca4-a7b9-41ed-bc09-226de8a52423)
+![Graph View](screenshots/graph-view.png)
 
 **Features shown**:
 - Global mode showing all 28 notes as nodes
@@ -48,7 +48,7 @@ Interactive force-directed network visualization of the entire Demo Vault showin
 
 Fuzzy search interface for instantly jumping to any note by name.
 
-![Quick Switcher](https://github.com/user-attachments/assets/8e3fcb10-28f1-4387-944d-bee89b0870d0)
+![Quick Switcher](screenshots/quick-switcher.png)
 
 **Features shown**:
 - Modal overlay with search field
@@ -57,6 +57,79 @@ Fuzzy search interface for instantly jumping to any note by name.
 - Keyboard shortcuts displayed at bottom (Esc to close, arrows to navigate, Enter to open)
 - Clean, focused interface for rapid navigation
 - Graph View visible in background showing context
+
+---
+
+## Left Sidebar - Search View
+
+Full-text search interface for finding content across all notes in the vault.
+
+![Search View](screenshots/search-view.png)
+
+**Features shown**:
+- Search input field at top of left sidebar
+- Case-sensitive toggle button (Aa)
+- Search results grouped by category (Backlinks, Creating Notes sections visible)
+- Each result shows line number and context snippet
+- Note file names with match locations
+- Results update as you type
+- Highlighted search terms in results
+
+---
+
+## Settings Panel
+
+Configuration dialog for customizing Draglass behavior and appearance.
+
+![Settings Panel](screenshots/settings-panel.png)
+
+**Features shown**:
+- Modal overlay with organized settings sections
+- **Editor** section: Soft wrap, render diagrams, render images, render callouts toggles
+- **Theme** dropdown: Dark mode selected
+- **Files** section: Remember last vault, show hidden paths, remember expanded folders
+- **Autosave** settings (visible when scrolling)
+- Reset to defaults button
+- Settings stored locally in browser profile
+- Close button in top-right corner
+
+---
+
+## Command Palette
+
+Searchable command interface for quick access to all app actions.
+
+![Command Palette](screenshots/command-palette.png)
+
+**Features shown**:
+- Modal overlay with command search field
+- List of available commands with descriptions:
+  - New Note - Create a new note in the current folder
+  - Rename Current Note - Edit the current note filename
+  - Delete Current Note - Delete the active note (confirmation required)
+  - Lock Current Heading - Add {locked} marker to heading
+  - Open Demo Vault - Open the demo vault with example notes
+- Keyboard navigation hints at bottom (Esc to close, arrows to navigate, Enter to run)
+- Currently showing 5 available commands
+- Fuzzy search filtering (type to narrow results)
+
+---
+
+## Source Mode
+
+Raw Markdown editing view showing all formatting syntax.
+
+![Source Mode](screenshots/source-mode.png)
+
+**Features shown**:
+- Toggle between Live Preview and Source mode via button in title bar
+- All Markdown syntax visible: `#` for headings, `**bold**`, `[[wikilinks]]`
+- Syntax highlighting for different Markdown elements
+- Line numbers on the left
+- Full editor capabilities maintained
+- Useful for editing complex structures or troubleshooting formatting
+- Same file content as Live Preview, just different rendering
+- File list shows all notes in alphabetical order
 
 ---
 
@@ -70,7 +143,7 @@ Fuzzy search interface for instantly jumping to any note by name.
 - Settings button for configuration
 
 ### Left Sidebar - Search View
-Not shown in screenshots, but includes:
+See the [Search View screenshot above](#left-sidebar---search-view) for full details.
 - Full-text search across vault
 - Case-sensitive toggle
 - Results with snippets and line numbers
@@ -140,29 +213,9 @@ While not fully captured in static screenshots, Live Preview mode provides:
 
 These features are available but not captured in the current screenshots:
 
-### Source Mode
-- Toggle to see raw Markdown
-- All formatting characters visible
-- Full syntax highlighting
-- Useful for editing complex structures
-
-### Settings Panel
-- Comprehensive configuration options
-- Theme selection
-- Autosave timing
-- Rendering options
-- Debounce delays
-- Reset to defaults button
-
-### Command Palette
-- Searchable command list
-- New Note, Rename, Delete commands
-- Lock/unlock section commands
-- Vault password management
-- Keyboard shortcut hints
-
 ### Global Search
-- Full-text search interface
+- Full-text search interface accessed via Cmd/Ctrl + Shift + F
+- Opens in the main editor area (different from left sidebar search)
 - Search across all note contents
 - Results with context snippets
 - Line numbers for precision

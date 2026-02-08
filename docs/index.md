@@ -9,7 +9,7 @@ title: Home
 
 Draglass is a privacy-first, offline-first knowledge management app that stores your notes as plain Markdown files in a local vault folder. Built with Tauri, React, and TypeScript, it features wikilinks, backlinks, graph visualization, and a powerful editor with Live Preview.
 
-![Draglass Main Interface](https://github.com/user-attachments/assets/d76ca78e-848f-466b-b89d-4736ab3c9f78)
+![Draglass Main Interface](screenshots/main-interface.png)
 
 ---
 
