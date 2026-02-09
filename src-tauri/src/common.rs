@@ -27,6 +27,21 @@ pub fn is_markdown_file(path: &Path) -> bool {
     }
 }
 
+/// Check if a path has an Excalidraw extension (`.excalidraw` or `.excalidraw.md`).
+pub fn is_excalidraw_file(path: &Path) -> bool {
+    let name = path
+        .file_name()
+        .and_then(OsStr::to_str)
+        .unwrap_or("");
+    let lower = name.to_ascii_lowercase();
+    lower.ends_with(".excalidraw") || lower.ends_with(".excalidraw.md")
+}
+
+/// Check if a path is a supported note file (Markdown or Excalidraw).
+pub fn is_supported_note_file(path: &Path) -> bool {
+    is_markdown_file(path) || is_excalidraw_file(path)
+}
+
 /// Convert an absolute path to a forward-slash relative string within a vault.
 pub fn path_to_rel_string(vault: &Path, path: &Path) -> Result<String, String> {
     let rel = path
@@ -45,7 +60,32 @@ pub fn path_to_rel_string(vault: &Path, path: &Path) -> Result<String, String> {
 }
 
 /// Get the display name (filename stem) from a path.
+/// Handles compound extensions like `.excalidraw.md`.
 pub fn display_name_for_path(path: &Path) -> String {
+    let name = path
+        .file_name()
+        .and_then(OsStr::to_str)
+        .unwrap_or("(unknown)");
+    // Strip compound extension .excalidraw.md first
+    if let Some(stem) = name.strip_suffix(".excalidraw.md") {
+        if !stem.is_empty() {
+            return stem.to_string();
+        }
+    }
+    if let Some(stem) = name.strip_suffix(".excalidraw.MD") {
+        if !stem.is_empty() {
+            return stem.to_string();
+        }
+    }
+    // Case-insensitive check for .excalidraw.md
+    let lower = name.to_ascii_lowercase();
+    if lower.ends_with(".excalidraw.md") {
+        let stem = &name[..name.len() - ".excalidraw.md".len()];
+        if !stem.is_empty() {
+            return stem.to_string();
+        }
+    }
+    // Fall back to standard file_stem
     path.file_stem()
         .and_then(OsStr::to_str)
         .unwrap_or("(unknown)")
@@ -86,6 +126,33 @@ pub fn collect_markdown_file_paths(
         }
 
         if path.is_file() && is_markdown_file(&path) {
+            let rel_path = path_to_rel_string(vault, &path)?;
+            entries.push((rel_path, path));
+        }
+    }
+
+    Ok(())
+}
+
+/// Collect all supported note files (Markdown + Excalidraw) recursively.
+/// Returns `(rel_path, absolute_path)` pairs.
+pub fn collect_supported_file_paths(
+    vault: &Path,
+    dir: &Path,
+    entries: &mut Vec<(String, std::path::PathBuf)>,
+) -> Result<(), String> {
+    let read_dir = std::fs::read_dir(dir).map_err(|e| format!("failed to read directory: {e}"))?;
+
+    for entry in read_dir {
+        let entry = entry.map_err(|e| format!("failed to read entry: {e}"))?;
+        let path = entry.path();
+
+        if path.is_dir() {
+            collect_supported_file_paths(vault, &path, entries)?;
+            continue;
+        }
+
+        if path.is_file() && is_supported_note_file(&path) {
             let rel_path = path_to_rel_string(vault, &path)?;
             entries.push((rel_path, path));
         }
@@ -212,5 +279,24 @@ mod tests {
         assert!(is_markdown_file(Path::new("NOTE.MD")));
         assert!(!is_markdown_file(Path::new("note.txt")));
         assert!(!is_markdown_file(Path::new("note")));
+    }
+
+    #[test]
+    fn excalidraw_file_detection() {
+        assert!(is_excalidraw_file(Path::new("drawing.excalidraw")));
+        assert!(is_excalidraw_file(Path::new("Drawing.EXCALIDRAW")));
+        assert!(is_excalidraw_file(Path::new("drawing.excalidraw.md")));
+        assert!(is_excalidraw_file(Path::new("Drawing.EXCALIDRAW.MD")));
+        assert!(!is_excalidraw_file(Path::new("note.md")));
+        assert!(!is_excalidraw_file(Path::new("note.txt")));
+    }
+
+    #[test]
+    fn supported_note_file_detection() {
+        assert!(is_supported_note_file(Path::new("note.md")));
+        assert!(is_supported_note_file(Path::new("note.markdown")));
+        assert!(is_supported_note_file(Path::new("drawing.excalidraw")));
+        assert!(!is_supported_note_file(Path::new("image.png")));
+        assert!(!is_supported_note_file(Path::new("data.json")));
     }
 }

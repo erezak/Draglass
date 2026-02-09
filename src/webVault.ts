@@ -8,7 +8,7 @@ import { parseWikilinks } from './wikilinks'
 
 // Import all demo vault markdown files at build time (like Rust's include_str!).
 // Vite bundles the raw file contents directly into the JS — no runtime fetch needed.
-const demoVaultRaw = import.meta.glob('./demo-vault/*.md', {
+const demoVaultRaw = import.meta.glob(['./demo-vault/*.md', './demo-vault/*.excalidraw'], {
   eager: true,
   query: '?raw',
   import: 'default',
@@ -50,7 +50,10 @@ class InMemoryVault {
     for (const [relPath] of this.notes.entries()) {
       // Extract display name (filename without extension)
       const fileName = relPath.split('/').pop() || relPath
-      const displayName = fileName.replace(/\.md$/, '')
+      // Handle compound extensions like .excalidraw.md
+      const displayName = fileName
+        .replace(/\.excalidraw\.md$/i, '')
+        .replace(/\.(md|excalidraw)$/, '')
       entries.push({
         rel_path: relPath,
         display_name: displayName,
@@ -116,6 +119,14 @@ class InMemoryVault {
     const targetLower = targetTitle.toLowerCase()
 
     for (const [relPath, note] of this.notes.entries()) {
+      // Only process Markdown files for backlinks (skip Excalidraw files)
+      const lower = relPath.toLowerCase()
+      if (lower.endsWith('.excalidraw') || lower.endsWith('.excalidraw.md')) {
+        continue
+      }
+      if (!lower.endsWith('.md') && !lower.endsWith('.markdown')) {
+        continue
+      }
       // Skip locked notes if requested
       if (excludeLocked && note.content.includes('<!--LOCK-->')) {
         continue
@@ -145,6 +156,14 @@ class InMemoryVault {
     const searchStr = caseSensitive ? query : query.toLowerCase()
 
     for (const [relPath, note] of this.notes.entries()) {
+      // Only search Markdown files (skip Excalidraw files)
+      const lower = relPath.toLowerCase()
+      if (lower.endsWith('.excalidraw') || lower.endsWith('.excalidraw.md')) {
+        continue
+      }
+      if (!lower.endsWith('.md') && !lower.endsWith('.markdown')) {
+        continue
+      }
       // Skip locked notes if requested
       if (excludeLocked && note.content.includes('<!--LOCK-->')) {
         continue
@@ -187,6 +206,14 @@ class InMemoryVault {
 
     // Create nodes for all notes
     for (const [relPath, note] of this.notes.entries()) {
+      // Only include Markdown files in graph (skip Excalidraw files)
+      const lower = relPath.toLowerCase()
+      if (lower.endsWith('.excalidraw') || lower.endsWith('.excalidraw.md')) {
+        continue
+      }
+      if (!lower.endsWith('.md') && !lower.endsWith('.markdown')) {
+        continue
+      }
       // Skip hidden/locked if requested
       if (options.excludeLocked && note.content.includes('<!--LOCK-->')) {
         continue
@@ -217,6 +244,14 @@ class InMemoryVault {
     const edgeMap = new Map<string, number>() // Maps "sourceId->targetId" to count
 
     for (const [relPath, note] of this.notes.entries()) {
+      // Only process Markdown files for links (skip Excalidraw)
+      const lower2 = relPath.toLowerCase()
+      if (lower2.endsWith('.excalidraw') || lower2.endsWith('.excalidraw.md')) {
+        continue
+      }
+      if (!lower2.endsWith('.md') && !lower2.endsWith('.markdown')) {
+        continue
+      }
       const sourceNormalized = relPath.replace(/\.md$/, '')
       const sourceId = nodeMap.get(sourceNormalized.toLowerCase())
       if (!sourceId) continue

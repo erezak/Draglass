@@ -64,7 +64,17 @@ function isMarkdownPath(relPath: string): boolean {
   return lower.endsWith('.md') || lower.endsWith('.markdown')
 }
 
+function isExcalidrawPath(relPath: string): boolean {
+  const lower = relPath.toLowerCase()
+  return lower.endsWith('.excalidraw') || lower.endsWith('.excalidraw.md')
+}
+
 function displayLabelForFile(relPath: string): string {
+  if (isExcalidrawPath(relPath)) {
+    // Strip compound extensions like .excalidraw.md → just the name
+    const fileName = relPath.split('/').pop() ?? relPath
+    return fileName.replace(/\.excalidraw(\.md)?$/i, '')
+  }
   return isMarkdownPath(relPath) ? fileStem(relPath) : relPath.split('/').pop() ?? relPath
 }
 

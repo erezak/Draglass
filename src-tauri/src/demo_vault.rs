@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use tauri::Manager;
 
 /// Bump this whenever demo vault files are added or changed.
-const DEMO_VAULT_VERSION: &str = "3";
+const DEMO_VAULT_VERSION: &str = "4";
 
 /// Get the path to the demo vault, creating/copying it if necessary
 pub fn get_demo_vault_path_impl(app_handle: &tauri::AppHandle) -> Result<String, String> {
@@ -91,6 +91,7 @@ fn copy_demo_files(dest_path: &PathBuf) -> Result<(), String> {
         ("Customizing Draglass.md", include_str!("../../src/demo-vault/Customizing Draglass.md")),
         ("Demo Vault.md", include_str!("../../src/demo-vault/Demo Vault.md")),
         ("Locked Sections.md", include_str!("../../src/demo-vault/Locked Sections.md")),
+        ("Sample Drawing.excalidraw", include_str!("../../src/demo-vault/Sample Drawing.excalidraw")),
     ];
 
     for (filename, content) in demo_files.iter() {

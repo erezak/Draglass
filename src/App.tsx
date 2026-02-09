@@ -27,6 +27,7 @@ import { useVault } from './features/vault/useVault'
 import { useVaultAuth, hasVaultPassword, checkVaultPassword } from './features/vault/useVaultAuth'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
+import { ExcalidrawViewer } from './components/ExcalidrawViewer'
 
 const TOOLBOX_WIDTH = 52
 const LEFT_PANE_COLLAPSE_GAP = 8
@@ -43,6 +44,11 @@ type DragState = {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
+}
+
+function isExcalidrawFile(relPath: string): boolean {
+  const lower = relPath.toLowerCase()
+  return lower.endsWith('.excalidraw') || lower.endsWith('.excalidraw.md')
 }
 
 function isModP(e: KeyboardEvent): boolean {
@@ -951,7 +957,7 @@ function App() {
                 <div className="panelTitle">Editor</div>
               )}
               <div className="spacer" />
-              {activeRelPath && !graphViewOpen ? (
+              {activeRelPath && !graphViewOpen && !isExcalidrawFile(activeRelPath) ? (
                 <button
                   type="button"
                   className={`livePreviewToggle ${
@@ -963,7 +969,7 @@ function App() {
                   {settings.editorLivePreview ? 'Live Preview' : 'Source'}
                 </button>
               ) : null}
-              {activeRelPath && !graphViewOpen ? (
+              {activeRelPath && !graphViewOpen && !isExcalidrawFile(activeRelPath) ? (
                 <>
                   <span
                     className={`saveDot saveDot--${saveStatus}`}
@@ -991,6 +997,12 @@ function App() {
               <div className="panelEmpty">Select a vault to edit notes.</div>
             ) : !activeRelPath ? (
               <div className="panelEmpty">Select a file from the list.</div>
+            ) : isExcalidrawFile(activeRelPath) ? (
+              <ExcalidrawViewer
+                key={`${activeRelPath}::${settings.editorTheme}`}
+                content={noteText}
+                theme={settings.editorTheme}
+              />
             ) : (
               <Suspense fallback={<div className="panelEmpty">Loading editor…</div>}>
                 <NoteEditor

@@ -14,6 +14,15 @@ export function isMarkdownNotePath(relPath: string): boolean {
   return lower.endsWith('.md') || lower.endsWith('.markdown')
 }
 
+export function isExcalidrawPath(relPath: string): boolean {
+  const lower = normalizeRelPath(relPath).toLowerCase()
+  return lower.endsWith('.excalidraw') || lower.endsWith('.excalidraw.md')
+}
+
+export function isSupportedNotePath(relPath: string): boolean {
+  return isMarkdownNotePath(relPath) || isExcalidrawPath(relPath)
+}
+
 export function isIgnoredPath(relPath: string): boolean {
   const segments = splitSegments(relPath)
   if (segments.length === 0) return true
@@ -35,7 +44,7 @@ export function isIgnoredPath(relPath: string): boolean {
 }
 
 export function isVisibleNoteForNavigation(relPath: string, showHidden: boolean): boolean {
-  if (!isMarkdownNotePath(relPath)) return false
+  if (!isSupportedNotePath(relPath)) return false
   if (showHidden) return true
   return !isIgnoredPath(relPath)
 }

@@ -3,7 +3,8 @@ use std::ffi::OsStr;
 use std::path::{Component, Path, PathBuf};
 
 use crate::common::{
-    collect_markdown_file_paths, is_hidden_path, is_markdown_file,
+    collect_markdown_file_paths, collect_supported_file_paths,
+    is_hidden_path, is_markdown_file, is_supported_note_file,
 };
 
 #[derive(Debug, Serialize)]
@@ -83,8 +84,8 @@ fn resolve_existing_note_path(vault_path: &str, rel_path: &str) -> Result<PathBu
     if !candidate.is_file() {
         return Err("note path is not a file".to_string());
     }
-    if !is_markdown_file(&candidate) {
-        return Err("note is not a markdown file".to_string());
+    if !is_supported_note_file(&candidate) {
+        return Err("note is not a supported file type".to_string());
     }
 
     Ok(candidate)
@@ -178,7 +179,7 @@ pub fn list_markdown_files_impl(vault_path: &str) -> Result<Vec<NoteEntry>, Stri
     }
 
     let mut file_paths: Vec<(String, PathBuf)> = Vec::new();
-    collect_markdown_file_paths(&vault, &vault, &mut file_paths)?;
+    collect_supported_file_paths(&vault, &vault, &mut file_paths)?;
 
     let mut entries: Vec<NoteEntry> = file_paths
         .into_iter()

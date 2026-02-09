@@ -193,9 +193,15 @@ export function useNoteManager({
 
       const sanitized = trimmed.replace(/[\\/]/g, '-').replace(/\s+/g, ' ')
       const lower = sanitized.toLowerCase()
-      const fileName = lower.endsWith('.md') || lower.endsWith('.markdown')
+
+      // Preserve the extension of the current file type
+      const currentLower = activeRelPath.toLowerCase()
+      const isExcalidrawMd = currentLower.endsWith('.excalidraw.md')
+      const isExcalidraw = !isExcalidrawMd && currentLower.endsWith('.excalidraw')
+      const defaultExt = isExcalidrawMd ? '.excalidraw.md' : isExcalidraw ? '.excalidraw' : '.md'
+      const fileName = lower.endsWith('.md') || lower.endsWith('.markdown') || lower.endsWith('.excalidraw') || lower.endsWith('.excalidraw.md')
         ? sanitized
-        : `${sanitized}.md`
+        : `${sanitized}${defaultExt}`
 
       const parts = activeRelPath.split('/')
       const dir = parts.slice(0, -1).join('/')
