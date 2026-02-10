@@ -98,6 +98,6 @@ export function createWikilinkCompletionExtension(files: NoteEntry[]) {
   return autocompletion({
     override: [completions],
     activateOnTyping: true,
-    maxRenderedOptions: 10,
+    maxRenderedOptions: 20,
   })
 }
