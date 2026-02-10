@@ -29,6 +29,7 @@ export function ExcalidrawEditor({ content, theme = 'dark', onChange }: Excalidr
   type ExcalidrawUpdateScene = Parameters<ExcalidrawApi['updateScene']>[0]
   const initialContentRef = useRef(content)
   const lastSerializedRef = useRef(content)
+  const pendingLocalChangeRef = useRef<string | null>(null)
   const apiRef = useRef<ExcalidrawApi | null>(null)
   const [apiReady, setApiReady] = useState(false)
 
@@ -57,6 +58,7 @@ export function ExcalidrawEditor({ content, theme = 'dark', onChange }: Excalidr
       const next = buildExcalidrawSource(json, formatRef.current)
       if (next === lastSerializedRef.current) return
       lastSerializedRef.current = next
+      pendingLocalChangeRef.current = next
       onChange(next)
     },
     [onChange],
@@ -115,6 +117,10 @@ export function ExcalidrawEditor({ content, theme = 'dark', onChange }: Excalidr
 
   useEffect(() => {
     if (!apiReady) return
+    if (pendingLocalChangeRef.current === content) {
+      pendingLocalChangeRef.current = null
+      return
+    }
     const frame = window.requestAnimationFrame(() => {
       fitToContent()
     })
@@ -127,6 +133,8 @@ export function ExcalidrawEditor({ content, theme = 'dark', onChange }: Excalidr
 
     const parsed = parseExcalidrawSource(content)
     if (!parsed.ok) return
+
+    pendingLocalChangeRef.current = null
 
     formatRef.current = parsed.format
     const { elements, appState, files } = normalizeSceneData(parsed.data)
