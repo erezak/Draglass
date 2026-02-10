@@ -39,8 +39,8 @@ Create connections between notes using wikilinks. Discover relationships through
 backlinks and visualize your knowledge graph.
 
 ### 📝 Rich Markdown Support
-Full Markdown syntax with Live Preview mode, Mermaid diagrams, callouts, task checkboxes, and image
-lightbox.
+Full Markdown syntax with Live Preview mode, Mermaid diagrams, Excalidraw drawings, callouts, task
+checkboxes, and image lightbox.
 
 ### 🎨 Customizable
 Dark and light themes, resizable panes, configurable autosave, and dozens of settings to make
@@ -109,6 +109,11 @@ pnpm tauri build
   <div class="feature-card">
     <h3>✅ Task Management</h3>
     <p>Automatic scanning of checkboxes across all notes with click-to-jump tasks.</p>
+  </div>
+
+  <div class="feature-card">
+    <h3>✏️ Excalidraw Diagrams</h3>
+    <p>Render Excalidraw drawings inline and open .excalidraw files from your vault.</p>
   </div>
 
   <div class="feature-card">

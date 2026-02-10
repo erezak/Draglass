@@ -233,6 +233,7 @@ While not fully captured in static screenshots, Live Preview mode provides:
 - **Hidden markup**: Bold, italic, and link syntax hidden until cursor enters
 - **Clickable wikilinks**: Click to navigate without leaving edit mode
 - **Rendered diagrams**: Mermaid flowcharts displayed inline
+- **Excalidraw drawings**: Sketch-style diagrams rendered in place
 - **Callout blocks**: Styled notes, tips, and warnings with icons
 - **Image lightbox**: Click thumbnails for full-size view
 - **Task checkboxes**: Click to toggle between open/done/cancelled

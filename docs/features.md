@@ -229,6 +229,21 @@ Features:
 - Theme-aware (follows dark/light theme)
 - Toggle rendering on/off in Settings
 
+### Excalidraw Drawings
+Embed hand-drawn style diagrams directly in your notes or open standalone drawing files:
+
+````markdown
+```excalidraw
+{ "type": "excalidraw", "version": 2, "elements": [] }
+```
+````
+
+Features:
+- Live Preview renders Excalidraw blocks as SVG
+- Supports `.excalidraw` and `.excalidraw.md` files (including Obsidian Excalidraw format)
+- Theme-aware rendering (dark/light)
+- Demo Vault includes sample drawings to explore
+
 ### Callout Blocks
 Styled blockquotes for notes, tips, warnings, and more:
 
