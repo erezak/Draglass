@@ -104,7 +104,6 @@ export const NoteEditor = function NoteEditor({
   const initialOpenWikilinkRef = useRef<NoteEditorProps['onOpenWikilink']>(onOpenWikilink)
   const initialVaultPathRef = useRef<string | null>(vaultPath)
   const initialNoteRelPathRef = useRef<string | null>(noteRelPath)
-  const initialFilesRef = useRef<NoteEntry[]>(files)
   const [initError, setInitError] = useState<Error | null>(null)
   const [lightbox, setLightbox] = useState<{ src: string; alt?: string } | null>(null)
   const highlightTimerRef = useRef<number | null>(null)
@@ -116,6 +115,8 @@ export const NoteEditor = function NoteEditor({
 
   const initialOpenImageRef = useRef<((url: string, alt?: string) => void) | null>(onOpenImage)
 
+  const filesRef = useRef<NoteEntry[]>(files)
+
   const wrapCompartmentRef = useRef<Compartment | null>(null)
   if (wrapCompartmentRef.current == null) {
     wrapCompartmentRef.current = new Compartment()
@@ -124,6 +125,11 @@ export const NoteEditor = function NoteEditor({
   const livePreviewCompartmentRef = useRef<Compartment | null>(null)
   if (livePreviewCompartmentRef.current == null) {
     livePreviewCompartmentRef.current = new Compartment()
+  }
+
+  const wikilinkCompletionCompartmentRef = useRef<Compartment | null>(null)
+  if (wikilinkCompletionCompartmentRef.current == null) {
+    wikilinkCompletionCompartmentRef.current = new Compartment()
   }
 
   const revealLine = useCallback((lineNumber: number) => {
@@ -294,8 +300,13 @@ export const NoteEditor = function NoteEditor({
   }, [onOpenImage])
 
   useEffect(() => {
-    if (viewRef.current == null) {
-      initialFilesRef.current = files
+    filesRef.current = files
+    const view = viewRef.current
+    const compartment = wikilinkCompletionCompartmentRef.current
+    if (view && compartment) {
+      view.dispatch({
+        effects: compartment.reconfigure(createWikilinkCompletionExtension(files)),
+      })
     }
   }, [files])
 
@@ -356,13 +367,18 @@ export const NoteEditor = function NoteEditor({
       throw new Error('Missing live preview compartment')
     }
 
+    const wikilinkCompletionCompartment = wikilinkCompletionCompartmentRef.current
+    if (!wikilinkCompletionCompartment) {
+      throw new Error('Missing wikilink completion compartment')
+    }
+
     return [
       lineNumbers(),
       history(),
       markdown(),
       editorTheme,
       taskHighlightField,
-      createWikilinkCompletionExtension(initialFilesRef.current),
+      wikilinkCompletionCompartment.of(createWikilinkCompletionExtension(filesRef.current)),
       wrapCompartment.of(initialWrapRef.current ? EditorView.lineWrapping : []),
       livePreviewCompartment.of(
         initialLivePreviewRef.current
