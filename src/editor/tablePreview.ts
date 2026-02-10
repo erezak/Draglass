@@ -218,15 +218,28 @@ function blockIntersectsVisibleRanges(
   return ranges.some((range) => block.from <= range.to && block.to >= range.from)
 }
 
+const VIEWPORT_LINE_BUFFER = 12
+
+function getExpandedVisibleRanges(view: EditorView): Array<{ from: number; to: number; startLine: number; endLine: number }> {
+  const doc = view.state.doc
+  return view.visibleRanges.map((range) => {
+    const startLine = Math.max(1, doc.lineAt(range.from).number - VIEWPORT_LINE_BUFFER)
+    const endLine = Math.min(doc.lines, doc.lineAt(range.to).number + VIEWPORT_LINE_BUFFER)
+    const from = doc.line(startLine).from
+    const to = doc.line(endLine).to
+    return { from, to, startLine, endLine }
+  })
+}
+
 function collectVisibleTableBlocks(view: EditorView): TableBlock[] {
   const doc = view.state.doc
-  const ranges = view.visibleRanges
+  const ranges = getExpandedVisibleRanges(view)
   const blocks: TableBlock[] = []
   const seenStarts = new Set<number>()
 
   for (const range of ranges) {
-    const startLineNumber = doc.lineAt(range.from).number
-    const endLineNumber = doc.lineAt(range.to).number
+    const startLineNumber = range.startLine
+    const endLineNumber = range.endLine
 
     const openStart = findTableStartForLine(doc, startLineNumber)
     if (openStart != null && !seenStarts.has(openStart)) {
