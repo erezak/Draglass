@@ -18,6 +18,7 @@
         "height": 600,
         "resizable": true,
         "fullscreen": false,
+        "devtools": true,
         "titleBarStyle": "Overlay",
         "hiddenTitle": true,
         "trafficLightPosition": {

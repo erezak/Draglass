@@ -7,6 +7,10 @@ import { createInlineLivePreviewPlugin } from './inlinePreview'
 import { findMermaidBlockAtLine, getMermaidEnterPosition } from './mermaidBlocks'
 import { createMermaidDecorationsPlugin, mermaidDecorationsField, type MermaidTheme } from './mermaidPreview'
 import {
+  createExcalidrawDecorationsPlugin,
+  excalidrawDecorationsField,
+} from './excalidrawPreview'
+import {
   lockedSectionDecorationsField,
   createLockedSectionDecorationsPlugin,
 } from './lockedSectionPreview'
@@ -116,6 +120,11 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
     createTablePreviewPlugin(),
     mermaidDecorationsField,
     createMermaidDecorationsPlugin({
+      renderDiagrams: options.renderDiagrams,
+      theme: options.theme,
+    }),
+    excalidrawDecorationsField,
+    createExcalidrawDecorationsPlugin({
       renderDiagrams: options.renderDiagrams,
       theme: options.theme,
     }),

@@ -17,6 +17,7 @@ import {
 } from './imagePreviewHelpers'
 import { shouldHideMarkup } from './livePreviewHelpers'
 import { findMermaidStartForLine, getFenceLang, MERMAID_LANG } from './mermaidBlocks'
+import { EXCALIDRAW_LANG, findExcalidrawStartForLine } from './excalidrawBlocks'
 
 const WIKILINK_RE = /\[\[([^\]]+?)\]\]/g
 const INLINE_CODE_RE = /`([^`]+)`/g
@@ -295,6 +296,7 @@ function buildInlineLivePreviewDecorations(
     let pos = range.from
     const startLineNumber = view.state.doc.lineAt(range.from).number
     let inMermaidBlock = findMermaidStartForLine(view.state.doc, startLineNumber) != null
+    let inExcalidrawBlock = findExcalidrawStartForLine(view.state.doc, startLineNumber) != null
     while (pos <= range.to) {
       const line = view.state.doc.lineAt(pos)
       if (line.from > range.to) break
@@ -308,11 +310,18 @@ function buildInlineLivePreviewDecorations(
         } else if (inMermaidBlock) {
           inMermaidBlock = false
         }
+
+        if (fenceLang === EXCALIDRAW_LANG) {
+          inExcalidrawBlock = true
+        } else if (inExcalidrawBlock) {
+          inExcalidrawBlock = false
+        }
+
         pos = line.to + 1
         continue
       }
 
-      if (inMermaidBlock) {
+      if (inMermaidBlock || inExcalidrawBlock) {
         pos = line.to + 1
         continue
       }

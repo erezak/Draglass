@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { decompressFromBase64 } from 'lz-string'
+import {
+  decompressFromBase64,
+  decompressFromEncodedURIComponent,
+  decompressFromUTF16,
+  decompress,
+} from 'lz-string'
 
 type ExcalidrawViewerProps = {
   /** Raw file content (JSON or Obsidian markdown wrapper) */
@@ -56,28 +61,72 @@ function parseObsidianExcalidraw(content: string): Record<string, unknown> {
     throw new Error('No code block found in "## Drawing" section')
   }
 
-  const rawBlock = codeBlockMatch[1].replace(/[\n\r]/g, '')
+  // Normalize block: remove newlines and surrounding whitespace
+  const rawBlock = codeBlockMatch[1].replace(/[\n\r]/g, '').trim()
 
   // Try parsing as plain JSON first (for `json` language blocks)
   try {
     const parsed = JSON.parse(rawBlock)
     if (parsed && typeof parsed === 'object') return parsed as Record<string, unknown>
   } catch {
-    // Not plain JSON — try LZ-string decompression
+    // Not plain JSON — fall through to decompression attempts
   }
 
-  // Decompress from base64 (LZ-string format used by excalidraw-plugin)
-  const decompressed = decompressFromBase64(rawBlock)
-  if (!decompressed) {
-    throw new Error('Failed to decompress drawing data (invalid LZ-string)')
+  // Some files may use different LZ-string encodings. Try several
+  // decompression entrypoints and light normalizations before failing.
+  const tryCandidates: Array<{ name: string; fn: (s: string) => string | null }> = [
+    { name: 'decompressFromBase64', fn: (s) => decompressFromBase64(s) },
+    { name: 'decompressFromEncodedURIComponent', fn: (s) => decompressFromEncodedURIComponent(s) },
+    { name: 'decompressFromUTF16', fn: (s) => decompressFromUTF16(s) },
+    { name: 'decompress (auto)', fn: (s) => decompress(s) },
+  ]
+
+  const normalizedVariants = [
+    rawBlock,
+    rawBlock.replace(/\s+/g, ''), // remove any remaining whitespace
+  ]
+
+  let lastErr: string | null = null
+  for (const candidate of normalizedVariants) {
+    for (const method of tryCandidates) {
+      try {
+        const out = method.fn(candidate)
+        if (!out) continue
+        const parsed = JSON.parse(out)
+        if (parsed && typeof parsed === 'object') return parsed as Record<string, unknown>
+      } catch (e) {
+        lastErr = `${method.name}: ${e instanceof Error ? e.message : String(e)}`
+        // try next
+      }
+    }
+    // Also try decodeURIComponent variant if it looks percent-encoded
+    try {
+      if (/%[0-9A-Fa-f]{2}/.test(candidate)) {
+        const decoded = decodeURIComponent(candidate)
+        try {
+          const parsed = JSON.parse(decoded)
+          if (parsed && typeof parsed === 'object') return parsed as Record<string, unknown>
+        } catch {
+          // ignore
+        }
+        try {
+          const out = decompressFromEncodedURIComponent(candidate)
+          if (out) {
+            const parsed = JSON.parse(out)
+            if (parsed && typeof parsed === 'object') return parsed as Record<string, unknown>
+          }
+        } catch (e) {
+          lastErr = `decompressFromEncodedURIComponent: ${e instanceof Error ? e.message : String(e)}`
+        }
+      }
+    } catch {
+      // ignore
+    }
   }
 
-  const parsed = JSON.parse(decompressed)
-  if (!parsed || typeof parsed !== 'object') {
-    throw new Error('Decompressed data is not valid JSON')
-  }
-
-  return parsed as Record<string, unknown>
+  throw new Error(
+    `Failed to decompress drawing data (invalid or unsupported LZ-string). ${lastErr ? `Last error: ${lastErr}` : ''}`
+  )
 }
 
 // ---------------------------------------------------------------------------

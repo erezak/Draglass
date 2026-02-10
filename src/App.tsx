@@ -27,7 +27,7 @@ import { useVault } from './features/vault/useVault'
 import { useVaultAuth, hasVaultPassword, checkVaultPassword } from './features/vault/useVaultAuth'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
-import { ExcalidrawViewer } from './components/ExcalidrawViewer'
+import { ExcalidrawEditor } from './components/ExcalidrawEditor'
 
 const TOOLBOX_WIDTH = 52
 const LEFT_PANE_COLLAPSE_GAP = 8
@@ -998,10 +998,11 @@ function App() {
             ) : !activeRelPath ? (
               <div className="panelEmpty">Select a file from the list.</div>
             ) : isExcalidrawFile(activeRelPath) ? (
-              <ExcalidrawViewer
-                key={`${activeRelPath}::${settings.editorTheme}`}
+              <ExcalidrawEditor
+                key={activeRelPath}
                 content={noteText}
                 theme={settings.editorTheme}
+                onChange={setNoteText}
               />
             ) : (
               <Suspense fallback={<div className="panelEmpty">Loading editor…</div>}>
