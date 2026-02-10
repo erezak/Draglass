@@ -12,7 +12,9 @@ import {
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown } from '@codemirror/lang-markdown'
 import { createLivePreviewExtension } from '../editor/livePreview'
+import { createWikilinkCompletionExtension } from '../editor/wikilinkCompletion'
 import type { HeadingSection, LockedBodyRange } from '../lockedSections'
+import type { NoteEntry } from '../types'
 
 const setTaskHighlightEffect = StateEffect.define<number>()
 const clearTaskHighlightEffect = StateEffect.define<void>()
@@ -62,6 +64,7 @@ type NoteEditorProps = {
   isVaultUnlocked?: boolean
   onRequestUnlock?: () => void
   onLockedSectionsDetected?: (sections: HeadingSection[], ranges: LockedBodyRange[]) => void
+  files?: NoteEntry[]
 }
 
 export type NoteEditorHandle = {
@@ -87,6 +90,7 @@ export const NoteEditor = function NoteEditor({
     isVaultUnlocked = false,
     onRequestUnlock,
     onLockedSectionsDetected,
+    files = [],
     ref,
   }: NoteEditorProps) {
   const hostRef = useRef<HTMLDivElement | null>(null)
@@ -100,6 +104,7 @@ export const NoteEditor = function NoteEditor({
   const initialOpenWikilinkRef = useRef<NoteEditorProps['onOpenWikilink']>(onOpenWikilink)
   const initialVaultPathRef = useRef<string | null>(vaultPath)
   const initialNoteRelPathRef = useRef<string | null>(noteRelPath)
+  const initialFilesRef = useRef<NoteEntry[]>(files)
   const [initError, setInitError] = useState<Error | null>(null)
   const [lightbox, setLightbox] = useState<{ src: string; alt?: string } | null>(null)
   const highlightTimerRef = useRef<number | null>(null)
@@ -289,6 +294,12 @@ export const NoteEditor = function NoteEditor({
   }, [onOpenImage])
 
   useEffect(() => {
+    if (viewRef.current == null) {
+      initialFilesRef.current = files
+    }
+  }, [files])
+
+  useEffect(() => {
     return () => {
       if (highlightTimerRef.current != null) {
         window.clearTimeout(highlightTimerRef.current)
@@ -351,6 +362,7 @@ export const NoteEditor = function NoteEditor({
       markdown(),
       editorTheme,
       taskHighlightField,
+      createWikilinkCompletionExtension(initialFilesRef.current),
       wrapCompartment.of(initialWrapRef.current ? EditorView.lineWrapping : []),
       livePreviewCompartment.of(
         initialLivePreviewRef.current
