@@ -115,8 +115,6 @@ export const NoteEditor = function NoteEditor({
 
   const initialOpenImageRef = useRef<((url: string, alt?: string) => void) | null>(onOpenImage)
 
-  const filesRef = useRef<NoteEntry[]>(files)
-
   const wrapCompartmentRef = useRef<Compartment | null>(null)
   if (wrapCompartmentRef.current == null) {
     wrapCompartmentRef.current = new Compartment()
@@ -300,7 +298,6 @@ export const NoteEditor = function NoteEditor({
   }, [onOpenImage])
 
   useEffect(() => {
-    filesRef.current = files
     const view = viewRef.current
     const compartment = wikilinkCompletionCompartmentRef.current
     if (view && compartment) {
@@ -378,7 +375,7 @@ export const NoteEditor = function NoteEditor({
       markdown(),
       editorTheme,
       taskHighlightField,
-      wikilinkCompletionCompartment.of(createWikilinkCompletionExtension(filesRef.current)),
+      wikilinkCompletionCompartment.of(createWikilinkCompletionExtension(files)),
       wrapCompartment.of(initialWrapRef.current ? EditorView.lineWrapping : []),
       livePreviewCompartment.of(
         initialLivePreviewRef.current
@@ -416,7 +413,7 @@ export const NoteEditor = function NoteEditor({
         ...historyKeymap,
       ]),
     ]
-  }, [theme, renderLockedSections, isVaultUnlocked, onRequestUnlock, onLockedSectionsDetected])
+  }, [theme, renderLockedSections, isVaultUnlocked, onRequestUnlock, onLockedSectionsDetected, files])
 
   useEffect(() => {
     if (!hostRef.current) return

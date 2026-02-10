@@ -16,7 +16,7 @@ export function createWikilinkCompletionExtension(files: NoteEntry[]) {
     // Find [[ before cursor on current line
     let wikilinkStart = -1
     for (let i = lineOffset - 1; i >= 0; i--) {
-      if (lineText[i] === '[' && i > 0 && lineText[i - 1] === '[') {
+      if (lineText[i] === '[' && i >= 1 && lineText[i - 1] === '[') {
         wikilinkStart = i - 1
         break
       }
@@ -45,14 +45,28 @@ export function createWikilinkCompletionExtension(files: NoteEntry[]) {
     }
 
     // Filter notes based on the prefix (case-insensitive)
+    // Prioritize matches that start with the prefix
     const lowerPrefix = prefix.toLowerCase()
-    const matchingNotes = files
-      .filter((note) => {
-        const displayName = note.display_name.toLowerCase()
-        const relPath = note.rel_path.toLowerCase()
-        return displayName.includes(lowerPrefix) || relPath.includes(lowerPrefix)
-      })
-      .slice(0, 50) // Limit to 50 results for performance
+    const startsWithMatches: NoteEntry[] = []
+    const containsMatches: NoteEntry[] = []
+    
+    for (const note of files) {
+      const displayName = note.display_name.toLowerCase()
+      const relPath = note.rel_path.toLowerCase()
+      
+      if (displayName.startsWith(lowerPrefix) || relPath.startsWith(lowerPrefix)) {
+        startsWithMatches.push(note)
+      } else if (displayName.includes(lowerPrefix) || relPath.includes(lowerPrefix)) {
+        containsMatches.push(note)
+      }
+      
+      // Limit total results for performance
+      if (startsWithMatches.length + containsMatches.length >= 50) {
+        break
+      }
+    }
+    
+    const matchingNotes = [...startsWithMatches, ...containsMatches]
 
     if (matchingNotes.length === 0) {
       return null
