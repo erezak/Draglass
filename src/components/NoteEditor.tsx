@@ -12,7 +12,9 @@ import {
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown } from '@codemirror/lang-markdown'
 import { createLivePreviewExtension } from '../editor/livePreview'
+import { createWikilinkCompletionExtension } from '../editor/wikilinkCompletion'
 import type { HeadingSection, LockedBodyRange } from '../lockedSections'
+import type { NoteEntry } from '../types'
 
 const setTaskHighlightEffect = StateEffect.define<number>()
 const clearTaskHighlightEffect = StateEffect.define<void>()
@@ -62,6 +64,7 @@ type NoteEditorProps = {
   isVaultUnlocked?: boolean
   onRequestUnlock?: () => void
   onLockedSectionsDetected?: (sections: HeadingSection[], ranges: LockedBodyRange[]) => void
+  files?: NoteEntry[]
 }
 
 export type NoteEditorHandle = {
@@ -87,6 +90,7 @@ export const NoteEditor = function NoteEditor({
     isVaultUnlocked = false,
     onRequestUnlock,
     onLockedSectionsDetected,
+    files = [],
     ref,
   }: NoteEditorProps) {
   const hostRef = useRef<HTMLDivElement | null>(null)
@@ -119,6 +123,11 @@ export const NoteEditor = function NoteEditor({
   const livePreviewCompartmentRef = useRef<Compartment | null>(null)
   if (livePreviewCompartmentRef.current == null) {
     livePreviewCompartmentRef.current = new Compartment()
+  }
+
+  const wikilinkCompletionCompartmentRef = useRef<Compartment | null>(null)
+  if (wikilinkCompletionCompartmentRef.current == null) {
+    wikilinkCompletionCompartmentRef.current = new Compartment()
   }
 
   const revealLine = useCallback((lineNumber: number) => {
@@ -289,6 +298,16 @@ export const NoteEditor = function NoteEditor({
   }, [onOpenImage])
 
   useEffect(() => {
+    const view = viewRef.current
+    const compartment = wikilinkCompletionCompartmentRef.current
+    if (view && compartment) {
+      view.dispatch({
+        effects: compartment.reconfigure(createWikilinkCompletionExtension(files)),
+      })
+    }
+  }, [files])
+
+  useEffect(() => {
     return () => {
       if (highlightTimerRef.current != null) {
         window.clearTimeout(highlightTimerRef.current)
@@ -345,12 +364,18 @@ export const NoteEditor = function NoteEditor({
       throw new Error('Missing live preview compartment')
     }
 
+    const wikilinkCompletionCompartment = wikilinkCompletionCompartmentRef.current
+    if (!wikilinkCompletionCompartment) {
+      throw new Error('Missing wikilink completion compartment')
+    }
+
     return [
       lineNumbers(),
       history(),
       markdown(),
       editorTheme,
       taskHighlightField,
+      wikilinkCompletionCompartment.of(createWikilinkCompletionExtension(files)),
       wrapCompartment.of(initialWrapRef.current ? EditorView.lineWrapping : []),
       livePreviewCompartment.of(
         initialLivePreviewRef.current
@@ -388,7 +413,7 @@ export const NoteEditor = function NoteEditor({
         ...historyKeymap,
       ]),
     ]
-  }, [theme, renderLockedSections, isVaultUnlocked, onRequestUnlock, onLockedSectionsDetected])
+  }, [theme, renderLockedSections, isVaultUnlocked, onRequestUnlock, onLockedSectionsDetected, files])
 
   useEffect(() => {
     if (!hostRef.current) return

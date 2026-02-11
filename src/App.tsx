@@ -1024,6 +1024,7 @@ function App() {
                   isVaultUnlocked={isVaultUnlocked}
                   onRequestUnlock={onRequestUnlock}
                   onLockedSectionsDetected={onLockedSectionsDetected}
+                  files={files}
                 />
               </Suspense>
             )}
