@@ -1056,7 +1056,7 @@ function App() {
                           void tryOpenByTitle(l.normalized)
                         }}
                       >
-                        [[{l.target}]]
+                        {l.target}
                       </button>
                     </li>
                   ))}
