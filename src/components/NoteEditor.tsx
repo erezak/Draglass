@@ -548,7 +548,7 @@ export const NoteEditor = function NoteEditor({
   }
 
   return (
-    <div className="noteEditor">
+    <div className={`noteEditor ${livePreview ? 'noteEditor--livePreview' : 'noteEditor--source'}`}>
       <div className="noteEditorHost" ref={hostRef} />
       {lightbox ? (
         <div className="imageLightbox" role="presentation" onMouseDown={() => setLightbox(null)}>

@@ -26,6 +26,7 @@ const BOLD_UNDER_RE = /__([^_]+)__/g
 const ITALIC_RE = /(^|[^*])\*([^*]+)\*(?!\*)/g
 const ITALIC_UNDER_RE = /(^|[^_])_([^_]+)_(?!_)/g
 const TASK_RE = /^\s*(?:[-+*])\s+\[( |x|X|-)\]/
+const LIST_RE = /^(\s*(?:>+\s*)*)([-+*])\s+/
 
 type InlineLivePreviewOptions = {
   renderImages?: boolean
@@ -96,6 +97,24 @@ class TaskCheckboxWidget extends WidgetType {
 
   ignoreEvent() {
     return false
+  }
+}
+
+class BulletWidget extends WidgetType {
+  eq(other: BulletWidget) {
+    return other instanceof BulletWidget
+  }
+
+  toDOM() {
+    const span = document.createElement('span')
+    span.className = 'cm-livePreview-listBullet'
+    span.textContent = '•'
+    span.setAttribute('aria-hidden', 'true')
+    return span
+  }
+
+  ignoreEvent() {
+    return true
   }
 }
 
@@ -342,6 +361,21 @@ function buildInlineLivePreviewDecorations(
             from: markerFrom,
             to: markerTo,
             decoration: Decoration.replace({ widget: new HiddenMarkerWidget() }),
+          })
+        }
+      }
+
+      const isTaskLine = TASK_RE.test(text)
+      const listMatch = LIST_RE.exec(text)
+      if (listMatch && !isTaskLine) {
+        const prefix = listMatch[1] ?? ''
+        const markerFrom = line.from + prefix.length
+        const markerTo = markerFrom + 1
+        if (!selectionIntersects(markerFrom, markerTo)) {
+          decorations.push({
+            from: markerFrom,
+            to: markerTo,
+            decoration: Decoration.replace({ widget: new BulletWidget() }),
           })
         }
       }
