@@ -39,8 +39,8 @@ Create connections between notes using wikilinks. Discover relationships through
 backlinks and visualize your knowledge graph.
 
 ### 📝 Rich Markdown Support
-Full Markdown syntax with Live Preview mode, Mermaid diagrams, Excalidraw drawings, callouts, task
-checkboxes, and image lightbox.
+Full Markdown syntax with Live Preview mode, Properties (frontmatter), Mermaid diagrams, Excalidraw
+drawings, callouts, task checkboxes, and image lightbox.
 
 ### 🎨 Customizable
 Dark and light themes, resizable panes, configurable autosave, and dozens of settings to make

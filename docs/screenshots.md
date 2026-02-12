@@ -232,6 +232,7 @@ While not fully captured in static screenshots, Live Preview mode provides:
 - **Inline rendering**: Formatting appears as you type
 - **Hidden markup**: Bold, italic, and link syntax hidden until cursor enters
 - **Clickable wikilinks**: Click to navigate without leaving edit mode
+- **Properties panel**: Obsidian-style frontmatter editor above the note
 - **Rendered diagrams**: Mermaid flowcharts displayed inline
 - **Excalidraw drawings**: Sketch-style diagrams rendered in place
 - **Callout blocks**: Styled notes, tips, and warnings with icons

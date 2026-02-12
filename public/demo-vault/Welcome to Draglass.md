@@ -1,3 +1,14 @@
+---
+kind: note
+created: 2026-02-08
+personal?: false
+status: in progress
+project: Demo Vault
+aliases:
+tags:
+source: draglass demo
+---
+
 # Welcome to Draglass
 
 Draglass is a local-first knowledge base that runs entirely on your device. Every note lives as a plain Markdown file inside a vault folder you choose — no accounts, no cloud, no telemetry.

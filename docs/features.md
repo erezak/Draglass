@@ -24,6 +24,15 @@ Format as you type with inline rendering:
 - **Clickable elements**: Task checkboxes, wikilinks, and images are all interactive
 - **Real-time rendering**: Mermaid diagrams, callouts, and images render inline
 
+### Properties (Frontmatter)
+Manage note metadata with an Obsidian-style Properties panel that edits YAML frontmatter.
+
+Features:
+- Inline property list with type icons and quick editing
+- Collapsible panel to keep the editor focused
+- Supported types: Text, Checkbox, Date, Date & Time, Number
+- “Add property” flow for new metadata fields
+
 ### Source Mode
 Toggle to raw Markdown view when you need full control over syntax, formatting characters, and document structure.
 
