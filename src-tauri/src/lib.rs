@@ -7,6 +7,7 @@ mod demo_vault;
 mod graph;
 mod locked_sections;
 mod vault;
+mod vault_index;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -75,6 +76,17 @@ pub fn run() {
             read_vault_image,
             build_graph,
             search_vault,
+            search_v2,
+            index_status,
+            rebuild_index,
+            upsert_note,
+            remove_note,
+            cancel_request,
+            find_backlinks_v2,
+            build_graph_v2,
+            list_tasks_v2,
+            start_index_watcher,
+            stop_index_watcher,
             hash_vault_password,
             verify_vault_password,
             get_demo_vault_path,
@@ -133,6 +145,13 @@ use crate::vault::{
     read_note_impl, read_vault_image_impl, rename_note_impl, search_vault_impl, write_note_impl,
     NoteEntry, SearchHit, VaultImage,
 };
+use crate::vault_index::{
+    build_graph_v2_impl, cancel_request_impl, find_backlinks_v2_impl, index_status_impl,
+    list_tasks_v2_impl, rebuild_index_impl, remove_note_impl as remove_note_from_index_impl,
+    search_v2_impl, upsert_note_impl as upsert_note_index_impl, CancelResult, IndexStatus,
+    MutationResult, RebuildOptions, RebuildResult, RemoveResult, SearchFlags, SearchResponse,
+    TaskItem, WatcherResult, WatcherStopResult, start_index_watcher_impl, stop_index_watcher_impl,
+};
 
 #[tauri::command]
 async fn list_markdown_files(vault_path: String) -> Result<Vec<NoteEntry>, String> {
@@ -149,33 +168,79 @@ async fn read_note(vault_path: String, rel_path: String) -> Result<String, Strin
 }
 
 #[tauri::command]
-async fn write_note(vault_path: String, rel_path: String, contents: String) -> Result<(), String> {
-    tauri::async_runtime::spawn_blocking(move || write_note_impl(&vault_path, &rel_path, &contents))
+async fn write_note(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+    rel_path: String,
+    contents: String,
+) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        write_note_impl(&vault_path, &rel_path, &contents)?;
+        let _ = upsert_note_index_impl(
+            &app_handle,
+            &vault_path,
+            &rel_path,
+            Some(contents),
+            None,
+            None,
+        );
+        Ok(())
+    })
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }
 
 #[tauri::command]
-async fn create_note(vault_path: String, rel_path: String, contents: String) -> Result<(), String> {
+async fn create_note(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+    rel_path: String,
+    contents: String,
+) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || {
-        create_note_impl(&vault_path, &rel_path, &contents)
+        create_note_impl(&vault_path, &rel_path, &contents)?;
+        let _ = upsert_note_index_impl(
+            &app_handle,
+            &vault_path,
+            &rel_path,
+            Some(contents),
+            None,
+            None,
+        );
+        Ok(())
     })
     .await
     .map_err(|e| format!("failed to join task: {e}"))?
 }
 
 #[tauri::command]
-async fn rename_note(vault_path: String, from_rel_path: String, to_rel_path: String) -> Result<(), String> {
+async fn rename_note(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+    from_rel_path: String,
+    to_rel_path: String,
+) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || {
-        rename_note_impl(&vault_path, &from_rel_path, &to_rel_path)
+        rename_note_impl(&vault_path, &from_rel_path, &to_rel_path)?;
+        let _ = remove_note_from_index_impl(&app_handle, &vault_path, &from_rel_path);
+        let _ = upsert_note_index_impl(&app_handle, &vault_path, &to_rel_path, None, None, None);
+        Ok(())
     })
     .await
     .map_err(|e| format!("failed to join task: {e}"))?
 }
 
 #[tauri::command]
-async fn delete_note(vault_path: String, rel_path: String) -> Result<(), String> {
-    tauri::async_runtime::spawn_blocking(move || delete_note_impl(&vault_path, &rel_path))
+async fn delete_note(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+    rel_path: String,
+) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        delete_note_impl(&vault_path, &rel_path)?;
+        let _ = remove_note_from_index_impl(&app_handle, &vault_path, &rel_path);
+        Ok(())
+    })
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }
@@ -220,6 +285,164 @@ async fn search_vault(
     })
     .await
     .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn search_v2(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+    query: String,
+    flags: SearchFlags,
+    limit: usize,
+    offset: usize,
+    request_token: Option<String>,
+) -> Result<SearchResponse, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        search_v2_impl(
+            &app_handle,
+            &vault_path,
+            &query,
+            flags,
+            limit,
+            offset,
+            request_token,
+        )
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn index_status(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+) -> Result<IndexStatus, String> {
+    tauri::async_runtime::spawn_blocking(move || index_status_impl(&app_handle, &vault_path))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn rebuild_index(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+    options: RebuildOptions,
+) -> Result<RebuildResult, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        rebuild_index_impl(&app_handle, &vault_path, options)
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn upsert_note(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+    rel_path: String,
+    text: Option<String>,
+    mtime_ms: Option<u64>,
+    size_bytes: Option<u64>,
+) -> Result<MutationResult, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        upsert_note_index_impl(
+            &app_handle,
+            &vault_path,
+            &rel_path,
+            text,
+            mtime_ms,
+            size_bytes,
+        )
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn remove_note(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+    rel_path: String,
+) -> Result<RemoveResult, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        remove_note_from_index_impl(&app_handle, &vault_path, &rel_path)
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn cancel_request(request_token: String) -> Result<CancelResult, String> {
+    tauri::async_runtime::spawn_blocking(move || cancel_request_impl(&request_token))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn find_backlinks_v2(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+    target_title: String,
+    include_locked: bool,
+    show_hidden: bool,
+) -> Result<Vec<String>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        find_backlinks_v2_impl(
+            &app_handle,
+            &vault_path,
+            &target_title,
+            include_locked,
+            show_hidden,
+        )
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn build_graph_v2(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+    options: GraphOptions,
+) -> Result<GraphData, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        build_graph_v2_impl(&app_handle, &vault_path, options)
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn list_tasks_v2(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+    show_hidden: bool,
+    include_locked: bool,
+) -> Result<Vec<TaskItem>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        list_tasks_v2_impl(&app_handle, &vault_path, show_hidden, include_locked)
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn start_index_watcher(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+) -> Result<WatcherResult, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        start_index_watcher_impl(&app_handle, &vault_path)
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn stop_index_watcher(vault_path: String) -> Result<WatcherStopResult, String> {
+    tauri::async_runtime::spawn_blocking(move || stop_index_watcher_impl(&vault_path))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
 }
 
 #[tauri::command]

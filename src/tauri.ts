@@ -3,6 +3,78 @@ import { invoke } from '@tauri-apps/api/core'
 import type { NoteEntry, SearchHit } from './types'
 import type { GraphData, GraphOptions } from './features/graph/graphTypes'
 
+export type SearchFlags = {
+  caseSensitive?: boolean
+  includeHidden?: boolean
+  includeLocked?: boolean
+}
+
+export type SearchHighlightRange = {
+  start: number
+  end: number
+}
+
+export type SearchV2Hit = {
+  relPath: string
+  title: string
+  snippet: string
+  highlights: SearchHighlightRange[]
+  score: number
+  lineNumber: number | null
+}
+
+export type SearchV2Response = {
+  results: SearchV2Hit[]
+  total: number
+  tookMs: number
+  nextOffset: number | null
+  canceled: boolean
+}
+
+export type IndexStatus = {
+  state: 'idle' | 'indexing' | 'rebuilding' | 'error' | string
+  lastIndexed: number | null
+  queueDepth: number
+  rebuilding: boolean
+  indexedNotes: number
+  totalNotes: number
+}
+
+export type RebuildIndexOptions = {
+  includeHidden?: boolean
+  force?: boolean
+  reason?: string
+  requestToken?: string
+}
+
+export type RebuildIndexResult = {
+  accepted: boolean
+  jobId: string
+}
+
+export type TaskIndexItem = {
+  relPath: string
+  noteTitle: string
+  lineNumber: number
+  text: string
+  state: string
+}
+
+export type WatcherResult = {
+  started: boolean
+  alreadyRunning: boolean
+}
+
+export type WatcherStopResult = {
+  stopped: boolean
+}
+
+export type VaultFileChangedEvent = {
+  vaultPath: string
+  relPath: string
+  kind: 'changed' | 'removed' | string
+}
+
 export type VaultImageResponse = {
   bytes: number[]
   mime: string
@@ -156,17 +228,24 @@ async function tauriFindBacklinks(
   vaultPath: string,
   targetTitle: string,
   excludeLocked: boolean = false,
+  showHidden: boolean = false,
 ): Promise<string[]> {
-  return invoke<string[]>('find_backlinks', { vaultPath, targetTitle, excludeLocked })
+  return invoke<string[]>('find_backlinks_v2', {
+    vaultPath,
+    targetTitle,
+    includeLocked: !excludeLocked,
+    showHidden,
+  })
 }
 
 export async function findBacklinks(
   vaultPath: string,
   targetTitle: string,
   excludeLocked: boolean = false,
+  showHidden: boolean = false,
 ): Promise<string[]> {
   if (isTauri()) {
-    return tauriFindBacklinks(vaultPath, targetTitle, excludeLocked)
+    return tauriFindBacklinks(vaultPath, targetTitle, excludeLocked, showHidden)
   } else {
     const { webFindBacklinks } = await import('./webVault')
     return webFindBacklinks(vaultPath, targetTitle, excludeLocked)
@@ -208,7 +287,7 @@ async function tauriBuildGraph(
   vaultPath: string,
   options: GraphOptions,
 ): Promise<GraphData> {
-  return invoke<GraphData>('build_graph', { vaultPath, options })
+  return invoke<GraphData>('build_graph_v2', { vaultPath, options })
 }
 
 export async function buildGraph(
@@ -220,6 +299,204 @@ export async function buildGraph(
   } else {
     const { webBuildGraph } = await import('./webVault')
     return webBuildGraph(vaultPath, options)
+  }
+}
+
+async function tauriSearchV2(
+  vaultPath: string,
+  query: string,
+  flags: SearchFlags,
+  limit: number,
+  offset: number,
+  requestToken?: string,
+): Promise<SearchV2Response> {
+  return invoke<SearchV2Response>('search_v2', {
+    vaultPath,
+    query,
+    flags,
+    limit,
+    offset,
+    requestToken,
+  })
+}
+
+export async function searchV2(
+  vaultPath: string,
+  query: string,
+  flags: SearchFlags,
+  limit: number,
+  offset: number,
+  requestToken?: string,
+): Promise<SearchV2Response> {
+  if (isTauri()) {
+    return tauriSearchV2(vaultPath, query, flags, limit, offset, requestToken)
+  }
+
+  const { webSearchVault } = await import('./webVault')
+  const hits = await webSearchVault(
+    vaultPath,
+    query,
+    !!flags.caseSensitive,
+    !flags.includeLocked,
+    !!flags.includeHidden,
+  )
+
+  const mapped: SearchV2Hit[] = hits.slice(offset, offset + limit).map((hit) => ({
+    relPath: hit.rel_path,
+    title: hit.rel_path.split('/').pop()?.replace(/\.(md|markdown)$/i, '') ?? hit.rel_path,
+    snippet: hit.snippet,
+    highlights: [],
+    score: 0,
+    lineNumber: hit.line_number,
+  }))
+
+  const nextOffset = offset + mapped.length < hits.length ? offset + mapped.length : null
+  return {
+    results: mapped,
+    total: hits.length,
+    tookMs: 0,
+    nextOffset,
+    canceled: false,
+  }
+}
+
+async function tauriCancelRequest(requestToken: string): Promise<boolean> {
+  const result = await invoke<{ canceled: boolean }>('cancel_request', { requestToken })
+  return result.canceled
+}
+
+export async function cancelRequest(requestToken: string): Promise<boolean> {
+  if (!isTauri()) return true
+  return tauriCancelRequest(requestToken)
+}
+
+async function tauriIndexStatus(vaultPath: string): Promise<IndexStatus> {
+  return invoke<IndexStatus>('index_status', { vaultPath })
+}
+
+export async function indexStatus(vaultPath: string): Promise<IndexStatus> {
+  if (!isTauri()) {
+    return {
+      state: 'idle',
+      lastIndexed: null,
+      queueDepth: 0,
+      rebuilding: false,
+      indexedNotes: 0,
+      totalNotes: 0,
+    }
+  }
+  return tauriIndexStatus(vaultPath)
+}
+
+async function tauriRebuildIndex(
+  vaultPath: string,
+  options: RebuildIndexOptions,
+): Promise<RebuildIndexResult> {
+  return invoke<RebuildIndexResult>('rebuild_index', { vaultPath, options })
+}
+
+export async function rebuildIndex(
+  vaultPath: string,
+  options: RebuildIndexOptions,
+): Promise<RebuildIndexResult> {
+  if (!isTauri()) {
+    return { accepted: true, jobId: 'web-noop' }
+  }
+  return tauriRebuildIndex(vaultPath, options)
+}
+
+async function tauriListTasksV2(
+  vaultPath: string,
+  showHidden: boolean,
+  includeLocked: boolean,
+): Promise<TaskIndexItem[]> {
+  return invoke<TaskIndexItem[]>('list_tasks_v2', {
+    vaultPath,
+    showHidden,
+    includeLocked,
+  })
+}
+
+export async function listTasksV2(
+  vaultPath: string,
+  showHidden: boolean,
+  includeLocked: boolean,
+): Promise<TaskIndexItem[]> {
+  if (isTauri()) {
+    return tauriListTasksV2(vaultPath, showHidden, includeLocked)
+  }
+
+  const { webListMarkdownFiles, webReadNote } = await import('./webVault')
+  const files = await webListMarkdownFiles()
+  const results: TaskIndexItem[] = []
+  const taskRe = /^(\s*)([-+*])\s+\[( |x|X|-)\]\s*(.*)$/
+
+  for (const file of files) {
+    const text = await webReadNote(vaultPath, file.rel_path)
+    const lines = text.split(/\r?\n/)
+    for (let i = 0; i < lines.length; i += 1) {
+      const line = lines[i] ?? ''
+      const match = taskRe.exec(line)
+      if (!match) continue
+      const state = (match[3] ?? ' ').toLowerCase()
+      if (state === 'x') continue
+      results.push({
+        relPath: file.rel_path,
+        noteTitle: file.display_name,
+        lineNumber: i + 1,
+        text: (match[4] ?? '').trim(),
+        state,
+      })
+    }
+  }
+
+  return results
+}
+
+async function tauriStartIndexWatcher(vaultPath: string): Promise<WatcherResult> {
+  return invoke<WatcherResult>('start_index_watcher', { vaultPath })
+}
+
+export async function startIndexWatcher(vaultPath: string): Promise<WatcherResult> {
+  if (!isTauri()) {
+    return { started: true, alreadyRunning: false }
+  }
+  return tauriStartIndexWatcher(vaultPath)
+}
+
+async function tauriStopIndexWatcher(vaultPath: string): Promise<WatcherStopResult> {
+  return invoke<WatcherStopResult>('stop_index_watcher', { vaultPath })
+}
+
+export async function stopIndexWatcher(vaultPath: string): Promise<WatcherStopResult> {
+  if (!isTauri()) {
+    return { stopped: true }
+  }
+  return tauriStopIndexWatcher(vaultPath)
+}
+
+export async function onVaultFileChanged(
+  handler: (payload: VaultFileChangedEvent) => void,
+): Promise<() => void> {
+  if (!isTauri()) {
+    return () => {}
+  }
+
+  const { listen } = await import('@tauri-apps/api/event')
+  const unlisten = await listen<VaultFileChangedEvent>('vault-file-changed', (event) => {
+    handler(event.payload)
+  })
+
+  let called = false
+  return () => {
+    if (called) return
+    called = true
+    if (typeof unlisten !== 'function') return
+    void Promise.resolve()
+      .then(() => unlisten())
+      .catch(() => {
+        // no-op: listener may already be unregistered by runtime teardown/HMR
+      })
   }
 }
 

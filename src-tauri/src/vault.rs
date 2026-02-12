@@ -4,7 +4,7 @@ use std::path::{Component, Path, PathBuf};
 
 use crate::common::{
     collect_markdown_file_paths, collect_supported_file_paths,
-    is_hidden_path, is_markdown_file, is_supported_note_file,
+    is_hidden_path, is_markdown_file, is_supported_note_file, read_text_file,
 };
 
 #[derive(Debug, Serialize)]
@@ -199,7 +199,7 @@ pub fn list_markdown_files_impl(vault_path: &str) -> Result<Vec<NoteEntry>, Stri
 
 pub fn read_note_impl(vault_path: &str, rel_path: &str) -> Result<String, String> {
     let path = resolve_existing_note_path(vault_path, rel_path)?;
-    std::fs::read_to_string(path).map_err(|e| format!("failed to read note: {e}"))
+    read_text_file(&path).map_err(|e| format!("failed to read note: {e}"))
 }
 
 pub fn write_note_impl(vault_path: &str, rel_path: &str, contents: &str) -> Result<(), String> {

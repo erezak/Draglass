@@ -109,6 +109,61 @@ description = "Allows searching the vault for content (legacy command name)."
 commands.allow = ["search_vault"]
 
 [[permission]]
+identifier = "search-v2"
+description = "Allows searching the indexed vault with ranking, pagination, and lock filtering."
+commands.allow = ["search_v2"]
+
+[[permission]]
+identifier = "index-status"
+description = "Allows reading vault index status."
+commands.allow = ["index_status"]
+
+[[permission]]
+identifier = "rebuild-index"
+description = "Allows rebuilding the vault search index."
+commands.allow = ["rebuild_index"]
+
+[[permission]]
+identifier = "upsert-note-index"
+description = "Allows upserting a note in the vault index."
+commands.allow = ["upsert_note"]
+
+[[permission]]
+identifier = "remove-note-index"
+description = "Allows removing a note from the vault index."
+commands.allow = ["remove_note"]
+
+[[permission]]
+identifier = "cancel-request"
+description = "Allows canceling long-running index/search requests."
+commands.allow = ["cancel_request"]
+
+[[permission]]
+identifier = "find-backlinks-v2"
+description = "Allows reading backlinks from the indexed vault data."
+commands.allow = ["find_backlinks_v2"]
+
+[[permission]]
+identifier = "build-graph-v2"
+description = "Allows building graph data from the indexed vault data."
+commands.allow = ["build_graph_v2"]
+
+[[permission]]
+identifier = "list-tasks-v2"
+description = "Allows reading task items from indexed vault data."
+commands.allow = ["list_tasks_v2"]
+
+[[permission]]
+identifier = "start-index-watcher"
+description = "Allows starting a filesystem watcher for index updates."
+commands.allow = ["start_index_watcher"]
+
+[[permission]]
+identifier = "stop-index-watcher"
+description = "Allows stopping a filesystem watcher for index updates."
+commands.allow = ["stop_index_watcher"]
+
+[[permission]]
 identifier = "hash-vault-password"
 description = "Allows hashing a password for vault authentication."
 commands.allow = ["hash_vault_password"]
@@ -164,6 +219,17 @@ permissions = [
   "build-graph-legacy",
   "search-vault",
   "search-vault-legacy",
+  "search-v2",
+  "index-status",
+  "rebuild-index",
+  "upsert-note-index",
+  "remove-note-index",
+  "cancel-request",
+  "find-backlinks-v2",
+  "build-graph-v2",
+  "list-tasks-v2",
+  "start-index-watcher",
+  "stop-index-watcher",
   "hash-vault-password",
   "hash-vault-password-legacy",
   "verify-vault-password",

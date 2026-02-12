@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { open } from '@tauri-apps/plugin-dialog'
 
-import { listMarkdownFiles, isTauri } from '../../tauri'
+import { listMarkdownFiles, isTauri, startIndexWatcher, stopIndexWatcher } from '../../tauri'
 import type { NoteEntry } from '../../types'
 import { isVisibleNoteForNavigation } from '../../ignore'
 
@@ -49,6 +49,7 @@ export function useVault({ rememberLast, showHidden, openDemoOnEmpty, onBusy, on
 } {
   const [vaultPath, setVaultPath] = useState<string | null>(null)
   const [files, setFiles] = useState<NoteEntry[]>([])
+  const previousVaultPathRef = useRef<string | null>(null)
 
   const loadRequestIdRef = useRef(0)
   const hadPreviousVaultRef = useRef(false)
@@ -79,7 +80,14 @@ export function useVault({ rememberLast, showHidden, openDemoOnEmpty, onBusy, on
       onError(null)
       onBusy('Loading files…')
       try {
+        const previousVault = previousVaultPathRef.current
+        if (previousVault && previousVault !== vault) {
+          void stopIndexWatcher(previousVault)
+        }
+
         await refreshFileList(vault)
+        void startIndexWatcher(vault)
+        previousVaultPathRef.current = vault
       } catch (e) {
         if (loadRequestIdRef.current === requestId) {
           onError(String(e))
@@ -179,6 +187,14 @@ export function useVault({ rememberLast, showHidden, openDemoOnEmpty, onBusy, on
     
     saveLastVaultPath(vaultPath)
   }, [rememberLast, vaultPath])
+
+  useEffect(() => {
+    return () => {
+      if (previousVaultPathRef.current) {
+        void stopIndexWatcher(previousVaultPathRef.current)
+      }
+    }
+  }, [])
 
   return {
     vaultPath,

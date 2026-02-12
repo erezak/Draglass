@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { NoteEntry } from '../../types'
-import { readNote } from '../../tauri'
+import { listTasksV2 } from '../../tauri'
 import { fileStem } from '../../path'
-import { isVisibleNoteForNavigation } from '../../ignore'
 import {
   extractTasksFromTextWithLockFilter,
-  filterTaskEntries,
   type TaskState,
 } from './taskScanner'
 
@@ -59,28 +57,6 @@ export function useTasks({
     }
   }, [])
 
-  const buildTasksForNote = useCallback(
-    async (vault: string, entry: NoteEntry): Promise<TaskItem[]> => {
-      try {
-        const contents = await readNote(vault, entry.rel_path)
-        // When vault is locked, exclude tasks from locked sections
-        const matches = extractTasksFromTextWithLockFilter(contents, !isVaultUnlocked)
-        return matches
-          .filter((task) => task.state !== 'x')
-          .map((task) => ({
-            relPath: entry.rel_path,
-            noteTitle: fileStem(entry.rel_path),
-            lineNumber: task.lineNumber,
-            text: task.text,
-            state: task.state,
-          }))
-      } catch {
-        return []
-      }
-    },
-    [isVaultUnlocked],
-  )
-
   const buildTasksForText = useCallback((relPath: string, text: string): TaskItem[] => {
     // When vault is locked, exclude tasks from locked sections
     const matches = extractTasksFromTextWithLockFilter(text, !isVaultUnlocked)
@@ -131,33 +107,24 @@ export function useTasks({
       setTasksBusy(true)
     }
 
-    const candidates = filterTaskEntries(files, showHidden, (relPath) =>
-      isVisibleNoteForNavigation(relPath, false),
-    )
-    const results: TaskItem[] = []
-    const batchSize = 8
+    const indexedTasks = await listTasksV2(vaultPath, showHidden, isVaultUnlocked)
+    if (scanRequestIdRef.current !== requestId) return
 
-    for (let i = 0; i < candidates.length; i += batchSize) {
-      const batch = candidates.slice(i, i + batchSize)
-      const batchResults = await Promise.all(
-        batch.map((entry) => buildTasksForNote(vaultPath, entry)),
-      )
-
-      if (scanRequestIdRef.current !== requestId) return
-
-      for (const tasksForNote of batchResults) {
-        results.push(...tasksForNote)
-      }
-
-      await new Promise((resolve) => {
-        window.setTimeout(resolve, 0)
-      })
-    }
+    const fileSet = new Set(files.map((f) => f.rel_path))
+    const results: TaskItem[] = indexedTasks
+      .filter((task) => fileSet.has(task.relPath))
+      .map((task) => ({
+        relPath: task.relPath,
+        noteTitle: task.noteTitle || fileStem(task.relPath),
+        lineNumber: task.lineNumber,
+        text: task.text,
+        state: (task.state as TaskState) || ' ',
+      }))
 
     if (scanRequestIdRef.current !== requestId) return
     setTasks(results)
     setTasksBusy(false)
-  }, [buildTasksForNote, files, showHidden, vaultPath])
+  }, [files, isVaultUnlocked, showHidden, vaultPath])
 
   const scheduleTasksScan = useCallback(() => {
     clearTimer()

@@ -1,3 +1,19 @@
+- 2026-02-12 — Decision: External vault changes are handled with incremental path-level watcher updates plus frontend file-change events for near-immediate active-note refresh.
+  - Rationale: Full-vault rescans on every watcher tick are too slow for Obsidian-like responsiveness.
+  - Impact: Watcher pipelines should batch changed paths into upsert/remove index writes, emit `vault-file-changed`, and only use periodic full resync as a reconciliation fallback.
+
+- 2026-02-12 — Decision: Per-vault index maintenance uses a Rust filesystem watcher with debounced resync plus periodic polling fallback.
+  - Rationale: Native file events can be dropped or inconsistent across platforms; fallback polling preserves eventual consistency without network.
+  - Impact: Vault load should start watcher lifecycle; external create/edit/rename/delete must be reflected by index resync even when watcher events are unreliable.
+
+- 2026-02-12 — Decision: Introduce a Rust-owned per-vault SQLite index/cache (outside the vault) for search and derived data, with Markdown files remaining canonical.
+  - Rationale: Full-vault rescans for search/backlinks/graph/tasks do not scale and duplicate parsing logic; a rebuildable cache preserves local-first transparency.
+  - Impact: Derived features should read from a shared index API; DB loss/corruption must trigger safe rebuild; never treat DB contents as source of truth.
+
+- 2026-02-12 — Decision: Establish a stable boundary where Rust owns vault I/O, canonical filtering (hidden + locked), parsing/indexing/caching, and React owns UI state/rendering/debounce/cancel orchestration.
+  - Rationale: Current feature-by-feature derivation causes consistency drift and privacy risk; centralizing semantics in Rust enforces one policy surface.
+  - Impact: New derived-data features must consume Rust engine APIs; frontend should not re-implement lock/ignore parsing rules for search/backlinks/graph/tasks.
+
 - 2026-02-05 — Decision: All new Tauri commands must be explicitly authorized in both `src-tauri/permissions/` (TOML) and `src-tauri/capabilities/` (JSON).
   - Rationale: Tauri v2 requires a strict security manifest for command execution; commands not listed in capabilities will fail with "not allowed".
   - Impact: When adding an `#[tauri::command]`, create/update a permission in `permissions/` and add it to the relevant capability in `capabilities/`.

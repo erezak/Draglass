@@ -43,6 +43,7 @@ export function useNoteManager({
   isDirty: boolean
   autosave: ReturnType<typeof useNoteAutosave>
   openNoteByRelPath: (relPath: string) => Promise<boolean>
+  syncActiveNoteFromDisk: (relPath: string, nextText?: string) => Promise<boolean>
   tryOpenByTitle: (title: string) => Promise<void>
   openOrCreateWikilink: (rawTarget: string) => Promise<void>
   renameActiveNote: (nextTitle: string) => Promise<boolean>
@@ -130,6 +131,33 @@ export function useNoteManager({
       }
     },
     [activeRelPath, autosave, isDirty, recordRecent, resetBacklinks, scheduleBacklinksScan, setBusy, setError, vaultPath],
+  )
+
+  const syncActiveNoteFromDisk = useCallback(
+    async (relPath: string, nextText?: string): Promise<boolean> => {
+      if (!vaultPath) return false
+      if (!activeRelPath || activeRelPath !== relPath) return false
+
+      try {
+        const text = nextText ?? (await readNote(vaultPath, relPath))
+        if (activeRelPath !== relPath) return false
+        if (text === noteText) {
+          if (savedText !== text) {
+            setSavedText(text)
+          }
+          return false
+        }
+
+        setNoteText(text)
+        setSavedText(text)
+        resetBacklinks()
+        scheduleBacklinksScan(vaultPath, relPath)
+        return true
+      } catch {
+        return false
+      }
+    },
+    [activeRelPath, noteText, resetBacklinks, savedText, scheduleBacklinksScan, vaultPath],
   )
 
   const tryOpenByTitle = useCallback(
@@ -274,6 +302,7 @@ export function useNoteManager({
     isDirty,
     autosave,
     openNoteByRelPath,
+    syncActiveNoteFromDisk,
     tryOpenByTitle,
     openOrCreateWikilink,
     renameActiveNote,

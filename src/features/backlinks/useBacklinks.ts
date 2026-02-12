@@ -9,6 +9,7 @@ type UseBacklinksArgs = {
   debounceMs: number
   onError: (message: string) => void
   isVaultUnlocked: boolean
+  showHidden: boolean
 }
 
 export function useBacklinks({
@@ -16,6 +17,7 @@ export function useBacklinks({
   debounceMs,
   onError,
   isVaultUnlocked,
+  showHidden,
 }: UseBacklinksArgs): {
   backlinks: string[]
   backlinksBusy: boolean
@@ -42,7 +44,7 @@ export function useBacklinks({
       try {
         // Exclude links from locked sections when vault is locked
         const excludeLocked = !isVaultUnlocked
-        const links = await findBacklinks(vault, title, excludeLocked)
+        const links = await findBacklinks(vault, title, excludeLocked, showHidden)
         if (backlinksRequestIdRef.current === requestId) {
           setBacklinks(links)
         }
@@ -57,7 +59,7 @@ export function useBacklinks({
         }
       }
     },
-    [isVaultUnlocked, onError],
+    [isVaultUnlocked, onError, showHidden],
   )
 
   const scheduleBacklinksScan = useCallback(

@@ -26,6 +26,7 @@ import { useTasks } from './features/tasks/useTasks'
 import { useEditorTheme } from './features/theme/useEditorTheme'
 import { useVault } from './features/vault/useVault'
 import { useVaultAuth, hasVaultPassword, checkVaultPassword } from './features/vault/useVaultAuth'
+import { onVaultFileChanged, readNote } from './tauri'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 import { ExcalidrawEditor } from './components/ExcalidrawEditor'
@@ -149,6 +150,7 @@ function App() {
     debounceMs: settings.backlinksDebounceMs,
     onError: (message) => setError(message),
     isVaultUnlocked,
+    showHidden: settings.filesShowHidden,
   })
 
   const onDidSaveNote = useCallback(() => {
@@ -159,9 +161,11 @@ function App() {
     activeRelPath,
     noteText,
     setNoteText,
+    isDirty,
     noteTitle,
     autosave,
     openNoteByRelPath,
+    syncActiveNoteFromDisk,
     tryOpenByTitle,
     openOrCreateWikilink,
     renameActiveNote,
@@ -261,6 +265,196 @@ function App() {
   useEffect(() => {
     scheduleTasksScanRef.current = scheduleTasksScan
   }, [scheduleTasksScan])
+
+  const activeRelPathRef = useRef<string | null>(activeRelPath)
+  const isDirtyRef = useRef(isDirty)
+  const filesRef = useRef(files)
+  const noteTextRef = useRef(noteText)
+
+  useEffect(() => {
+    activeRelPathRef.current = activeRelPath
+  }, [activeRelPath])
+
+  useEffect(() => {
+    isDirtyRef.current = isDirty
+  }, [isDirty])
+
+  useEffect(() => {
+    filesRef.current = files
+  }, [files])
+
+  useEffect(() => {
+    noteTextRef.current = noteText
+  }, [noteText])
+
+  useEffect(() => {
+    if (!vaultPath) return
+
+    let disposed = false
+    let unlisten: (() => void) | null = null
+    let refreshTimer: number | null = null
+    let activeReloadTimer: number | null = null
+
+    const scheduleFileListRefresh = () => {
+      if (refreshTimer != null) {
+        window.clearTimeout(refreshTimer)
+      }
+      refreshTimer = window.setTimeout(() => {
+        refreshTimer = null
+        void refreshFileList(vaultPath)
+      }, 220)
+    }
+
+    const scheduleActiveReload = (relPath: string) => {
+      if (activeReloadTimer != null) {
+        window.clearTimeout(activeReloadTimer)
+      }
+      activeReloadTimer = window.setTimeout(() => {
+        activeReloadTimer = null
+        void syncActiveNoteFromDisk(relPath)
+      }, 120)
+    }
+
+    const reloadActiveIfClean = (relPath: string) => {
+      if (isDirtyRef.current) return
+      scheduleActiveReload(relPath)
+    }
+
+    void (async () => {
+      const off = await onVaultFileChanged((payload) => {
+        if (disposed) return
+        if (payload.vaultPath !== vaultPath) return
+
+        const currentActive = activeRelPathRef.current
+        const currentFiles = filesRef.current
+
+        if (payload.kind === 'resynced') {
+          scheduleFileListRefresh()
+          if (currentActive) {
+            reloadActiveIfClean(currentActive)
+          }
+          return
+        }
+
+        if (payload.relPath === currentActive) {
+          reloadActiveIfClean(payload.relPath)
+        }
+
+        if (payload.kind === 'removed') {
+          scheduleFileListRefresh()
+          return
+        }
+
+        const exists = currentFiles.some((entry) => entry.rel_path === payload.relPath)
+        if (!exists || payload.relPath !== currentActive) {
+          scheduleFileListRefresh()
+        }
+      })
+
+      if (disposed) {
+        off()
+        return
+      }
+      unlisten = off
+    })()
+
+    return () => {
+      disposed = true
+      if (refreshTimer != null) {
+        window.clearTimeout(refreshTimer)
+      }
+      if (activeReloadTimer != null) {
+        window.clearTimeout(activeReloadTimer)
+      }
+      if (unlisten) {
+        try {
+          unlisten()
+        } catch {
+          // no-op: listener may already be unregistered
+        }
+      }
+    }
+  }, [refreshFileList, setError, syncActiveNoteFromDisk, vaultPath])
+
+  useEffect(() => {
+    if (!vaultPath) return
+
+    let disposed = false
+    let inFlight = false
+    const checkActiveNoteOnDisk = (forceReloadWhenClean: boolean = false) => {
+      if (disposed || inFlight) return
+
+      const currentActive = activeRelPathRef.current
+      if (!currentActive) return
+
+       if (forceReloadWhenClean && !isDirtyRef.current) {
+        inFlight = true
+        void (async () => {
+          try {
+            await syncActiveNoteFromDisk(currentActive)
+          } finally {
+            inFlight = false
+          }
+        })()
+        return
+      }
+
+      inFlight = true
+      void (async () => {
+        try {
+          const diskText = await readNote(vaultPath, currentActive)
+          if (disposed) return
+          if (activeRelPathRef.current !== currentActive) return
+
+          if (diskText !== noteTextRef.current) {
+            if (!isDirtyRef.current) {
+              await syncActiveNoteFromDisk(currentActive, diskText)
+            }
+          }
+        } catch {
+          // ignore transient read errors while files are being atomically replaced
+        } finally {
+          inFlight = false
+        }
+      })()
+    }
+
+    let rafId: number | null = null
+    let lastTick = 0
+
+    const tick = (now: number) => {
+      if (disposed) return
+      if (now - lastTick >= 1200) {
+        lastTick = now
+        checkActiveNoteOnDisk()
+      }
+      rafId = window.requestAnimationFrame(tick)
+    }
+
+    rafId = window.requestAnimationFrame(tick)
+
+    const onFocus = () => {
+      checkActiveNoteOnDisk(true)
+    }
+
+    const onVisibilityChange = () => {
+      if (!document.hidden) {
+        checkActiveNoteOnDisk(true)
+      }
+    }
+
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    return () => {
+      disposed = true
+      if (rafId != null) {
+        window.cancelAnimationFrame(rafId)
+      }
+      window.removeEventListener('focus', onFocus)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
+  }, [setError, syncActiveNoteFromDisk, vaultPath])
 
   // Parsing wikilinks can be relatively expensive on large notes.
   // Defer derived UI updates to keep typing responsive.

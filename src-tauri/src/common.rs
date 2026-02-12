@@ -107,6 +107,54 @@ pub fn is_hidden_path(rel_path: &str) -> bool {
 // File collection
 // ---------------------------------------------------------------------------
 
+/// Read a text file with basic BOM support (UTF-8, UTF-16 LE/BE).
+pub fn read_text_file(path: &Path) -> Result<String, String> {
+    let bytes = std::fs::read(path).map_err(|e| format!("failed to read file: {e}"))?;
+    decode_text_bytes(&bytes)
+}
+
+fn decode_text_bytes(bytes: &[u8]) -> Result<String, String> {
+    const UTF8_BOM: [u8; 3] = [0xEF, 0xBB, 0xBF];
+    const UTF16_LE_BOM: [u8; 2] = [0xFF, 0xFE];
+    const UTF16_BE_BOM: [u8; 2] = [0xFE, 0xFF];
+
+    if bytes.starts_with(&UTF8_BOM) {
+        return std::str::from_utf8(&bytes[3..])
+            .map(|s| s.to_string())
+            .map_err(|e| format!("invalid UTF-8 text: {e}"));
+    }
+
+    if bytes.starts_with(&UTF16_LE_BOM) {
+        return decode_utf16(&bytes[2..], true);
+    }
+
+    if bytes.starts_with(&UTF16_BE_BOM) {
+        return decode_utf16(&bytes[2..], false);
+    }
+
+    std::str::from_utf8(bytes)
+        .map(|s| s.to_string())
+        .map_err(|e| format!("invalid UTF-8 text: {e}"))
+}
+
+fn decode_utf16(bytes: &[u8], little_endian: bool) -> Result<String, String> {
+    if bytes.len() % 2 != 0 {
+        return Err("invalid UTF-16 length".to_string());
+    }
+
+    let mut units = Vec::with_capacity(bytes.len() / 2);
+    for chunk in bytes.chunks_exact(2) {
+        let value = if little_endian {
+            u16::from_le_bytes([chunk[0], chunk[1]])
+        } else {
+            u16::from_be_bytes([chunk[0], chunk[1]])
+        };
+        units.push(value);
+    }
+
+    String::from_utf16(&units).map_err(|e| format!("invalid UTF-16 text: {e}"))
+}
+
 /// Collect all Markdown file paths recursively from a directory.
 /// Returns `(rel_path, absolute_path)` pairs.
 pub fn collect_markdown_file_paths(
@@ -298,5 +346,26 @@ mod tests {
         assert!(is_supported_note_file(Path::new("drawing.excalidraw")));
         assert!(!is_supported_note_file(Path::new("image.png")));
         assert!(!is_supported_note_file(Path::new("data.json")));
+    }
+
+    #[test]
+    fn decode_utf8_with_bom() {
+        let bytes = [0xEF, 0xBB, 0xBF, b'a', b'b'];
+        let text = decode_text_bytes(&bytes).expect("decode utf8 bom");
+        assert_eq!(text, "ab");
+    }
+
+    #[test]
+    fn decode_utf16_le_with_bom() {
+        let bytes = [0xFF, 0xFE, b'a', 0x00, b'b', 0x00];
+        let text = decode_text_bytes(&bytes).expect("decode utf16 le");
+        assert_eq!(text, "ab");
+    }
+
+    #[test]
+    fn decode_utf16_be_with_bom() {
+        let bytes = [0xFE, 0xFF, 0x00, b'a', 0x00, b'b'];
+        let text = decode_text_bytes(&bytes).expect("decode utf16 be");
+        assert_eq!(text, "ab");
     }
 }

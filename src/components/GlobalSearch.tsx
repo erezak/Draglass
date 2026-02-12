@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { searchVault } from '../tauri'
-import type { SearchHit } from '../types'
+import { useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react'
+import { cancelRequest, searchV2, type SearchV2Hit } from '../tauri'
 
 type GlobalSearchProps = {
   vaultPath: string | null
@@ -12,8 +11,10 @@ type GlobalSearchProps = {
 type GroupedResults = {
   relPath: string
   title: string
-  hits: SearchHit[]
+  hits: SearchV2Hit[]
 }
+
+const SEARCH_PAGE_SIZE = 200
 
 export function GlobalSearch({
   vaultPath,
@@ -23,50 +24,97 @@ export function GlobalSearch({
 }: GlobalSearchProps) {
   const [query, setQuery] = useState('')
   const [caseSensitive, setCaseSensitive] = useState(false)
-  const [results, setResults] = useState<SearchHit[]>([])
+  const [results, setResults] = useState<SearchV2Hit[]>([])
+  const [total, setTotal] = useState(0)
+  const [nextOffset, setNextOffset] = useState<number | null>(null)
   const [searching, setSearching] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const activeTokenRef = useRef<string | null>(null)
+
+  const makeToken = useCallback((suffix: string) => `search-${Date.now()}-${suffix}`, [])
+
+  const runSearch = useCallback(
+    async (offset: number, append: boolean) => {
+      if (!vaultPath || !query.trim()) {
+        setResults([])
+        setTotal(0)
+        setNextOffset(null)
+        setSearching(false)
+        return
+      }
+
+      if (activeTokenRef.current) {
+        void cancelRequest(activeTokenRef.current)
+      }
+
+      const token = makeToken(`${offset}`)
+      activeTokenRef.current = token
+      setSearching(true)
+      setError(null)
+
+      try {
+        const response = await searchV2(
+          vaultPath,
+          query,
+          {
+            caseSensitive,
+            includeHidden: showHidden,
+            includeLocked: isVaultUnlocked,
+          },
+          SEARCH_PAGE_SIZE,
+          offset,
+          token,
+        )
+
+        if (response.canceled) return
+
+        setResults((prev) => (append ? [...prev, ...response.results] : response.results))
+        setTotal(response.total)
+        setNextOffset(response.nextOffset)
+      } catch (e) {
+        setError(String(e))
+      } finally {
+        if (activeTokenRef.current === token) {
+          activeTokenRef.current = null
+        }
+        setSearching(false)
+      }
+    },
+    [caseSensitive, isVaultUnlocked, makeToken, query, showHidden, vaultPath],
+  )
 
   useEffect(() => {
     if (!vaultPath || !query.trim()) {
       setResults([])
+      setTotal(0)
+      setNextOffset(null)
       setSearching(false)
       return
     }
 
     const timer = setTimeout(async () => {
-      setSearching(true)
-      setError(null)
-      try {
-        const hits = await searchVault(
-          vaultPath,
-          query,
-          caseSensitive,
-          !isVaultUnlocked, // excludeLocked
-          showHidden
-        )
-        setResults(hits)
-      } catch (e) {
-        setError(String(e))
-      } finally {
-        setSearching(false)
-      }
+      await runSearch(0, false)
     }, 300)
 
-    return () => clearTimeout(timer)
-  }, [vaultPath, query, caseSensitive, isVaultUnlocked, showHidden])
+    return () => {
+      clearTimeout(timer)
+      if (activeTokenRef.current) {
+        void cancelRequest(activeTokenRef.current)
+      }
+    }
+  }, [vaultPath, query, caseSensitive, isVaultUnlocked, showHidden, runSearch])
 
   const groupedResults = useMemo(() => {
     const groups: Record<string, GroupedResults> = {}
     for (const hit of results) {
-      if (!groups[hit.rel_path]) {
-        groups[hit.rel_path] = {
-          relPath: hit.rel_path,
-          title: hit.rel_path.split('/').pop()?.replace(/\.(md|markdown)$/i, '') || hit.rel_path,
+      if (!groups[hit.relPath]) {
+        groups[hit.relPath] = {
+          relPath: hit.relPath,
+          title: hit.title,
           hits: [],
         }
       }
-      groups[hit.rel_path].hits.push(hit)
+      groups[hit.relPath].hits.push(hit)
     }
     return Object.values(groups).sort((a, b) => a.title.localeCompare(b.title))
   }, [results])
@@ -88,6 +136,33 @@ export function GlobalSearch({
         )}
       </>
     )
+  }, [])
+
+  const renderHighlightedSnippet = useCallback((snippet: string, highlights: SearchV2Hit['highlights']) => {
+    if (highlights.length === 0) return snippet
+
+    const sorted = [...highlights].sort((a, b) => a.start - b.start)
+    const pieces: ReactNode[] = []
+    let cursor = 0
+
+    for (let i = 0; i < sorted.length; i += 1) {
+      const range = sorted[i]
+      if (range.start > cursor) {
+        pieces.push(snippet.slice(cursor, range.start))
+      }
+      pieces.push(
+        <mark key={`hl-${i}-${range.start}-${range.end}`} className="searchHighlight">
+          {snippet.slice(range.start, range.end)}
+        </mark>,
+      )
+      cursor = Math.max(cursor, range.end)
+    }
+
+    if (cursor < snippet.length) {
+      pieces.push(snippet.slice(cursor))
+    }
+
+    return <>{pieces}</>
   }, [])
 
   return (
@@ -123,19 +198,36 @@ export function GlobalSearch({
             <div className="searchGroupHits">
               {group.hits.map((hit, i) => (
                 <button
-                  key={`${hit.rel_path}-${hit.line_number}-${i}`}
+                  key={`${hit.relPath}-${hit.lineNumber ?? 0}-${i}`}
                   className="searchHit"
-                  onClick={() => onOpenResult(hit.rel_path, hit.line_number)}
+                  onClick={() => onOpenResult(hit.relPath, hit.lineNumber ?? 1)}
                 >
-                  <div className="searchHitLineNumber">{hit.line_number}</div>
+                  <div className="searchHitLineNumber">{hit.lineNumber ?? '-'}</div>
                   <div className="searchHitSnippet">
-                    {highlightMatch(hit.snippet, query, caseSensitive)}
+                    {hit.highlights.length > 0 ? (
+                      renderHighlightedSnippet(hit.snippet, hit.highlights)
+                    ) : (
+                      highlightMatch(hit.snippet, query, caseSensitive)
+                    )}
                   </div>
                 </button>
               ))}
             </div>
           </div>
         ))}
+        {!searching && nextOffset != null && (
+          <div className="searchMoreWrap">
+            <button
+              type="button"
+              className="searchMoreButton"
+              onClick={() => {
+                void runSearch(nextOffset, true)
+              }}
+            >
+              Load more ({results.length}/{total})
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
