@@ -1,25 +1,38 @@
-import { RangeSetBuilder, type Extension } from '@codemirror/state'
+import { RangeSetBuilder, StateField, type Extension, type Text } from '@codemirror/state'
 import { Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate } from '@codemirror/view'
 
 type FrontmatterPreviewOptions = {
   hideFrontmatter?: boolean
 }
 
-function buildFrontmatterDecorations(view: EditorView): DecorationSet {
-  const { doc } = view.state
-  if (doc.lines < 1) return Decoration.none
+function findFrontmatterEndLine(doc: Text): number {
+  if (doc.lines < 1) return 0
   const firstLine = doc.line(1).text.trim()
-  if (firstLine !== '---') return Decoration.none
+  if (firstLine !== '---') return 0
 
-  let endLine = 0
   for (let lineNumber = 2; lineNumber <= doc.lines; lineNumber += 1) {
     const line = doc.line(lineNumber).text.trim()
-    if (line === '---') {
-      endLine = lineNumber
-      break
-    }
+    if (line === '---') return lineNumber
   }
 
+  return 0
+}
+
+export const frontmatterEndLineField = StateField.define<number>({
+  create(state) {
+    return findFrontmatterEndLine(state.doc)
+  },
+  update(value, tr) {
+    if (tr.docChanged) {
+      return findFrontmatterEndLine(tr.state.doc)
+    }
+    return value
+  },
+})
+
+function buildFrontmatterDecorations(view: EditorView): DecorationSet {
+  const { doc } = view.state
+  const endLine = findFrontmatterEndLine(doc)
   if (endLine === 0) return Decoration.none
 
   const builder = new RangeSetBuilder<Decoration>()

@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type Ref } from 'react'
 
-import { Compartment, EditorState, RangeSetBuilder, StateEffect, StateField, Transaction } from '@codemirror/state'
+import {
+  Compartment,
+  EditorState,
+  Facet,
+  RangeSetBuilder,
+  StateEffect,
+  StateField,
+  Transaction,
+} from '@codemirror/state'
 import {
   Decoration,
   type DecorationSet,
@@ -12,12 +20,17 @@ import {
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown } from '@codemirror/lang-markdown'
 import { createLivePreviewExtension } from '../editor/livePreview'
+import { frontmatterEndLineField } from '../editor/frontmatterPreview'
 import { createWikilinkCompletionExtension } from '../editor/wikilinkCompletion'
 import type { HeadingSection, LockedBodyRange } from '../lockedSections'
 import type { NoteEntry } from '../types'
 
 const setTaskHighlightEffect = StateEffect.define<number>()
 const clearTaskHighlightEffect = StateEffect.define<void>()
+
+const livePreviewFacet = Facet.define<boolean, boolean>({
+  combine: (values) => (values.length ? values[0] : false),
+})
 
 function buildTaskHighlightDecoration(state: EditorState, lineNumber: number): DecorationSet {
   if (lineNumber < 1 || lineNumber > state.doc.lines) return Decoration.none
@@ -370,7 +383,19 @@ export const NoteEditor = function NoteEditor({
     }
 
     return [
-      lineNumbers(),
+      frontmatterEndLineField,
+      lineNumbers({
+        formatNumber: (lineNumber, state) => {
+          if (!state.facet(livePreviewFacet)) {
+            return String(lineNumber)
+          }
+          const endLine = state.field(frontmatterEndLineField, false) ?? 0
+          if (endLine > 0 && lineNumber <= endLine) {
+            return ''
+          }
+          return String(lineNumber)
+        },
+      }),
       history(),
       markdown(),
       editorTheme,
@@ -379,21 +404,24 @@ export const NoteEditor = function NoteEditor({
       wrapCompartment.of(initialWrapRef.current ? EditorView.lineWrapping : []),
       livePreviewCompartment.of(
         initialLivePreviewRef.current
-          ? createLivePreviewExtension({
-              onOpenWikilink: initialOpenWikilinkRef.current,
-              renderDiagrams: initialRenderDiagramsRef.current,
-              renderImages: initialRenderImagesRef.current,
-              renderCallouts: initialRenderCalloutsRef.current,
-              renderLockedSections: renderLockedSections,
-              vaultPath: initialVaultPathRef.current ?? undefined,
-              noteRelPath: initialNoteRelPathRef.current ?? undefined,
-              onOpenImage: initialOpenImageRef.current ?? undefined,
-              theme,
-              isVaultUnlocked,
-              onRequestUnlock,
-              onLockedSectionsDetected,
-            })
-          : [],
+          ? [
+              livePreviewFacet.of(true),
+              ...createLivePreviewExtension({
+                onOpenWikilink: initialOpenWikilinkRef.current,
+                renderDiagrams: initialRenderDiagramsRef.current,
+                renderImages: initialRenderImagesRef.current,
+                renderCallouts: initialRenderCalloutsRef.current,
+                renderLockedSections: renderLockedSections,
+                vaultPath: initialVaultPathRef.current ?? undefined,
+                noteRelPath: initialNoteRelPathRef.current ?? undefined,
+                onOpenImage: initialOpenImageRef.current ?? undefined,
+                theme,
+                isVaultUnlocked,
+                onRequestUnlock,
+                onLockedSectionsDetected,
+              }),
+            ]
+          : [livePreviewFacet.of(false)],
       ),
       EditorView.updateListener.of((update: ViewUpdate) => {
         if (!update.docChanged) return
@@ -505,21 +533,24 @@ export const NoteEditor = function NoteEditor({
     view.dispatch({
       effects: livePreviewCompartment.reconfigure(
         livePreview
-          ? createLivePreviewExtension({
-              onOpenWikilink,
-              renderDiagrams,
-              renderImages,
-              renderCallouts,
-              renderLockedSections,
-              vaultPath: vaultPath ?? undefined,
-              noteRelPath: noteRelPath ?? undefined,
-              onOpenImage,
-              theme,
-              isVaultUnlocked,
-              onRequestUnlock,
-              onLockedSectionsDetected,
-            })
-          : [],
+          ? [
+              livePreviewFacet.of(true),
+              ...createLivePreviewExtension({
+                onOpenWikilink,
+                renderDiagrams,
+                renderImages,
+                renderCallouts,
+                renderLockedSections,
+                vaultPath: vaultPath ?? undefined,
+                noteRelPath: noteRelPath ?? undefined,
+                onOpenImage,
+                theme,
+                isVaultUnlocked,
+                onRequestUnlock,
+                onLockedSectionsDetected,
+              }),
+            ]
+          : [livePreviewFacet.of(false)],
       ),
     })
   }, [
