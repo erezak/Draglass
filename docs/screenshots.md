@@ -163,6 +163,18 @@ Task list aggregation alongside an editable checklist note.
 
 ---
 
+## Excalidraw Drawing
+
+Sample Excalidraw canvas embedded directly inside a note.
+
+![Excalidraw Drawing](screenshots/excalidraw-drawing.png)
+
+**Features shown**:
+- Excalidraw canvas with demo drawing
+- Shapes toolbox for sketching
+- Canvas embedded inside the Draglass layout
+- Note title showing the drawing file
+
 ## Interface Components
 
 ### Left Sidebar - Files View
