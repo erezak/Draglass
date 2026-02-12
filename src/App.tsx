@@ -15,6 +15,7 @@ import { PaneIcon } from './components/icons/PaneIcon'
 import { VaultAuthModal, type VaultAuthModalMode } from './components/VaultAuthModal'
 import { CommandPalette, type Command } from './components/CommandPalette'
 import { GlobalSearch } from './components/GlobalSearch'
+import { FrontmatterPanel } from './components/FrontmatterPanel'
 import { GraphView } from './features/graph'
 import { createUniqueFolder, createUniqueNote } from './fs'
 import { useSettings } from './settings'
@@ -1006,6 +1007,9 @@ function App() {
               />
             ) : (
               <Suspense fallback={<div className="panelEmpty">Loading editor…</div>}>
+                {settings.editorLivePreview ? (
+                  <FrontmatterPanel noteText={noteText} onChange={setNoteText} />
+                ) : null}
                 <NoteEditor
                   ref={editorRef}
                   value={noteText}
