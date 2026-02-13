@@ -197,9 +197,48 @@ function openTaskMenu(view: EditorView, x: number, y: number, togglePos: number)
   }
 
   const handleKeyDown = (event: KeyboardEvent) => {
+    const buttons = Array.from(menu.querySelectorAll<HTMLButtonElement>('button.cm-livePreview-tableMenuItem'))
+    const activeElement = document.activeElement
+    const activeButton =
+      activeElement instanceof HTMLButtonElement && menu.contains(activeElement) ? activeElement : null
+
     if (event.key === 'Escape') {
       event.preventDefault()
       closeTaskMenu()
+      return
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      if (!activeButton || buttons.length === 0) {
+        buttons[0]?.focus()
+        return
+      }
+      const activeIndex = buttons.indexOf(activeButton)
+      if (activeIndex < 0) return
+      const next = buttons[(activeIndex + 1) % buttons.length]
+      next?.focus()
+      return
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault()
+      if (!activeButton || buttons.length === 0) {
+        buttons[buttons.length - 1]?.focus()
+        return
+      }
+      const activeIndex = buttons.indexOf(activeButton)
+      if (activeIndex < 0) return
+      const next = buttons[(activeIndex - 1 + buttons.length) % buttons.length]
+      next?.focus()
+      return
+    }
+
+    if (!activeButton || buttons.length === 0) return
+
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      activeButton.click()
     }
   }
 
