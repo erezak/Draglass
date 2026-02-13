@@ -431,11 +431,11 @@ fn to_fts_query(query: &str) -> Option<String> {
                 .trim_matches(|ch: char| !ch.is_alphanumeric() && ch != '_')
                 .to_lowercase();
             
-            // If cleaned is empty, or if the token contains special FTS5 characters,
+            // If cleaned is empty, or if cleaned contains special FTS5 characters,
             // wrap it in quotes for literal matching
             if cleaned.is_empty() || cleaned.chars().any(|ch| !ch.is_alphanumeric() && ch != '_') {
-                // Use original token (lowercased) to preserve all characters
-                format!("\"{}\"", token.to_lowercase().replace('"', "\"\""))
+                // Quote the cleaned token (with quotes escaped)
+                format!("\"{}\"", cleaned.replace('"', "\"\""))
             } else {
                 // Otherwise use prefix matching
                 format!("{cleaned}*")
