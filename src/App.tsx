@@ -902,7 +902,7 @@ function App() {
   const openTodayDailyNote = useCallback(() => {
     const today = new Date()
     setCalendarMonth(new Date(today.getFullYear(), today.getMonth(), 1))
-    void openDailyNoteByDate(today, { confirmCreate: false }).catch((e) => {
+    void openDailyNoteByDate(today, { confirmCreate: true }).catch((e) => {
       setBusy(null)
       setError(String(e))
     })
