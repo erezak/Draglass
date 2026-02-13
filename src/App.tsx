@@ -1808,6 +1808,7 @@ function App() {
       <SettingsScreen
         open={settingsOpen}
         settings={settings}
+        templatePaths={templateRelPaths}
         onChange={updateSettings}
         onEnsureTemplatesFolder={() => {
           void ensureTemplatesFolderExists().catch((e) => setError(String(e)))

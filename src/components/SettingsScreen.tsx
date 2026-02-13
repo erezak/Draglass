@@ -5,6 +5,7 @@ import type { DraglassSettings } from '../settings'
 type SettingsScreenProps = {
   open: boolean
   settings: DraglassSettings
+  templatePaths: string[]
   onChange: (update: Partial<DraglassSettings>) => void
   onEnsureTemplatesFolder: () => void
   onClose: () => void
@@ -14,6 +15,7 @@ type SettingsScreenProps = {
 export function SettingsScreen({
   open,
   settings,
+  templatePaths,
   onChange,
   onEnsureTemplatesFolder,
   onClose,
@@ -276,8 +278,14 @@ export function SettingsScreen({
               <input
                 type="text"
                 value={settings.dailyNotesTemplatePath}
+                list="daily-note-template-path-options"
                 onChange={(e) => onChange({ dailyNotesTemplatePath: e.target.value })}
               />
+              <datalist id="daily-note-template-path-options">
+                {templatePaths.map((path) => (
+                  <option key={path} value={path} />
+                ))}
+              </datalist>
             </label>
           </section>
         </div>
