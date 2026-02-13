@@ -16,6 +16,8 @@ Here are some real tasks you can interact with right now:
 
 - [ ] Open the right sidebar and look for this task in the panel
 - [ ] Try checking this box — edit the `[ ]` to `[x]`
+- [/] Mark this as in progress to test text status support
+- [ ] Add a due date field 📅 2026-03-01
 - [ ] Follow a [[Wikilinks|wikilink]] to see how notes connect
 - [ ] Open the [[Graph View]] and find this note as a node
 
@@ -31,9 +33,19 @@ In [[Live Preview]] mode, every `- [ ]` item shows a real checkbox widget. Click
 
 The underlying Markdown updates instantly, so the change is saved automatically.
 
+Right-click a task checkbox in Live Preview to open the task menu. You can add emoji fields like:
+
+- `📅` due date
+- `🛫` start date
+- `⏳` scheduled date
+- `✅` done date
+- `➕` created date
+- `🔁` recurring rule
+- `🔺`, `⏫`, `🔼`, `🔽`, `⏬` priority markers
+
 ## How the scanner works
 
-Draglass scans every Markdown file in the vault for lines matching `- [ ]`, `- [x]`, or `- [-]`. It runs automatically when you open a vault and re-scans after each save. The scan is debounced so it does not slow down typing.
+Draglass scans every Markdown file in the vault for Markdown task lines (`- [ ]`, `- [x]`, `- [-]`, `- [/]`, and other single-character task statuses). It runs automatically when you open a vault and re-scans after each save. The scan is debounced so it does not slow down typing.
 
 Lines inside fenced code blocks and blockquotes are ignored — the scanner only finds real task items.
 
@@ -43,6 +55,14 @@ Lines inside fenced code blocks and blockquotes are ignored — the scanner only
 ## Clicking a task
 
 Click any task in the right-sidebar panel to open the note that contains it and jump to the exact line. The line flashes briefly so you can find it in context.
+
+## `tasks` query block due dates
+
+When a task includes `📅 YYYY-MM-DD`, Live Preview task query tables include the **Due** column:
+
+```tasks
+not done
+```
 
 ## Tasks in daily practice
 

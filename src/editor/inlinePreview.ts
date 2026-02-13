@@ -25,7 +25,7 @@ const BOLD_RE = /\*\*([^*]+)\*\*/g
 const BOLD_UNDER_RE = /__([^_]+)__/g
 const ITALIC_RE = /(^|[^*])\*([^*]+)\*(?!\*)/g
 const ITALIC_UNDER_RE = /(^|[^_])_([^_]+)_(?!_)/g
-const TASK_RE = /^\s*(?:[-+*])\s+\[( |x|X|-)\]/
+const TASK_RE = /^\s*(?:[-+*])\s+\[([^\]])\]/
 const LIST_RE = /^(\s*(?:>+\s*)*)([-+*])\s+/
 
 type InlineLivePreviewOptions = {
@@ -39,6 +39,238 @@ type ImageCacheEntry = {
   url: string
   mtimeMs: number
   mime: string
+}
+
+type TaskMenuItem = {
+  label: string
+  action: (view: EditorView, togglePos: number) => void
+}
+
+const TASK_PRIORITY_EMOJIS = ['⏫', '🔼', '🔽', '🔺', '⏬'] as const
+const TASK_DATE_RE = /\d{4}-\d{2}-\d{2}/
+const TASK_MENU_FALLBACK_OFFSET = 16
+const TASK_MENU_VIEWPORT_MARGIN = 8
+let activeTaskMenuCleanup: (() => void) | null = null
+
+function closeTaskMenu() {
+  if (activeTaskMenuCleanup) {
+    activeTaskMenuCleanup()
+    activeTaskMenuCleanup = null
+  }
+}
+
+function escapeRegex(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function updateTaskLine(view: EditorView, togglePos: number, mutator: (lineText: string) => string) {
+  const line = view.state.doc.lineAt(togglePos)
+  const next = mutator(line.text)
+  if (next === line.text) return
+  view.dispatch({
+    changes: { from: line.from, to: line.to, insert: next },
+  })
+  view.focus()
+}
+
+function setTaskState(view: EditorView, togglePos: number, nextState: string) {
+  view.dispatch({
+    changes: { from: togglePos, to: togglePos + 1, insert: nextState.slice(0, 1) || ' ' },
+  })
+  view.focus()
+}
+
+function todayIsoDate(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function ensureDateField(lineText: string, emoji: string): string {
+  const fieldRe = new RegExp(`(?:^|\\s)${escapeRegex(emoji)}\\s*(${TASK_DATE_RE.source})(?=\\s|$)`, 'u')
+  if (fieldRe.test(lineText)) return lineText
+  return `${lineText.trimEnd()} ${emoji} ${todayIsoDate()}`
+}
+
+function ensureRecurringField(lineText: string): string {
+  const recurringRe = /(?:^|\s)🔁\s+\S.*$/
+  if (recurringRe.test(lineText)) return lineText
+  return `${lineText.trimEnd()} 🔁 every week`
+}
+
+function setPriorityField(lineText: string, emoji: string): string {
+  const priorityRe = new RegExp(`(?:\\s|^)(${TASK_PRIORITY_EMOJIS.map(escapeRegex).join('|')})(?=\\s|$)`, 'gu')
+  const stripped = lineText.replace(priorityRe, '').replace(/\s{2,}/g, ' ').trimEnd()
+  if (!emoji) return stripped
+  return `${stripped} ${emoji}`
+}
+
+function openTaskMenu(view: EditorView, x: number, y: number, togglePos: number) {
+  closeTaskMenu()
+
+  const menu = document.createElement('div')
+  menu.className = 'cm-livePreview-tableMenu'
+
+  const items: TaskMenuItem[] = [
+    { label: '☐ open', action: (nextView, pos) => setTaskState(nextView, pos, ' ') },
+    { label: '✅ done', action: (nextView, pos) => setTaskState(nextView, pos, 'x') },
+    { label: '➖ cancelled', action: (nextView, pos) => setTaskState(nextView, pos, '-') },
+    {
+      label: '📅 due date',
+      action: (nextView, pos) => updateTaskLine(nextView, pos, (lineText) => ensureDateField(lineText, '📅')),
+    },
+    {
+      label: '🛫 start date',
+      action: (nextView, pos) => updateTaskLine(nextView, pos, (lineText) => ensureDateField(lineText, '🛫')),
+    },
+    {
+      label: '⏳ scheduled date',
+      action: (nextView, pos) => updateTaskLine(nextView, pos, (lineText) => ensureDateField(lineText, '⏳')),
+    },
+    {
+      label: '✅ done date',
+      action: (nextView, pos) => updateTaskLine(nextView, pos, (lineText) => ensureDateField(lineText, '✅')),
+    },
+    {
+      label: '➕ created date',
+      action: (nextView, pos) => updateTaskLine(nextView, pos, (lineText) => ensureDateField(lineText, '➕')),
+    },
+    {
+      label: '🔺 highest priority',
+      action: (nextView, pos) => updateTaskLine(nextView, pos, (lineText) => setPriorityField(lineText, '🔺')),
+    },
+    {
+      label: '⏫ high priority',
+      action: (nextView, pos) => updateTaskLine(nextView, pos, (lineText) => setPriorityField(lineText, '⏫')),
+    },
+    {
+      label: '🔼 medium priority',
+      action: (nextView, pos) => updateTaskLine(nextView, pos, (lineText) => setPriorityField(lineText, '🔼')),
+    },
+    {
+      label: '🔽 low priority',
+      action: (nextView, pos) => updateTaskLine(nextView, pos, (lineText) => setPriorityField(lineText, '🔽')),
+    },
+    {
+      label: '⏬ lowest priority',
+      action: (nextView, pos) => updateTaskLine(nextView, pos, (lineText) => setPriorityField(lineText, '⏬')),
+    },
+    {
+      label: '🔁 recurring (repeat)',
+      action: (nextView, pos) => updateTaskLine(nextView, pos, ensureRecurringField),
+    },
+  ]
+
+  for (const item of items) {
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'cm-livePreview-tableMenuItem'
+    button.textContent = item.label
+    button.addEventListener('click', (event) => {
+      event.preventDefault()
+      event.stopPropagation()
+      item.action(view, togglePos)
+      closeTaskMenu()
+    })
+    menu.appendChild(button)
+  }
+
+  document.body.appendChild(menu)
+  const menuRect = menu.getBoundingClientRect()
+  const maxAllowedLeft = Math.max(
+    TASK_MENU_VIEWPORT_MARGIN,
+    window.innerWidth - menuRect.width - TASK_MENU_VIEWPORT_MARGIN,
+  )
+  const maxAllowedTop = Math.max(
+    TASK_MENU_VIEWPORT_MARGIN,
+    window.innerHeight - menuRect.height - TASK_MENU_VIEWPORT_MARGIN,
+  )
+  const left = Math.min(Math.max(TASK_MENU_VIEWPORT_MARGIN, x), maxAllowedLeft)
+  const preferredTop =
+    y + menuRect.height + TASK_MENU_VIEWPORT_MARGIN <= window.innerHeight ? y : y - menuRect.height
+  const top = Math.min(Math.max(TASK_MENU_VIEWPORT_MARGIN, preferredTop), maxAllowedTop)
+  menu.style.left = `${left}px`
+  menu.style.top = `${top}px`
+
+  const handleOutsideClick = (event: MouseEvent) => {
+    if (!menu.contains(event.target as Node)) {
+      closeTaskMenu()
+    }
+  }
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    const buttons = Array.from(menu.querySelectorAll<HTMLButtonElement>('button.cm-livePreview-tableMenuItem'))
+    const activeElement = document.activeElement
+    const activeButton =
+      activeElement instanceof HTMLButtonElement && menu.contains(activeElement) ? activeElement : null
+
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      closeTaskMenu()
+      return
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      if (!activeButton || buttons.length === 0) {
+        buttons[0]?.focus()
+        return
+      }
+      const activeIndex = buttons.indexOf(activeButton)
+      if (activeIndex < 0) return
+      const next = buttons[(activeIndex + 1) % buttons.length]
+      next?.focus()
+      return
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault()
+      if (!activeButton || buttons.length === 0) {
+        buttons[buttons.length - 1]?.focus()
+        return
+      }
+      const activeIndex = buttons.indexOf(activeButton)
+      if (activeIndex < 0) return
+      const next = buttons[(activeIndex - 1 + buttons.length) % buttons.length]
+      next?.focus()
+      return
+    }
+
+    if (!activeButton || buttons.length === 0) return
+
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      activeButton.click()
+    }
+  }
+
+  window.addEventListener('mousedown', handleOutsideClick, true)
+  window.addEventListener('keydown', handleKeyDown, true)
+  const firstButton = menu.querySelector('button')
+  if (firstButton instanceof HTMLButtonElement) {
+    firstButton.focus()
+  }
+
+  activeTaskMenuCleanup = () => {
+    window.removeEventListener('mousedown', handleOutsideClick, true)
+    window.removeEventListener('keydown', handleKeyDown, true)
+    menu.remove()
+  }
+}
+
+export function openTaskMenuForSelection(view: EditorView): boolean {
+  const selection = view.state.selection.main
+  if (!selection.empty) return false
+  const line = view.state.doc.lineAt(selection.head)
+  const match = TASK_RE.exec(line.text)
+  if (!match) return false
+  const bracketIndex = line.text.indexOf('[')
+  if (bracketIndex < 0) return false
+  const togglePos = line.from + bracketIndex + 1
+  const coords = view.coordsAtPos(togglePos)
+  const fallbackRect = view.dom.getBoundingClientRect()
+  const x = coords?.left ?? fallbackRect.left + TASK_MENU_FALLBACK_OFFSET
+  const y = coords?.bottom ?? fallbackRect.top + TASK_MENU_FALLBACK_OFFSET
+  openTaskMenu(view, x, y, togglePos)
+  return true
 }
 
 class HiddenMarkerWidget extends WidgetType {
@@ -55,10 +287,10 @@ class HiddenMarkerWidget extends WidgetType {
 }
 
 class TaskCheckboxWidget extends WidgetType {
-  private readonly state: ' ' | 'x' | '-'
+  private readonly state: string
   private readonly togglePos: number
 
-  constructor(state: ' ' | 'x' | '-', togglePos: number) {
+  constructor(state: string, togglePos: number) {
     super()
     this.state = state
     this.togglePos = togglePos
@@ -69,12 +301,13 @@ class TaskCheckboxWidget extends WidgetType {
   }
 
   toDOM(view: EditorView) {
+    const normalizedState = this.state.toLowerCase()
     const input = document.createElement('input')
     input.type = 'checkbox'
     input.className = 'cm-livePreview-taskToggle'
-    input.checked = this.state === 'x'
-    input.indeterminate = this.state === '-'
-    input.setAttribute('aria-checked', this.state === '-' ? 'mixed' : String(this.state === 'x'))
+    input.checked = normalizedState === 'x'
+    input.indeterminate = normalizedState === '-'
+    input.setAttribute('aria-checked', normalizedState === '-' ? 'mixed' : String(normalizedState === 'x'))
 
     const stopSelection = (event: Event) => {
       event.preventDefault()
@@ -86,11 +319,26 @@ class TaskCheckboxWidget extends WidgetType {
     input.addEventListener('click', (event) => {
       event.preventDefault()
       event.stopPropagation()
-      const next = this.state === ' ' ? 'x' : this.state === 'x' ? '-' : ' '
+      closeTaskMenu()
+      const next = normalizedState === ' ' ? 'x' : normalizedState === 'x' ? '-' : ' '
       view.dispatch({
         changes: { from: this.togglePos, to: this.togglePos + 1, insert: next },
       })
       view.focus()
+    })
+    input.addEventListener('contextmenu', (event) => {
+      event.preventDefault()
+      event.stopPropagation()
+      openTaskMenu(view, event.clientX, event.clientY, this.togglePos)
+    })
+    input.addEventListener('keydown', (event) => {
+      const isKeyboardMenuKey = event.key === 'ContextMenu'
+      const isAltEnter = event.key === 'Enter' && event.altKey
+      if (!isKeyboardMenuKey && !isAltEnter) return
+      event.preventDefault()
+      event.stopPropagation()
+      const rect = input.getBoundingClientRect()
+      openTaskMenu(view, rect.left, rect.bottom, this.togglePos)
     })
     return input
   }
@@ -386,8 +634,7 @@ function buildInlineLivePreviewDecorations(
         if (bracketIndex >= 0) {
           const bracketFrom = line.from + bracketIndex
           const togglePos = bracketFrom + 1
-          const rawState = (taskMatch[1] ?? ' ').toLowerCase()
-          const state = rawState === 'x' || rawState === '-' ? rawState : ' '
+          const state = (taskMatch[1] ?? ' ').slice(0, 1).toLowerCase()
           const bracketTo = bracketFrom + 3
           if (!selectionIntersects(bracketFrom, bracketTo)) {
             decorations.push({

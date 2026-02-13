@@ -4,8 +4,13 @@ import path from 'node:path'
 
 import ts from 'typescript'
 
-function loadTsModule(modulePath) {
+const moduleCache = new Map()
+
+async function compileToDataUrl(modulePath) {
   const sourcePath = path.resolve(modulePath)
+  const cached = moduleCache.get(sourcePath)
+  if (cached) return cached
+
   const source = fs.readFileSync(sourcePath, 'utf8')
 
   const { outputText } = ts.transpileModule(source, {
@@ -16,7 +21,27 @@ function loadTsModule(modulePath) {
     fileName: path.basename(modulePath),
   })
 
-  const dataUrl = `data:text/javascript;base64,${Buffer.from(outputText, 'utf8').toString('base64')}`
+  const importMatches = Array.from(outputText.matchAll(/from\s+['"](\.[^'"]+)['"]/g))
+  let rewritten = outputText
+
+  for (const match of importMatches) {
+    const rawSpecifier = match[1]
+    const baseDir = path.dirname(sourcePath)
+    const resolved = path.resolve(baseDir, `${rawSpecifier}.ts`)
+    const specifierDataUrl = await compileToDataUrl(resolved)
+    rewritten = rewritten.replace(
+      new RegExp(`from\\s+['"]${rawSpecifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`, 'g'),
+      `from '${specifierDataUrl}'`,
+    )
+  }
+
+  const dataUrl = `data:text/javascript;base64,${Buffer.from(rewritten, 'utf8').toString('base64')}`
+  moduleCache.set(sourcePath, dataUrl)
+  return dataUrl
+}
+
+async function loadTsModule(modulePath) {
+  const dataUrl = await compileToDataUrl(modulePath)
   return import(dataUrl)
 }
 
@@ -35,6 +60,10 @@ assert.equal(
   scanner.replaceTaskState('* [-] Maybe', 'x'),
   '* [x] Maybe',
 )
+assert.equal(
+  scanner.replaceTaskState('* [/] In progress', '-'),
+  '* [-] In progress',
+)
 
 const sample = [
   'Intro',
@@ -52,6 +81,10 @@ assert.equal(tasks[0].lineNumber, 2)
 assert.equal(tasks[0].text, 'First task')
 assert.equal(tasks[1].lineNumber, 7)
 assert.equal(tasks[1].text, 'Done task')
+
+const customStatus = scanner.parseTaskLine('- [/] In progress', 1)
+assert.equal(customStatus?.state, ' ')
+assert.equal(customStatus?.text, 'In progress')
 
 const files = [
   { rel_path: 'Notes/One.md', display_name: 'One' },
@@ -72,5 +105,9 @@ const filteredAll = scanner.filterTaskEntries(
   (relPath) => ignore.isVisibleNoteForNavigation(relPath, false),
 )
 assert.equal(filteredAll.length, 2)
+
+const tasksQuery = await loadTsModule('src/features/tasks/tasksQuery.ts')
+assert.equal(tasksQuery.extractTaskDueDate('Plan launch 📅 2026-03-10'), '2026-03-10')
+assert.equal(tasksQuery.extractTaskDueDate('No date here'), null)
 
 console.log('tasks: ok')

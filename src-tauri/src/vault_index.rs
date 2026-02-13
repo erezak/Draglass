@@ -1473,7 +1473,7 @@ pub fn build_graph_v2_impl(
 }
 
 fn parse_tasks(text: &str) -> Vec<(usize, char, String)> {
-    let task_re = Regex::new(r"^(\s*)([-+*])\s+\[( |x|X|-)\]\s*(.*)$").expect("valid task regex");
+    let task_re = Regex::new(r"^(\s*)([-+*])\s+\[([^\]])\]\s*(.*)$").expect("valid task regex");
     let fence_re = Regex::new(r"^\s{0,3}```").expect("valid fence regex");
     let blockquote_re = Regex::new(r"^\s*>").expect("valid blockquote regex");
 
@@ -1735,13 +1735,14 @@ mod tests {
 
     #[test]
     fn parse_tasks_skips_fences_and_blockquotes() {
-        let text = "- [ ] top\n> - [ ] quoted\n```\n- [ ] fenced\n```\n- [x] done\n- [-] in-progress";
+        let text = "- [ ] top\n> - [ ] quoted\n```\n- [ ] fenced\n```\n- [x] done\n- [-] in-progress\n- [/] custom";
         let tasks = parse_tasks(text);
-        assert_eq!(tasks.len(), 3);
+        assert_eq!(tasks.len(), 4);
         assert_eq!(tasks[0].0, 1);
         assert_eq!(tasks[0].1, ' ');
         assert_eq!(tasks[1].1, 'x');
         assert_eq!(tasks[2].1, '-');
+        assert_eq!(tasks[3].1, '/');
     }
 
     #[test]

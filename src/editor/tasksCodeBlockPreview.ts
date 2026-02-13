@@ -4,6 +4,7 @@ import { Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate
 import type { TaskItem } from '../features/tasks/useTasks'
 import {
   applyTasksCodeBlockFilter,
+  extractTaskDueDate,
   parseTasksCodeBlockFilter,
   type TaskQueryTask,
 } from '../features/tasks/tasksQuery'
@@ -120,7 +121,7 @@ class TasksBlockWidget extends WidgetType {
 
     const thead = document.createElement('thead')
     const headRow = document.createElement('tr')
-    for (const label of ['Task', 'Path']) {
+    for (const label of ['Task', 'Path', 'Due']) {
       const th = document.createElement('th')
       th.textContent = label
       headRow.appendChild(th)
@@ -132,7 +133,7 @@ class TasksBlockWidget extends WidgetType {
     if (this.tasks.length === 0) {
       const row = document.createElement('tr')
       const cell = document.createElement('td')
-      cell.colSpan = 2
+      cell.colSpan = 3
       cell.textContent = 'No matching tasks'
       row.appendChild(cell)
       tbody.appendChild(row)
@@ -160,6 +161,10 @@ class TasksBlockWidget extends WidgetType {
         const pathCell = document.createElement('td')
         pathCell.textContent = task.relPath
         row.appendChild(pathCell)
+
+        const dueCell = document.createElement('td')
+        dueCell.textContent = extractTaskDueDate(task.text) ?? ''
+        row.appendChild(dueCell)
 
         tbody.appendChild(row)
       }

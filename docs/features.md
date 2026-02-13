@@ -156,6 +156,8 @@ The **Tasks panel** in the right sidebar automatically collects all open tasks f
 Features:
 - **Vault-wide scanning**: See all open tasks in one place
 - **Clickable checkboxes** in Live Preview mode (cycle through open → done → cancelled)
+- **Task field menu**: Right-click a checkbox in Live Preview to add emoji task fields (dates, priority, recurrence)
+- **Task query due dates**: Fenced `tasks` query blocks show a Due column when tasks include `📅 YYYY-MM-DD`
 - **Smart filtering**: Completed and cancelled tasks hidden from panel
 - **Debounced scanning**: No performance impact on typing
 - **Respects privacy**: Tasks in locked sections excluded when vault is locked
