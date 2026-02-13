@@ -293,7 +293,9 @@ class TaskCheckboxWidget extends WidgetType {
       openTaskMenu(view, event.clientX, event.clientY, this.togglePos)
     })
     input.addEventListener('keydown', (event) => {
-      if (event.key !== 'ContextMenu' && !(event.shiftKey && event.key === 'F10')) return
+      const isKeyboardMenuKey = event.key === 'ContextMenu'
+      const isAltEnter = event.key === 'Enter' && event.altKey
+      if (!isKeyboardMenuKey && !isAltEnter) return
       event.preventDefault()
       event.stopPropagation()
       const rect = input.getBoundingClientRect()

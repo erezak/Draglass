@@ -103,7 +103,7 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
 
   const mermaidKeymap = keymap.of([
     {
-      key: 'Shift-F10',
+      key: 'Alt-Enter',
       run: (view) => openTaskMenuForSelection(view),
     },
     {
