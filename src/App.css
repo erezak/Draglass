@@ -1649,9 +1649,10 @@
 }
 
 .cm-livePreview-tableMenu {
+  --menu-viewport-margin: 8px;
   position: fixed;
   min-width: 170px;
-  max-height: calc(100vh - 16px);
+  max-height: calc(100vh - (var(--menu-viewport-margin) * 2));
   border-radius: 10px;
   border: 1px solid var(--panel-border-strong);
   background: var(--panel-solid);

@@ -48,6 +48,8 @@ type TaskMenuItem = {
 
 const TASK_PRIORITY_EMOJIS = ['⏫', '🔼', '🔽', '🔺', '⏬'] as const
 const TASK_DATE_RE = /\d{4}-\d{2}-\d{2}/
+const TASK_MENU_FALLBACK_OFFSET = 16
+const TASK_MENU_VIEWPORT_MARGIN = 8
 let activeTaskMenuCleanup: (() => void) | null = null
 
 function closeTaskMenu() {
@@ -106,8 +108,6 @@ function openTaskMenu(view: EditorView, x: number, y: number, togglePos: number)
 
   const menu = document.createElement('div')
   menu.className = 'cm-livePreview-tableMenu'
-  menu.style.left = `${x}px`
-  menu.style.top = `${y}px`
 
   const items: TaskMenuItem[] = [
     { label: '☐ open', action: (nextView, pos) => setTaskState(nextView, pos, ' ') },
@@ -175,12 +175,18 @@ function openTaskMenu(view: EditorView, x: number, y: number, togglePos: number)
 
   document.body.appendChild(menu)
   const menuRect = menu.getBoundingClientRect()
-  const margin = 8
-  const maxLeft = Math.max(margin, window.innerWidth - menuRect.width - margin)
-  const maxTop = Math.max(margin, window.innerHeight - menuRect.height - margin)
-  const left = Math.min(Math.max(margin, x), maxLeft)
-  const preferredTop = y + menuRect.height + margin <= window.innerHeight ? y : y - menuRect.height
-  const top = Math.min(Math.max(margin, preferredTop), maxTop)
+  const maxAllowedLeft = Math.max(
+    TASK_MENU_VIEWPORT_MARGIN,
+    window.innerWidth - menuRect.width - TASK_MENU_VIEWPORT_MARGIN,
+  )
+  const maxAllowedTop = Math.max(
+    TASK_MENU_VIEWPORT_MARGIN,
+    window.innerHeight - menuRect.height - TASK_MENU_VIEWPORT_MARGIN,
+  )
+  const left = Math.min(Math.max(TASK_MENU_VIEWPORT_MARGIN, x), maxAllowedLeft)
+  const preferredTop =
+    y + menuRect.height + TASK_MENU_VIEWPORT_MARGIN <= window.innerHeight ? y : y - menuRect.height
+  const top = Math.min(Math.max(TASK_MENU_VIEWPORT_MARGIN, preferredTop), maxAllowedTop)
   menu.style.left = `${left}px`
   menu.style.top = `${top}px`
 
@@ -222,8 +228,8 @@ export function openTaskMenuForSelection(view: EditorView): boolean {
   const togglePos = line.from + bracketIndex + 1
   const coords = view.coordsAtPos(togglePos)
   const fallbackRect = view.dom.getBoundingClientRect()
-  const x = coords?.left ?? fallbackRect.left + 16
-  const y = coords?.bottom ?? fallbackRect.top + 16
+  const x = coords?.left ?? fallbackRect.left + TASK_MENU_FALLBACK_OFFSET
+  const y = coords?.bottom ?? fallbackRect.top + TASK_MENU_FALLBACK_OFFSET
   openTaskMenu(view, x, y, togglePos)
   return true
 }
