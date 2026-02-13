@@ -61,6 +61,24 @@ See [[Backlinks]] for how the panel works.
 
 See [[Searching Your Vault]] for the full guide on searching.
 
+## Templates
+
+| Setting | What it does | Default |
+|---|---|---|
+| Templates folder | Vault-relative folder used for template files | `_templates` |
+| Create folder | Ensures the templates folder exists | Manual action |
+
+Template commands are available in the Command Palette:
+
+- **Insert template…** — insert template content into the current note
+- **New note from template…** — create a new note from a template
+
+Supported template variables are resolved when you apply the template:
+
+- `{{date}}`, `{{time}}`, `{{datetime}}`, `{{title}}`, `{{cursor}}`
+
+Template files are excluded from [[Searching Your Vault|Global Search]] results.
+
 ## Pane layout
 
 The left and right sidebars can be resized by dragging the divider, or collapsed entirely with keyboard shortcuts:

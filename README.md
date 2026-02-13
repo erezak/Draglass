@@ -6,7 +6,7 @@ A local-first, cross-platform knowledge base application built with Tauri, React
 
 Draglass is a privacy-first, offline-first knowledge management app that stores your notes as plain Markdown files in a local vault folder. It features wikilinks, backlinks, and a clean, focused interface for organizing your thoughts.
 
-> **Try it now**: Run `npm install && npm run dev` to try the web version with the built-in Demo Vault.  
+> **Try it now**: Run `pnpm install && pnpm dev` to try the web version with the built-in Demo Vault.  
 > **Documentation**: Visit the [Draglass website](https://erezak.github.io/Draglass/) for detailed guides and screenshots.
 
 ### Core Features
@@ -16,6 +16,7 @@ Draglass is a privacy-first, offline-first knowledge management app that stores 
 - **Quick Switcher** (`Cmd/Ctrl + P`): Fuzzy search to instantly jump to any note
 - **Command Palette** (`Cmd/Ctrl + Shift + P`): Searchable list of all app commands
 - **Global Search** (`Cmd/Ctrl + Shift + F`): Full-text search across your entire vault
+- **Templates v1**: Create notes and insert content from Markdown templates in a configurable templates folder
 - **Graph View**: Visual network diagram showing all notes and their connections (global and local modes)
 - **Tasks and Checklists**: Automatic scanning and collection of `- [ ]` checkboxes across all notes
 - **Local-First**: Your data stays on your device - no cloud sync, no telemetry, no network calls
@@ -96,6 +97,7 @@ pnpm licenses:generate # Generate third-party licenses
 - Each note's identity is its relative path from the vault root
 - Wikilink targets are normalized (case-insensitive, filename-stem matching)
 - Hidden files (dotfiles) and `node_modules` are filtered from navigation by default
+- Template files are stored under a configurable folder (default `_templates`) and excluded from search results
 
 ## Tech Stack
 
