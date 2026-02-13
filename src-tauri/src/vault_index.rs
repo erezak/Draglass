@@ -1132,10 +1132,11 @@ pub fn search_v2_impl(
         } else {
             "AND is_hidden = 0"
         };
-        let template_exclusion_clause = "AND rel_path <> ?4 AND rel_path NOT LIKE ?5";
+        let template_exclusion_clause_count = "AND rel_path <> ?2 AND rel_path NOT LIKE ?3";
+        let template_exclusion_clause_select = "AND rel_path <> ?4 AND rel_path NOT LIKE ?5";
 
         let count_sql = format!(
-            "SELECT COUNT(*) FROM notes WHERE {body_column} LIKE '%' || ?1 || '%' {where_hidden} {template_exclusion_clause}"
+            "SELECT COUNT(*) FROM notes WHERE {body_column} LIKE '%' || ?1 || '%' {where_hidden} {template_exclusion_clause_count}"
         );
         total = conn
             .query_row(
@@ -1152,7 +1153,7 @@ pub fn search_v2_impl(
             FROM notes
             WHERE {body_column} LIKE '%' || ?1 || '%'
             {where_hidden}
-            {template_exclusion_clause}
+            {template_exclusion_clause_select}
             ORDER BY CASE WHEN title = ?1 THEN 0 WHEN title LIKE ?1 || '%' THEN 1 ELSE 2 END, rel_path ASC
             LIMIT ?2 OFFSET ?3
             "
@@ -1230,10 +1231,11 @@ pub fn search_v2_impl(
         } else {
             "AND n.is_hidden = 0"
         };
-        let template_exclusion_clause = "AND n.rel_path <> ?4 AND n.rel_path NOT LIKE ?5";
+        let template_exclusion_clause_count = "AND n.rel_path <> ?2 AND n.rel_path NOT LIKE ?3";
+        let template_exclusion_clause_select = "AND n.rel_path <> ?4 AND n.rel_path NOT LIKE ?5";
 
         let count_sql = format!(
-            "SELECT COUNT(*) FROM {fts_table} JOIN notes n ON n.note_id = {fts_table}.note_id WHERE {fts_table} MATCH ?1 {hidden_clause} {template_exclusion_clause}"
+            "SELECT COUNT(*) FROM {fts_table} JOIN notes n ON n.note_id = {fts_table}.note_id WHERE {fts_table} MATCH ?1 {hidden_clause} {template_exclusion_clause_count}"
         );
         total = conn
             .query_row(
@@ -1256,7 +1258,7 @@ pub fn search_v2_impl(
                         JOIN notes n ON n.note_id = {fts_table}.note_id
             WHERE {fts_table} MATCH ?1
             {hidden_clause}
-            {template_exclusion_clause}
+            {template_exclusion_clause_select}
             ORDER BY bm25({fts_table}, 8.0, 1.0, 2.5) ASC
             LIMIT ?2 OFFSET ?3
             "
