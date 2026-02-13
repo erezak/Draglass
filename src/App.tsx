@@ -835,7 +835,7 @@ function App() {
   )
 
   const openDailyNoteByDate = useCallback(
-    async (date: Date) => {
+    async (date: Date, options?: { confirmCreate?: boolean }) => {
       if (!vaultPath || !settings.dailyNotesEnabled) return
       const relPath = buildDailyNoteRelPath(date, dailyNotesFolder, dailyNotesDateFormat)
       const exists = files.some((file) => file.rel_path === relPath)
@@ -843,6 +843,11 @@ function App() {
         const opened = await openNoteByRelPath(relPath)
         if (opened) queueMicrotask(() => editorRef.current?.focus())
         return
+      }
+
+      if (options?.confirmCreate) {
+        const ok = window.confirm(`Create daily note for ${fileStem(relPath)}?`)
+        if (!ok) return
       }
 
       setError(null)
@@ -897,7 +902,7 @@ function App() {
   const openTodayDailyNote = useCallback(() => {
     const today = new Date()
     setCalendarMonth(new Date(today.getFullYear(), today.getMonth(), 1))
-    void openDailyNoteByDate(today).catch((e) => {
+    void openDailyNoteByDate(today, { confirmCreate: false }).catch((e) => {
       setBusy(null)
       setError(String(e))
     })
@@ -1667,7 +1672,7 @@ function App() {
                               className={calendarDayClassName}
                               onClick={() => {
                                 if (!settings.dailyNotesEnabled) return
-                                void openDailyNoteByDate(day).catch((e) => setError(String(e)))
+                                void openDailyNoteByDate(day, { confirmCreate: true }).catch((e) => setError(String(e)))
                               }}
                               disabled={!settings.dailyNotesEnabled}
                             >
