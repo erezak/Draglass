@@ -16,7 +16,16 @@ import {
 } from './lockedSectionPreview'
 import { createTablePreviewPlugin, tableDecorationsField } from './tablePreview'
 import { createFrontmatterDecorationsPlugin } from './frontmatterPreview'
+import { createTasksCodeBlockPreviewPlugin, tasksDecorationsField } from './tasksCodeBlockPreview'
 import type { HeadingSection, LockedBodyRange } from '../lockedSections'
+
+export type LivePreviewTaskItem = {
+  relPath: string
+  noteTitle: string
+  lineNumber: number
+  text: string
+  state: ' ' | 'x' | '-'
+}
 
 export type LivePreviewOptions = {
   onOpenWikilink?: (rawTarget: string) => void
@@ -31,6 +40,8 @@ export type LivePreviewOptions = {
   isVaultUnlocked?: boolean
   onRequestUnlock?: () => void
   onLockedSectionsDetected?: (sections: HeadingSection[], ranges: LockedBodyRange[]) => void
+  tasks?: LivePreviewTaskItem[]
+  onOpenTask?: (relPath: string, lineNumber: number) => void
 }
 
 export function createLivePreviewExtension(options: LivePreviewOptions = {}): Extension[] {
@@ -119,6 +130,12 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
   return [
     tableDecorationsField,
     createTablePreviewPlugin(),
+    tasksDecorationsField,
+    createTasksCodeBlockPreviewPlugin({
+      tasks: options.tasks,
+      noteRelPath: options.noteRelPath,
+      onOpenTask: options.onOpenTask,
+    }),
     createFrontmatterDecorationsPlugin({ hideFrontmatter: true }),
     mermaidDecorationsField,
     createMermaidDecorationsPlugin({
