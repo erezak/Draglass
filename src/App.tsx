@@ -27,7 +27,7 @@ import { useTasks } from './features/tasks/useTasks'
 import { useEditorTheme } from './features/theme/useEditorTheme'
 import { useVault } from './features/vault/useVault'
 import { useVaultAuth, hasVaultPassword, checkVaultPassword } from './features/vault/useVaultAuth'
-import { createDir, createNote, onVaultFileChanged, readNote, rebuildIndex, writeNote } from './tauri'
+import { createDir, createNote, isTauri, onVaultFileChanged, readNote, rebuildIndex, writeNote } from './tauri'
 import { mergeFrontmatterForTemplateInsert, renderTemplate } from './templateRenderer'
 import { listTemplateFiles, normalizeTemplatesFolder } from './templates'
 import { parseFrontmatter } from './frontmatter'
@@ -846,7 +846,20 @@ function App() {
       }
 
       if (options?.confirmCreate) {
-        const ok = window.confirm(`Create daily note for ${fileStem(relPath)}?`)
+        const confirmMessage = `Create daily note for ${fileStem(relPath)}?`
+        let ok = false
+        try {
+          if (isTauri()) {
+            ok = await confirm(confirmMessage, {
+              title: 'Create Daily Note',
+              kind: 'info',
+            })
+          } else {
+            ok = window.confirm(confirmMessage)
+          }
+        } catch {
+          ok = window.confirm(confirmMessage)
+        }
         if (!ok) return
       }
 
