@@ -23,6 +23,7 @@ use std::time::{Instant, UNIX_EPOCH};
 
 const SCHEMA_VERSION: i64 = 1;
 const QUERY_SYNC_MAX_STALENESS_MS: u64 = 10_000;
+const DEFAULT_TEMPLATES_FOLDER: &str = "_templates";
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -33,6 +34,8 @@ pub struct SearchFlags {
     pub include_hidden: bool,
     #[serde(default)]
     pub include_locked: bool,
+    #[serde(default)]
+    pub templates_folder: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -85,6 +88,8 @@ pub struct RebuildOptions {
     pub reason: Option<String>,
     #[serde(default)]
     pub request_token: Option<String>,
+    #[serde(default)]
+    pub templates_folder: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -347,6 +352,45 @@ fn now_ms() -> u64 {
         .unwrap_or(0)
 }
 
+fn normalize_templates_folder(value: Option<&str>) -> String {
+    let normalized = value
+        .unwrap_or(DEFAULT_TEMPLATES_FOLDER)
+        .replace('\\', "/")
+        .trim()
+        .trim_matches('/')
+        .to_string();
+    if normalized.is_empty() {
+        DEFAULT_TEMPLATES_FOLDER.to_string()
+    } else {
+        normalized
+    }
+}
+
+fn is_template_rel_path(rel_path: &str, templates_folder: &str) -> bool {
+    let normalized_rel = rel_path.replace('\\', "/").trim_matches('/').to_ascii_lowercase();
+    let normalized_folder = normalize_templates_folder(Some(templates_folder)).to_ascii_lowercase();
+    normalized_rel == normalized_folder || normalized_rel.starts_with(&(normalized_folder + "/"))
+}
+
+fn load_templates_folder(conn: &Connection) -> String {
+    let stored: Option<String> = conn
+        .query_row(
+            "SELECT value FROM meta WHERE key = 'templates_folder'",
+            [],
+            |row| row.get(0),
+        )
+        .optional()
+        .ok()
+        .flatten();
+    normalize_templates_folder(stored.as_deref())
+}
+
+fn template_folder_and_prefix(templates_folder: Option<&str>) -> (String, String) {
+    let folder = normalize_templates_folder(templates_folder);
+    let prefix = format!("{folder}/");
+    (folder, prefix)
+}
+
 fn content_hash(text: &str) -> String {
     let mut hasher = Sha256::new();
     hasher.update(text.as_bytes());
@@ -544,7 +588,12 @@ fn upsert_note_row(
     Ok(())
 }
 
-fn sync_index(vault: &Path, conn: &mut Connection, request_token: Option<&str>) -> Result<(), String> {
+fn sync_index(
+    vault: &Path,
+    conn: &mut Connection,
+    request_token: Option<&str>,
+    templates_folder: &str,
+) -> Result<(), String> {
     ensure_schema(conn)?;
 
     let mut file_entries: Vec<(String, PathBuf)> = Vec::new();
@@ -582,6 +631,11 @@ fn sync_index(vault: &Path, conn: &mut Connection, request_token: Option<&str>) 
             tx.rollback()
                 .map_err(|e| format!("failed to rollback canceled transaction: {e}"))?;
             return Err("operation canceled".to_string());
+        }
+
+        if is_template_rel_path(&rel_path, templates_folder) {
+            remove_note_rows(&tx, &rel_path)?;
+            continue;
         }
 
         let metadata = match std::fs::metadata(&full_path) {
@@ -639,7 +693,8 @@ fn sync_index_for_watcher(app_handle: &tauri::AppHandle, vault_path: &str) -> Re
     let vault = canonical_vault_path(vault_path)?;
     let db_path = db_path_for_vault(app_handle, vault_path)?;
     let mut conn = open_connection(&db_path)?;
-    sync_index(&vault, &mut conn, None)
+    let templates_folder = load_templates_folder(&conn);
+    sync_index(&vault, &mut conn, None, &templates_folder)
 }
 
 fn apply_incremental_changes_for_watcher(
@@ -656,6 +711,7 @@ fn apply_incremental_changes_for_watcher(
     let db_path = db_path_for_vault(app_handle, vault_path)?;
     let mut conn = open_connection(&db_path)?;
     ensure_schema(&conn)?;
+    let templates_folder = load_templates_folder(&conn);
 
     let tx = conn
         .transaction()
@@ -666,6 +722,11 @@ fn apply_incremental_changes_for_watcher(
     }
 
     for rel_path in upserts {
+        if is_template_rel_path(rel_path, &templates_folder) {
+            remove_note_rows(&tx, rel_path)?;
+            continue;
+        }
+
         let rel = sanitize_rel_path(rel_path)?;
         let rel_path_normalized = rel.to_string_lossy().replace('\\', "/");
         let full_path = vault.join(&rel);
@@ -823,6 +884,8 @@ pub fn rebuild_index_impl(
     let _ = options.include_hidden;
     let _ = options.force;
     let _ = options.reason;
+    let templates_folder = normalize_templates_folder(options.templates_folder.as_deref());
+    set_meta(&conn, "templates_folder", &templates_folder)?;
 
     let key = vault.to_string_lossy().to_string();
     {
@@ -836,7 +899,12 @@ pub fn rebuild_index_impl(
     }
 
     let started = Instant::now();
-    let result = sync_index(&vault, &mut conn, options.request_token.as_deref());
+    let result = sync_index(
+        &vault,
+        &mut conn,
+        options.request_token.as_deref(),
+        &templates_folder,
+    );
 
     {
         let mut states = runtime_states()
@@ -862,6 +930,7 @@ pub fn ensure_index_impl(app_handle: &tauri::AppHandle, vault_path: &str) -> Res
     let db_path = db_path_for_vault(app_handle, vault_path)?;
     let mut conn = open_connection(&db_path)?;
     ensure_schema(&conn)?;
+    let templates_folder = load_templates_folder(&conn);
 
     let last_indexed = get_meta_u64(&conn, "last_indexed_ms")?;
     let has_indexed_rows: bool = conn
@@ -872,7 +941,7 @@ pub fn ensure_index_impl(app_handle: &tauri::AppHandle, vault_path: &str) -> Res
         .unwrap_or(false);
 
     if !has_indexed_rows || last_indexed.is_none() {
-        return sync_index(&vault, &mut conn, None);
+        return sync_index(&vault, &mut conn, None, &templates_folder);
     }
 
     let watcher_running = watcher_handles()
@@ -890,7 +959,7 @@ pub fn ensure_index_impl(app_handle: &tauri::AppHandle, vault_path: &str) -> Res
         .unwrap_or(true);
 
     if stale {
-        sync_index(&vault, &mut conn, None)?;
+        sync_index(&vault, &mut conn, None, &templates_folder)?;
     }
 
     Ok(())
@@ -901,6 +970,7 @@ pub fn index_status_impl(app_handle: &tauri::AppHandle, vault_path: &str) -> Res
     let db_path = db_path_for_vault(app_handle, vault_path)?;
     let conn = open_connection(&db_path)?;
     ensure_schema(&conn)?;
+    let templates_folder = load_templates_folder(&conn);
 
     let indexed_notes: u32 = conn
         .query_row("SELECT COUNT(*) FROM notes", [], |row| row.get::<_, i64>(0))
@@ -909,6 +979,7 @@ pub fn index_status_impl(app_handle: &tauri::AppHandle, vault_path: &str) -> Res
 
     let mut total_markdown_files: Vec<(String, PathBuf)> = Vec::new();
     collect_markdown_file_paths(&vault, &vault, &mut total_markdown_files)?;
+    total_markdown_files.retain(|(rel_path, _)| !is_template_rel_path(rel_path, &templates_folder));
 
     let key = vault.to_string_lossy().to_string();
     let rebuilding = runtime_states()
@@ -950,6 +1021,7 @@ pub fn upsert_note_impl(
     let db_path = db_path_for_vault(app_handle, vault_path)?;
     let mut conn = open_connection(&db_path)?;
     ensure_schema(&conn)?;
+    let templates_folder = load_templates_folder(&conn);
 
     let metadata = std::fs::metadata(&full).map_err(|e| format!("failed to read note metadata: {e}"))?;
     let resolved_mtime = match mtime_ms {
@@ -963,6 +1035,10 @@ pub fn upsert_note_impl(
     };
     let body_public = filter_locked_body_content(&body_full);
     let rel_path_str = rel.to_string_lossy().replace('\\', "/");
+    if is_template_rel_path(&rel_path_str, &templates_folder) {
+        return remove_note_impl(app_handle, vault_path, &rel_path_str)
+            .map(|_| MutationResult { updated: false });
+    }
     let is_hidden = is_hidden_path(&rel_path_str);
     let title = display_name_for_path(&full);
 
@@ -1039,6 +1115,7 @@ pub fn search_v2_impl(
 
     let db_path = db_path_for_vault(app_handle, vault_path)?;
     let conn = open_connection(&db_path)?;
+    let (templates_folder, template_prefix) = template_folder_and_prefix(flags.templates_folder.as_deref());
 
     let body_column = if flags.include_locked {
         "body_full"
@@ -1055,12 +1132,18 @@ pub fn search_v2_impl(
         } else {
             "AND is_hidden = 0"
         };
+        let template_exclusion_clause_count = "AND rel_path <> ?2 AND rel_path NOT LIKE ?3";
+        let template_exclusion_clause_select = "AND rel_path <> ?4 AND rel_path NOT LIKE ?5";
 
         let count_sql = format!(
-            "SELECT COUNT(*) FROM notes WHERE {body_column} LIKE '%' || ?1 || '%' {where_hidden}"
+            "SELECT COUNT(*) FROM notes WHERE {body_column} LIKE '%' || ?1 || '%' {where_hidden} {template_exclusion_clause_count}"
         );
         total = conn
-            .query_row(&count_sql, params![query], |row| row.get::<_, i64>(0))
+            .query_row(
+                &count_sql,
+                params![query, templates_folder, template_prefix],
+                |row| row.get::<_, i64>(0),
+            )
             .map(|v| v as usize)
             .unwrap_or(0);
 
@@ -1070,6 +1153,7 @@ pub fn search_v2_impl(
             FROM notes
             WHERE {body_column} LIKE '%' || ?1 || '%'
             {where_hidden}
+            {template_exclusion_clause_select}
             ORDER BY CASE WHEN title = ?1 THEN 0 WHEN title LIKE ?1 || '%' THEN 1 ELSE 2 END, rel_path ASC
             LIMIT ?2 OFFSET ?3
             "
@@ -1079,7 +1163,15 @@ pub fn search_v2_impl(
             .prepare(&sql)
             .map_err(|e| format!("failed to prepare case-sensitive search query: {e}"))?;
         let rows = stmt
-            .query_map(params![query, limit as i64, offset as i64], |row| {
+            .query_map(
+                params![
+                    query,
+                    limit as i64,
+                    offset as i64,
+                    templates_folder,
+                    template_prefix
+                ],
+                |row| {
                 Ok((
                     row.get::<_, String>(0)?,
                     row.get::<_, String>(1)?,
@@ -1139,12 +1231,18 @@ pub fn search_v2_impl(
         } else {
             "AND n.is_hidden = 0"
         };
+        let template_exclusion_clause_count = "AND n.rel_path <> ?2 AND n.rel_path NOT LIKE ?3";
+        let template_exclusion_clause_select = "AND n.rel_path <> ?4 AND n.rel_path NOT LIKE ?5";
 
         let count_sql = format!(
-            "SELECT COUNT(*) FROM {fts_table} JOIN notes n ON n.note_id = {fts_table}.note_id WHERE {fts_table} MATCH ?1 {hidden_clause}"
+            "SELECT COUNT(*) FROM {fts_table} JOIN notes n ON n.note_id = {fts_table}.note_id WHERE {fts_table} MATCH ?1 {hidden_clause} {template_exclusion_clause_count}"
         );
         total = conn
-            .query_row(&count_sql, params![fts_query], |row| row.get::<_, i64>(0))
+            .query_row(
+                &count_sql,
+                params![fts_query, templates_folder, template_prefix],
+                |row| row.get::<_, i64>(0),
+            )
             .map(|v| v as usize)
             .unwrap_or(0);
 
@@ -1158,9 +1256,10 @@ pub fn search_v2_impl(
                             bm25({fts_table}, 8.0, 1.0, 2.5)
                         FROM {fts_table}
                         JOIN notes n ON n.note_id = {fts_table}.note_id
-                        WHERE {fts_table} MATCH ?1
+            WHERE {fts_table} MATCH ?1
             {hidden_clause}
-                        ORDER BY bm25({fts_table}, 8.0, 1.0, 2.5) ASC
+            {template_exclusion_clause_select}
+            ORDER BY bm25({fts_table}, 8.0, 1.0, 2.5) ASC
             LIMIT ?2 OFFSET ?3
             "
         );
@@ -1169,7 +1268,15 @@ pub fn search_v2_impl(
             .prepare(&sql)
             .map_err(|e| format!("failed to prepare fts query: {e}"))?;
         let rows = stmt
-            .query_map(params![fts_query, limit as i64, offset as i64], |row| {
+            .query_map(
+                params![
+                    fts_query,
+                    limit as i64,
+                    offset as i64,
+                    templates_folder,
+                    template_prefix
+                ],
+                |row| {
                 Ok((
                     row.get::<_, String>(0)?,
                     row.get::<_, String>(1)?,

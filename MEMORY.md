@@ -1,3 +1,11 @@
+- 2026-02-13 — Decision: Templates are vault Markdown files constrained to a configurable folder (default `_templates`) and are excluded from search indexing/results.
+  - Rationale: Templates are authoring inputs, not regular knowledge notes, so they should not pollute search relevance.
+  - Impact: New search/index logic must always apply template-path exclusion via shared folder semantics, and folder changes must trigger reindex behavior.
+
+- 2026-02-13 — Decision: Template rendering resolves variables/frontmatter/cursor at action time (insert/new-note), not render time.
+  - Rationale: Date/time/title values must be deterministic at insertion/creation and remain stable afterward.
+  - Impact: Use centralized template rendering/merge helpers for both insert and new-note flows; unknown variables remain unchanged and existing frontmatter keys are not overwritten.
+
 - 2026-02-12 — Decision: External vault changes are handled with incremental path-level watcher updates plus frontend file-change events for near-immediate active-note refresh.
   - Rationale: Full-vault rescans on every watcher tick are too slow for Obsidian-like responsiveness.
   - Impact: Watcher pipelines should batch changed paths into upsert/remove index writes, emit `vault-file-changed`, and only use periodic full resync as a reconciliation fallback.

@@ -74,6 +74,8 @@ Fuzzy search across all note titles. Features:
 ### Command Palette (`Cmd/Ctrl + Shift + P`)
 Searchable list of all app commands:
 - New Note
+- Insert Template…
+- New Note from Template…
 - Rename Current Note
 - Delete Current Note
 - Lock Current Heading
@@ -88,6 +90,7 @@ Full-text search across your entire vault:
 - Case-sensitive toggle
 - Click any result to jump to that line
 - Respects locked sections (excluded when vault is locked)
+- Excludes template files under the configured templates folder
 
 ![Quick Switcher](screenshots/quick-switcher.png)
 
@@ -177,6 +180,16 @@ Organize notes hierarchically:
 - **Rename**: Click the note title or use Command Palette
 - **Delete**: Via Command Palette with confirmation dialog
 - **New note/folder**: Toolbar buttons or Command Palette
+
+### Templates v1
+Use reusable Markdown templates stored under a configurable templates folder (default: `_templates`).
+
+Features:
+- **Insert Template…**: Inserts template content into the current note at selection/cursor
+- **New Note from Template…**: Creates a new note from the selected template
+- **Action-time variables**: `{{date}}`, `{{time}}`, `{{datetime}}`, `{{title}}`, `{{cursor}}`
+- **Frontmatter-aware apply**: Template frontmatter merges into existing notes without overwriting existing keys
+- **Search-safe**: Template files are excluded from indexing and search results
 
 ---
 
@@ -339,6 +352,10 @@ Comprehensive configuration panel (gear icon in left sidebar):
 - Debounce (ms)
 - Max results
 - Max recent notes
+
+**Templates**:
+- Templates folder path (vault-relative, default `_templates`)
+- Create templates folder action
 
 **Reset**: Restore all settings to factory defaults
 

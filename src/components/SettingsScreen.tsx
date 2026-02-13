@@ -6,11 +6,19 @@ type SettingsScreenProps = {
   open: boolean
   settings: DraglassSettings
   onChange: (update: Partial<DraglassSettings>) => void
+  onEnsureTemplatesFolder: () => void
   onClose: () => void
   onReset: () => void
 }
 
-export function SettingsScreen({ open, settings, onChange, onClose, onReset }: SettingsScreenProps) {
+export function SettingsScreen({
+  open,
+  settings,
+  onChange,
+  onEnsureTemplatesFolder,
+  onClose,
+  onReset,
+}: SettingsScreenProps) {
   useEffect(() => {
     if (!open) return
     const onKeyDown = (e: KeyboardEvent) => {
@@ -200,6 +208,24 @@ export function SettingsScreen({ open, settings, onChange, onClose, onReset }: S
                 value={settings.quickSwitcherMaxRecents}
                 onChange={onNumberChange('quickSwitcherMaxRecents')}
               />
+            </label>
+          </section>
+
+          <section className="settingsSection">
+            <h3>Templates</h3>
+            <label className="settingsRow settingsRow--number">
+              <span>Templates folder</span>
+              <input
+                type="text"
+                value={settings.templatesFolder}
+                onChange={(e) => onChange({ templatesFolder: e.target.value })}
+              />
+            </label>
+            <label className="settingsRow">
+              <span>Ensure templates folder exists</span>
+              <button type="button" className="settingsReset" onClick={onEnsureTemplatesFolder}>
+                Create folder
+              </button>
             </label>
           </section>
         </div>

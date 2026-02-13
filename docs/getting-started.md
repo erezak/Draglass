@@ -23,12 +23,12 @@ The quickest way to experience Draglass is through the web version with the buil
 
 2. **Install dependencies**:
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. **Run the development server**:
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 4. **Open your browser** to the URL displayed (typically `http://localhost:5173`)
@@ -153,6 +153,14 @@ The most natural way to create notes:
 3. Draglass creates the note and opens it
 
 This workflow encourages connected thinking—the act of linking *is* the act of creating.
+
+### Method 4: New Note from Template
+
+1. Press `Cmd/Ctrl + Shift + P` to open the Command Palette
+2. Run **New note from template…**
+3. Pick a template from your templates folder (default `_templates`)
+
+You can also run **Insert template…** to apply a template inside the current note. Template files are excluded from Global Search results by default.
 
 ---
 
