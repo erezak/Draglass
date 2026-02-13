@@ -430,9 +430,13 @@ fn to_fts_query(query: &str) -> Option<String> {
             let cleaned = token
                 .trim_matches(|ch: char| !ch.is_alphanumeric() && ch != '_')
                 .to_lowercase();
-            if cleaned.is_empty() {
-                format!("\"{}\"", token.replace('"', "\"\""))
+            
+            // If cleaned is empty, or if the token contains special FTS5 characters,
+            // wrap it in quotes for literal matching
+            if cleaned.is_empty() || cleaned.chars().any(|ch| !ch.is_alphanumeric() && ch != '_') {
+                format!("\"{}\"", cleaned.replace('"', "\"\""))
             } else {
+                // Otherwise use prefix matching
                 format!("{cleaned}*")
             }
         })
@@ -1748,5 +1752,36 @@ mod tests {
         set_meta(&conn, "last_indexed_ms", "123").expect("set meta");
         let value = get_meta_u64(&conn, "last_indexed_ms").expect("read meta");
         assert_eq!(value, Some(123));
+    }
+
+    #[test]
+    fn to_fts_query_handles_dots() {
+        // Test that dots in search terms are properly quoted
+        let query = to_fts_query("tp.file").unwrap();
+        assert_eq!(query, "\"tp.file\"");
+        
+        // Test single word without special chars uses prefix matching
+        let query = to_fts_query("hello").unwrap();
+        assert_eq!(query, "hello*");
+        
+        // Test multiple words
+        let query = to_fts_query("hello world").unwrap();
+        assert_eq!(query, "hello* AND world*");
+        
+        // Test word with dot
+        let query = to_fts_query("file.md").unwrap();
+        assert_eq!(query, "\"file.md\"");
+        
+        // Test mixed: word with and without special chars
+        let query = to_fts_query("hello file.md").unwrap();
+        assert_eq!(query, "hello* AND \"file.md\"");
+        
+        // Test empty query
+        let query = to_fts_query("");
+        assert!(query.is_none());
+        
+        // Test whitespace only
+        let query = to_fts_query("   ");
+        assert!(query.is_none());
     }
 }
