@@ -73,6 +73,7 @@ type NoteEditorProps = {
   vaultPath?: string | null
   noteRelPath?: string | null
   onOpenWikilink?: (rawTarget: string) => void
+  onOpenTask?: (relPath: string, lineNumber: number) => void
   theme?: 'dark' | 'light'
   isVaultUnlocked?: boolean
   onRequestUnlock?: () => void
@@ -103,6 +104,7 @@ export const NoteEditor = function NoteEditor({
     vaultPath = null,
     noteRelPath = null,
     onOpenWikilink,
+    onOpenTask,
     theme = 'dark',
     isVaultUnlocked = false,
     onRequestUnlock,
@@ -120,6 +122,7 @@ export const NoteEditor = function NoteEditor({
   const initialRenderImagesRef = useRef<boolean>(renderImages)
   const initialRenderCalloutsRef = useRef<boolean>(renderCallouts)
   const initialOpenWikilinkRef = useRef<NoteEditorProps['onOpenWikilink']>(onOpenWikilink)
+  const initialOpenTaskRef = useRef<NoteEditorProps['onOpenTask']>(onOpenTask)
   const initialVaultPathRef = useRef<string | null>(vaultPath)
   const initialNoteRelPathRef = useRef<string | null>(noteRelPath)
   const initialTasksRef = useRef<LivePreviewTaskItem[]>(tasks)
@@ -352,6 +355,12 @@ export const NoteEditor = function NoteEditor({
 
   useEffect(() => {
     if (viewRef.current == null) {
+      initialOpenTaskRef.current = onOpenTask
+    }
+  }, [onOpenTask])
+
+  useEffect(() => {
+    if (viewRef.current == null) {
       initialOpenImageRef.current = onOpenImage
     }
   }, [onOpenImage])
@@ -466,6 +475,7 @@ export const NoteEditor = function NoteEditor({
                 onRequestUnlock,
                 onLockedSectionsDetected,
                 tasks: initialTasksRef.current,
+                onOpenTask: initialOpenTaskRef.current,
               }),
             ]
           : [livePreviewFacet.of(false)],
@@ -609,6 +619,7 @@ export const NoteEditor = function NoteEditor({
                 onRequestUnlock,
                 onLockedSectionsDetected,
                 tasks,
+                onOpenTask,
               }),
             ]
           : [livePreviewFacet.of(false)],
@@ -629,6 +640,7 @@ export const NoteEditor = function NoteEditor({
     onRequestUnlock,
     onLockedSectionsDetected,
     tasks,
+    onOpenTask,
   ])
 
   if (initError) {

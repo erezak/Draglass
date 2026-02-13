@@ -1550,6 +1550,7 @@ function App() {
                   vaultPath={vaultPath}
                   noteRelPath={activeRelPath}
                   onOpenWikilink={openOrCreateWikilink}
+                  onOpenTask={onTaskClick}
                   theme={settings.editorTheme}
                   isVaultUnlocked={isVaultUnlocked}
                   onRequestUnlock={onRequestUnlock}

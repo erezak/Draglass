@@ -41,6 +41,7 @@ export type LivePreviewOptions = {
   onRequestUnlock?: () => void
   onLockedSectionsDetected?: (sections: HeadingSection[], ranges: LockedBodyRange[]) => void
   tasks?: LivePreviewTaskItem[]
+  onOpenTask?: (relPath: string, lineNumber: number) => void
 }
 
 export function createLivePreviewExtension(options: LivePreviewOptions = {}): Extension[] {
@@ -133,6 +134,7 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
     createTasksCodeBlockPreviewPlugin({
       tasks: options.tasks,
       noteRelPath: options.noteRelPath,
+      onOpenTask: options.onOpenTask,
     }),
     createFrontmatterDecorationsPlugin({ hideFrontmatter: true }),
     mermaidDecorationsField,

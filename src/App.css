@@ -1574,6 +1574,18 @@
   max-width: 320px;
 }
 
+.noteEditor--livePreview .cm-livePreview-taskQueryLink {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  font: inherit;
+}
+
 .noteEditor--livePreview .cm-livePreview-table code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;

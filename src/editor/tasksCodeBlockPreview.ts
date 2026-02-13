@@ -13,6 +13,7 @@ import { getFenceLang } from './mermaidBlocks'
 type TasksCodeBlockPreviewOptions = {
   tasks?: TaskItem[]
   noteRelPath?: string
+  onOpenTask?: (relPath: string, lineNumber: number) => void
 }
 type ScheduledUpdate = number | ReturnType<typeof setTimeout>
 
@@ -25,6 +26,7 @@ type TasksBlock = {
 const TASKS_LANG = 'tasks'
 const setTasksDecorations = StateEffect.define<DecorationSet>()
 const FALLBACK_UPDATE_DELAY_MS = 16
+const UNTITLED_TASK_LABEL = '(untitled task)'
 
 export const tasksDecorationsField = StateField.define<DecorationSet>({
   create: () => Decoration.none,
@@ -80,10 +82,15 @@ function collectTasksBlocks(view: EditorView): TasksBlock[] {
 
 class TasksBlockWidget extends WidgetType {
   private readonly tasks: TaskQueryTask[]
+  private readonly onOpenTask?: (relPath: string, lineNumber: number) => void
 
-  constructor(tasks: TaskQueryTask[]) {
+  constructor(
+    tasks: TaskQueryTask[],
+    onOpenTask?: (relPath: string, lineNumber: number) => void,
+  ) {
     super()
     this.tasks = tasks
+    this.onOpenTask = onOpenTask
   }
 
   eq(other: TasksBlockWidget) {
@@ -113,7 +120,7 @@ class TasksBlockWidget extends WidgetType {
 
     const thead = document.createElement('thead')
     const headRow = document.createElement('tr')
-    for (const label of ['Task', 'Path', 'Line']) {
+    for (const label of ['Task', 'Path']) {
       const th = document.createElement('th')
       th.textContent = label
       headRow.appendChild(th)
@@ -125,7 +132,7 @@ class TasksBlockWidget extends WidgetType {
     if (this.tasks.length === 0) {
       const row = document.createElement('tr')
       const cell = document.createElement('td')
-      cell.colSpan = 3
+      cell.colSpan = 2
       cell.textContent = 'No matching tasks'
       row.appendChild(cell)
       tbody.appendChild(row)
@@ -133,16 +140,26 @@ class TasksBlockWidget extends WidgetType {
       for (const task of this.tasks) {
         const row = document.createElement('tr')
         const taskCell = document.createElement('td')
-        taskCell.textContent = task.text
+        const taskText = task.text.length > 0 ? task.text : UNTITLED_TASK_LABEL
+        if (this.onOpenTask) {
+          const taskLink = document.createElement('button')
+          taskLink.type = 'button'
+          taskLink.className = 'cm-livePreview-taskQueryLink'
+          taskLink.textContent = taskText
+          taskLink.setAttribute('aria-label', `Open ${task.relPath} line ${task.lineNumber}`)
+          taskLink.addEventListener('click', (event) => {
+            event.stopPropagation()
+            this.onOpenTask?.(task.relPath, task.lineNumber)
+          })
+          taskCell.appendChild(taskLink)
+        } else {
+          taskCell.textContent = taskText
+        }
         row.appendChild(taskCell)
 
         const pathCell = document.createElement('td')
         pathCell.textContent = task.relPath
         row.appendChild(pathCell)
-
-        const lineCell = document.createElement('td')
-        lineCell.textContent = String(task.lineNumber)
-        row.appendChild(lineCell)
 
         tbody.appendChild(row)
       }
@@ -179,7 +196,7 @@ function buildTasksCodeBlockDecorations(
       block.from,
       block.to,
       Decoration.replace({
-        widget: new TasksBlockWidget(filtered),
+        widget: new TasksBlockWidget(filtered, options.onOpenTask),
         block: true,
       }),
     )
