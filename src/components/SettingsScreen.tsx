@@ -228,6 +228,58 @@ export function SettingsScreen({
               </button>
             </label>
           </section>
+
+          <section className="settingsSection">
+            <h3>Features</h3>
+            <label className="settingsRow">
+              <span>Enable calendar</span>
+              <input
+                type="checkbox"
+                checked={settings.calendarEnabled}
+                onChange={onToggle('calendarEnabled')}
+              />
+            </label>
+            <label className="settingsRow">
+              <span>Enable tasks</span>
+              <input type="checkbox" checked={settings.tasksEnabled} onChange={onToggle('tasksEnabled')} />
+            </label>
+          </section>
+
+          <section className="settingsSection">
+            <h3>Daily Notes</h3>
+            <label className="settingsRow">
+              <span>Enable daily notes</span>
+              <input
+                type="checkbox"
+                checked={settings.dailyNotesEnabled}
+                onChange={onToggle('dailyNotesEnabled')}
+              />
+            </label>
+            <label className="settingsRow settingsRow--number">
+              <span>Daily notes folder</span>
+              <input
+                type="text"
+                value={settings.dailyNotesFolder}
+                onChange={(e) => onChange({ dailyNotesFolder: e.target.value })}
+              />
+            </label>
+            <label className="settingsRow settingsRow--number">
+              <span>Date format for filename</span>
+              <input
+                type="text"
+                value={settings.dailyNotesDateFormat}
+                onChange={(e) => onChange({ dailyNotesDateFormat: e.target.value })}
+              />
+            </label>
+            <label className="settingsRow settingsRow--number">
+              <span>Daily note template path (optional)</span>
+              <input
+                type="text"
+                value={settings.dailyNotesTemplatePath}
+                onChange={(e) => onChange({ dailyNotesTemplatePath: e.target.value })}
+              />
+            </label>
+          </section>
         </div>
 
         <div className="settingsFooter">
