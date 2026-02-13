@@ -1555,6 +1555,7 @@ function App() {
                   onRequestUnlock={onRequestUnlock}
                   onLockedSectionsDetected={onLockedSectionsDetected}
                   files={files}
+                  tasks={tasks}
                 />
               </Suspense>
             )}

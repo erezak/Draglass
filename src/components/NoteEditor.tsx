@@ -19,7 +19,7 @@ import {
 } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { markdown } from '@codemirror/lang-markdown'
-import { createLivePreviewExtension } from '../editor/livePreview'
+import { createLivePreviewExtension, type LivePreviewTaskItem } from '../editor/livePreview'
 import { frontmatterEndLineField } from '../editor/frontmatterPreview'
 import { createWikilinkCompletionExtension } from '../editor/wikilinkCompletion'
 import type { HeadingSection, LockedBodyRange } from '../lockedSections'
@@ -78,6 +78,7 @@ type NoteEditorProps = {
   onRequestUnlock?: () => void
   onLockedSectionsDetected?: (sections: HeadingSection[], ranges: LockedBodyRange[]) => void
   files?: NoteEntry[]
+  tasks?: LivePreviewTaskItem[]
 }
 
 export type NoteEditorHandle = {
@@ -107,6 +108,7 @@ export const NoteEditor = function NoteEditor({
     onRequestUnlock,
     onLockedSectionsDetected,
     files = [],
+    tasks = [],
     ref,
   }: NoteEditorProps) {
   const hostRef = useRef<HTMLDivElement | null>(null)
@@ -120,6 +122,7 @@ export const NoteEditor = function NoteEditor({
   const initialOpenWikilinkRef = useRef<NoteEditorProps['onOpenWikilink']>(onOpenWikilink)
   const initialVaultPathRef = useRef<string | null>(vaultPath)
   const initialNoteRelPathRef = useRef<string | null>(noteRelPath)
+  const initialTasksRef = useRef<LivePreviewTaskItem[]>(tasks)
   const [initError, setInitError] = useState<Error | null>(null)
   const [lightbox, setLightbox] = useState<{ src: string; alt?: string } | null>(null)
   const highlightTimerRef = useRef<number | null>(null)
@@ -337,6 +340,12 @@ export const NoteEditor = function NoteEditor({
 
   useEffect(() => {
     if (viewRef.current == null) {
+      initialTasksRef.current = tasks
+    }
+  }, [tasks])
+
+  useEffect(() => {
+    if (viewRef.current == null) {
       initialOpenWikilinkRef.current = onOpenWikilink
     }
   }, [onOpenWikilink])
@@ -456,6 +465,7 @@ export const NoteEditor = function NoteEditor({
                 isVaultUnlocked,
                 onRequestUnlock,
                 onLockedSectionsDetected,
+                tasks: initialTasksRef.current,
               }),
             ]
           : [livePreviewFacet.of(false)],
@@ -598,6 +608,7 @@ export const NoteEditor = function NoteEditor({
                 isVaultUnlocked,
                 onRequestUnlock,
                 onLockedSectionsDetected,
+                tasks,
               }),
             ]
           : [livePreviewFacet.of(false)],
@@ -617,6 +628,7 @@ export const NoteEditor = function NoteEditor({
     isVaultUnlocked,
     onRequestUnlock,
     onLockedSectionsDetected,
+    tasks,
   ])
 
   if (initError) {
