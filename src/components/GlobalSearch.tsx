@@ -4,6 +4,7 @@ import { cancelRequest, searchV2, type SearchV2Hit } from '../tauri'
 type GlobalSearchProps = {
   vaultPath: string | null
   showHidden: boolean
+  templatesFolder: string
   isVaultUnlocked: boolean
   onOpenResult: (relPath: string, lineNumber: number) => void
 }
@@ -19,6 +20,7 @@ const SEARCH_PAGE_SIZE = 200
 export function GlobalSearch({
   vaultPath,
   showHidden,
+  templatesFolder,
   isVaultUnlocked,
   onOpenResult,
 }: GlobalSearchProps) {
@@ -60,6 +62,7 @@ export function GlobalSearch({
             caseSensitive,
             includeHidden: showHidden,
             includeLocked: isVaultUnlocked,
+            templatesFolder,
           },
           SEARCH_PAGE_SIZE,
           offset,
@@ -80,7 +83,7 @@ export function GlobalSearch({
         setSearching(false)
       }
     },
-    [caseSensitive, isVaultUnlocked, makeToken, query, showHidden, vaultPath],
+    [caseSensitive, isVaultUnlocked, makeToken, query, showHidden, templatesFolder, vaultPath],
   )
 
   useEffect(() => {

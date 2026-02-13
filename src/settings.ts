@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { DEFAULT_TEMPLATES_FOLDER, normalizeTemplatesFolder } from './templates'
 
 export type DraglassSettings = {
   editorWrap: boolean
@@ -25,6 +26,8 @@ export type DraglassSettings = {
   quickSwitcherDebounceMs: number
   quickSwitcherMaxResults: number
   quickSwitcherMaxRecents: number
+
+  templatesFolder: string
 }
 
 type SettingsUpdate =
@@ -62,6 +65,8 @@ export const DEFAULT_SETTINGS: DraglassSettings = {
   quickSwitcherDebounceMs: 60,
   quickSwitcherMaxResults: 50,
   quickSwitcherMaxRecents: 20,
+
+  templatesFolder: DEFAULT_TEMPLATES_FOLDER,
 }
 
 function clampInt(value: unknown, fallback: number, min: number, max: number): number {
@@ -131,6 +136,9 @@ function normalizeSettings(raw: unknown): DraglassSettings {
       DEFAULT_SETTINGS.quickSwitcherMaxRecents,
       1,
       200,
+    ),
+    templatesFolder: normalizeTemplatesFolder(
+      typeof r.templatesFolder === 'string' ? r.templatesFolder : DEFAULT_SETTINGS.templatesFolder,
     ),
   }
 }

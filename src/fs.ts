@@ -42,13 +42,14 @@ export async function createUniqueNote(
   vaultPath: string,
   parentRelPath: string | null,
   baseName: string = 'Untitled',
+  contents: string = '',
 ): Promise<string> {
   const parent = normalizeParentPath(parentRelPath)
   for (let index = 0; index < 500; index += 1) {
     const fileName = buildIndexedName(baseName, index, '.md')
     const relPath = joinRelPath(parent, fileName)
     try {
-      await tryCreateNote(vaultPath, relPath, '')
+      await tryCreateNote(vaultPath, relPath, contents)
       return relPath
     } catch (error) {
       if (isNameConflictError(error)) continue

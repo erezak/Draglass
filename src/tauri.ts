@@ -2,11 +2,13 @@ import { invoke } from '@tauri-apps/api/core'
 
 import type { NoteEntry, SearchHit } from './types'
 import type { GraphData, GraphOptions } from './features/graph/graphTypes'
+import { DEFAULT_TEMPLATES_FOLDER, isTemplatePath, normalizeTemplatesFolder } from './templates'
 
 export type SearchFlags = {
   caseSensitive?: boolean
   includeHidden?: boolean
   includeLocked?: boolean
+  templatesFolder?: string
 }
 
 export type SearchHighlightRange = {
@@ -45,6 +47,7 @@ export type RebuildIndexOptions = {
   force?: boolean
   reason?: string
   requestToken?: string
+  templatesFolder?: string
 }
 
 export type RebuildIndexResult = {
@@ -328,8 +331,17 @@ export async function searchV2(
   offset: number,
   requestToken?: string,
 ): Promise<SearchV2Response> {
+  const normalizedTemplatesFolder = normalizeTemplatesFolder(flags.templatesFolder)
+  const effectiveFlags = {
+    ...flags,
+    templatesFolder: normalizedTemplatesFolder,
+  }
   if (isTauri()) {
-    return tauriSearchV2(vaultPath, query, flags, limit, offset, requestToken)
+    const response = await tauriSearchV2(vaultPath, query, effectiveFlags, limit, offset, requestToken)
+    return {
+      ...response,
+      results: response.results.filter((hit) => !isTemplatePath(hit.relPath, normalizedTemplatesFolder)),
+    }
   }
 
   const { webSearchVault } = await import('./webVault')
@@ -341,7 +353,8 @@ export async function searchV2(
     !!flags.includeHidden,
   )
 
-  const mapped: SearchV2Hit[] = hits.slice(offset, offset + limit).map((hit) => ({
+  const filtered = hits.filter((hit) => !isTemplatePath(hit.rel_path, normalizedTemplatesFolder))
+  const mapped: SearchV2Hit[] = filtered.slice(offset, offset + limit).map((hit) => ({
     relPath: hit.rel_path,
     title: hit.rel_path.split('/').pop()?.replace(/\.(md|markdown)$/i, '') ?? hit.rel_path,
     snippet: hit.snippet,
@@ -350,10 +363,10 @@ export async function searchV2(
     lineNumber: hit.line_number,
   }))
 
-  const nextOffset = offset + mapped.length < hits.length ? offset + mapped.length : null
+  const nextOffset = offset + mapped.length < filtered.length ? offset + mapped.length : null
   return {
     results: mapped,
-    total: hits.length,
+    total: filtered.length,
     tookMs: 0,
     nextOffset,
     canceled: false,
@@ -399,10 +412,14 @@ export async function rebuildIndex(
   vaultPath: string,
   options: RebuildIndexOptions,
 ): Promise<RebuildIndexResult> {
+  const normalizedOptions = {
+    ...options,
+    templatesFolder: normalizeTemplatesFolder(options.templatesFolder ?? DEFAULT_TEMPLATES_FOLDER),
+  }
   if (!isTauri()) {
     return { accepted: true, jobId: 'web-noop' }
   }
-  return tauriRebuildIndex(vaultPath, options)
+  return tauriRebuildIndex(vaultPath, normalizedOptions)
 }
 
 async function tauriListTasksV2(

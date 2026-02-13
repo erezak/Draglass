@@ -84,6 +84,9 @@ export type NoteEditorHandle = {
   focus: () => void
   revealLine: (lineNumber: number) => void
   lockCurrentHeading: () => boolean
+  getSelectionRange: () => { from: number; to: number }
+  replaceDocument: (nextText: string, cursorOffset?: number | null) => void
+  setCursorOffset: (cursorOffset: number) => void
 }
 
 export const NoteEditor = function NoteEditor({
@@ -121,6 +124,7 @@ export const NoteEditor = function NoteEditor({
   const [lightbox, setLightbox] = useState<{ src: string; alt?: string } | null>(null)
   const highlightTimerRef = useRef<number | null>(null)
   const pendingRevealRef = useRef<number | null>(null)
+  const pendingCursorRef = useRef<number | null>(null)
 
   const onOpenImage = useCallback((src: string, alt?: string) => {
     setLightbox({ src, alt })
@@ -229,6 +233,39 @@ export const NoteEditor = function NoteEditor({
       },
       revealLine,
       lockCurrentHeading,
+      getSelectionRange: () => {
+        const view = viewRef.current
+        if (!view) return { from: 0, to: 0 }
+        const main = view.state.selection.main
+        return { from: main.from, to: main.to }
+      },
+      replaceDocument: (nextText: string, cursorOffset?: number | null) => {
+        const view = viewRef.current
+        if (!view) {
+          pendingCursorRef.current = cursorOffset ?? 0
+          onChangeRef.current(nextText)
+          return
+        }
+
+        const currentLength = view.state.doc.length
+        const clampedCursor = Math.max(
+          0,
+          Math.min(cursorOffset ?? view.state.selection.main.head, nextText.length),
+        )
+        view.dispatch({
+          changes: { from: 0, to: currentLength, insert: nextText },
+          selection: { anchor: clampedCursor },
+        })
+      },
+      setCursorOffset: (cursorOffset: number) => {
+        const view = viewRef.current
+        if (!view) {
+          pendingCursorRef.current = cursorOffset
+          return
+        }
+        const clamped = Math.max(0, Math.min(cursorOffset, view.state.doc.length))
+        view.dispatch({ selection: { anchor: clamped }, scrollIntoView: true })
+      },
     }),
     [revealLine, lockCurrentHeading],
   )
@@ -510,6 +547,19 @@ export const NoteEditor = function NoteEditor({
     pendingRevealRef.current = null
     requestAnimationFrame(() => revealLine(pending))
   }, [revealLine, value])
+
+  useEffect(() => {
+    const view = viewRef.current
+    const pending = pendingCursorRef.current
+    if (!view || pending == null) return
+    pendingCursorRef.current = null
+    const clamped = Math.max(0, Math.min(pending, view.state.doc.length))
+    requestAnimationFrame(() => {
+      const currentView = viewRef.current
+      if (!currentView) return
+      currentView.dispatch({ selection: { anchor: clamped }, scrollIntoView: true })
+    })
+  }, [value])
 
   useEffect(() => {
     const view = viewRef.current

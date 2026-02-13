@@ -16,6 +16,7 @@ import { VaultAuthModal, type VaultAuthModalMode } from './components/VaultAuthM
 import { CommandPalette, type Command } from './components/CommandPalette'
 import { GlobalSearch } from './components/GlobalSearch'
 import { FrontmatterPanel } from './components/FrontmatterPanel'
+import { TemplatePicker } from './components/TemplatePicker'
 import { GraphView } from './features/graph'
 import { createUniqueFolder, createUniqueNote } from './fs'
 import { useSettings } from './settings'
@@ -26,7 +27,11 @@ import { useTasks } from './features/tasks/useTasks'
 import { useEditorTheme } from './features/theme/useEditorTheme'
 import { useVault } from './features/vault/useVault'
 import { useVaultAuth, hasVaultPassword, checkVaultPassword } from './features/vault/useVaultAuth'
-import { onVaultFileChanged, readNote } from './tauri'
+import { createDir, onVaultFileChanged, readNote, rebuildIndex, writeNote } from './tauri'
+import { mergeFrontmatterForTemplateInsert, renderTemplate } from './templateRenderer'
+import { listTemplateFiles, normalizeTemplatesFolder } from './templates'
+import { parseFrontmatter } from './frontmatter'
+import { fileStem } from './path'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 import { ExcalidrawEditor } from './components/ExcalidrawEditor'
@@ -89,6 +94,7 @@ function App() {
   const [error, setError] = useState<string | null>(null)
 
   const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false)
+  const [templatePickerMode, setTemplatePickerMode] = useState<'insert' | 'new-note' | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [graphViewOpen, setGraphViewOpen] = useState(false)
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
@@ -126,6 +132,15 @@ function App() {
     onBusy: setBusy,
     onError: setError,
   })
+
+  const templatesFolder = useMemo(
+    () => normalizeTemplatesFolder(settings.templatesFolder),
+    [settings.templatesFolder],
+  )
+  const templateRelPaths = useMemo(
+    () => listTemplateFiles(files.map((file) => file.rel_path), templatesFolder, settings.filesShowHidden),
+    [files, settings.filesShowHidden, templatesFolder],
+  )
 
   // Vault authentication for locked sections
   // Must be early so other hooks can use vaultAuthState
@@ -545,6 +560,13 @@ function App() {
     }
   }, [activeRelPath])
 
+  const closeTemplatePicker = useCallback(() => {
+    setTemplatePickerMode(null)
+    if (activeRelPath) {
+      queueMicrotask(() => editorRef.current?.focus())
+    }
+  }, [activeRelPath])
+
   const closeCommandPalette = useCallback(() => {
     setCommandPaletteOpen(false)
     if (activeRelPath) {
@@ -579,17 +601,20 @@ function App() {
 
   const openQuickSwitcher = useCallback(() => {
     setCommandPaletteOpen(false)
+    setTemplatePickerMode(null)
     setQuickSwitcherOpen(true)
   }, [])
 
   const toggleGraphView = useCallback(() => {
     setQuickSwitcherOpen(false)
+    setTemplatePickerMode(null)
     setCommandPaletteOpen(false)
     setGraphViewOpen((prev) => !prev)
   }, [])
 
   const openCommandPalette = useCallback(() => {
     setQuickSwitcherOpen(false)
+    setTemplatePickerMode(null)
     setCommandPaletteOpen(true)
   }, [])
 
@@ -636,6 +661,131 @@ function App() {
     }
   }, [refreshFileList, selectedFolderPath, setBusy, setError, vaultPath])
 
+  const ensureTemplatesFolderExists = useCallback(async () => {
+    if (!vaultPath) return
+    setError(null)
+    setBusy('Ensuring templates folder…')
+    try {
+      await createDir(vaultPath, templatesFolder)
+      await refreshFileList(vaultPath)
+      setRevealFolderPath(templatesFolder)
+      setExtraFolders((prev) => (prev.includes(templatesFolder) ? prev : [...prev, templatesFolder]))
+    } catch (e) {
+      const message = String(e)
+      if (!/exists|already/i.test(message)) {
+        setError(message)
+      }
+    } finally {
+      setBusy(null)
+    }
+  }, [refreshFileList, setBusy, setError, templatesFolder, vaultPath])
+
+  const applyTemplateToCurrentNote = useCallback(
+    async (templateRelPath: string) => {
+      if (!vaultPath || !activeRelPath) return
+      const editor = editorRef.current
+      if (!editor) return
+
+      setError(null)
+      setBusy('Applying template…')
+      try {
+        const templateText = await readNote(vaultPath, templateRelPath)
+        const rendered = renderTemplate(templateText, { title: noteTitle ?? '' })
+
+        const selection = editor.getSelectionRange()
+        const merged = mergeFrontmatterForTemplateInsert(noteText, rendered.frontmatterEntries)
+        const adjustOffsetForFrontmatterChange = (offset: number) =>
+          offset < merged.previousFrontmatterLength
+            ? merged.nextFrontmatterLength
+            : offset - merged.previousFrontmatterLength + merged.nextFrontmatterLength
+
+        const selectionStart = adjustOffsetForFrontmatterChange(selection.from)
+        const selectionEnd = adjustOffsetForFrontmatterChange(selection.to)
+
+        const before = merged.textWithMergedFrontmatter.slice(0, selectionStart)
+        const after = merged.textWithMergedFrontmatter.slice(selectionEnd)
+        const nextText = `${before}${rendered.bodyText}${after}`
+        const cursorOffset = rendered.cursorOffsetInBody != null
+          ? selectionStart + rendered.cursorOffsetInBody
+          : selectionStart + rendered.bodyText.length
+        editor.replaceDocument(nextText, cursorOffset)
+      } catch (e) {
+        setError(String(e))
+      } finally {
+        setBusy(null)
+      }
+    },
+    [activeRelPath, noteText, noteTitle, setBusy, setError, vaultPath],
+  )
+
+  const createNoteFromTemplate = useCallback(
+    async (templateRelPath: string) => {
+      if (!vaultPath) return
+      setError(null)
+      setBusy('Creating note from template…')
+      try {
+        const templateName = templateRelPath.split('/').pop()?.replace(/\.(md|markdown)$/i, '') || 'Untitled'
+        const relPath = await createUniqueNote(vaultPath, selectedFolderPath, templateName)
+        const templateText = await readNote(vaultPath, templateRelPath)
+        const rendered = renderTemplate(templateText, { title: fileStem(relPath) })
+        const initialText = rendered.frontmatterEntries.length
+          ? mergeFrontmatterForTemplateInsert(rendered.bodyText, rendered.frontmatterEntries).textWithMergedFrontmatter
+          : rendered.bodyText
+        await writeNote(vaultPath, relPath, initialText)
+        await refreshFileList(vaultPath)
+        const opened = await openNoteByRelPath(relPath)
+        if (opened) {
+          const parsed = parseFrontmatter(initialText)
+          const frontmatterLen = initialText.length - parsed.body.length
+          const cursorOffset = rendered.cursorOffsetInBody != null
+            ? frontmatterLen + rendered.cursorOffsetInBody
+            : null
+          queueMicrotask(() => {
+            if (cursorOffset != null) editorRef.current?.setCursorOffset(cursorOffset)
+            else editorRef.current?.focus()
+          })
+        }
+      } catch (e) {
+        setError(String(e))
+      } finally {
+        setBusy(null)
+      }
+    },
+    [openNoteByRelPath, refreshFileList, selectedFolderPath, setBusy, setError, vaultPath],
+  )
+
+  const openInsertTemplatePicker = useCallback(async () => {
+    if (!vaultPath || !activeRelPath) return
+    try {
+      await ensureTemplatesFolderExists()
+      setQuickSwitcherOpen(false)
+      setCommandPaletteOpen(false)
+      setTemplatePickerMode('insert')
+    } catch (e) {
+      setError(String(e))
+    }
+  }, [activeRelPath, ensureTemplatesFolderExists, setError, vaultPath])
+
+  const openNewNoteFromTemplatePicker = useCallback(async () => {
+    if (!vaultPath) return
+    try {
+      await ensureTemplatesFolderExists()
+      setQuickSwitcherOpen(false)
+      setCommandPaletteOpen(false)
+      setTemplatePickerMode('new-note')
+    } catch (e) {
+      setError(String(e))
+    }
+  }, [ensureTemplatesFolderExists, setError, vaultPath])
+
+  useEffect(() => {
+    if (!vaultPath) return
+    void rebuildIndex(vaultPath, {
+      reason: 'templates-folder-updated',
+      templatesFolder,
+    }).catch((e) => setError(String(e)))
+  }, [setError, templatesFolder, vaultPath])
+
   // Command palette commands
   const vaultHasPassword = vaultPath ? hasVaultPassword(vaultPath) : false
   const commands = useMemo<Command[]>(() => [
@@ -646,6 +796,24 @@ function App() {
       enabled: !!vaultPath,
       onExecute: () => {
         void createNewNote()
+      },
+    },
+    {
+      id: 'insert-template',
+      label: 'Insert template…',
+      description: 'Insert a template into the current note',
+      enabled: !!vaultPath && !!activeRelPath && !graphViewOpen,
+      onExecute: () => {
+        void openInsertTemplatePicker()
+      },
+    },
+    {
+      id: 'new-note-from-template',
+      label: 'New note from template…',
+      description: 'Create a new note using a template',
+      enabled: !!vaultPath,
+      onExecute: () => {
+        void openNewNoteFromTemplatePicker()
       },
     },
     {
@@ -731,7 +899,7 @@ function App() {
         })()
       },
     },
-  ], [activeRelPath, createNewNote, deleteActiveNote, graphViewOpen, hasLockedContent, isVaultUnlocked, loadVault, lockVault, noteTitle, onRequestUnlock, openChangePasswordModal, setError, vaultHasPassword, vaultPath])
+  ], [activeRelPath, createNewNote, deleteActiveNote, graphViewOpen, hasLockedContent, isVaultUnlocked, loadVault, lockVault, noteTitle, onRequestUnlock, openChangePasswordModal, openInsertTemplatePicker, openNewNoteFromTemplatePicker, setError, vaultHasPassword, vaultPath])
 
   const onTaskClick = useCallback(
     async (relPath: string, lineNumber: number) => {
@@ -1061,6 +1229,7 @@ function App() {
                   <GlobalSearch
                     vaultPath={vaultPath}
                     showHidden={settings.filesShowHidden}
+                    templatesFolder={templatesFolder}
                     isVaultUnlocked={isVaultUnlocked}
                     onOpenResult={onSearchHitClick}
                   />
@@ -1336,10 +1505,27 @@ function App() {
         onOpenRelPath={openNoteAndCloseGraph}
       />
 
+      <TemplatePicker
+        open={templatePickerMode != null}
+        title={templatePickerMode === 'insert' ? 'Insert template' : 'New note from template'}
+        templates={templateRelPaths}
+        onRequestClose={closeTemplatePicker}
+        onPickTemplate={async (templateRelPath) => {
+          if (templatePickerMode === 'insert') {
+            await applyTemplateToCurrentNote(templateRelPath)
+            return
+          }
+          await createNoteFromTemplate(templateRelPath)
+        }}
+      />
+
       <SettingsScreen
         open={settingsOpen}
         settings={settings}
         onChange={updateSettings}
+        onEnsureTemplatesFolder={() => {
+          void ensureTemplatesFolderExists().catch((e) => setError(String(e)))
+        }}
         onReset={resetSettings}
         onClose={() => setSettingsOpen(false)}
       />
