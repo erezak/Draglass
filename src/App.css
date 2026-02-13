@@ -1651,11 +1651,13 @@
 .cm-livePreview-tableMenu {
   position: fixed;
   min-width: 170px;
+  max-height: calc(100vh - 16px);
   border-radius: 10px;
   border: 1px solid var(--panel-border-strong);
   background: var(--panel-solid);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   z-index: 1200;
 }
 

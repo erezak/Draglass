@@ -174,6 +174,15 @@ function openTaskMenu(view: EditorView, x: number, y: number, togglePos: number)
   }
 
   document.body.appendChild(menu)
+  const menuRect = menu.getBoundingClientRect()
+  const margin = 8
+  const maxLeft = Math.max(margin, window.innerWidth - menuRect.width - margin)
+  const maxTop = Math.max(margin, window.innerHeight - menuRect.height - margin)
+  const left = Math.min(Math.max(margin, x), maxLeft)
+  const preferredTop = y + menuRect.height + margin <= window.innerHeight ? y : y - menuRect.height
+  const top = Math.min(Math.max(margin, preferredTop), maxTop)
+  menu.style.left = `${left}px`
+  menu.style.top = `${top}px`
 
   const handleOutsideClick = (event: MouseEvent) => {
     if (!menu.contains(event.target as Node)) {
@@ -190,12 +199,33 @@ function openTaskMenu(view: EditorView, x: number, y: number, togglePos: number)
 
   window.addEventListener('mousedown', handleOutsideClick, true)
   window.addEventListener('keydown', handleKeyDown, true)
+  const firstButton = menu.querySelector('button')
+  if (firstButton instanceof HTMLButtonElement) {
+    firstButton.focus()
+  }
 
   activeTaskMenuCleanup = () => {
     window.removeEventListener('mousedown', handleOutsideClick, true)
     window.removeEventListener('keydown', handleKeyDown, true)
     menu.remove()
   }
+}
+
+export function openTaskMenuForSelection(view: EditorView): boolean {
+  const selection = view.state.selection.main
+  if (!selection.empty) return false
+  const line = view.state.doc.lineAt(selection.head)
+  const match = TASK_RE.exec(line.text)
+  if (!match) return false
+  const bracketIndex = line.text.indexOf('[')
+  if (bracketIndex < 0) return false
+  const togglePos = line.from + bracketIndex + 1
+  const coords = view.coordsAtPos(togglePos)
+  const fallbackRect = view.dom.getBoundingClientRect()
+  const x = coords?.left ?? fallbackRect.left + 16
+  const y = coords?.bottom ?? fallbackRect.top + 16
+  openTaskMenu(view, x, y, togglePos)
+  return true
 }
 
 class HiddenMarkerWidget extends WidgetType {
@@ -255,6 +285,13 @@ class TaskCheckboxWidget extends WidgetType {
       event.preventDefault()
       event.stopPropagation()
       openTaskMenu(view, event.clientX, event.clientY, this.togglePos)
+    })
+    input.addEventListener('keydown', (event) => {
+      if (event.key !== 'ContextMenu' && !(event.shiftKey && event.key === 'F10')) return
+      event.preventDefault()
+      event.stopPropagation()
+      const rect = input.getBoundingClientRect()
+      openTaskMenu(view, rect.left, rect.bottom, this.togglePos)
     })
     return input
   }

@@ -3,7 +3,7 @@ import { EditorView, keymap } from '@codemirror/view'
 
 import { extractWikilinkAt } from './livePreviewHelpers'
 import { calloutDecorationsField, createCalloutDecorationsPlugin } from './calloutPreview'
-import { createInlineLivePreviewPlugin } from './inlinePreview'
+import { createInlineLivePreviewPlugin, openTaskMenuForSelection } from './inlinePreview'
 import { findMermaidBlockAtLine, getMermaidEnterPosition } from './mermaidBlocks'
 import { createMermaidDecorationsPlugin, mermaidDecorationsField, type MermaidTheme } from './mermaidPreview'
 import {
@@ -102,6 +102,14 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
   })
 
   const mermaidKeymap = keymap.of([
+    {
+      key: 'Shift-F10',
+      run: (view) => openTaskMenuForSelection(view),
+    },
+    {
+      key: 'ContextMenu',
+      run: (view) => openTaskMenuForSelection(view),
+    },
     {
       key: 'ArrowDown',
       run: (view) => {
