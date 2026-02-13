@@ -15,7 +15,7 @@ export type TaskMatch = {
   raw: string
 }
 
-const TASK_LINE_RE = /^(\s*)([-+*])\s+\[( |x|X|-)\]\s*(.*)$/
+const TASK_LINE_RE = /^(\s*)([-+*])\s+\[([^\]])\]\s*(.*)$/
 const FENCE_RE = /^\s{0,3}```/
 const BLOCKQUOTE_RE = /^\s*>/
 
@@ -25,7 +25,7 @@ export function parseTaskLine(lineText: string, lineNumber: number): TaskMatch |
 
   const indent = match[1] ?? ''
   const marker = (match[2] ?? '-') as TaskMatch['marker']
-  const rawState = (match[3] ?? ' ').toLowerCase()
+  const rawState = (match[3] ?? ' ').slice(0, 1).toLowerCase()
   const state: TaskState = rawState === 'x' || rawState === '-' ? rawState : ' '
   const text = (match[4] ?? '').trim()
 

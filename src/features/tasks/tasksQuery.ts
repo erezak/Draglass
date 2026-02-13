@@ -12,6 +12,7 @@ export type TaskQueryFilter = {
 
 const PATH_NOT_INCLUDE_RE = /^path\s+does\s+not\s+include\s+(.+)$/i
 const CURRENT_FILE_TOKEN_RE = /\{\{\s*query\.file\.path\s*\}\}/gi
+const TASK_DUE_DATE_RE = /(?:^|\s)📅\s*(\d{4}-\d{2}-\d{2})(?=\s|$)/u
 
 export function parseTasksCodeBlockFilter(
   lines: string[],
@@ -56,4 +57,10 @@ export function applyTasksCodeBlockFilter(
     }
     return true
   })
+}
+
+export function extractTaskDueDate(taskText: string): string | null {
+  const match = TASK_DUE_DATE_RE.exec(taskText)
+  const dueDate = match?.[1]?.trim()
+  return dueDate && dueDate.length > 0 ? dueDate : null
 }
