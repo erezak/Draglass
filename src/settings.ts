@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { DEFAULT_TEMPLATES_FOLDER, normalizeTemplatesFolder } from './templates'
+import {
+  DEFAULT_DAILY_NOTES_DATE_FORMAT,
+  DEFAULT_DAILY_NOTES_FOLDER,
+  normalizeDailyNoteDateFormat,
+  normalizeDailyNotesFolder,
+} from './dailyNotes'
 
 export type DraglassSettings = {
   editorWrap: boolean
@@ -28,6 +34,13 @@ export type DraglassSettings = {
   quickSwitcherMaxRecents: number
 
   templatesFolder: string
+  tasksEnabled: boolean
+  calendarEnabled: boolean
+  dailyNotesEnabled: boolean
+  dailyNotesFolder: string
+  dailyNotesDateFormat: string
+  dailyNotesTemplatePath: string
+  rightPaneTab: 'links' | 'tasks'
 }
 
 type SettingsUpdate =
@@ -67,6 +80,13 @@ export const DEFAULT_SETTINGS: DraglassSettings = {
   quickSwitcherMaxRecents: 20,
 
   templatesFolder: DEFAULT_TEMPLATES_FOLDER,
+  tasksEnabled: true,
+  calendarEnabled: true,
+  dailyNotesEnabled: true,
+  dailyNotesFolder: DEFAULT_DAILY_NOTES_FOLDER,
+  dailyNotesDateFormat: DEFAULT_DAILY_NOTES_DATE_FORMAT,
+  dailyNotesTemplatePath: '',
+  rightPaneTab: 'links',
 }
 
 function clampInt(value: unknown, fallback: number, min: number, max: number): number {
@@ -140,6 +160,24 @@ function normalizeSettings(raw: unknown): DraglassSettings {
     templatesFolder: normalizeTemplatesFolder(
       typeof r.templatesFolder === 'string' ? r.templatesFolder : DEFAULT_SETTINGS.templatesFolder,
     ),
+    tasksEnabled: asBool(r.tasksEnabled, DEFAULT_SETTINGS.tasksEnabled),
+    calendarEnabled: asBool(r.calendarEnabled, DEFAULT_SETTINGS.calendarEnabled),
+    dailyNotesEnabled: asBool(r.dailyNotesEnabled, DEFAULT_SETTINGS.dailyNotesEnabled),
+    dailyNotesFolder: normalizeDailyNotesFolder(
+      typeof r.dailyNotesFolder === 'string' ? r.dailyNotesFolder : DEFAULT_SETTINGS.dailyNotesFolder,
+    ),
+    dailyNotesDateFormat: normalizeDailyNoteDateFormat(
+      typeof r.dailyNotesDateFormat === 'string'
+        ? r.dailyNotesDateFormat
+        : DEFAULT_SETTINGS.dailyNotesDateFormat,
+    ),
+    dailyNotesTemplatePath:
+      typeof r.dailyNotesTemplatePath === 'string'
+        ? r.dailyNotesTemplatePath.trim().replace(/\\/g, '/').replace(/^\/+/, '').replace(/\/+$/, '')
+        : DEFAULT_SETTINGS.dailyNotesTemplatePath,
+    rightPaneTab: r.rightPaneTab === 'tasks' || r.rightPaneTab === 'links'
+      ? r.rightPaneTab
+      : DEFAULT_SETTINGS.rightPaneTab,
   }
 }
 

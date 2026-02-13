@@ -27,11 +27,12 @@ import { useTasks } from './features/tasks/useTasks'
 import { useEditorTheme } from './features/theme/useEditorTheme'
 import { useVault } from './features/vault/useVault'
 import { useVaultAuth, hasVaultPassword, checkVaultPassword } from './features/vault/useVaultAuth'
-import { createDir, onVaultFileChanged, readNote, rebuildIndex, writeNote } from './tauri'
+import { createDir, createNote, isTauri, onVaultFileChanged, readNote, rebuildIndex, writeNote } from './tauri'
 import { mergeFrontmatterForTemplateInsert, renderTemplate } from './templateRenderer'
 import { listTemplateFiles, normalizeTemplatesFolder } from './templates'
 import { parseFrontmatter } from './frontmatter'
 import { fileStem } from './path'
+import { buildDailyNoteRelPath, listExistingDailyNoteDates, resolveDailyNoteTemplatePath } from './dailyNotes'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 import { ExcalidrawEditor } from './components/ExcalidrawEditor'
@@ -88,6 +89,24 @@ function isModAltB(e: KeyboardEvent): boolean {
   return mod && e.altKey && !e.shiftKey && (e.key === 'b' || e.key === 'B')
 }
 
+function isoDateString(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+function buildCalendarDays(monthDate: Date): Date[] {
+  const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)
+  const calendarStart = new Date(monthStart)
+  calendarStart.setDate(monthStart.getDate() - monthStart.getDay())
+  return Array.from({ length: 42 }, (_, index) => {
+    const day = new Date(calendarStart)
+    day.setDate(calendarStart.getDate() + index)
+    return day
+  })
+}
+
 function App() {
   const { settings, updateSettings, resetSettings } = useSettings()
   const [busy, setBusy] = useState<string | null>(null)
@@ -102,6 +121,10 @@ function App() {
   const [selectedFolderPath, setSelectedFolderPath] = useState<string | null>(null)
   const [revealFolderPath, setRevealFolderPath] = useState<string | null>(null)
   const [extraFolders, setExtraFolders] = useState<string[]>([])
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const now = new Date()
+    return new Date(now.getFullYear(), now.getMonth(), 1)
+  })
 
   const leftPaneOpen = settings.leftPaneOpen
   const rightPaneOpen = settings.rightPaneOpen
@@ -141,6 +164,9 @@ function App() {
     () => listTemplateFiles(files.map((file) => file.rel_path), templatesFolder, settings.filesShowHidden),
     [files, settings.filesShowHidden, templatesFolder],
   )
+  const dailyNotesFolder = settings.dailyNotesFolder
+  const dailyNotesDateFormat = settings.dailyNotesDateFormat
+  const rightPaneTab = settings.tasksEnabled ? settings.rightPaneTab : 'links'
 
   // Vault authentication for locked sections
   // Must be early so other hooks can use vaultAuthState
@@ -201,6 +227,7 @@ function App() {
   })
 
   const { tasks, tasksBusy, scheduleTasksScan, resetTasks } = useTasks({
+    enabled: settings.tasksEnabled,
     vaultPath,
     files,
     showHidden: settings.filesShowHidden,
@@ -515,6 +542,11 @@ function App() {
   }, [settings.rightPaneWidth])
 
   useEffect(() => {
+    if (settings.tasksEnabled || settings.rightPaneTab !== 'tasks') return
+    updateSettings({ rightPaneTab: 'links' })
+  }, [settings.rightPaneTab, settings.tasksEnabled, updateSettings])
+
+  useEffect(() => {
     leftPaneWidthRef.current = leftPaneWidth
   }, [leftPaneWidth])
 
@@ -778,6 +810,117 @@ function App() {
     }
   }, [ensureTemplatesFolderExists, setError, vaultPath])
 
+  const dailyTemplateRelPath = useMemo(
+    () =>
+      resolveDailyNoteTemplatePath(
+        files.map((file) => file.rel_path),
+        settings.dailyNotesTemplatePath,
+        templatesFolder,
+      ),
+    [files, settings.dailyNotesTemplatePath, templatesFolder],
+  )
+
+  const existingDailyNoteDates = useMemo(
+    () => {
+      if (!settings.calendarEnabled || rightPaneTab !== 'links') {
+        return new Set<string>()
+      }
+      return listExistingDailyNoteDates(
+        navFiles.map((file) => file.rel_path),
+        dailyNotesFolder,
+        dailyNotesDateFormat,
+      )
+    },
+    [dailyNotesDateFormat, dailyNotesFolder, navFiles, rightPaneTab, settings.calendarEnabled],
+  )
+
+  const openDailyNoteByDate = useCallback(
+    async (date: Date, options?: { confirmCreate?: boolean }) => {
+      if (!vaultPath || !settings.dailyNotesEnabled) return
+      const relPath = buildDailyNoteRelPath(date, dailyNotesFolder, dailyNotesDateFormat)
+      const exists = files.some((file) => file.rel_path === relPath)
+      if (exists) {
+        const opened = await openNoteByRelPath(relPath)
+        if (opened) queueMicrotask(() => editorRef.current?.focus())
+        return
+      }
+
+      if (options?.confirmCreate) {
+        const confirmMessage = `Create daily note for ${fileStem(relPath)}?`
+        let ok = false
+        try {
+          if (isTauri()) {
+            ok = await confirm(confirmMessage, {
+              title: 'Create Daily Note',
+              kind: 'info',
+            })
+          } else {
+            ok = window.confirm(confirmMessage)
+          }
+        } catch {
+          ok = window.confirm(confirmMessage)
+        }
+        if (!ok) return
+      }
+
+      setError(null)
+      setBusy('Creating daily note…')
+      try {
+        try {
+          await createDir(vaultPath, dailyNotesFolder)
+        } catch (e) {
+          const message = String(e)
+          if (!/exists|already/i.test(message)) {
+            throw e
+          }
+        }
+
+        try {
+          let initialText = ''
+          if (dailyTemplateRelPath) {
+            const templateText = await readNote(vaultPath, dailyTemplateRelPath)
+            const rendered = renderTemplate(templateText, { title: fileStem(relPath), now: date })
+            initialText = rendered.frontmatterEntries.length
+              ? mergeFrontmatterForTemplateInsert(rendered.bodyText, rendered.frontmatterEntries)
+                .textWithMergedFrontmatter
+              : rendered.bodyText
+          }
+          await createNote(vaultPath, relPath, initialText)
+        } catch (e) {
+          if (!/exists|already/i.test(String(e))) throw e
+        }
+
+        await refreshFileList(vaultPath)
+        const opened = await openNoteByRelPath(relPath)
+        if (opened) queueMicrotask(() => editorRef.current?.focus())
+        setCalendarMonth(new Date(date.getFullYear(), date.getMonth(), 1))
+      } finally {
+        setBusy(null)
+      }
+    },
+    [
+      dailyNotesDateFormat,
+      dailyNotesFolder,
+      dailyTemplateRelPath,
+      files,
+      openNoteByRelPath,
+      refreshFileList,
+      settings.dailyNotesEnabled,
+      setBusy,
+      setError,
+      vaultPath,
+    ],
+  )
+
+  const openTodayDailyNote = useCallback(() => {
+    const today = new Date()
+    setCalendarMonth(new Date(today.getFullYear(), today.getMonth(), 1))
+    void openDailyNoteByDate(today, { confirmCreate: true }).catch((e) => {
+      setBusy(null)
+      setError(String(e))
+    })
+  }, [openDailyNoteByDate, setBusy, setError])
+
   useEffect(() => {
     if (!vaultPath) return
     void rebuildIndex(vaultPath, {
@@ -805,6 +948,15 @@ function App() {
       enabled: !!vaultPath && !!activeRelPath && !graphViewOpen,
       onExecute: () => {
         void openInsertTemplatePicker()
+      },
+    },
+    {
+      id: 'open-today-daily-note',
+      label: "Open today's daily note",
+      description: 'Open or create the note for today',
+      enabled: !!vaultPath && settings.dailyNotesEnabled,
+      onExecute: () => {
+        openTodayDailyNote()
       },
     },
     {
@@ -899,7 +1051,7 @@ function App() {
         })()
       },
     },
-  ], [activeRelPath, createNewNote, deleteActiveNote, graphViewOpen, hasLockedContent, isVaultUnlocked, loadVault, lockVault, noteTitle, onRequestUnlock, openChangePasswordModal, openInsertTemplatePicker, openNewNoteFromTemplatePicker, setError, vaultHasPassword, vaultPath])
+  ], [activeRelPath, createNewNote, deleteActiveNote, graphViewOpen, hasLockedContent, isVaultUnlocked, loadVault, lockVault, noteTitle, onRequestUnlock, openChangePasswordModal, openInsertTemplatePicker, openNewNoteFromTemplatePicker, openTodayDailyNote, setError, settings.dailyNotesEnabled, vaultHasPassword, vaultPath])
 
   const onTaskClick = useCallback(
     async (relPath: string, lineNumber: number) => {
@@ -920,6 +1072,17 @@ function App() {
       queueMicrotask(() => editorRef.current?.revealLine(lineNumber))
     },
     [flushAutosave, openNoteByRelPath],
+  )
+
+  const calendarDays = useMemo(() => buildCalendarDays(calendarMonth), [calendarMonth])
+  const todayIso = useMemo(() => isoDateString(new Date()), [])
+  const calendarMonthLabel = useMemo(
+    () =>
+      calendarMonth.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
+      }),
+    [calendarMonth],
   )
 
   const commitTitleRename = useCallback(async () => {
@@ -1408,86 +1571,227 @@ function App() {
           ) : null}
 
           <aside className={rightPaneOpen ? 'rightPane' : 'rightPane paneHidden'}>
-            <div className="panel">
-              <div className="panelTitle">Outgoing links</div>
-              {outgoingLinks.length === 0 ? (
-                <div className="panelEmpty">No wikilinks detected.</div>
-              ) : (
-                <ul className="linkList">
-                  {outgoingLinks.map((l) => (
-                    <li key={l.normalized}>
-                      <button
-                        className="linkItem"
-                        onClick={() => {
-                          setGraphViewOpen(false)
-                          void tryOpenByTitle(l.normalized)
-                        }}
-                      >
-                        {l.target}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
+            <div className="rightPaneTabs" role="tablist" aria-label="Right pane tabs">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={rightPaneTab === 'links'}
+                className={`rightPaneTab ${rightPaneTab === 'links' ? 'rightPaneTab--active' : ''}`}
+                onClick={() => updateSettings({ rightPaneTab: 'links' })}
+              >
+                Links
+              </button>
+              {settings.tasksEnabled ? (
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={rightPaneTab === 'tasks'}
+                  className={`rightPaneTab ${rightPaneTab === 'tasks' ? 'rightPaneTab--active' : ''}`}
+                  onClick={() => updateSettings({ rightPaneTab: 'tasks' })}
+                >
+                  Tasks
+                </button>
+              ) : null}
             </div>
 
-            <div className="panel">
-              <div className="panelTitle">Tasks</div>
-              {!vaultPath ? (
-                <div className="panelEmpty">Select a vault to view tasks.</div>
-              ) : tasks.length === 0 ? (
-                <div className="panelEmpty">No open tasks found.</div>
-              ) : (
+            <div className="rightPaneScroll">
+              {rightPaneTab === 'links' ? (
                 <>
-                  {tasksBusy ? <div className="panelHint">Scanning tasks…</div> : null}
-                  <div className="taskList" role="list">
-                  {tasks.map((task) => (
-                    <button
-                      key={`${task.relPath}:${task.lineNumber}:${task.text}`}
-                      type="button"
-                      className="taskItem"
-                      onClick={() => {
-                        void onTaskClick(task.relPath, task.lineNumber)
-                      }}
-                    >
-                      <div className="taskItemText">
-                        {task.text.length > 0 ? task.text : '(untitled task)'}
-                      </div>
-                      <div className="taskItemMeta">
-                        {task.noteTitle} • {task.relPath}
-                      </div>
-                    </button>
-                  ))}
+                  <div className="panel">
+                    <div className="panelTitle">Outgoing links</div>
+                    {outgoingLinks.length === 0 ? (
+                      <div className="panelEmpty">No wikilinks detected.</div>
+                    ) : (
+                      <ul className="linkList">
+                        {outgoingLinks.map((l) => (
+                          <li key={l.normalized}>
+                            <button
+                              className="linkItem"
+                              onClick={() => {
+                                setGraphViewOpen(false)
+                                void tryOpenByTitle(l.normalized)
+                              }}
+                            >
+                              {l.target}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
-                </>
-              )}
-            </div>
 
-            <div className="panel">
-              <div className="panelTitle">Backlinks</div>
-              {!settings.backlinksEnabled ? (
-                <div className="panelEmpty">Backlinks are disabled in settings.</div>
-              ) : !noteTitle ? (
-                <div className="panelEmpty">Open a note to see backlinks.</div>
-              ) : backlinksBusy ? (
-                <div className="panelEmpty">Scanning backlinks…</div>
-              ) : backlinks.length === 0 ? (
-                <div className="panelEmpty">No backlinks found.</div>
+                  {settings.calendarEnabled ? (
+                    <div className="panel">
+                      <div className="panelHeaderRow">
+                        <div className="panelTitle">Calendar</div>
+                        {settings.dailyNotesEnabled ? (
+                          <button type="button" className="calendarActionButton" onClick={openTodayDailyNote}>
+                            Today
+                          </button>
+                        ) : null}
+                      </div>
+                      <div className="calendarMonthHeader">
+                        <button
+                          type="button"
+                          className="calendarNavButton"
+                          onClick={() => {
+                            setCalendarMonth(
+                              (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
+                            )
+                          }}
+                          aria-label="Previous month"
+                        >
+                          ‹
+                        </button>
+                        <div className="calendarMonthLabel">{calendarMonthLabel}</div>
+                        <button
+                          type="button"
+                          className="calendarNavButton"
+                          onClick={() => {
+                            setCalendarMonth(
+                              (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
+                            )
+                          }}
+                          aria-label="Next month"
+                        >
+                          ›
+                        </button>
+                      </div>
+                      <div className="calendarWeekdays">
+                        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((label) => (
+                          <div key={label} className="calendarWeekday">
+                            {label}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="calendarGrid">
+                        {calendarDays.map((day) => {
+                          const inMonth = day.getMonth() === calendarMonth.getMonth()
+                          const dayIso = isoDateString(day)
+                          const hasDailyNote = existingDailyNoteDates.has(dayIso)
+                          const isToday = dayIso === todayIso
+                          const calendarDayClassName = [
+                            'calendarDay',
+                            inMonth ? null : 'calendarDay--outside',
+                            isToday ? 'calendarDay--today' : null,
+                            hasDailyNote ? 'calendarDay--hasNote' : null,
+                          ]
+                            .filter(Boolean)
+                            .join(' ')
+                          return (
+                            <button
+                              key={dayIso}
+                              type="button"
+                              className={calendarDayClassName}
+                              onClick={() => {
+                                if (!settings.dailyNotesEnabled) return
+                                void openDailyNoteByDate(day, { confirmCreate: true }).catch((e) => setError(String(e)))
+                              }}
+                              disabled={!settings.dailyNotesEnabled}
+                            >
+                              <span>{day.getDate()}</span>
+                              {hasDailyNote ? <span className="calendarDayDot" aria-hidden="true" /> : null}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="panel">
+                    <div className="panelTitle">Backlinks</div>
+                    {!settings.backlinksEnabled ? (
+                      <div className="panelEmpty">Backlinks are disabled in settings.</div>
+                    ) : !noteTitle ? (
+                      <div className="panelEmpty">Open a note to see backlinks.</div>
+                    ) : backlinksBusy ? (
+                      <div className="panelEmpty">Scanning backlinks…</div>
+                    ) : backlinks.length === 0 ? (
+                      <div className="panelEmpty">No backlinks found.</div>
+                    ) : (
+                      <ul className="linkList">
+                        {backlinks.map((p) => (
+                          <li key={p}>
+                            <button
+                              className="linkItem"
+                              onClick={() => {
+                                void openNoteAndCloseGraph(p)
+                              }}
+                            >
+                              {p}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  {settings.tasksEnabled ? (
+                    <div className="panel">
+                      <div className="panelTitle">Tasks</div>
+                      {!vaultPath ? (
+                        <div className="panelEmpty">Select a vault to view tasks.</div>
+                      ) : tasks.length === 0 ? (
+                        <div className="panelEmpty">No open tasks found.</div>
+                      ) : (
+                        <>
+                          {tasksBusy ? <div className="panelHint">Scanning tasks…</div> : null}
+                          <div className="taskList" role="list">
+                            {tasks.map((task) => (
+                              <button
+                                key={`${task.relPath}:${task.lineNumber}:${task.text}`}
+                                type="button"
+                                className="taskItem"
+                                onClick={() => {
+                                  void onTaskClick(task.relPath, task.lineNumber)
+                                }}
+                              >
+                                <div className="taskItemText">
+                                  {task.text.length > 0 ? task.text : '(untitled task)'}
+                                </div>
+                                <div className="taskItemMeta">
+                                  {task.noteTitle} • {task.relPath}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ) : null}
+                </>
               ) : (
-                <ul className="linkList">
-                  {backlinks.map((p) => (
-                    <li key={p}>
-                      <button
-                        className="linkItem"
-                        onClick={() => {
-                          void openNoteAndCloseGraph(p)
-                        }}
-                      >
-                        {p}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                <div className="panel">
+                  <div className="panelTitle">Tasks</div>
+                  {!vaultPath ? (
+                    <div className="panelEmpty">Select a vault to view tasks.</div>
+                  ) : tasks.length === 0 ? (
+                    <div className="panelEmpty">No open tasks found.</div>
+                  ) : (
+                    <>
+                      {tasksBusy ? <div className="panelHint">Scanning tasks…</div> : null}
+                      <div className="taskList" role="list">
+                        {tasks.map((task) => (
+                          <button
+                            key={`${task.relPath}:${task.lineNumber}:${task.text}`}
+                            type="button"
+                            className="taskItem"
+                            onClick={() => {
+                              void onTaskClick(task.relPath, task.lineNumber)
+                            }}
+                          >
+                            <div className="taskItemText">
+                              {task.text.length > 0 ? task.text : '(untitled task)'}
+                            </div>
+                            <div className="taskItemMeta">
+                              {task.noteTitle} • {task.relPath}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
             </div>
           </aside>
@@ -1522,6 +1826,7 @@ function App() {
       <SettingsScreen
         open={settingsOpen}
         settings={settings}
+        templatePaths={templateRelPaths}
         onChange={updateSettings}
         onEnsureTemplatesFolder={() => {
           void ensureTemplatesFolderExists().catch((e) => setError(String(e)))

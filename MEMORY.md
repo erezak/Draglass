@@ -1,3 +1,15 @@
+- 2026-02-13 — Decision: Daily note identity is deterministic from settings (`dailyNotesFolder` + formatted date filename + `.md`) and files are created via existing vault create helpers.
+  - Rationale: A stable path rule keeps daily navigation predictable and preserves Rust/tauri-backed local file creation semantics.
+  - Impact: Future daily-note features must derive paths from settings and open/create through existing note creation flows instead of ad-hoc storage.
+
+- 2026-02-13 — Decision: Calendar note indicators are derived by scanning only daily-folder Markdown filenames using the configured date format, with lazy refresh on Links-tab view.
+  - Rationale: Limiting scan scope avoids full-vault work while still showing accurate per-day note presence.
+  - Impact: Calendar enhancements should continue to read daily-folder filenames (not full-content scans) and respect tab/toggle-driven lazy computation.
+
+- 2026-02-13 — Decision: Right pane uses persisted tabs model with `links` default and optional `tasks` tab gated by the Tasks setting.
+  - Rationale: Tab persistence improves continuity while feature gating prevents rendering and compute when tasks are disabled.
+  - Impact: Future right-pane sections should integrate via the tab state in settings and keep heavy work disabled when the related feature toggle is off.
+
 - 2026-02-13 — Decision: Templates are vault Markdown files constrained to a configurable folder (default `_templates`) and are excluded from search indexing/results.
   - Rationale: Templates are authoring inputs, not regular knowledge notes, so they should not pollute search relevance.
   - Impact: New search/index logic must always apply template-path exclusion via shared folder semantics, and folder changes must trigger reindex behavior.

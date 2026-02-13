@@ -17,6 +17,7 @@ export type TaskItem = {
 }
 
 type UseTasksArgs = {
+  enabled: boolean
   vaultPath: string | null
   files: NoteEntry[]
   showHidden: boolean
@@ -28,6 +29,7 @@ type UseTasksArgs = {
 }
 
 export function useTasks({
+  enabled,
   vaultPath,
   files,
   showHidden,
@@ -96,7 +98,7 @@ export function useTasks({
   )
 
   const refreshTasks = useCallback(async () => {
-    if (!vaultPath) {
+    if (!enabled || !vaultPath) {
       setTasks([])
       setTasksBusy(false)
       return
@@ -124,11 +126,11 @@ export function useTasks({
     if (scanRequestIdRef.current !== requestId) return
     setTasks(results)
     setTasksBusy(false)
-  }, [files, isVaultUnlocked, showHidden, vaultPath])
+  }, [enabled, files, isVaultUnlocked, showHidden, vaultPath])
 
   const scheduleTasksScan = useCallback(() => {
     clearTimer()
-    if (!vaultPath) return
+    if (!enabled || !vaultPath) return
 
     scanTimerRef.current = window.setTimeout(() => {
       scanTimerRef.current = null
@@ -138,7 +140,7 @@ export function useTasks({
         onError(String(err))
       })
     }, debounceMs)
-  }, [clearTimer, debounceMs, onError, refreshTasks, vaultPath])
+  }, [clearTimer, debounceMs, enabled, onError, refreshTasks, vaultPath])
 
   const resetTasks = useCallback(() => {
     clearTimer()
@@ -151,6 +153,7 @@ export function useTasks({
   }, [tasks])
 
   useEffect(() => {
+    if (!enabled) return
     if (!activeRelPath) return
     if (activeNoteTimerRef.current != null) {
       window.clearTimeout(activeNoteTimerRef.current)
@@ -162,7 +165,7 @@ export function useTasks({
       const nextTasks = buildTasksForText(activeRelPath, activeNoteText)
       replaceTasksForRelPath(activeRelPath, nextTasks)
     }, 150)
-  }, [activeNoteText, activeRelPath, buildTasksForText, replaceTasksForRelPath])
+  }, [activeNoteText, activeRelPath, buildTasksForText, enabled, replaceTasksForRelPath])
 
   // Clear task state immediately when vault is removed (render-time adjustment)
   const [prevVaultPath, setPrevVaultPath] = useState(vaultPath)
@@ -191,5 +194,10 @@ export function useTasks({
     }
   }, [])
 
-  return { tasks, tasksBusy, scheduleTasksScan, resetTasks }
+  return {
+    tasks: enabled ? tasks : [],
+    tasksBusy: enabled ? tasksBusy : false,
+    scheduleTasksScan,
+    resetTasks,
+  }
 }
