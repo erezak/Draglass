@@ -14,6 +14,7 @@ type TasksCodeBlockPreviewOptions = {
   tasks?: TaskItem[]
   noteRelPath?: string
 }
+type ScheduledUpdate = number | ReturnType<typeof setTimeout>
 
 type TasksBlock = {
   from: number
@@ -23,6 +24,7 @@ type TasksBlock = {
 
 const TASKS_LANG = 'tasks'
 const setTasksDecorations = StateEffect.define<DecorationSet>()
+const FALLBACK_UPDATE_DELAY_MS = 16
 
 export const tasksDecorationsField = StateField.define<DecorationSet>({
   create: () => Decoration.none,
@@ -85,7 +87,21 @@ class TasksBlockWidget extends WidgetType {
   }
 
   eq(other: TasksBlockWidget) {
-    return JSON.stringify(this.tasks) === JSON.stringify(other.tasks)
+    if (this.tasks.length !== other.tasks.length) return false
+    for (let i = 0; i < this.tasks.length; i += 1) {
+      const left = this.tasks[i]
+      const right = other.tasks[i]
+      if (!left || !right) return false
+      if (
+        left.relPath !== right.relPath ||
+        left.lineNumber !== right.lineNumber ||
+        left.text !== right.text ||
+        left.state !== right.state
+      ) {
+        return false
+      }
+    }
+    return true
   }
 
   toDOM() {
@@ -177,7 +193,7 @@ export function createTasksCodeBlockPreviewPlugin(
 ): Extension {
   return ViewPlugin.fromClass(
     class {
-      private pendingUpdate: number | null = null
+      private pendingUpdate: ScheduledUpdate | null = null
       private pendingUsesTimeout = false
 
       constructor(view: EditorView) {
@@ -202,7 +218,7 @@ export function createTasksCodeBlockPreviewPlugin(
 
       private scheduleUpdate(view: EditorView) {
         if (this.pendingUpdate != null) return
-        if (typeof window !== 'undefined' && 'requestAnimationFrame' in window) {
+        if (typeof requestAnimationFrame !== 'undefined') {
           this.pendingUsesTimeout = false
           this.pendingUpdate = window.requestAnimationFrame(() => {
             this.pendingUpdate = null
@@ -214,7 +230,7 @@ export function createTasksCodeBlockPreviewPlugin(
         this.pendingUpdate = setTimeout(() => {
           this.pendingUpdate = null
           this.updateTasksDecorations(view)
-        }, 16) as unknown as number
+        }, FALLBACK_UPDATE_DELAY_MS)
       }
 
       private updateTasksDecorations(view: EditorView) {
