@@ -422,17 +422,26 @@
 
 .rightPaneTabs {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex: 0 0 auto;
 }
 
 .rightPaneTab {
-  padding: 6px 10px;
-  border-radius: 8px;
+  width: 38px;
+  height: 36px;
+  padding: 0;
+  border-radius: 12px;
   border: 1px solid var(--panel-border);
   background: var(--button-bg);
   color: var(--text-muted);
-  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rightPaneTabIcon {
+  width: 17px;
+  height: 17px;
 }
 
 .rightPaneTab:hover {
@@ -440,7 +449,7 @@
 }
 
 .rightPaneTab--active {
-  border-color: var(--button-hover-border);
+  border-color: var(--panel-border-strong);
   color: var(--text-primary);
   background: var(--highlight);
 }

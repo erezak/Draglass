@@ -109,6 +109,94 @@ function buildCalendarDays(monthDate: Date): Date[] {
   })
 }
 
+function RightPaneTabIcon({ tab }: { tab: 'links' | 'tasks' | 'tags' | 'calendar' }) {
+  if (tab === 'links') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="rightPaneTabIcon" focusable="false">
+        <path
+          d="M10 13.5 7.5 16a3 3 0 1 1-4.2-4.2l2.9-2.9a3 3 0 0 1 4.2 0"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14 10.5 16.5 8a3 3 0 1 1 4.2 4.2l-2.9 2.9a3 3 0 0 1-4.2 0"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="m8.5 15.5 7-7"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    )
+  }
+
+  if (tab === 'tasks') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="rightPaneTabIcon" focusable="false">
+        <path
+          d="M9 7h11M9 12h11M9 17h11"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="m4.2 7 1.2 1.2L7 6.6M4.2 12 5.4 13.2 7 11.6M4.2 17 5.4 18.2 7 16.6"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    )
+  }
+
+  if (tab === 'tags') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="rightPaneTabIcon" focusable="false">
+        <path
+          d="m12.5 3.5 8 8a2 2 0 0 1 0 2.8l-6.2 6.2a2 2 0 0 1-2.8 0l-8-8V3.5z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="8.2" cy="8.2" r="1.3" fill="currentColor" />
+      </svg>
+    )
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="rightPaneTabIcon" focusable="false">
+      <rect
+        x="4"
+        y="5"
+        width="16"
+        height="15"
+        rx="2.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path d="M8 3.8v3.5M16 3.8v3.5M4 9.2h16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function App() {
   const { settings, updateSettings, resetSettings } = useSettings()
   const [busy, setBusy] = useState<string | null>(null)
@@ -172,8 +260,9 @@ function App() {
   const rightPaneTab = useMemo(() => {
     if (settings.rightPaneTab === 'tasks' && !settings.tasksEnabled) return 'links'
     if (settings.rightPaneTab === 'tags' && !settings.tagsEnabled) return 'links'
+    if (settings.rightPaneTab === 'calendar' && !settings.calendarEnabled) return 'links'
     return settings.rightPaneTab
-  }, [settings.rightPaneTab, settings.tagsEnabled, settings.tasksEnabled])
+  }, [settings.calendarEnabled, settings.rightPaneTab, settings.tagsEnabled, settings.tasksEnabled])
 
   // Vault authentication for locked sections
   // Must be early so other hooks can use vaultAuthState
@@ -648,6 +737,11 @@ function App() {
   }, [settings.rightPaneTab, settings.tagsEnabled, updateSettings])
 
   useEffect(() => {
+    if (settings.calendarEnabled || settings.rightPaneTab !== 'calendar') return
+    updateSettings({ rightPaneTab: 'links' })
+  }, [settings.calendarEnabled, settings.rightPaneTab, updateSettings])
+
+  useEffect(() => {
     leftPaneWidthRef.current = leftPaneWidth
   }, [leftPaneWidth])
 
@@ -931,7 +1025,7 @@ function App() {
 
   const existingDailyNoteDates = useMemo(
     () => {
-      if (!settings.calendarEnabled || rightPaneTab !== 'links') {
+      if (!settings.calendarEnabled || rightPaneTab !== 'calendar') {
         return new Set<string>()
       }
       return listExistingDailyNoteDates(
@@ -1703,8 +1797,10 @@ function App() {
                 aria-selected={rightPaneTab === 'links'}
                 className={`rightPaneTab ${rightPaneTab === 'links' ? 'rightPaneTab--active' : ''}`}
                 onClick={() => updateSettings({ rightPaneTab: 'links' })}
+                aria-label="Links"
+                title="Links"
               >
-                Links
+                <RightPaneTabIcon tab="links" />
               </button>
               {settings.tasksEnabled ? (
                 <button
@@ -1713,8 +1809,10 @@ function App() {
                   aria-selected={rightPaneTab === 'tasks'}
                   className={`rightPaneTab ${rightPaneTab === 'tasks' ? 'rightPaneTab--active' : ''}`}
                   onClick={() => updateSettings({ rightPaneTab: 'tasks' })}
+                  aria-label="Tasks"
+                  title="Tasks"
                 >
-                  Tasks
+                  <RightPaneTabIcon tab="tasks" />
                 </button>
               ) : null}
               {settings.tagsEnabled ? (
@@ -1724,8 +1822,23 @@ function App() {
                   aria-selected={rightPaneTab === 'tags'}
                   className={`rightPaneTab ${rightPaneTab === 'tags' ? 'rightPaneTab--active' : ''}`}
                   onClick={() => updateSettings({ rightPaneTab: 'tags' })}
+                  aria-label="Tags"
+                  title="Tags"
                 >
-                  Tags
+                  <RightPaneTabIcon tab="tags" />
+                </button>
+              ) : null}
+              {settings.calendarEnabled ? (
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={rightPaneTab === 'calendar'}
+                  className={`rightPaneTab ${rightPaneTab === 'calendar' ? 'rightPaneTab--active' : ''}`}
+                  onClick={() => updateSettings({ rightPaneTab: 'calendar' })}
+                  aria-label="Calendar"
+                  title="Calendar"
+                >
+                  <RightPaneTabIcon tab="calendar" />
                 </button>
               ) : null}
             </div>
@@ -1755,84 +1868,6 @@ function App() {
                       </ul>
                     )}
                   </div>
-
-                  {settings.calendarEnabled ? (
-                    <div className="panel">
-                      <div className="panelHeaderRow">
-                        <div className="panelTitle">Calendar</div>
-                        {settings.dailyNotesEnabled ? (
-                          <button type="button" className="calendarActionButton" onClick={openTodayDailyNote}>
-                            Today
-                          </button>
-                        ) : null}
-                      </div>
-                      <div className="calendarMonthHeader">
-                        <button
-                          type="button"
-                          className="calendarNavButton"
-                          onClick={() => {
-                            setCalendarMonth(
-                              (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
-                            )
-                          }}
-                          aria-label="Previous month"
-                        >
-                          ‹
-                        </button>
-                        <div className="calendarMonthLabel">{calendarMonthLabel}</div>
-                        <button
-                          type="button"
-                          className="calendarNavButton"
-                          onClick={() => {
-                            setCalendarMonth(
-                              (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
-                            )
-                          }}
-                          aria-label="Next month"
-                        >
-                          ›
-                        </button>
-                      </div>
-                      <div className="calendarWeekdays">
-                        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((label) => (
-                          <div key={label} className="calendarWeekday">
-                            {label}
-                          </div>
-                        ))}
-                      </div>
-                      <div className="calendarGrid">
-                        {calendarDays.map((day) => {
-                          const inMonth = day.getMonth() === calendarMonth.getMonth()
-                          const dayIso = isoDateString(day)
-                          const hasDailyNote = existingDailyNoteDates.has(dayIso)
-                          const isToday = dayIso === todayIso
-                          const calendarDayClassName = [
-                            'calendarDay',
-                            inMonth ? null : 'calendarDay--outside',
-                            isToday ? 'calendarDay--today' : null,
-                            hasDailyNote ? 'calendarDay--hasNote' : null,
-                          ]
-                            .filter(Boolean)
-                            .join(' ')
-                          return (
-                            <button
-                              key={dayIso}
-                              type="button"
-                              className={calendarDayClassName}
-                              onClick={() => {
-                                if (!settings.dailyNotesEnabled) return
-                                void openDailyNoteByDate(day, { confirmCreate: true }).catch((e) => setError(String(e)))
-                              }}
-                              disabled={!settings.dailyNotesEnabled}
-                            >
-                              <span>{day.getDate()}</span>
-                              {hasDailyNote ? <span className="calendarDayDot" aria-hidden="true" /> : null}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  ) : null}
 
                   <div className="panel">
                     <div className="panelTitle">Backlinks</div>
@@ -1970,6 +2005,78 @@ function App() {
                     )}
                   </div>
                 </>
+              ) : rightPaneTab === 'calendar' ? (
+                <div className="panel">
+                  <div className="panelHeaderRow">
+                    <div className="panelTitle">Calendar</div>
+                    {settings.dailyNotesEnabled ? (
+                      <button type="button" className="calendarActionButton" onClick={openTodayDailyNote}>
+                        Today
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="calendarMonthHeader">
+                    <button
+                      type="button"
+                      className="calendarNavButton"
+                      onClick={() => {
+                        setCalendarMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
+                      }}
+                      aria-label="Previous month"
+                    >
+                      ‹
+                    </button>
+                    <div className="calendarMonthLabel">{calendarMonthLabel}</div>
+                    <button
+                      type="button"
+                      className="calendarNavButton"
+                      onClick={() => {
+                        setCalendarMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
+                      }}
+                      aria-label="Next month"
+                    >
+                      ›
+                    </button>
+                  </div>
+                  <div className="calendarWeekdays">
+                    {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((label) => (
+                      <div key={label} className="calendarWeekday">
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="calendarGrid">
+                    {calendarDays.map((day) => {
+                      const inMonth = day.getMonth() === calendarMonth.getMonth()
+                      const dayIso = isoDateString(day)
+                      const hasDailyNote = existingDailyNoteDates.has(dayIso)
+                      const isToday = dayIso === todayIso
+                      const calendarDayClassName = [
+                        'calendarDay',
+                        inMonth ? null : 'calendarDay--outside',
+                        isToday ? 'calendarDay--today' : null,
+                        hasDailyNote ? 'calendarDay--hasNote' : null,
+                      ]
+                        .filter(Boolean)
+                        .join(' ')
+                      return (
+                        <button
+                          key={dayIso}
+                          type="button"
+                          className={calendarDayClassName}
+                          onClick={() => {
+                            if (!settings.dailyNotesEnabled) return
+                            void openDailyNoteByDate(day, { confirmCreate: true }).catch((e) => setError(String(e)))
+                          }}
+                          disabled={!settings.dailyNotesEnabled}
+                        >
+                          <span>{day.getDate()}</span>
+                          {hasDailyNote ? <span className="calendarDayDot" aria-hidden="true" /> : null}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
               ) : (
                 <div className="panel">
                   <div className="panelTitle">Tasks</div>

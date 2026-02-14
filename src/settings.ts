@@ -41,7 +41,7 @@ export type DraglassSettings = {
   dailyNotesFolder: string
   dailyNotesDateFormat: string
   dailyNotesTemplatePath: string
-  rightPaneTab: 'links' | 'tasks' | 'tags'
+  rightPaneTab: 'links' | 'tasks' | 'tags' | 'calendar'
 }
 
 type SettingsUpdate =
@@ -179,7 +179,10 @@ function normalizeSettings(raw: unknown): DraglassSettings {
         ? r.dailyNotesTemplatePath.trim().replace(/\\/g, '/').replace(/^\/+/, '').replace(/\/+$/, '')
         : DEFAULT_SETTINGS.dailyNotesTemplatePath,
     rightPaneTab:
-      r.rightPaneTab === 'tasks' || r.rightPaneTab === 'links' || r.rightPaneTab === 'tags'
+      r.rightPaneTab === 'tasks' ||
+      r.rightPaneTab === 'links' ||
+      r.rightPaneTab === 'tags' ||
+      r.rightPaneTab === 'calendar'
         ? r.rightPaneTab
         : DEFAULT_SETTINGS.rightPaneTab,
   }
