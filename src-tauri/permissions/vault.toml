@@ -154,6 +154,16 @@ description = "Allows reading task items from indexed vault data."
 commands.allow = ["list_tasks_v2"]
 
 [[permission]]
+identifier = "list-tags"
+description = "Allows reading tag summary items from indexed vault data."
+commands.allow = ["list_tags"]
+
+[[permission]]
+identifier = "notes-for-tag"
+description = "Allows reading notes for a selected tag from indexed vault data."
+commands.allow = ["notes_for_tag"]
+
+[[permission]]
 identifier = "start-index-watcher"
 description = "Allows starting a filesystem watcher for index updates."
 commands.allow = ["start_index_watcher"]
@@ -228,6 +238,8 @@ permissions = [
   "find-backlinks-v2",
   "build-graph-v2",
   "list-tasks-v2",
+  "list-tags",
+  "notes-for-tag",
   "start-index-watcher",
   "stop-index-watcher",
   "hash-vault-password",

@@ -24,6 +24,7 @@ import { useBacklinks } from './features/backlinks/useBacklinks'
 import { useNoteManager } from './features/notes/useNoteManager'
 import { useRecentNotes } from './features/recents/useRecentNotes'
 import { useTasks } from './features/tasks/useTasks'
+import { useTags } from './features/tags/useTags'
 import { useEditorTheme } from './features/theme/useEditorTheme'
 import { useVault } from './features/vault/useVault'
 import { useVaultAuth, hasVaultPassword, checkVaultPassword } from './features/vault/useVaultAuth'
@@ -33,6 +34,7 @@ import { listTemplateFiles, normalizeTemplatesFolder } from './templates'
 import { parseFrontmatter } from './frontmatter'
 import { fileStem } from './path'
 import { buildDailyNoteRelPath, listExistingDailyNoteDates, resolveDailyNoteTemplatePath } from './dailyNotes'
+import { normalizeTag } from './tags'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 import { ExcalidrawEditor } from './components/ExcalidrawEditor'
@@ -145,6 +147,7 @@ function App() {
   const editorRef = useRef<NoteEditorHandle | null>(null)
   const titleInputRef = useRef<HTMLInputElement | null>(null)
   const scheduleTasksScanRef = useRef<() => void>(() => {})
+  const scheduleTagsScanRef = useRef<() => void>(() => {})
 
   const { recentRelPaths, recordRecent } = useRecentNotes(settings.quickSwitcherMaxRecents)
 
@@ -166,7 +169,11 @@ function App() {
   )
   const dailyNotesFolder = settings.dailyNotesFolder
   const dailyNotesDateFormat = settings.dailyNotesDateFormat
-  const rightPaneTab = settings.tasksEnabled ? settings.rightPaneTab : 'links'
+  const rightPaneTab = useMemo(() => {
+    if (settings.rightPaneTab === 'tasks' && !settings.tasksEnabled) return 'links'
+    if (settings.rightPaneTab === 'tags' && !settings.tagsEnabled) return 'links'
+    return settings.rightPaneTab
+  }, [settings.rightPaneTab, settings.tagsEnabled, settings.tasksEnabled])
 
   // Vault authentication for locked sections
   // Must be early so other hooks can use vaultAuthState
@@ -196,12 +203,14 @@ function App() {
 
   const onDidSaveNote = useCallback(() => {
     scheduleTasksScanRef.current()
+    scheduleTagsScanRef.current()
   }, [])
 
   const {
     activeRelPath,
     noteText,
     setNoteText,
+    savedText,
     isDirty,
     noteTitle,
     autosave,
@@ -237,6 +246,27 @@ function App() {
     activeNoteText: noteText,
     isVaultUnlocked,
   })
+
+  const { tags, tagsBusy, scheduleTagsScan, resetTags, fetchNotesForTag } = useTags({
+    enabled: settings.tagsEnabled,
+    vaultPath,
+    files,
+    showHidden: settings.filesShowHidden,
+    debounceMs: 400,
+    onError: (message) => setError(message),
+    isVaultUnlocked,
+    activeRelPath,
+    activeNoteText: noteText,
+    activeSavedText: savedText,
+  })
+
+  const [tagFilter, setTagFilter] = useState('')
+  const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  const [tagNotes, setTagNotes] = useState<
+    Array<{ relPath: string; title: string; mtime: number; lineNumber: number | null }>
+  >([])
+  const [tagNotesBusy, setTagNotesBusy] = useState(false)
+  const tagRequestIdRef = useRef(0)
 
   const [vaultAuthModalOpen, setVaultAuthModalOpen] = useState(false)
   const [vaultAuthModalMode, setVaultAuthModalMode] = useState<VaultAuthModalMode>('reveal')
@@ -308,6 +338,10 @@ function App() {
     scheduleTasksScanRef.current = scheduleTasksScan
   }, [scheduleTasksScan])
 
+  useEffect(() => {
+    scheduleTagsScanRef.current = scheduleTagsScan
+  }, [scheduleTagsScan])
+
   const activeRelPathRef = useRef<string | null>(activeRelPath)
   const isDirtyRef = useRef(isDirty)
   const filesRef = useRef(files)
@@ -328,6 +362,63 @@ function App() {
   useEffect(() => {
     noteTextRef.current = noteText
   }, [noteText])
+
+  const normalizedTagFilter = useMemo(() => normalizeTag(tagFilter), [tagFilter])
+
+  const visibleTags = useMemo(() => {
+    if (!normalizedTagFilter) return tags
+    return tags.filter((tag) => tag.tag.includes(normalizedTagFilter))
+  }, [normalizedTagFilter, tags])
+
+  const selectTag = useCallback(
+    async (rawTag: string) => {
+      if (!settings.tagsEnabled) return
+      const normalized = normalizeTag(rawTag)
+      if (!normalized) return
+
+      const requestId = ++tagRequestIdRef.current
+      setSelectedTag(normalized)
+      setTagNotesBusy(true)
+
+      try {
+        const notes = await fetchNotesForTag(normalized)
+        if (tagRequestIdRef.current !== requestId) return
+        setTagNotes(notes)
+      } catch (e) {
+        if (tagRequestIdRef.current === requestId) {
+          setTagNotes([])
+          setError(String(e))
+        }
+      } finally {
+        if (tagRequestIdRef.current === requestId) {
+          setTagNotesBusy(false)
+        }
+      }
+    },
+    [fetchNotesForTag, setError, settings.tagsEnabled],
+  )
+
+  const openTagExplorer = useCallback(
+    (rawTag: string) => {
+      if (!settings.tagsEnabled) return
+      const normalized = normalizeTag(rawTag)
+      if (!normalized) return
+
+      updateSettings({ rightPaneOpen: true, rightPaneTab: 'tags' })
+      setTagFilter(normalized)
+      void selectTag(normalized)
+    },
+    [selectTag, settings.tagsEnabled, updateSettings],
+  )
+
+  useEffect(() => {
+    if (!selectedTag) return
+    const stillPresent = tags.some((tag) => tag.tag === selectedTag)
+    if (!stillPresent) {
+      setSelectedTag(null)
+      setTagNotes([])
+    }
+  }, [selectedTag, tags])
 
   useEffect(() => {
     if (!vaultPath) return
@@ -522,9 +613,14 @@ function App() {
     resetNoteState()
     resetBacklinks()
     resetTasks()
+    resetTags()
+    setTagFilter('')
+    setSelectedTag(null)
+    setTagNotes([])
+    setTagNotesBusy(false)
     setSelectedFolderPath(null)
     setExtraFolders([])
-  }, [resetBacklinks, resetNoteState, resetTasks, vaultPath])
+  }, [resetBacklinks, resetNoteState, resetTags, resetTasks, vaultPath])
 
   useEffect(() => {
     if (titleEditing) return
@@ -545,6 +641,11 @@ function App() {
     if (settings.tasksEnabled || settings.rightPaneTab !== 'tasks') return
     updateSettings({ rightPaneTab: 'links' })
   }, [settings.rightPaneTab, settings.tasksEnabled, updateSettings])
+
+  useEffect(() => {
+    if (settings.tagsEnabled || settings.rightPaneTab !== 'tags') return
+    updateSettings({ rightPaneTab: 'links' })
+  }, [settings.rightPaneTab, settings.tagsEnabled, updateSettings])
 
   useEffect(() => {
     leftPaneWidthRef.current = leftPaneWidth
@@ -584,6 +685,14 @@ function App() {
     setLeftPaneWidth(minSidebar)
     updateSettings({ leftPaneWidth: Math.round(minSidebar) })
   }, [leftPaneMinTotalWidth, leftPaneOpen, updateSettings])
+
+  useEffect(() => {
+    if (settings.tagsEnabled) return
+    setTagFilter('')
+    setSelectedTag(null)
+    setTagNotes([])
+    setTagNotesBusy(false)
+  }, [settings.tagsEnabled])
 
   const closeQuickSwitcher = useCallback(() => {
     setQuickSwitcherOpen(false)
@@ -1059,6 +1168,18 @@ function App() {
       const opened = await openNoteByRelPath(relPath)
       if (!opened) return
       queueMicrotask(() => editorRef.current?.revealLine(lineNumber))
+    },
+    [openNoteByRelPath],
+  )
+
+  const onTagNoteClick = useCallback(
+    async (relPath: string, lineNumber: number | null) => {
+      setGraphViewOpen(false)
+      const opened = await openNoteByRelPath(relPath)
+      if (!opened) return
+      if (typeof lineNumber === 'number' && lineNumber > 0) {
+        queueMicrotask(() => editorRef.current?.revealLine(lineNumber))
+      }
     },
     [openNoteByRelPath],
   )
@@ -1546,10 +1667,12 @@ function App() {
                   renderDiagrams={settings.editorRenderDiagrams}
                   renderImages={settings.editorRenderImages}
                   renderCallouts={settings.editorRenderCallouts}
+                  renderTags={settings.tagsEnabled}
                   renderLockedSections={true}
                   vaultPath={vaultPath}
                   noteRelPath={activeRelPath}
                   onOpenWikilink={openOrCreateWikilink}
+                  onOpenTag={openTagExplorer}
                   onOpenTask={onTaskClick}
                   theme={settings.editorTheme}
                   isVaultUnlocked={isVaultUnlocked}
@@ -1592,6 +1715,17 @@ function App() {
                   onClick={() => updateSettings({ rightPaneTab: 'tasks' })}
                 >
                   Tasks
+                </button>
+              ) : null}
+              {settings.tagsEnabled ? (
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={rightPaneTab === 'tags'}
+                  className={`rightPaneTab ${rightPaneTab === 'tags' ? 'rightPaneTab--active' : ''}`}
+                  onClick={() => updateSettings({ rightPaneTab: 'tags' })}
+                >
+                  Tags
                 </button>
               ) : null}
             </div>
@@ -1761,6 +1895,80 @@ function App() {
                       )}
                     </div>
                   ) : null}
+                </>
+              ) : rightPaneTab === 'tags' ? (
+                <>
+                  <div className="panel">
+                    <div className="panelTitle">Tags</div>
+                    {!vaultPath ? (
+                      <div className="panelEmpty">Select a vault to view tags.</div>
+                    ) : (
+                      <>
+                        <input
+                          type="text"
+                          className="tagExplorerFilter"
+                          placeholder="Filter tags"
+                          value={tagFilter}
+                          onChange={(event) => setTagFilter(event.target.value)}
+                        />
+                        {tagsBusy ? <div className="panelHint">Scanning tags…</div> : null}
+                        {visibleTags.length === 0 ? (
+                          <div className="panelEmpty">No tags found.</div>
+                        ) : (
+                          <ul className="tagList">
+                            {visibleTags.map((tag) => (
+                              <li key={tag.tag}>
+                                <button
+                                  type="button"
+                                  className={`tagItem ${selectedTag === tag.tag ? 'tagItem--active' : ''}`}
+                                  onClick={() => {
+                                    void selectTag(tag.tag)
+                                  }}
+                                >
+                                  <span className="tagItemLabel">#{tag.tag}</span>
+                                  <span className="tagItemCount">{tag.count}</span>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  <div className="panel">
+                    <div className="panelTitle">
+                      {selectedTag ? `Notes for #${selectedTag}` : 'Notes'}
+                    </div>
+                    {!vaultPath ? (
+                      <div className="panelEmpty">Select a vault to view tag notes.</div>
+                    ) : !selectedTag ? (
+                      <div className="panelEmpty">Select a tag to view notes.</div>
+                    ) : tagNotes.length === 0 && !tagNotesBusy ? (
+                      <div className="panelEmpty">No notes match this tag.</div>
+                    ) : (
+                      <>
+                        {tagNotesBusy ? <div className="panelHint">Loading notes…</div> : null}
+                        <div className="tagNoteList" role="list">
+                          {tagNotes.map((note) => (
+                            <button
+                              key={note.relPath}
+                              type="button"
+                              className="tagNoteItem"
+                              onClick={() => {
+                                void onTagNoteClick(note.relPath, note.lineNumber)
+                              }}
+                            >
+                              <div className="tagNoteTitle">{note.title}</div>
+                              <div className="tagNoteMeta">
+                                {note.relPath} • {new Date(note.mtime).toLocaleDateString()}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </>
               ) : (
                 <div className="panel">

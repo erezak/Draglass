@@ -1,10 +1,10 @@
 import { type Extension } from '@codemirror/state'
 import { EditorView, keymap } from '@codemirror/view'
 
-import { extractWikilinkAt } from './livePreviewHelpers'
+import { extractTagAt, extractWikilinkAt } from './livePreviewHelpers'
 import { calloutDecorationsField, createCalloutDecorationsPlugin } from './calloutPreview'
 import { createInlineLivePreviewPlugin, openTaskMenuForSelection } from './inlinePreview'
-import { findMermaidBlockAtLine, getMermaidEnterPosition } from './mermaidBlocks'
+import { findMermaidBlockAtLine, getFenceLang, getMermaidEnterPosition } from './mermaidBlocks'
 import { createMermaidDecorationsPlugin, mermaidDecorationsField, type MermaidTheme } from './mermaidPreview'
 import {
   createExcalidrawDecorationsPlugin,
@@ -29,11 +29,13 @@ export type LivePreviewTaskItem = {
 
 export type LivePreviewOptions = {
   onOpenWikilink?: (rawTarget: string) => void
+  onOpenTag?: (tag: string) => void
   onOpenImage?: (url: string, alt?: string) => void
   renderDiagrams?: boolean
   renderImages?: boolean
   renderCallouts?: boolean
   renderLockedSections?: boolean
+  renderTags?: boolean
   vaultPath?: string
   noteRelPath?: string
   theme?: MermaidTheme
@@ -47,6 +49,18 @@ export type LivePreviewOptions = {
 export function createLivePreviewExtension(options: LivePreviewOptions = {}): Extension[] {
   let mouseDownCoords: { x: number; y: number } | null = null
   let mouseDownLink: string | null = null
+  let mouseDownTag: string | null = null
+
+  const isLineInCodeFence = (lineNumber: number, view: EditorView) => {
+    let inFence = false
+    for (let i = 1; i <= lineNumber; i += 1) {
+      const line = view.state.doc.line(i)
+      if (getFenceLang(line.text) != null) {
+        inFence = !inFence
+      }
+    }
+    return inFence
+  }
 
   const handlers = EditorView.domEventHandlers({
     mousedown: (event, view) => {
@@ -54,17 +68,24 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
       const pos = view.posAtCoords({ x: event.clientX, y: event.clientY })
       mouseDownCoords = { x: event.clientX, y: event.clientY }
       mouseDownLink = null
+      mouseDownTag = null
       if (pos != null) {
         const line = view.state.doc.lineAt(pos)
         const match = extractWikilinkAt(line.text, pos - line.from)
         if (match) {
           mouseDownLink = match.rawTarget
         }
+        if (options.onOpenTag && !isLineInCodeFence(line.number, view)) {
+          const tagMatch = extractTagAt(line.text, pos - line.from)
+          if (tagMatch) {
+            mouseDownTag = tagMatch.tag
+          }
+        }
       }
       return false
     },
     mouseup: (event, view) => {
-      if (!options.onOpenWikilink) return false
+      if (!options.onOpenWikilink && !options.onOpenTag) return false
       if (event.button !== 0) return false
       if (event.shiftKey || event.altKey) return false
 
@@ -85,15 +106,30 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
         const match = extractWikilinkAt(line.text, pos - line.from)
         if (match) {
           event.preventDefault()
-          options.onOpenWikilink(match.rawTarget)
+          options.onOpenWikilink?.(match.rawTarget)
           return false
+        }
+
+        if (options.onOpenTag && !isLineInCodeFence(line.number, view)) {
+          const tagMatch = extractTagAt(line.text, pos - line.from)
+          if (tagMatch) {
+            event.preventDefault()
+            options.onOpenTag(tagMatch.tag)
+            return false
+          }
         }
       }
 
       // Fallback to previously captured mouseDownLink
       if (mouseDownLink) {
         event.preventDefault()
-        options.onOpenWikilink(mouseDownLink)
+        options.onOpenWikilink?.(mouseDownLink)
+        return false
+      }
+
+      if (mouseDownTag && options.onOpenTag) {
+        event.preventDefault()
+        options.onOpenTag(mouseDownTag)
         return false
       }
 
@@ -170,6 +206,7 @@ export function createLivePreviewExtension(options: LivePreviewOptions = {}): Ex
     }),
     createInlineLivePreviewPlugin({
       renderImages: options.renderImages,
+      renderTags: options.renderTags,
       vaultPath: options.vaultPath,
       noteRelPath: options.noteRelPath,
       onOpenImage: options.onOpenImage,

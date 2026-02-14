@@ -69,10 +69,12 @@ type NoteEditorProps = {
   renderDiagrams?: boolean
   renderImages?: boolean
   renderCallouts?: boolean
+  renderTags?: boolean
   renderLockedSections?: boolean
   vaultPath?: string | null
   noteRelPath?: string | null
   onOpenWikilink?: (rawTarget: string) => void
+  onOpenTag?: (tag: string) => void
   onOpenTask?: (relPath: string, lineNumber: number) => void
   theme?: 'dark' | 'light'
   isVaultUnlocked?: boolean
@@ -100,10 +102,12 @@ export const NoteEditor = function NoteEditor({
     renderDiagrams = true,
     renderImages = true,
     renderCallouts = true,
+    renderTags = true,
     renderLockedSections = true,
     vaultPath = null,
     noteRelPath = null,
     onOpenWikilink,
+    onOpenTag,
     onOpenTask,
     theme = 'dark',
     isVaultUnlocked = false,
@@ -121,7 +125,9 @@ export const NoteEditor = function NoteEditor({
   const initialRenderDiagramsRef = useRef<boolean>(renderDiagrams)
   const initialRenderImagesRef = useRef<boolean>(renderImages)
   const initialRenderCalloutsRef = useRef<boolean>(renderCallouts)
+  const initialRenderTagsRef = useRef<boolean>(renderTags)
   const initialOpenWikilinkRef = useRef<NoteEditorProps['onOpenWikilink']>(onOpenWikilink)
+  const initialOpenTagRef = useRef<NoteEditorProps['onOpenTag']>(onOpenTag)
   const initialOpenTaskRef = useRef<NoteEditorProps['onOpenTask']>(onOpenTask)
   const initialVaultPathRef = useRef<string | null>(vaultPath)
   const initialNoteRelPathRef = useRef<string | null>(noteRelPath)
@@ -331,6 +337,12 @@ export const NoteEditor = function NoteEditor({
 
   useEffect(() => {
     if (viewRef.current == null) {
+      initialRenderTagsRef.current = renderTags
+    }
+  }, [renderTags])
+
+  useEffect(() => {
+    if (viewRef.current == null) {
       initialVaultPathRef.current = vaultPath
     }
   }, [vaultPath])
@@ -352,6 +364,12 @@ export const NoteEditor = function NoteEditor({
       initialOpenWikilinkRef.current = onOpenWikilink
     }
   }, [onOpenWikilink])
+
+  useEffect(() => {
+    if (viewRef.current == null) {
+      initialOpenTagRef.current = onOpenTag
+    }
+  }, [onOpenTag])
 
   useEffect(() => {
     if (viewRef.current == null) {
@@ -463,9 +481,11 @@ export const NoteEditor = function NoteEditor({
               livePreviewFacet.of(true),
               ...createLivePreviewExtension({
                 onOpenWikilink: initialOpenWikilinkRef.current,
+                onOpenTag: initialOpenTagRef.current,
                 renderDiagrams: initialRenderDiagramsRef.current,
                 renderImages: initialRenderImagesRef.current,
                 renderCallouts: initialRenderCalloutsRef.current,
+                renderTags: initialRenderTagsRef.current,
                 renderLockedSections: renderLockedSections,
                 vaultPath: initialVaultPathRef.current ?? undefined,
                 noteRelPath: initialNoteRelPathRef.current ?? undefined,
@@ -607,9 +627,11 @@ export const NoteEditor = function NoteEditor({
               livePreviewFacet.of(true),
               ...createLivePreviewExtension({
                 onOpenWikilink,
+                onOpenTag,
                 renderDiagrams,
                 renderImages,
                 renderCallouts,
+                renderTags,
                 renderLockedSections,
                 vaultPath: vaultPath ?? undefined,
                 noteRelPath: noteRelPath ?? undefined,
@@ -631,10 +653,12 @@ export const NoteEditor = function NoteEditor({
     renderDiagrams,
     renderImages,
     renderCallouts,
+    renderTags,
     renderLockedSections,
     vaultPath,
     noteRelPath,
     onOpenImage,
+    onOpenTag,
     theme,
     isVaultUnlocked,
     onRequestUnlock,

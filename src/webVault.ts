@@ -3,8 +3,11 @@
 
 import type { NoteEntry, SearchHit } from './types'
 import type { GraphData, GraphOptions } from './features/graph/graphTypes'
-import type { VaultImageResponse } from './tauri'
+import type { TagNoteItem, TagSummary, VaultImageResponse } from './tauri'
 import { parseWikilinks } from './wikilinks'
+import { extractTagsFromTextWithLockFilter, findFirstInlineTagLine, normalizeTag } from './tags'
+import { fileStem } from './path'
+import { isIgnoredPath, isMarkdownNotePath } from './ignore'
 
 // Import all demo vault markdown files at build time (like Rust's include_str!).
 // Vite bundles the raw file contents directly into the JS — no runtime fetch needed.
@@ -294,6 +297,47 @@ class InMemoryVault {
     return { nodes, edges }
   }
 
+  listTags(showHidden: boolean, includeLocked: boolean): TagSummary[] {
+    const counts = new Map<string, number>()
+
+    for (const [relPath, note] of this.notes.entries()) {
+      if (!isMarkdownNotePath(relPath)) continue
+      if (!showHidden && isIgnoredPath(relPath)) continue
+
+      const tags = extractTagsFromTextWithLockFilter(note.content, !includeLocked)
+      for (const tag of tags) {
+        counts.set(tag, (counts.get(tag) || 0) + 1)
+      }
+    }
+
+    return Array.from(counts.entries())
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => a.tag.localeCompare(b.tag, undefined, { sensitivity: 'base' }))
+  }
+
+  notesForTag(tag: string, showHidden: boolean, includeLocked: boolean): TagNoteItem[] {
+    const normalized = normalizeTag(tag)
+    if (!normalized) return []
+
+    const results: TagNoteItem[] = []
+    for (const [relPath, note] of this.notes.entries()) {
+      if (!isMarkdownNotePath(relPath)) continue
+      if (!showHidden && isIgnoredPath(relPath)) continue
+
+      const tags = extractTagsFromTextWithLockFilter(note.content, !includeLocked)
+      if (!tags.includes(normalized)) continue
+
+      results.push({
+        relPath,
+        title: fileStem(relPath),
+        mtime: note.mtime_ms,
+        lineNumber: findFirstInlineTagLine(note.content, normalized, !includeLocked),
+      })
+    }
+
+    return results.sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }))
+  }
+
   readVaultImage(): VaultImageResponse {
     // Images not supported in web mode
     throw new Error('Image reading not supported in web mode')
@@ -394,6 +438,25 @@ export async function webBuildGraph(
 ): Promise<GraphData> {
   const vault = await getWebVault()
   return vault.buildGraph(options)
+}
+
+export async function webListTags(
+  _vaultPath: string,
+  showHidden: boolean,
+  includeLocked: boolean,
+): Promise<TagSummary[]> {
+  const vault = await getWebVault()
+  return vault.listTags(showHidden, includeLocked)
+}
+
+export async function webNotesForTag(
+  _vaultPath: string,
+  tag: string,
+  showHidden: boolean,
+  includeLocked: boolean,
+): Promise<TagNoteItem[]> {
+  const vault = await getWebVault()
+  return vault.notesForTag(tag, showHidden, includeLocked)
 }
 
 export async function webHashVaultPassword(): Promise<{ hash: string; salt: string }> {

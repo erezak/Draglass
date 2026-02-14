@@ -1,6 +1,7 @@
 use crate::common::{
     collect_markdown_file_paths, display_name_for_path, extract_wikilinks_with_lock_filter,
-    is_excalidraw_file, is_hidden_path, is_supported_note_file, normalize_wikilink_target,
+    extract_tags_with_lock_filter, find_first_inline_tag_line, is_excalidraw_file, is_hidden_path,
+    is_supported_note_file, normalize_tag, normalize_wikilink_target,
     path_to_rel_string, read_text_file,
 };
 use crate::graph::{GraphData, GraphEdge, GraphNode, GraphOptions};
@@ -22,6 +23,7 @@ use std::thread::{self, JoinHandle};
 use std::time::{Instant, UNIX_EPOCH};
 
 const SCHEMA_VERSION: i64 = 1;
+const TAGS_SCHEMA_VERSION: i64 = 1;
 const QUERY_SYNC_MAX_STALENESS_MS: u64 = 10_000;
 const DEFAULT_TEMPLATES_FOLDER: &str = "_templates";
 
@@ -138,6 +140,22 @@ pub struct TaskItem {
     pub line_number: usize,
     pub text: String,
     pub state: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TagSummary {
+    pub tag: String,
+    pub count: u32,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TagNote {
+    pub rel_path: String,
+    pub title: String,
+    pub mtime: u64,
+    pub line_number: Option<usize>,
 }
 
 #[derive(Default, Clone)]
@@ -301,6 +319,21 @@ fn ensure_schema(conn: &Connection) -> Result<(), String> {
           rel_path,
           tokenize='unicode61'
         );
+
+                CREATE TABLE IF NOT EXISTS tags_public (
+                    tag TEXT NOT NULL,
+                    note_id INTEGER NOT NULL,
+                    PRIMARY KEY(tag, note_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS tags_full (
+                    tag TEXT NOT NULL,
+                    note_id INTEGER NOT NULL,
+                    PRIMARY KEY(tag, note_id)
+                );
+
+                CREATE INDEX IF NOT EXISTS tags_public_note_id_idx ON tags_public(note_id);
+                CREATE INDEX IF NOT EXISTS tags_full_note_id_idx ON tags_full(note_id);
         ",
     )
     .map_err(|e| format!("failed to ensure schema: {e}"))?;
@@ -514,6 +547,10 @@ fn remove_note_rows(tx: &Transaction<'_>, rel_path: &str) -> Result<bool, String
         return Ok(false);
     };
 
+    tx.execute("DELETE FROM tags_public WHERE note_id = ?1", params![note_id])
+        .map_err(|e| format!("failed to delete tags_public rows: {e}"))?;
+    tx.execute("DELETE FROM tags_full WHERE note_id = ?1", params![note_id])
+        .map_err(|e| format!("failed to delete tags_full rows: {e}"))?;
     tx.execute("DELETE FROM fts_public WHERE note_id = ?1", params![note_id])
         .map_err(|e| format!("failed to delete fts_public row: {e}"))?;
     tx.execute("DELETE FROM fts_full WHERE note_id = ?1", params![note_id])
@@ -573,6 +610,34 @@ fn upsert_note_row(
         )
         .map_err(|e| format!("failed to resolve note id: {e}"))?;
 
+    let tags_public = extract_tags_with_lock_filter(body_public, false);
+    let tags_full = extract_tags_with_lock_filter(body_full, false);
+
+    tx.execute("DELETE FROM tags_public WHERE note_id = ?1", params![note_id])
+        .map_err(|e| format!("failed to delete tags_public rows: {e}"))?;
+    tx.execute("DELETE FROM tags_full WHERE note_id = ?1", params![note_id])
+        .map_err(|e| format!("failed to delete tags_full rows: {e}"))?;
+
+    if !tags_public.is_empty() {
+        let mut stmt = tx
+            .prepare("INSERT OR IGNORE INTO tags_public(tag, note_id) VALUES (?1, ?2)")
+            .map_err(|e| format!("failed to prepare tags_public insert: {e}"))?;
+        for tag in tags_public {
+            stmt.execute(params![tag, note_id])
+                .map_err(|e| format!("failed to insert tags_public row: {e}"))?;
+        }
+    }
+
+    if !tags_full.is_empty() {
+        let mut stmt = tx
+            .prepare("INSERT OR IGNORE INTO tags_full(tag, note_id) VALUES (?1, ?2)")
+            .map_err(|e| format!("failed to prepare tags_full insert: {e}"))?;
+        for tag in tags_full {
+            stmt.execute(params![tag, note_id])
+                .map_err(|e| format!("failed to insert tags_full row: {e}"))?;
+        }
+    }
+
     tx.execute("DELETE FROM fts_public WHERE note_id = ?1", params![note_id])
         .map_err(|e| format!("failed to delete existing fts_public row: {e}"))?;
     tx.execute("DELETE FROM fts_full WHERE note_id = ?1", params![note_id])
@@ -598,6 +663,7 @@ fn sync_index(
     conn: &mut Connection,
     request_token: Option<&str>,
     templates_folder: &str,
+    force_resync: bool,
 ) -> Result<(), String> {
     ensure_schema(conn)?;
 
@@ -654,9 +720,11 @@ fn sync_index(
         let size_bytes = metadata.len();
         seen_paths.insert(rel_path.clone());
 
-        if let Some((existing_mtime, existing_size)) = existing.get(&rel_path) {
-            if *existing_mtime == mtime_ms && *existing_size == size_bytes {
-                continue;
+        if !force_resync {
+            if let Some((existing_mtime, existing_size)) = existing.get(&rel_path) {
+                if *existing_mtime == mtime_ms && *existing_size == size_bytes {
+                    continue;
+                }
             }
         }
 
@@ -691,6 +759,7 @@ fn sync_index(
         .map_err(|e| format!("failed to commit index transaction: {e}"))?;
 
     set_meta(conn, "last_indexed_ms", &now_ms().to_string())?;
+    set_meta(conn, "tags_schema_version", &TAGS_SCHEMA_VERSION.to_string())?;
     Ok(())
 }
 
@@ -699,7 +768,7 @@ fn sync_index_for_watcher(app_handle: &tauri::AppHandle, vault_path: &str) -> Re
     let db_path = db_path_for_vault(app_handle, vault_path)?;
     let mut conn = open_connection(&db_path)?;
     let templates_folder = load_templates_folder(&conn);
-    sync_index(&vault, &mut conn, None, &templates_folder)
+    sync_index(&vault, &mut conn, None, &templates_folder, false)
 }
 
 fn apply_incremental_changes_for_watcher(
@@ -904,11 +973,15 @@ pub fn rebuild_index_impl(
     }
 
     let started = Instant::now();
+    let stored_tags_version = get_meta_u64(&conn, "tags_schema_version")?.unwrap_or(0);
+    let force_resync = options.force.unwrap_or(false)
+        || stored_tags_version != TAGS_SCHEMA_VERSION as u64;
     let result = sync_index(
         &vault,
         &mut conn,
         options.request_token.as_deref(),
         &templates_folder,
+        force_resync,
     );
 
     {
@@ -945,8 +1018,11 @@ pub fn ensure_index_impl(app_handle: &tauri::AppHandle, vault_path: &str) -> Res
         .map(|v| v == 1)
         .unwrap_or(false);
 
+    let stored_tags_version = get_meta_u64(&conn, "tags_schema_version")?.unwrap_or(0);
+    let needs_tags_resync = stored_tags_version != TAGS_SCHEMA_VERSION as u64;
+
     if !has_indexed_rows || last_indexed.is_none() {
-        return sync_index(&vault, &mut conn, None, &templates_folder);
+        return sync_index(&vault, &mut conn, None, &templates_folder, needs_tags_resync);
     }
 
     let watcher_running = watcher_handles()
@@ -955,7 +1031,7 @@ pub fn ensure_index_impl(app_handle: &tauri::AppHandle, vault_path: &str) -> Res
         .map(|handles| handles.contains_key(&key))
         .unwrap_or(false);
 
-    if watcher_running {
+    if watcher_running && !needs_tags_resync {
         return Ok(());
     }
 
@@ -963,8 +1039,8 @@ pub fn ensure_index_impl(app_handle: &tauri::AppHandle, vault_path: &str) -> Res
         .map(|ts| now_ms().saturating_sub(ts) > QUERY_SYNC_MAX_STALENESS_MS)
         .unwrap_or(true);
 
-    if stale {
-        sync_index(&vault, &mut conn, None, &templates_folder)?;
+    if stale || needs_tags_resync {
+        sync_index(&vault, &mut conn, None, &templates_folder, needs_tags_resync)?;
     }
 
     Ok(())
@@ -1537,6 +1613,95 @@ pub fn list_tasks_v2_impl(
         }
     }
 
+    Ok(results)
+}
+
+pub fn list_tags_impl(
+    app_handle: &tauri::AppHandle,
+    vault_path: &str,
+    show_hidden: bool,
+    include_locked: bool,
+) -> Result<Vec<TagSummary>, String> {
+    ensure_index_impl(app_handle, vault_path)?;
+    let db_path = db_path_for_vault(app_handle, vault_path)?;
+    let conn = open_connection(&db_path)?;
+
+    let table = if include_locked { "tags_full" } else { "tags_public" };
+    let where_hidden = if show_hidden {
+        ""
+    } else {
+        "WHERE notes.is_hidden = 0"
+    };
+    let sql = format!(
+        "SELECT {table}.tag, COUNT(*) FROM {table} JOIN notes ON {table}.note_id = notes.note_id {where_hidden} GROUP BY {table}.tag ORDER BY {table}.tag COLLATE NOCASE"
+    );
+
+    let mut stmt = conn
+        .prepare(&sql)
+        .map_err(|e| format!("failed to prepare tag list query: {e}"))?;
+    let rows = stmt
+        .query_map([], |row| {
+            Ok(TagSummary {
+                tag: row.get::<_, String>(0)?,
+                count: row.get::<_, i64>(1)? as u32,
+            })
+        })
+        .map_err(|e| format!("failed to run tag list query: {e}"))?;
+
+    let mut results = Vec::new();
+    for row in rows {
+        results.push(row.map_err(|e| format!("failed to decode tag summary: {e}"))?);
+    }
+    Ok(results)
+}
+
+pub fn notes_for_tag_impl(
+    app_handle: &tauri::AppHandle,
+    vault_path: &str,
+    tag: &str,
+    show_hidden: bool,
+    include_locked: bool,
+) -> Result<Vec<TagNote>, String> {
+    ensure_index_impl(app_handle, vault_path)?;
+    let db_path = db_path_for_vault(app_handle, vault_path)?;
+    let conn = open_connection(&db_path)?;
+
+    let normalized = normalize_tag(tag);
+    if normalized.is_empty() {
+        return Ok(Vec::new());
+    }
+    let normalized_for_line = normalized.clone();
+
+    let table = if include_locked { "tags_full" } else { "tags_public" };
+    let where_hidden = if show_hidden {
+        ""
+    } else {
+        "AND notes.is_hidden = 0"
+    };
+    let body_column = if include_locked { "notes.body_full" } else { "notes.body_public" };
+    let sql = format!(
+        "SELECT notes.rel_path, notes.title, notes.mtime_ms, {body_column} FROM {table} JOIN notes ON {table}.note_id = notes.note_id WHERE {table}.tag = ?1 {where_hidden} ORDER BY notes.title COLLATE NOCASE"
+    );
+
+    let mut stmt = conn
+        .prepare(&sql)
+        .map_err(|e| format!("failed to prepare tag notes query: {e}"))?;
+    let rows = stmt
+        .query_map(params![normalized], |row| {
+            let body = row.get::<_, String>(3)?;
+            Ok(TagNote {
+                rel_path: row.get::<_, String>(0)?,
+                title: row.get::<_, String>(1)?,
+                mtime: row.get::<_, i64>(2)? as u64,
+                line_number: find_first_inline_tag_line(&body, &normalized_for_line, !include_locked),
+            })
+        })
+        .map_err(|e| format!("failed to run tag notes query: {e}"))?;
+
+    let mut results = Vec::new();
+    for row in rows {
+        results.push(row.map_err(|e| format!("failed to decode tag note: {e}"))?);
+    }
     Ok(results)
 }
 

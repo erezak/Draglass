@@ -21,7 +21,7 @@ Powered by CodeMirror 6, one of the most advanced code editors available. Fast, 
 Format as you type with inline rendering:
 - **Hidden markup**: Bold, italic, and wikilink syntax disappears, showing only the formatted result
 - **Cursor-aware reveal**: Move your cursor into formatted text to see and edit the raw Markdown
-- **Clickable elements**: Task checkboxes, wikilinks, and images are all interactive
+- **Clickable elements**: Task checkboxes, wikilinks, tags, and images are all interactive
 - **Real-time rendering**: Mermaid diagrams, callouts, and images render inline
 
 ### Properties (Frontmatter)
@@ -63,6 +63,15 @@ Every note automatically tracks which other notes link to it. The Backlinks pane
 - Live updates as you type new links
 - Click-to-jump navigation
 - Excluded from view when vault is locked
+
+### Tags
+Use hashtags such as `#project` or nested tags like `#project/draglass` directly in note text.
+
+Features:
+- Case-insensitive matching with normalized storage
+- Click any rendered tag in Live Preview to open the Tags explorer
+- Dedicated **Tags** tab in the right sidebar with filter + note list
+- Respects hidden/ignored paths and locked-section visibility
 
 ### Quick Switcher (`Cmd/Ctrl + P`)
 Fuzzy search across all note titles. Features:
@@ -367,6 +376,7 @@ Built-in interactive guide that:
 - Demonstrates every feature with real examples
 - Always accessible via Command Palette
 - Safe to edit and experiment with
+- Includes tag-specific sample notes: **Tags** and **Tag Explorer**
 
 ---
 

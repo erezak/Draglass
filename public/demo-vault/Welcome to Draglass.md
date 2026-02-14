@@ -32,6 +32,8 @@ From there, the notes below explore different parts of the app by putting them t
 - [[Graph View]] — a visual map of every note and every link in the vault
 - [[Live Preview]] — toggle between rendered formatting and raw Markdown source
 - [[Markdown Syntax]] — headings, lists, code, callouts, diagrams, and task checkboxes
+- [[Tags]] — hashtag syntax (`#tag`, `#nested/tag`) and explorer behavior
+- [[Tag Explorer]] — browsing notes by tag in the right-pane Tags tab
 - [[Tasks and Checklists]] — how Draglass scans your vault for open to-dos
 - [[Privacy and Security]] — locked sections, vault passwords, and the local-first promise
 - [[Customizing Draglass]] — themes, pane layout, autosave timing, and every setting

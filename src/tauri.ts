@@ -63,6 +63,18 @@ export type TaskIndexItem = {
   state: string
 }
 
+export type TagSummary = {
+  tag: string
+  count: number
+}
+
+export type TagNoteItem = {
+  relPath: string
+  title: string
+  mtime: number
+  lineNumber: number | null
+}
+
 export type WatcherResult = {
   started: boolean
   alreadyRunning: boolean
@@ -468,6 +480,59 @@ export async function listTasksV2(
   }
 
   return results
+}
+
+async function tauriListTags(
+  vaultPath: string,
+  showHidden: boolean,
+  includeLocked: boolean,
+): Promise<TagSummary[]> {
+  return invoke<TagSummary[]>('list_tags', {
+    vaultPath,
+    showHidden,
+    includeLocked,
+  })
+}
+
+export async function listTags(
+  vaultPath: string,
+  showHidden: boolean,
+  includeLocked: boolean,
+): Promise<TagSummary[]> {
+  if (isTauri()) {
+    return tauriListTags(vaultPath, showHidden, includeLocked)
+  }
+
+  const { webListTags } = await import('./webVault')
+  return webListTags(vaultPath, showHidden, includeLocked)
+}
+
+async function tauriNotesForTag(
+  vaultPath: string,
+  tag: string,
+  showHidden: boolean,
+  includeLocked: boolean,
+): Promise<TagNoteItem[]> {
+  return invoke<TagNoteItem[]>('notes_for_tag', {
+    vaultPath,
+    tag,
+    showHidden,
+    includeLocked,
+  })
+}
+
+export async function notesForTag(
+  vaultPath: string,
+  tag: string,
+  showHidden: boolean,
+  includeLocked: boolean,
+): Promise<TagNoteItem[]> {
+  if (isTauri()) {
+    return tauriNotesForTag(vaultPath, tag, showHidden, includeLocked)
+  }
+
+  const { webNotesForTag } = await import('./webVault')
+  return webNotesForTag(vaultPath, tag, showHidden, includeLocked)
 }
 
 async function tauriStartIndexWatcher(vaultPath: string): Promise<WatcherResult> {

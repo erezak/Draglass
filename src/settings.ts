@@ -35,12 +35,13 @@ export type DraglassSettings = {
 
   templatesFolder: string
   tasksEnabled: boolean
+  tagsEnabled: boolean
   calendarEnabled: boolean
   dailyNotesEnabled: boolean
   dailyNotesFolder: string
   dailyNotesDateFormat: string
   dailyNotesTemplatePath: string
-  rightPaneTab: 'links' | 'tasks'
+  rightPaneTab: 'links' | 'tasks' | 'tags'
 }
 
 type SettingsUpdate =
@@ -81,6 +82,7 @@ export const DEFAULT_SETTINGS: DraglassSettings = {
 
   templatesFolder: DEFAULT_TEMPLATES_FOLDER,
   tasksEnabled: true,
+  tagsEnabled: true,
   calendarEnabled: true,
   dailyNotesEnabled: true,
   dailyNotesFolder: DEFAULT_DAILY_NOTES_FOLDER,
@@ -161,6 +163,7 @@ function normalizeSettings(raw: unknown): DraglassSettings {
       typeof r.templatesFolder === 'string' ? r.templatesFolder : DEFAULT_SETTINGS.templatesFolder,
     ),
     tasksEnabled: asBool(r.tasksEnabled, DEFAULT_SETTINGS.tasksEnabled),
+    tagsEnabled: asBool(r.tagsEnabled, DEFAULT_SETTINGS.tagsEnabled),
     calendarEnabled: asBool(r.calendarEnabled, DEFAULT_SETTINGS.calendarEnabled),
     dailyNotesEnabled: asBool(r.dailyNotesEnabled, DEFAULT_SETTINGS.dailyNotesEnabled),
     dailyNotesFolder: normalizeDailyNotesFolder(
@@ -175,9 +178,10 @@ function normalizeSettings(raw: unknown): DraglassSettings {
       typeof r.dailyNotesTemplatePath === 'string'
         ? r.dailyNotesTemplatePath.trim().replace(/\\/g, '/').replace(/^\/+/, '').replace(/\/+$/, '')
         : DEFAULT_SETTINGS.dailyNotesTemplatePath,
-    rightPaneTab: r.rightPaneTab === 'tasks' || r.rightPaneTab === 'links'
-      ? r.rightPaneTab
-      : DEFAULT_SETTINGS.rightPaneTab,
+    rightPaneTab:
+      r.rightPaneTab === 'tasks' || r.rightPaneTab === 'links' || r.rightPaneTab === 'tags'
+        ? r.rightPaneTab
+        : DEFAULT_SETTINGS.rightPaneTab,
   }
 }
 

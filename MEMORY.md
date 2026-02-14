@@ -1,3 +1,11 @@
+- 2026-02-13 — Decision: Tags use `#tag` and `#tag/subtag` syntax with case-insensitive normalization stored as lowercase without `#`.
+  - Rationale: A single normalized form simplifies matching across UI, index, and editor rendering.
+  - Impact: Tag extraction, storage, and lookups must normalize to lowercase tag strings and treat casing as display-only.
+
+- 2026-02-13 — Decision: Tag indexing is stored in SQLite as `tags_public` (locked-filtered) and `tags_full` (full) tables, and surfaced via a right-pane “Tags” tab.
+  - Rationale: Split tables preserve locked-section privacy while keeping tag queries fast and consistent with other derived data.
+  - Impact: Tag queries must choose the table based on lock visibility and UI should live in the right pane tabs model.
+
 - 2026-02-13 — Decision: Daily note identity is deterministic from settings (`dailyNotesFolder` + formatted date filename + `.md`) and files are created via existing vault create helpers.
   - Rationale: A stable path rule keeps daily navigation predictable and preserves Rust/tauri-backed local file creation semantics.
   - Impact: Future daily-note features must derive paths from settings and open/create through existing note creation flows instead of ad-hoc storage.

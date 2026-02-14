@@ -33,6 +33,8 @@
     "find-backlinks-v2",
     "build-graph-v2",
     "list-tasks-v2",
+    "list-tags",
+    "notes-for-tag",
     "start-index-watcher",
     "stop-index-watcher",
     "hash-vault-password",

@@ -18,6 +18,7 @@ import {
 import { shouldHideMarkup } from './livePreviewHelpers'
 import { findMermaidStartForLine, getFenceLang, MERMAID_LANG } from './mermaidBlocks'
 import { EXCALIDRAW_LANG, findExcalidrawStartForLine } from './excalidrawBlocks'
+import { extractTagsFromLine } from '../tags'
 
 const WIKILINK_RE = /\[\[([^\]]+?)\]\]/g
 const INLINE_CODE_RE = /`([^`]+)`/g
@@ -30,6 +31,7 @@ const LIST_RE = /^(\s*(?:>+\s*)*)([-+*])\s+/
 
 type InlineLivePreviewOptions = {
   renderImages?: boolean
+  renderTags?: boolean
   vaultPath?: string
   noteRelPath?: string
   onOpenImage?: (url: string, alt?: string) => void
@@ -564,6 +566,7 @@ function buildInlineLivePreviewDecorations(
     const startLineNumber = view.state.doc.lineAt(range.from).number
     let inMermaidBlock = findMermaidStartForLine(view.state.doc, startLineNumber) != null
     let inExcalidrawBlock = findExcalidrawStartForLine(view.state.doc, startLineNumber) != null
+    let inCodeFence = false
     while (pos <= range.to) {
       const line = view.state.doc.lineAt(pos)
       if (line.from > range.to) break
@@ -572,6 +575,7 @@ function buildInlineLivePreviewDecorations(
 
       const fenceLang = getFenceLang(text)
       if (fenceLang != null) {
+        inCodeFence = !inCodeFence
         if (fenceLang === MERMAID_LANG) {
           inMermaidBlock = true
         } else if (inMermaidBlock) {
@@ -866,6 +870,17 @@ function buildInlineLivePreviewDecorations(
             to: linkTo,
             decoration: Decoration.replace({ widget: new HiddenMarkerWidget() }),
           })
+        }
+      }
+
+      if (options.renderTags && !inCodeFence) {
+        for (const tag of extractTagsFromLine(text)) {
+          const tagFrom = line.from + tag.from
+          const tagTo = line.from + tag.to
+          if (codeRanges.some((range) => tagFrom < range.to && tagTo > range.from)) {
+            continue
+          }
+          addInlineMark(decorations, tagFrom, tagTo, 'cm-livePreview-tag')
         }
       }
 

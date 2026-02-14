@@ -85,6 +85,8 @@ pub fn run() {
             find_backlinks_v2,
             build_graph_v2,
             list_tasks_v2,
+            list_tags,
+            notes_for_tag,
             start_index_watcher,
             stop_index_watcher,
             hash_vault_password,
@@ -147,9 +149,10 @@ use crate::vault::{
 };
 use crate::vault_index::{
     build_graph_v2_impl, cancel_request_impl, find_backlinks_v2_impl, index_status_impl,
-    list_tasks_v2_impl, rebuild_index_impl, remove_note_impl as remove_note_from_index_impl,
-    search_v2_impl, upsert_note_impl as upsert_note_index_impl, CancelResult, IndexStatus,
-    MutationResult, RebuildOptions, RebuildResult, RemoveResult, SearchFlags, SearchResponse,
+    list_tags_impl, list_tasks_v2_impl, notes_for_tag_impl, rebuild_index_impl,
+    remove_note_impl as remove_note_from_index_impl, search_v2_impl,
+    upsert_note_impl as upsert_note_index_impl, CancelResult, IndexStatus, MutationResult,
+    RebuildOptions, RebuildResult, RemoveResult, SearchFlags, SearchResponse, TagNote, TagSummary,
     TaskItem, WatcherResult, WatcherStopResult, start_index_watcher_impl, stop_index_watcher_impl,
 };
 
@@ -421,6 +424,35 @@ async fn list_tasks_v2(
 ) -> Result<Vec<TaskItem>, String> {
     tauri::async_runtime::spawn_blocking(move || {
         list_tasks_v2_impl(&app_handle, &vault_path, show_hidden, include_locked)
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn list_tags(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+    show_hidden: bool,
+    include_locked: bool,
+) -> Result<Vec<TagSummary>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        list_tags_impl(&app_handle, &vault_path, show_hidden, include_locked)
+    })
+    .await
+    .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn notes_for_tag(
+    app_handle: tauri::AppHandle,
+    vault_path: String,
+    tag: String,
+    show_hidden: bool,
+    include_locked: bool,
+) -> Result<Vec<TagNote>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        notes_for_tag_impl(&app_handle, &vault_path, &tag, show_hidden, include_locked)
     })
     .await
     .map_err(|e| format!("failed to join task: {e}"))?

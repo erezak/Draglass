@@ -40,7 +40,7 @@ backlinks and visualize your knowledge graph.
 
 ### 📝 Rich Markdown Support
 Full Markdown syntax with Live Preview mode, Properties (frontmatter), Mermaid diagrams, Excalidraw
-drawings, callouts, task checkboxes, and image lightbox.
+drawings, callouts, tags, task checkboxes, and image lightbox.
 
 ### 🎨 Customizable
 Dark and light themes, resizable panes, configurable autosave, and dozens of settings to make
@@ -104,6 +104,11 @@ pnpm tauri build
   <div class="feature-card">
     <h3>🔍 Global Search</h3>
     <p>Full-text search across your entire vault with <kbd>Cmd/Ctrl + Shift + F</kbd>.</p>
+  </div>
+
+  <div class="feature-card">
+    <h3>#️⃣ Tags Explorer</h3>
+    <p>Use <code>#tags</code> and <code>#nested/tags</code>, then browse them in the right-pane Tags tab.</p>
   </div>
 
   <div class="feature-card">

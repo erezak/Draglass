@@ -234,6 +234,10 @@ export function SettingsScreen({
           <section className="settingsSection">
             <h3>Features</h3>
             <label className="settingsRow">
+              <span>Enable tags</span>
+              <input type="checkbox" checked={settings.tagsEnabled} onChange={onToggle('tagsEnabled')} />
+            </label>
+            <label className="settingsRow">
               <span>Enable calendar</span>
               <input
                 type="checkbox"

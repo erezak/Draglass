@@ -107,6 +107,7 @@ When you first launch Draglass (web or desktop), the **Demo Vault** opens automa
 - Browse notes in the left sidebar
 - Follow `[[Wikilinks]]` between notes
 - Check the **Tasks** panel on the right
+- Check the **Tags** tab on the right and filter by `project`
 - Open the **Graph View** to see connections
 - Try the **Quick Switcher** with `Cmd/Ctrl + P`
 
@@ -200,11 +201,13 @@ You can also run **Insert template…** to apply a template inside the current n
 - **Autosave**: Green dot = saved, pulsing = saving, red = error
 
 ### Right Sidebar
-Three panels stacked vertically:
+Tabs and panels:
 
-1. **Outgoing Links**: Wikilinks in the current note
-2. **Tasks**: All open checkboxes across the vault (click to jump)
-3. **Backlinks**: Notes that link to the current note
+1. **Links tab**:
+   - **Outgoing Links**: Wikilinks in the current note
+   - **Backlinks**: Notes that link to the current note
+2. **Tasks tab**: All open checkboxes across the vault (click to jump)
+3. **Tags tab**: Filter tags and open notes by selected tag
 
 ### Toolbox (Left Side)
 Vertical toolbar with three buttons:
