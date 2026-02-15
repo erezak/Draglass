@@ -116,3 +116,4 @@ Draglass is built with these principles:
 - **Minimal dependencies**: Only add what's necessary
 - **Small changes**: Prefer reviewable, incremental improvements
 - **Local-first**: User data stays local and private by default
+\n## Features\n- Graph view enhancements: interactive grouping by tag, color-coded clusters, hover link previews, and a Quick Navigation panel.\n
