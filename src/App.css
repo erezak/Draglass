@@ -1248,6 +1248,18 @@
   border-color: rgba(59, 74, 159, 0.2);
 }
 
+.noteEditor--livePreview .cm-livePreview-highlight {
+  background: rgba(250, 235, 59, 0.4);
+  border: 1px solid rgba(250, 235, 59, 0.45);
+  border-radius: 4px;
+  padding: 0 0.2em;
+}
+
+:root[data-theme='light'] .noteEditor--livePreview .cm-livePreview-highlight {
+  background: rgba(250, 235, 59, 0.45);
+  border-color: rgba(196, 165, 0, 0.45);
+}
+
 .noteEditor--livePreview .cm-livePreview-wikilink {
   color: #8ab4ff;
   font-weight: 500;

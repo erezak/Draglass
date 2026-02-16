@@ -46,6 +46,12 @@ assert.equal(livePreview.shouldHideMarkup(10, 20, 12, 18), false)
 assert.equal(livePreview.shouldHideMarkup(10, 20, 20, 22), false)
 assert.equal(livePreview.shouldHideMarkup(10, 20, 25, 30), true)
 
+const highlights = livePreview.extractHighlightMatches('before ==mark== and ==yellow marker==')
+assert.equal(highlights.length, 2)
+assert.deepEqual(highlights[0], { markerFrom: 7, markerTo: 15, textFrom: 9, textTo: 13 })
+assert.deepEqual(highlights[1], { markerFrom: 20, markerTo: 37, textFrom: 22, textTo: 35 })
+assert.deepEqual(livePreview.extractHighlightMatches('no highlight here'), [])
+
 const linkText = 'Start [[Note Name|Alias]] end'
 const match = livePreview.extractWikilinkAt(linkText, 10)
 assert.equal(match?.rawTarget, 'Note Name|Alias')
