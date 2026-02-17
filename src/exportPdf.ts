@@ -51,7 +51,7 @@ export function buildPdfDocumentHtml(noteText: string, options: { title: string;
 export function exportNoteAsPdf(noteText: string, options: { title: string; includeTitle: boolean }): void {
   const pdfWindow = window.open('', '_blank')
   if (!pdfWindow) {
-    throw new Error('Unable to open export window')
+    throw new Error('Unable to open export window. Please allow pop-ups for Draglass and try again.')
   }
 
   pdfWindow.document.open()
