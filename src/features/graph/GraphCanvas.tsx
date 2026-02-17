@@ -30,7 +30,7 @@ import type {
   SimulationEdge,
   SimulationNode,
 } from './graphTypes'
-import { pickNodeAtWorldPoint } from './graphInteraction'
+import { movedBeyondThreshold, pickNodeAtWorldPoint } from './graphInteraction'
 
 type GraphCanvasProps = {
   nodes: GraphNode[]
@@ -131,10 +131,14 @@ export function GraphCanvas({
     viewX: 0,
     viewY: 0,
   })
-  const nodeDragRef = useRef<{ active: boolean; node: SimulationNode | null }>({
+  const nodeDragRef = useRef<{ active: boolean; node: SimulationNode | null; startX: number; startY: number; moved: boolean }>({
     active: false,
     node: null,
+    startX: 0,
+    startY: 0,
+    moved: false,
   })
+  const suppressNodeClickRef = useRef<string | null>(null)
   const renderFnRef = useRef<(() => void) | null>(null)
   const initialBackgroundRef = useRef<number | null>(null)
   const [initialized, setInitialized] = useState(false)
@@ -376,6 +380,10 @@ export function GraphCanvas({
       })
 
       graphics.on('click', () => {
+        if (suppressNodeClickRef.current === node.id) {
+          suppressNodeClickRef.current = null
+          return
+        }
         onNodeClickRef.current(node.id)
       })
 
@@ -694,7 +702,7 @@ export function GraphCanvas({
       if (node) {
         node.fx = node.x
         node.fy = node.y
-        nodeDragRef.current = { active: true, node }
+        nodeDragRef.current = { active: true, node, startX: e.clientX, startY: e.clientY, moved: false }
         simulationRef.current?.alphaTarget(0.2).restart()
         return
       }
@@ -710,6 +718,10 @@ export function GraphCanvas({
 
     const handleMouseMove = (e: MouseEvent) => {
       if (nodeDragRef.current.active && nodeDragRef.current.node) {
+        if (!nodeDragRef.current.moved && movedBeyondThreshold(nodeDragRef.current.startX, nodeDragRef.current.startY, e.clientX, e.clientY)) {
+          nodeDragRef.current.moved = true
+        }
+
         const rect = container.getBoundingClientRect()
         const viewport = viewportRef.current
         const x = (e.clientX - rect.left - viewport.x) / viewport.scale
@@ -737,9 +749,12 @@ export function GraphCanvas({
     const handleMouseUp = () => {
       if (nodeDragRef.current.active && nodeDragRef.current.node) {
         const draggedNode = nodeDragRef.current.node
+        if (nodeDragRef.current.moved) {
+          suppressNodeClickRef.current = draggedNode.id
+        }
         draggedNode.fx = null
         draggedNode.fy = null
-        nodeDragRef.current = { active: false, node: null }
+        nodeDragRef.current = { active: false, node: null, startX: 0, startY: 0, moved: false }
         simulationRef.current?.alphaTarget(0)
         return
       }

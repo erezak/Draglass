@@ -29,6 +29,10 @@ const nodes = [
 
 assert.equal(mod.pickNodeAtWorldPoint(nodes, 0, 0, 6)?.id, 'a')
 assert.equal(mod.pickNodeAtWorldPoint(nodes, 30, 0, 6)?.id, 'b')
+assert.equal(mod.pickNodeAtWorldPoint(nodes, 7, 0, 6)?.id, 'a')
 assert.equal(mod.pickNodeAtWorldPoint(nodes, 100, 100, 6), null)
+assert.equal(mod.movedBeyondThreshold(10, 10, 12, 12), false)
+assert.equal(mod.movedBeyondThreshold(10, 10, 14, 10), true)
+assert.equal(mod.movedBeyondThreshold(10, 10, 10, 14), true)
 
 console.log('graph interaction: ok')
