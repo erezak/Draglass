@@ -24,9 +24,8 @@ import { frontmatterEndLineField } from '../editor/frontmatterPreview'
 import { createWikilinkCompletionExtension } from '../editor/wikilinkCompletion'
 import {
   buildPastedImageRelPath,
-  hasImageFileExtension,
   imageEmbedWikilinkForPath,
-  isImageMimeType,
+  isLikelyClipboardImageFileMeta,
 } from '../editor/pastedImage'
 import type { HeadingSection, LockedBodyRange } from '../lockedSections'
 import type { NoteEntry } from '../types'
@@ -541,20 +540,17 @@ export const NoteEditor = function NoteEditor({
           if (!clipboard) return false
 
           const item = Array.from(clipboard.items ?? []).find((entry) => {
-            if (isImageMimeType(entry.type)) return true
             if (entry.kind !== 'file') return false
             const maybeFile = entry.getAsFile()
             if (!maybeFile) return false
-            return isImageMimeType(maybeFile.type) || hasImageFileExtension(maybeFile.name)
+            return isLikelyClipboardImageFileMeta(maybeFile.type, maybeFile.name, maybeFile.size)
           })
 
           const imageFromItem = item?.getAsFile() ?? null
           const imageFromFiles =
             Array.from(clipboard.files ?? []).find(
               (candidate) =>
-                isImageMimeType(candidate.type) ||
-                hasImageFileExtension(candidate.name) ||
-                (candidate.type === '' && candidate.size > 0),
+                isLikelyClipboardImageFileMeta(candidate.type, candidate.name, candidate.size),
             ) ?? null
           const file = imageFromItem ?? imageFromFiles
           if (!file) return false

@@ -25,6 +25,16 @@ export function hasImageFileExtension(fileName: string | null | undefined): bool
   return IMAGE_FILE_EXTENSIONS.has(extension)
 }
 
+export function isLikelyClipboardImageFileMeta(
+  mimeType: string | null | undefined,
+  fileName: string | null | undefined,
+  sizeBytes: number,
+): boolean {
+  if (isImageMimeType(mimeType)) return true
+  if (hasImageFileExtension(fileName)) return true
+  return (mimeType ?? '').trim() === '' && sizeBytes > 0
+}
+
 function extensionForImageMimeType(mimeType: string): string {
   switch (mimeType.toLowerCase()) {
     case 'image/png':
