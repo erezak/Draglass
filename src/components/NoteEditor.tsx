@@ -22,8 +22,14 @@ import { markdown } from '@codemirror/lang-markdown'
 import { createLivePreviewExtension, type LivePreviewTaskItem } from '../editor/livePreview'
 import { frontmatterEndLineField } from '../editor/frontmatterPreview'
 import { createWikilinkCompletionExtension } from '../editor/wikilinkCompletion'
+import { buildPastedImageRelPath, imageEmbedWikilinkForPath } from '../editor/pastedImage'
 import type { HeadingSection, LockedBodyRange } from '../lockedSections'
 import type { NoteEntry } from '../types'
+import { createDir, writeVaultAsset } from '../tauri'
+import {
+  DEFAULT_PASTED_IMAGES_FOLDER,
+  normalizePastedImagesFolder,
+} from '../pastedImagesSettings'
 
 const setTaskHighlightEffect = StateEffect.define<number>()
 const clearTaskHighlightEffect = StateEffect.define<void>()
@@ -80,6 +86,7 @@ type NoteEditorProps = {
   isVaultUnlocked?: boolean
   onRequestUnlock?: () => void
   onLockedSectionsDetected?: (sections: HeadingSection[], ranges: LockedBodyRange[]) => void
+  pastedImagesFolder?: string
   files?: NoteEntry[]
   tasks?: LivePreviewTaskItem[]
 }
@@ -113,6 +120,7 @@ export const NoteEditor = function NoteEditor({
     isVaultUnlocked = false,
     onRequestUnlock,
     onLockedSectionsDetected,
+    pastedImagesFolder = DEFAULT_PASTED_IMAGES_FOLDER,
     files = [],
     tasks = [],
     ref,
@@ -137,6 +145,11 @@ export const NoteEditor = function NoteEditor({
   const highlightTimerRef = useRef<number | null>(null)
   const pendingRevealRef = useRef<number | null>(null)
   const pendingCursorRef = useRef<number | null>(null)
+  const currentVaultPathRef = useRef<string | null>(vaultPath)
+  const currentNoteRelPathRef = useRef<string | null>(noteRelPath)
+  const currentPastedImagesFolderRef = useRef<string>(
+    normalizePastedImagesFolder(pastedImagesFolder),
+  )
 
   const onOpenImage = useCallback((src: string, alt?: string) => {
     setLightbox({ src, alt })
@@ -342,6 +355,18 @@ export const NoteEditor = function NoteEditor({
   }, [renderTags])
 
   useEffect(() => {
+    currentVaultPathRef.current = vaultPath
+  }, [vaultPath])
+
+  useEffect(() => {
+    currentNoteRelPathRef.current = noteRelPath
+  }, [noteRelPath])
+
+  useEffect(() => {
+    currentPastedImagesFolderRef.current = normalizePastedImagesFolder(pastedImagesFolder)
+  }, [pastedImagesFolder])
+
+  useEffect(() => {
     if (viewRef.current == null) {
       initialVaultPathRef.current = vaultPath
     }
@@ -504,6 +529,55 @@ export const NoteEditor = function NoteEditor({
         if (!update.docChanged) return
         if (applyingExternalValueRef.current) return
         onChangeRef.current(update.state.doc.toString())
+      }),
+      EditorView.domEventHandlers({
+        paste: (event, view) => {
+          const item = Array.from(event.clipboardData?.items ?? []).find((entry) =>
+            entry.type.toLowerCase().startsWith('image/'),
+          )
+          if (!item) return false
+
+          const file = item.getAsFile()
+          const vaultPathForPaste = currentVaultPathRef.current
+          const noteRelPathForPaste = currentNoteRelPathRef.current
+          if (!file || !vaultPathForPaste || !noteRelPathForPaste) return false
+
+          event.preventDefault()
+
+          void (async () => {
+            const folder = currentPastedImagesFolderRef.current
+            try {
+              await createDir(vaultPathForPaste, folder)
+            } catch (error) {
+              const message = error instanceof Error ? error.message : String(error)
+              if (!message.toLowerCase().includes('already exists')) {
+                throw error
+              }
+            }
+
+            const relPath = buildPastedImageRelPath(
+              folder,
+              noteRelPathForPaste,
+              file.type,
+              Date.now(),
+              Math.random().toString(36).slice(2, 8),
+            )
+            const bytes = Array.from(new Uint8Array(await file.arrayBuffer()))
+            await writeVaultAsset(vaultPathForPaste, relPath, bytes)
+
+            const embed = imageEmbedWikilinkForPath(relPath)
+            const selection = view.state.selection.main
+            view.dispatch({
+              changes: { from: selection.from, to: selection.to, insert: embed },
+              selection: { anchor: selection.from + embed.length },
+              scrollIntoView: true,
+            })
+          })().catch((error) => {
+            console.error('failed to paste image', error)
+          })
+
+          return true
+        },
       }),
       keymap.of([
         {

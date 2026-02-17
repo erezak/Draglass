@@ -6,6 +6,7 @@ import {
   normalizeDailyNoteDateFormat,
   normalizeDailyNotesFolder,
 } from './dailyNotes'
+import { DEFAULT_PASTED_IMAGES_FOLDER, normalizePastedImagesFolder } from './pastedImagesSettings'
 
 export type DraglassSettings = {
   editorWrap: boolean
@@ -41,6 +42,7 @@ export type DraglassSettings = {
   dailyNotesFolder: string
   dailyNotesDateFormat: string
   dailyNotesTemplatePath: string
+  pastedImagesFolder: string
   rightPaneTab: 'links' | 'tasks' | 'tags' | 'calendar'
 }
 
@@ -88,6 +90,7 @@ export const DEFAULT_SETTINGS: DraglassSettings = {
   dailyNotesFolder: DEFAULT_DAILY_NOTES_FOLDER,
   dailyNotesDateFormat: DEFAULT_DAILY_NOTES_DATE_FORMAT,
   dailyNotesTemplatePath: '',
+  pastedImagesFolder: DEFAULT_PASTED_IMAGES_FOLDER,
   rightPaneTab: 'links',
 }
 
@@ -178,6 +181,11 @@ function normalizeSettings(raw: unknown): DraglassSettings {
       typeof r.dailyNotesTemplatePath === 'string'
         ? r.dailyNotesTemplatePath.trim().replace(/\\/g, '/').replace(/^\/+/, '').replace(/\/+$/, '')
         : DEFAULT_SETTINGS.dailyNotesTemplatePath,
+    pastedImagesFolder: normalizePastedImagesFolder(
+      typeof r.pastedImagesFolder === 'string'
+        ? r.pastedImagesFolder
+        : DEFAULT_SETTINGS.pastedImagesFolder,
+    ),
     rightPaneTab:
       r.rightPaneTab === 'tasks' ||
       r.rightPaneTab === 'links' ||

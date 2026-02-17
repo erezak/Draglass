@@ -74,6 +74,7 @@ pub fn run() {
             create_dir,
             find_backlinks,
             read_vault_image,
+            write_vault_asset,
             build_graph,
             search_vault,
             search_v2,
@@ -145,6 +146,7 @@ use crate::graph::{build_graph_impl, GraphData, GraphOptions};
 use crate::vault::{
     create_dir_impl, create_note_impl, delete_note_impl, list_markdown_files_impl,
     read_note_impl, read_vault_image_impl, rename_note_impl, search_vault_impl, write_note_impl,
+    write_vault_asset_impl,
     NoteEntry, SearchHit, VaultImage,
 };
 use crate::vault_index::{
@@ -271,6 +273,17 @@ async fn find_backlinks(
 #[tauri::command]
 async fn read_vault_image(vault_path: String, rel_path: String) -> Result<VaultImage, String> {
     tauri::async_runtime::spawn_blocking(move || read_vault_image_impl(&vault_path, &rel_path))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn write_vault_asset(
+    vault_path: String,
+    rel_path: String,
+    bytes: Vec<u8>,
+) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || write_vault_asset_impl(&vault_path, &rel_path, &bytes))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }

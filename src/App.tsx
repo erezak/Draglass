@@ -1772,6 +1772,7 @@ function App() {
                   isVaultUnlocked={isVaultUnlocked}
                   onRequestUnlock={onRequestUnlock}
                   onLockedSectionsDetected={onLockedSectionsDetected}
+                  pastedImagesFolder={settings.pastedImagesFolder}
                   files={files}
                   tasks={tasks}
                 />
