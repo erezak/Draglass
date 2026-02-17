@@ -22,7 +22,12 @@ import { markdown } from '@codemirror/lang-markdown'
 import { createLivePreviewExtension, type LivePreviewTaskItem } from '../editor/livePreview'
 import { frontmatterEndLineField } from '../editor/frontmatterPreview'
 import { createWikilinkCompletionExtension } from '../editor/wikilinkCompletion'
-import { buildPastedImageRelPath, imageEmbedWikilinkForPath } from '../editor/pastedImage'
+import {
+  buildPastedImageRelPath,
+  hasImageFileExtension,
+  imageEmbedWikilinkForPath,
+  isImageMimeType,
+} from '../editor/pastedImage'
 import type { HeadingSection, LockedBodyRange } from '../lockedSections'
 import type { NoteEntry } from '../types'
 import { createDir, writeVaultAsset } from '../tauri'
@@ -532,15 +537,31 @@ export const NoteEditor = function NoteEditor({
       }),
       EditorView.domEventHandlers({
         paste: (event, view) => {
-          const item = Array.from(event.clipboardData?.items ?? []).find((entry) =>
-            entry.type.toLowerCase().startsWith('image/'),
-          )
-          if (!item) return false
+          const clipboard = event.clipboardData
+          if (!clipboard) return false
 
-          const file = item.getAsFile()
+          const item = Array.from(clipboard.items ?? []).find((entry) => {
+            if (isImageMimeType(entry.type)) return true
+            if (entry.kind !== 'file') return false
+            const maybeFile = entry.getAsFile()
+            if (!maybeFile) return false
+            return isImageMimeType(maybeFile.type) || hasImageFileExtension(maybeFile.name)
+          })
+
+          const imageFromItem = item?.getAsFile() ?? null
+          const imageFromFiles =
+            Array.from(clipboard.files ?? []).find(
+              (candidate) =>
+                isImageMimeType(candidate.type) ||
+                hasImageFileExtension(candidate.name) ||
+                (candidate.type === '' && candidate.size > 0),
+            ) ?? null
+          const file = imageFromItem ?? imageFromFiles
+          if (!file) return false
+
           const vaultPathForPaste = currentVaultPathRef.current
           const noteRelPathForPaste = currentNoteRelPathRef.current
-          if (!file || !vaultPathForPaste || !noteRelPathForPaste) return false
+          if (!vaultPathForPaste || !noteRelPathForPaste) return false
 
           event.preventDefault()
 

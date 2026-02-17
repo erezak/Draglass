@@ -1,5 +1,30 @@
 import { normalizePastedImagesFolder } from '../pastedImagesSettings'
 
+const IMAGE_FILE_EXTENSIONS = new Set([
+  'png',
+  'jpg',
+  'jpeg',
+  'gif',
+  'webp',
+  'avif',
+  'bmp',
+  'svg',
+  'tif',
+  'tiff',
+])
+
+export function isImageMimeType(mimeType: string | null | undefined): boolean {
+  return (mimeType ?? '').toLowerCase().startsWith('image/')
+}
+
+export function hasImageFileExtension(fileName: string | null | undefined): boolean {
+  const trimmed = (fileName ?? '').trim()
+  if (!trimmed) return false
+  const extension = trimmed.split('.').pop()?.toLowerCase()
+  if (!extension) return false
+  return IMAGE_FILE_EXTENSIONS.has(extension)
+}
+
 function extensionForImageMimeType(mimeType: string): string {
   switch (mimeType.toLowerCase()) {
     case 'image/png':

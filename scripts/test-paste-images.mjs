@@ -62,5 +62,10 @@ assert.equal(
   pastedImage.imageEmbedWikilinkForPath('assets/my-note-1700000000000-abc123.png'),
   '![[assets/my-note-1700000000000-abc123.png]]',
 )
+assert.equal(pastedImage.isImageMimeType('image/png'), true)
+assert.equal(pastedImage.isImageMimeType('IMAGE/JPEG'), true)
+assert.equal(pastedImage.isImageMimeType('text/plain'), false)
+assert.equal(pastedImage.hasImageFileExtension('screenshot.PNG'), true)
+assert.equal(pastedImage.hasImageFileExtension('clipboard-image'), false)
 
 console.log('paste-images: ok')
