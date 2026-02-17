@@ -745,11 +745,7 @@ export function GraphCanvas({
 
         draggedNode.fx = null
         draggedNode.fy = null
-        draggedNode.vx = 0
-        draggedNode.vy = 0
         nodeDragRef.current = { active: false, node: null, startX: 0, startY: 0, moved: false }
-        simulationRef.current?.tick()
-        simulationRef.current?.stop()
         renderGraph()
 
         if (!moved) {
