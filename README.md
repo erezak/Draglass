@@ -116,3 +116,11 @@ Draglass is built with these principles:
 - **Minimal dependencies**: Only add what's necessary
 - **Small changes**: Prefer reviewable, incremental improvements
 - **Local-first**: User data stays local and private by default
+
+## Wikilink conversion CLI
+
+You can convert Obsidian-style wikilinks to standard Markdown using the included CLI:
+
+	npm run convert-wikilinks -- path/to/file.md
+
+See docs/feature-wikilink-cli.md for details.
