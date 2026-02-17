@@ -39,7 +39,15 @@ export type TagMatch = {
   tag: string
 }
 
+export type HighlightMatch = {
+  markerFrom: number
+  markerTo: number
+  textFrom: number
+  textTo: number
+}
+
 const TAG_RE = /(^|[^A-Za-z0-9_/])#([A-Za-z0-9][A-Za-z0-9_-]*(?:\/[A-Za-z0-9][A-Za-z0-9_-]*)*)/g
+const HIGHLIGHT_RE = /==([^=]+)==/g
 
 export function extractWikilinkAt(text: string, offset: number): WikilinkMatch | null {
   if (offset < 0 || offset > text.length) return null
@@ -71,4 +79,18 @@ export function extractTagAt(text: string, offset: number): TagMatch | null {
   }
 
   return null
+}
+
+export function extractHighlightMatches(text: string): HighlightMatch[] {
+  const matches: HighlightMatch[] = []
+  for (const match of text.matchAll(HIGHLIGHT_RE)) {
+    if (match.index == null) continue
+    const content = match[1] ?? ''
+    const markerFrom = match.index
+    const textFrom = markerFrom + 2
+    const textTo = textFrom + content.length
+    const markerTo = textTo + 2
+    matches.push({ markerFrom, markerTo, textFrom, textTo })
+  }
+  return matches
 }
