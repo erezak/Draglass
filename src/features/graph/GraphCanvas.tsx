@@ -694,7 +694,6 @@ export function GraphCanvas({
         node.fx = node.x
         node.fy = node.y
         nodeDragRef.current = { active: true, node, startX: e.clientX, startY: e.clientY, moved: false }
-        simulationRef.current?.alphaTarget(0.2).restart()
         return
       }
 
@@ -722,6 +721,7 @@ export function GraphCanvas({
         node.fy = y
         node.x = x
         node.y = y
+        simulationRef.current?.tick()
         renderGraph()
         return
       }
@@ -745,8 +745,12 @@ export function GraphCanvas({
 
         draggedNode.fx = null
         draggedNode.fy = null
+        draggedNode.vx = 0
+        draggedNode.vy = 0
         nodeDragRef.current = { active: false, node: null, startX: 0, startY: 0, moved: false }
-        simulationRef.current?.alphaTarget(0)
+        simulationRef.current?.tick()
+        simulationRef.current?.stop()
+        renderGraph()
 
         if (!moved) {
           const rect = container.getBoundingClientRect()
