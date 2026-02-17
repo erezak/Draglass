@@ -28,7 +28,7 @@ import { useTags } from './features/tags/useTags'
 import { useEditorTheme } from './features/theme/useEditorTheme'
 import { useVault } from './features/vault/useVault'
 import { useVaultAuth, hasVaultPassword, checkVaultPassword } from './features/vault/useVaultAuth'
-import { createDir, createNote, isTauri, onVaultFileChanged, readNote, rebuildIndex, writeNote } from './tauri'
+import { createDir, createNote, isTauri, onVaultFileChanged, printMainWindow, readNote, rebuildIndex, writeNote } from './tauri'
 import { mergeFrontmatterForTemplateInsert, renderTemplate } from './templateRenderer'
 import { listTemplateFiles, normalizeTemplatesFolder } from './templates'
 import { parseFrontmatter } from './frontmatter'
@@ -1014,13 +1014,13 @@ function App() {
     }
   }, [ensureTemplatesFolderExists, setError, vaultPath])
 
-  const exportCurrentNoteAsPdf = useCallback(() => {
+  const exportCurrentNoteAsPdf = useCallback(async () => {
     if (!activeRelPath || graphViewOpen) return
     const baseTitle = noteTitle ?? fileStem(activeRelPath)
 
     const includeTitle = window.confirm('Include the file name as an H1 title in the PDF?')
 
-    exportNoteAsPdf(noteText, { title: baseTitle, includeTitle })
+    await exportNoteAsPdf(noteText, { title: baseTitle, includeTitle }, () => printMainWindow())
   }, [activeRelPath, graphViewOpen, noteText, noteTitle])
 
   const dailyTemplateRelPath = useMemo(
@@ -1169,11 +1169,7 @@ function App() {
       description: 'Export the current note to a printable PDF document',
       enabled: !!activeRelPath && !graphViewOpen,
       onExecute: () => {
-        try {
-          exportCurrentNoteAsPdf()
-        } catch (e) {
-          setError(String(e))
-        }
+        void exportCurrentNoteAsPdf().catch((e) => setError(String(e)))
       },
     },
     {

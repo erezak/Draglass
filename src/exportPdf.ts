@@ -44,7 +44,11 @@ export function buildPdfDocumentHtml(noteText: string, options: { title: string;
 </html>`
 }
 
-export function exportNoteAsPdf(noteText: string, options: { title: string; includeTitle: boolean }): void {
+export async function exportNoteAsPdf(
+  noteText: string,
+  options: { title: string; includeTitle: boolean },
+  triggerPrint: () => void | Promise<void> = () => window.print(),
+): Promise<void> {
   if (!document.body) {
     throw new Error('Unable to start PDF export because the document is not ready.')
   }
@@ -110,5 +114,5 @@ export function exportNoteAsPdf(noteText: string, options: { title: string; incl
   document.body.appendChild(printRoot)
   window.addEventListener('afterprint', onAfterPrint, { once: true })
   cleanupTimeout = window.setTimeout(cleanup, PRINT_CLEANUP_TIMEOUT_MS)
-  window.print()
+  await triggerPrint()
 }
