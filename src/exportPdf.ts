@@ -1,4 +1,6 @@
 const PRINT_CLEANUP_TIMEOUT_MS = 15_000
+const PRINT_ROOT_ID = 'draglass-pdf-export-root'
+const PRINT_STYLE_ID = 'draglass-pdf-export-style'
 
 function escapeHtml(value: string): string {
   return value
@@ -47,47 +49,66 @@ export function exportNoteAsPdf(noteText: string, options: { title: string; incl
     throw new Error('Unable to start PDF export because the document is not ready.')
   }
 
-  const iframe = document.createElement('iframe')
-  iframe.style.position = 'fixed'
-  iframe.style.width = '0'
-  iframe.style.height = '0'
-  iframe.style.border = '0'
-  iframe.style.right = '0'
-  iframe.style.bottom = '0'
-  iframe.style.visibility = 'hidden'
-  iframe.setAttribute('sandbox', 'allow-modals allow-same-origin')
-  iframe.srcdoc = buildPdfDocumentHtml(noteText, options)
-
   let cleanupTimeout: ReturnType<typeof window.setTimeout> | null = null
-  let printWindow: Window | null = null
   const onAfterPrint = () => cleanup()
+  const previousRoot = document.getElementById(PRINT_ROOT_ID)
+  const previousStyle = document.getElementById(PRINT_STYLE_ID)
+  previousRoot?.remove()
+  previousStyle?.remove()
+
+  const printRoot = document.createElement('div')
+  printRoot.id = PRINT_ROOT_ID
+  if (options.includeTitle) {
+    const heading = document.createElement('h1')
+    heading.textContent = options.title
+    printRoot.appendChild(heading)
+  }
+  const pre = document.createElement('pre')
+  pre.textContent = noteText
+  printRoot.appendChild(pre)
+
+  const printStyle = document.createElement('style')
+  printStyle.id = PRINT_STYLE_ID
+  printStyle.textContent = `
+@media print {
+  body * { visibility: hidden !important; }
+  #${PRINT_ROOT_ID}, #${PRINT_ROOT_ID} * { visibility: visible !important; }
+  #${PRINT_ROOT_ID} {
+    position: fixed;
+    inset: 0;
+    padding: 32px;
+    background: #fff;
+    color: #111827;
+  }
+  #${PRINT_ROOT_ID} h1 {
+    margin: 0 0 24px;
+    font-size: 32px;
+    line-height: 1.2;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  #${PRINT_ROOT_ID} pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}`
+
   const cleanup = () => {
-    if (printWindow) {
-      printWindow.removeEventListener('afterprint', onAfterPrint)
-      printWindow = null
-    }
+    window.removeEventListener('afterprint', onAfterPrint)
     if (cleanupTimeout !== null) {
       window.clearTimeout(cleanupTimeout)
       cleanupTimeout = null
     }
-    if (iframe.parentNode) {
-      iframe.parentNode.removeChild(iframe)
-    }
+    printRoot.remove()
+    printStyle.remove()
   }
 
-  iframe.addEventListener('load', () => {
-    printWindow = iframe.contentWindow
-    if (!printWindow) {
-      cleanup()
-      console.error('Unable to open PDF print context.')
-      return
-    }
-
-    printWindow.addEventListener('afterprint', onAfterPrint, { once: true })
-    cleanupTimeout = window.setTimeout(cleanup, PRINT_CLEANUP_TIMEOUT_MS)
-    printWindow.focus()
-    printWindow.print()
-  }, { once: true })
-
-  document.body.appendChild(iframe)
+  document.body.appendChild(printStyle)
+  document.body.appendChild(printRoot)
+  window.addEventListener('afterprint', onAfterPrint, { once: true })
+  cleanupTimeout = window.setTimeout(cleanup, PRINT_CLEANUP_TIMEOUT_MS)
+  window.print()
 }
