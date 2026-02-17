@@ -1014,23 +1014,11 @@ function App() {
     }
   }, [ensureTemplatesFolderExists, setError, vaultPath])
 
-  const exportCurrentNoteAsPdf = useCallback(async () => {
+  const exportCurrentNoteAsPdf = useCallback(() => {
     if (!activeRelPath || graphViewOpen) return
     const baseTitle = noteTitle ?? fileStem(activeRelPath)
 
-    let includeTitle = true
-    try {
-      if (isTauri()) {
-        includeTitle = await confirm('Include the file name as an H1 title in the PDF?', {
-          title: 'Export as PDF',
-          kind: 'info',
-        })
-      } else {
-        includeTitle = window.confirm('Include the file name as an H1 title in the PDF?')
-      }
-    } catch {
-      includeTitle = window.confirm('Include the file name as an H1 title in the PDF?')
-    }
+    const includeTitle = window.confirm('Include the file name as an H1 title in the PDF?')
 
     exportNoteAsPdf(noteText, { title: baseTitle, includeTitle })
   }, [activeRelPath, graphViewOpen, noteText, noteTitle])
@@ -1181,7 +1169,11 @@ function App() {
       description: 'Export the current note to a printable PDF document',
       enabled: !!activeRelPath && !graphViewOpen,
       onExecute: () => {
-        void exportCurrentNoteAsPdf().catch((e) => setError(String(e)))
+        try {
+          exportCurrentNoteAsPdf()
+        } catch (e) {
+          setError(String(e))
+        }
       },
     },
     {
