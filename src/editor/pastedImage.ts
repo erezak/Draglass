@@ -13,6 +13,14 @@ const IMAGE_FILE_EXTENSIONS = new Set([
   'tiff',
 ])
 
+const IMAGE_CLIPBOARD_TYPE_HINTS = new Set([
+  'files',
+  'public.tiff',
+  'public.png',
+  'public.jpeg',
+  'public.jpg',
+])
+
 export function isImageMimeType(mimeType: string | null | undefined): boolean {
   return (mimeType ?? '').toLowerCase().startsWith('image/')
 }
@@ -33,6 +41,12 @@ export function isLikelyClipboardImageFileMeta(
   if (isImageMimeType(mimeType)) return true
   if (hasImageFileExtension(fileName)) return true
   return (mimeType ?? '').trim() === '' && sizeBytes > 0
+}
+
+export function isLikelyImageClipboardType(type: string | null | undefined): boolean {
+  const normalized = (type ?? '').trim().toLowerCase()
+  if (!normalized) return false
+  return isImageMimeType(normalized) || IMAGE_CLIPBOARD_TYPE_HINTS.has(normalized)
 }
 
 function extensionForImageMimeType(mimeType: string): string {

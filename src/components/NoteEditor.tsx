@@ -25,6 +25,7 @@ import { createWikilinkCompletionExtension } from '../editor/wikilinkCompletion'
 import {
   buildPastedImageRelPath,
   imageEmbedWikilinkForPath,
+  isLikelyImageClipboardType,
   isLikelyClipboardImageFileMeta,
 } from '../editor/pastedImage'
 import type { HeadingSection, LockedBodyRange } from '../lockedSections'
@@ -552,8 +553,14 @@ export const NoteEditor = function NoteEditor({
               (candidate) =>
                 isLikelyClipboardImageFileMeta(candidate.type, candidate.name, candidate.size),
             ) ?? null
+          const clipboardTypes = Array.from(clipboard.types ?? [])
+          const shouldTryNavigatorClipboardRead =
+            imageFromItem == null &&
+            imageFromFiles == null &&
+            clipboardTypes.some((type) => isLikelyImageClipboardType(type))
+
           const file = imageFromItem ?? imageFromFiles
-          if (!file) return false
+          if (!file && !shouldTryNavigatorClipboardRead) return false
 
           const vaultPathForPaste = currentVaultPathRef.current
           const noteRelPathForPaste = currentNoteRelPathRef.current
@@ -562,6 +569,36 @@ export const NoteEditor = function NoteEditor({
           event.preventDefault()
 
           void (async () => {
+            const resolvedFile =
+              file ??
+              (await (async () => {
+                if (
+                  typeof navigator === 'undefined' ||
+                  !navigator.clipboard ||
+                  typeof navigator.clipboard.read !== 'function'
+                ) {
+                  return null
+                }
+                try {
+                  const clipboardItems = await navigator.clipboard.read()
+                  for (const item of clipboardItems) {
+                    const preferredType = item.types.find((type) => isLikelyImageClipboardType(type))
+                    if (!preferredType) continue
+                    const blob = await item.getType(preferredType)
+                    return {
+                      type: blob.type || (preferredType.toLowerCase() === 'public.tiff' ? 'image/tiff' : 'image/png'),
+                      name: '',
+                      size: blob.size,
+                      arrayBuffer: () => blob.arrayBuffer(),
+                    }
+                  }
+                } catch {
+                  return null
+                }
+                return null
+              })())
+            if (!resolvedFile) return
+
             const folder = currentPastedImagesFolderRef.current
             try {
               await createDir(vaultPathForPaste, folder)
@@ -575,13 +612,13 @@ export const NoteEditor = function NoteEditor({
             const relPath = buildPastedImageRelPath(
               folder,
               noteRelPathForPaste,
-              file.type,
+              resolvedFile.type,
               Date.now(),
               typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
                 ? crypto.randomUUID().slice(0, 8)
                 : Math.random().toString(36).slice(2, 10),
             )
-            const bytes = Array.from(new Uint8Array(await file.arrayBuffer()))
+            const bytes = Array.from(new Uint8Array(await resolvedFile.arrayBuffer()))
             await writeVaultAsset(vaultPathForPaste, relPath, bytes)
 
             const embed = imageEmbedWikilinkForPath(relPath)

@@ -71,5 +71,9 @@ assert.equal(pastedImage.isLikelyClipboardImageFileMeta('image/png', '', 0), tru
 assert.equal(pastedImage.isLikelyClipboardImageFileMeta('', 'screenshot.jpeg', 1), true)
 assert.equal(pastedImage.isLikelyClipboardImageFileMeta('', '', 512), true)
 assert.equal(pastedImage.isLikelyClipboardImageFileMeta('text/plain', '', 512), false)
+assert.equal(pastedImage.isLikelyImageClipboardType('image/png'), true)
+assert.equal(pastedImage.isLikelyImageClipboardType('Files'), true)
+assert.equal(pastedImage.isLikelyImageClipboardType('public.tiff'), true)
+assert.equal(pastedImage.isLikelyImageClipboardType('text/plain'), false)
 
 console.log('paste-images: ok')
