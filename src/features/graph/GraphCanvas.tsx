@@ -138,7 +138,6 @@ export function GraphCanvas({
     startY: 0,
     moved: false,
   })
-  const suppressNodeClickRef = useRef<string | null>(null)
   const renderFnRef = useRef<(() => void) | null>(null)
   const initialBackgroundRef = useRef<number | null>(null)
   const [initialized, setInitialized] = useState(false)
@@ -377,14 +376,6 @@ export function GraphCanvas({
           const globalPos = e.global
           onNodeRightClickRef.current(node.id, globalPos.x, globalPos.y)
         }
-      })
-
-      graphics.on('click', () => {
-        if (suppressNodeClickRef.current === node.id) {
-          suppressNodeClickRef.current = null
-          return
-        }
-        onNodeClickRef.current(node.id)
       })
 
       nodeContainer.addChild(graphics)
@@ -746,16 +737,28 @@ export function GraphCanvas({
       renderGraph()
     }
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
       if (nodeDragRef.current.active && nodeDragRef.current.node) {
         const draggedNode = nodeDragRef.current.node
-        if (nodeDragRef.current.moved) {
-          suppressNodeClickRef.current = draggedNode.id
-        }
+        const moved = nodeDragRef.current.moved
+          || movedBeyondThreshold(nodeDragRef.current.startX, nodeDragRef.current.startY, e.clientX, e.clientY)
+
         draggedNode.fx = null
         draggedNode.fy = null
         nodeDragRef.current = { active: false, node: null, startX: 0, startY: 0, moved: false }
         simulationRef.current?.alphaTarget(0)
+
+        if (!moved) {
+          const rect = container.getBoundingClientRect()
+          const viewport = viewportRef.current
+          const x = (e.clientX - rect.left - viewport.x) / viewport.scale
+          const y = (e.clientY - rect.top - viewport.y) / viewport.scale
+          const releasedNode = pickNodeAtWorldPoint(nodesRef.current, x, y, displayRef.current.nodeSize)
+          if (releasedNode?.id === draggedNode.id) {
+            onNodeClickRef.current(draggedNode.id)
+          }
+        }
+
         return
       }
 
