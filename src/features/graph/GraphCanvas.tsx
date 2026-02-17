@@ -736,8 +736,9 @@ export function GraphCanvas({
 
     const handleMouseUp = () => {
       if (nodeDragRef.current.active && nodeDragRef.current.node) {
-        nodeDragRef.current.node.fx = null
-        nodeDragRef.current.node.fy = null
+        const draggedNode = nodeDragRef.current.node
+        draggedNode.fx = null
+        draggedNode.fy = null
         nodeDragRef.current = { active: false, node: null }
         simulationRef.current?.alphaTarget(0)
         return
