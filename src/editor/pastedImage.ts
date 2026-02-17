@@ -44,7 +44,7 @@ export function buildPastedImageRelPath(
   const stem = noteName.replace(/\.[^/.]+$/, '')
   const ext = extensionForImageMimeType(mimeType)
   const safeStem = sanitizeSegment(stem)
-  const safeRandom = sanitizeSegment(randomSuffix).slice(0, 8) || 'img'
+  const safeRandom = sanitizeSegment(randomSuffix).slice(0, 12) || String(timestampMs)
   return `${normalizedFolder}/${safeStem}-${timestampMs}-${safeRandom}.${ext}`
 }
 

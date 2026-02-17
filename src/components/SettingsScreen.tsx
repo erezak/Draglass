@@ -133,7 +133,7 @@ export function SettingsScreen({
                 onChange={onToggle('filesRememberExpandedFolders')}
               />
             </label>
-            <label className="settingsRow settingsRow--number">
+            <label className="settingsRow">
               <span>Pasted images folder</span>
               <input
                 type="text"

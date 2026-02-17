@@ -560,7 +560,9 @@ export const NoteEditor = function NoteEditor({
               noteRelPathForPaste,
               file.type,
               Date.now(),
-              Math.random().toString(36).slice(2, 8),
+              typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+                ? crypto.randomUUID().slice(0, 8)
+                : Math.random().toString(36).slice(2, 10),
             )
             const bytes = Array.from(new Uint8Array(await file.arrayBuffer()))
             await writeVaultAsset(vaultPathForPaste, relPath, bytes)
