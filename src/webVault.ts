@@ -24,8 +24,15 @@ interface StoredNote {
   mtime_ms: number
 }
 
+interface StoredAsset {
+  bytes: number[]
+  mime: string
+  mtime_ms: number
+}
+
 class InMemoryVault {
   private notes: Map<string, StoredNote> = new Map()
+  private assets: Map<string, StoredAsset> = new Map()
   private initialized = false
 
   async initialize(): Promise<void> {
@@ -115,6 +122,14 @@ class InMemoryVault {
       throw new Error(`Note not found: ${relPath}`)
     }
     this.notes.delete(relPath)
+  }
+
+  writeVaultAsset(relPath: string, bytes: number[]): void {
+    this.assets.set(relPath, {
+      bytes: [...bytes],
+      mime: this.imageMimeForPath(relPath),
+      mtime_ms: Date.now(),
+    })
   }
 
   findBacklinks(targetTitle: string, excludeLocked: boolean): string[] {
@@ -338,9 +353,38 @@ class InMemoryVault {
     return results.sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }))
   }
 
-  readVaultImage(): VaultImageResponse {
-    // Images not supported in web mode
-    throw new Error('Image reading not supported in web mode')
+  private imageMimeForPath(relPath: string): string {
+    const ext = relPath.split('.').pop()?.toLowerCase() ?? ''
+    switch (ext) {
+      case 'png':
+        return 'image/png'
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg'
+      case 'gif':
+        return 'image/gif'
+      case 'webp':
+        return 'image/webp'
+      case 'svg':
+        return 'image/svg+xml'
+      case 'avif':
+        return 'image/avif'
+      case 'bmp':
+        return 'image/bmp'
+      case 'tif':
+      case 'tiff':
+        return 'image/tiff'
+      default:
+        return 'application/octet-stream'
+    }
+  }
+
+  readVaultImage(relPath: string): VaultImageResponse {
+    const asset = this.assets.get(relPath)
+    if (!asset) {
+      throw new Error(`Asset not found: ${relPath}`)
+    }
+    return { bytes: [...asset.bytes], mime: asset.mime, mtime_ms: asset.mtime_ms }
   }
 }
 
@@ -407,9 +451,18 @@ export async function webDeleteNote(_vaultPath: string, relPath: string): Promis
   vault.deleteNote(relPath)
 }
 
-export async function webReadVaultImage(): Promise<VaultImageResponse> {
+export async function webReadVaultImage(_vaultPath: string, relPath: string): Promise<VaultImageResponse> {
   const vault = await getWebVault()
-  return vault.readVaultImage()
+  return vault.readVaultImage(relPath)
+}
+
+export async function webWriteVaultAsset(
+  _vaultPath: string,
+  relPath: string,
+  bytes: number[],
+): Promise<void> {
+  const vault = await getWebVault()
+  vault.writeVaultAsset(relPath, bytes)
 }
 
 export async function webFindBacklinks(

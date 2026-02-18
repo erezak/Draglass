@@ -96,6 +96,11 @@ export type VaultImageResponse = {
   mtime_ms: number
 }
 
+export type ClipboardImageResponse = {
+  bytes: number[]
+  mime: string
+}
+
 // Detect if we're running in Tauri or plain web browser
 export function isTauri(): boolean {
   if (typeof window === 'undefined') return false
@@ -234,6 +239,18 @@ async function tauriReadVaultImage(
   return invoke<VaultImageResponse>('read_vault_image', { vaultPath, relPath })
 }
 
+async function tauriWriteVaultAsset(
+  vaultPath: string,
+  relPath: string,
+  bytes: number[],
+): Promise<void> {
+  return invoke<void>('write_vault_asset', { vaultPath, relPath, bytes })
+}
+
+async function tauriReadClipboardImage(): Promise<ClipboardImageResponse | null> {
+  return invoke<ClipboardImageResponse | null>('read_clipboard_image')
+}
+
 export async function readVaultImage(
   vaultPath: string,
   relPath: string,
@@ -242,8 +259,26 @@ export async function readVaultImage(
     return tauriReadVaultImage(vaultPath, relPath)
   } else {
     const { webReadVaultImage } = await import('./webVault')
-    return webReadVaultImage()
+    return webReadVaultImage(vaultPath, relPath)
   }
+}
+
+export async function writeVaultAsset(
+  vaultPath: string,
+  relPath: string,
+  bytes: number[],
+): Promise<void> {
+  if (isTauri()) {
+    return tauriWriteVaultAsset(vaultPath, relPath, bytes)
+  } else {
+    const { webWriteVaultAsset } = await import('./webVault')
+    return webWriteVaultAsset(vaultPath, relPath, bytes)
+  }
+}
+
+export async function readClipboardImage(): Promise<ClipboardImageResponse | null> {
+  if (!isTauri()) return null
+  return tauriReadClipboardImage()
 }
 
 async function tauriFindBacklinks(

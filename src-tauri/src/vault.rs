@@ -171,6 +171,23 @@ fn resolve_folder_path_for_create(vault_path: &str, rel_path: &str) -> Result<Pa
     Ok(candidate)
 }
 
+fn resolve_asset_path_for_create(vault_path: &str, rel_path: &str) -> Result<PathBuf, String> {
+    let vault =
+        std::fs::canonicalize(vault_path).map_err(|e| format!("invalid vault path: {e}"))?;
+    if !vault.is_dir() {
+        return Err("vault path is not a directory".to_string());
+    }
+
+    let rel = sanitize_rel_path(rel_path)?;
+    let candidate = vault.join(rel);
+
+    if !candidate.starts_with(&vault) {
+        return Err("asset path escapes vault".to_string());
+    }
+
+    Ok(candidate)
+}
+
 pub fn list_markdown_files_impl(vault_path: &str) -> Result<Vec<NoteEntry>, String> {
     let vault =
         std::fs::canonicalize(vault_path).map_err(|e| format!("invalid vault path: {e}"))?;
@@ -290,6 +307,19 @@ pub fn read_vault_image_impl(vault_path: &str, rel_path: &str) -> Result<VaultIm
         mime: mime_for_path(&path),
         mtime_ms,
     })
+}
+
+pub fn write_vault_asset_impl(vault_path: &str, rel_path: &str, bytes: &[u8]) -> Result<(), String> {
+    let path = resolve_asset_path_for_create(vault_path, rel_path)?;
+    if path.exists() {
+        return Err("asset already exists".to_string());
+    }
+
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| format!("failed to create asset folder: {e}"))?;
+    }
+
+    std::fs::write(path, bytes).map_err(|e| format!("failed to write asset: {e}"))
 }
 
 pub fn search_vault_impl(
