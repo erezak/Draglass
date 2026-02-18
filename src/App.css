@@ -718,98 +718,123 @@
 .fileTree {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .fileTreeChildren {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .folderItem {
   width: 100%;
   text-align: left;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--panel-border);
   background: var(--panel-bg);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
+  transition: all var(--transition-base);
+  font-weight: 600;
+  font-size: 13px;
 }
 
 .folderItem--selected {
-  border-color: var(--button-hover-border);
+  border-color: var(--bauhaus-blue);
   background: var(--highlight);
+  box-shadow: inset 2px 0 0 var(--bauhaus-blue);
 }
 
 .folderItem:hover {
-  border-color: var(--button-hover-border);
+  border-color: var(--bauhaus-blue);
+  background: var(--button-hover-bg);
+  transform: translateX(2px);
 }
 
 .caret {
   width: 14px;
   display: inline-block;
-  opacity: 0.85;
+  opacity: 0.7;
+  transition: transform var(--transition-base);
 }
 
 .fileItem,
 .linkItem {
   width: 100%;
   text-align: left;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--panel-border);
   background: var(--panel-bg);
+  transition: all var(--transition-base);
+  font-size: 13px;
+  font-weight: 500;
 }
+
 .tagItem {
   width: 100%;
   text-align: left;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--panel-border);
   background: var(--panel-bg);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-2);
+  transition: all var(--transition-base);
 }
 
 .tagItem--active {
-  border-color: var(--button-hover-border);
+  border-color: var(--bauhaus-yellow);
   background: var(--highlight);
+  box-shadow: inset 2px 0 0 var(--bauhaus-yellow);
 }
 
 .tagItemLabel {
   font-size: 13px;
+  font-weight: 600;
   color: var(--text-primary);
 }
 
 .tagItemCount {
-  font-size: 11px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
-  border: 1px solid var(--panel-border);
-  border-radius: 999px;
-  padding: 2px 6px;
+  border: 2px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
   background: var(--panel-bg);
 }
+
 .tagNoteList {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-2);
   max-height: min(40vh, 320px);
   overflow: auto;
-  padding-right: 2px;
+  padding-right: var(--space-1);
 }
 
 .tagNoteItem {
   width: 100%;
   text-align: left;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--panel-border);
   background: var(--panel-bg);
+  transition: all var(--transition-base);
+}
+
+.tagNoteItem:hover {
+  border-color: var(--bauhaus-blue);
+  background: var(--highlight);
+  transform: translateX(2px);
 }
 
 .tagNoteTitle {
@@ -819,35 +844,44 @@
 }
 
 .tagNoteMeta {
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
 }
 
 .taskItem {
   width: 100%;
   text-align: left;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--panel-border);
   background: var(--panel-bg);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
+  transition: all var(--transition-base);
 }
 
 .fileItem:hover,
 .linkItem:hover {
-  border-color: var(--button-hover-border);
+  border-color: var(--bauhaus-blue);
+  background: var(--button-hover-bg);
+  transform: translateX(2px);
 }
 
 .taskItem:hover {
-  border-color: var(--button-hover-border);
+  border-color: var(--bauhaus-blue);
   background: var(--highlight);
+  transform: translateX(2px);
 }
 
 .fileItem.active {
-  border-color: var(--button-hover-border);
+  border-color: var(--bauhaus-blue);
   background: var(--highlight);
+  box-shadow: inset 2px 0 0 var(--bauhaus-blue);
+}
 }
 
 .editorPane {
@@ -858,22 +892,22 @@
 }
 
 .frontmatterPanel {
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 2px solid var(--panel-border);
   background: var(--panel-bg);
-  padding: 12px 16px 16px;
+  padding: var(--space-4) var(--space-5) var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .frontmatterPanel--collapsed {
-  padding-bottom: 12px;
+  padding-bottom: var(--space-4);
 }
 
 .frontmatterHeaderRow {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
   border: none;
   background: transparent;
   padding: 0;
@@ -889,7 +923,7 @@
   justify-content: center;
   color: var(--text-muted);
   opacity: 0;
-  transition: opacity 120ms ease, transform 120ms ease;
+  transition: opacity var(--transition-base), transform var(--transition-base);
 }
 
 .frontmatterToggle svg {
@@ -908,16 +942,17 @@
 }
 
 .frontmatterHeader {
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: var(--text-primary);
 }
 
 .frontmatterList {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-1);
 }
 
 .frontmatterPanel--collapsed .frontmatterList {
@@ -927,19 +962,20 @@
 .frontmatterRow {
   display: grid;
   grid-template-columns: minmax(220px, 280px) minmax(200px, 1fr);
-  gap: 12px;
+  gap: var(--space-4);
   align-items: center;
-  padding: 4px 6px;
-  border-radius: 8px;
-  border: 1px solid transparent;
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
   background: transparent;
-  font-size: 16px;
+  font-size: 15px;
   position: relative;
+  transition: all var(--transition-base);
 }
 
 .frontmatterRow:hover {
-  border-color: rgba(148, 163, 184, 0.35);
-  background: rgba(148, 163, 184, 0.08);
+  border-color: var(--bauhaus-blue);
+  background: var(--button-hover-bg);
 }
 
 .frontmatterRow--adding {
@@ -949,8 +985,9 @@
 .frontmatterKey {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
   color: var(--text-muted);
+  font-weight: 600;
 }
 
 .frontmatterTypeButton {
@@ -959,17 +996,18 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
   background: transparent;
   padding: 0;
   cursor: pointer;
   color: var(--text-muted);
+  transition: all var(--transition-base);
 }
 
 .frontmatterTypeButton:hover {
-  background: rgba(148, 163, 184, 0.12);
-  border-color: rgba(148, 163, 184, 0.2);
+  background: var(--button-hover-bg);
+  border-color: var(--bauhaus-blue);
   color: var(--text-primary);
 }
 
@@ -984,16 +1022,18 @@
 .frontmatterValueInput {
   width: 100%;
   border: none;
-  border-radius: 6px;
-  padding: 4px 4px;
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-1);
   background: transparent;
   color: var(--text-primary);
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 500;
   outline: none;
+  transition: background var(--transition-base);
 }
 
 .frontmatterKeyInput {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-muted);
   text-transform: none;
 }
@@ -1010,31 +1050,32 @@
 .frontmatterKeyInput:focus,
 .frontmatterValueInput:focus {
   background: var(--button-bg);
-  box-shadow: inset 0 0 0 1px var(--button-hover-border);
+  box-shadow: inset 0 0 0 2px var(--bauhaus-blue);
 }
 
 .frontmatterValue {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .frontmatterValue input[type='checkbox'] {
   width: 20px;
   height: 20px;
-  accent-color: #7aa2ff;
+  accent-color: var(--bauhaus-blue);
+  cursor: pointer;
 }
 
 .frontmatterTypeMenu {
   position: absolute;
-  top: calc(100% + 6px);
-  left: 8px;
+  top: calc(100% + var(--space-2));
+  left: var(--space-2);
   min-width: 180px;
-  border-radius: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--bauhaus-blue);
   background: var(--panel-solid);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
-  padding: 6px;
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-2);
   z-index: 20;
 }
 
@@ -1043,27 +1084,32 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-3);
   border: none;
-  border-radius: 8px;
-  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
   background: transparent;
   color: var(--text-primary);
   font-size: 14px;
+  font-weight: 600;
   text-align: left;
   cursor: pointer;
+  transition: all var(--transition-base);
 }
 
 .frontmatterTypeMenuItem:hover {
-  background: rgba(148, 163, 184, 0.15);
+  background: var(--highlight);
+  border-left: 2px solid var(--bauhaus-blue);
+  padding-left: calc(var(--space-3) - 2px);
 }
 
 .frontmatterTypeMenuCheck {
-  color: var(--text-muted);
+  color: var(--bauhaus-blue);
 }
 
 :root[data-theme='light'] .frontmatterValue input[type='checkbox'] {
-  accent-color: #406adf;
+  accent-color: var(--bauhaus-blue);
+}
 }
 
 .frontmatterActions {
@@ -2357,30 +2403,32 @@
 .graphHeader {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--panel-border);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 2px solid var(--panel-border);
   background: var(--panel-bg);
 }
 
 .graphHeaderSearch {
   flex: 1;
-  max-width: 280px;
+  max-width: 300px;
 }
 
 .graphSearchInput {
   width: 100%;
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-4);
   font-size: 13px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--panel-border);
   background: var(--button-bg);
   color: var(--text-primary);
   outline: none;
+  transition: border-color var(--transition-base);
 }
 
 .graphSearchInput:focus {
-  border-color: var(--button-hover-border);
+  border-color: var(--bauhaus-blue);
 }
 
 .graphSearchInput::placeholder {
@@ -2390,57 +2438,66 @@
 .graphHeaderActions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   margin-left: auto;
 }
 
 .graphScopeToggle {
-  padding: 6px 12px;
-  font-size: 12px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border-strong);
+  padding: var(--space-2) var(--space-4);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--panel-border-strong);
   background: var(--button-bg);
   color: var(--text-primary);
+  transition: all var(--transition-base);
 }
 
 .graphScopeToggle:hover {
-  border-color: var(--button-hover-border);
+  border-color: var(--bauhaus-blue);
+  background: var(--button-hover-bg);
 }
 
 .graphScopeToggle--local {
   background: var(--highlight);
-  border-color: var(--button-hover-border);
+  border-color: var(--bauhaus-blue);
+  box-shadow: inset 0 0 0 2px var(--bauhaus-blue);
 }
 
 .graphRefreshButton,
 .graphSettingsButton {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--panel-border-strong);
   background: var(--button-bg);
   color: var(--text-primary);
   padding: 0;
+  transition: all var(--transition-base);
 }
 
 .graphRefreshButton:hover,
 .graphSettingsButton:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  border-color: var(--bauhaus-blue);
+  background: var(--button-hover-bg);
+  transform: scale(1.05);
 }
 
 .graphRefreshButton:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  transform: none;
 }
 
 .graphRefreshIcon,
 .graphSettingsIcon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 .graphRefreshIcon--spinning {
@@ -2930,127 +2987,150 @@
   position: fixed;
   inset: 0;
   background: var(--overlay-bg);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 10vh 16px 16px;
+  padding: 12vh var(--space-4) var(--space-4);
   z-index: 1500;
 }
 
 .vaultAuthModal {
   width: min(400px, 92vw);
-  border-radius: 12px;
-  border: 1px solid var(--panel-border-strong);
+  border-radius: var(--radius-sm);
+  border: 3px solid var(--bauhaus-yellow);
   background: var(--panel-solid);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-xl);
   overflow: hidden;
 }
 
 .vaultAuthHeader {
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--panel-border);
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 2px solid var(--panel-border);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
+  background: var(--panel-bg);
 }
 
 .vaultAuthIcon {
-  width: 24px;
-  height: 24px;
-  color: rgba(255, 180, 96, 0.9);
+  width: 28px;
+  height: 28px;
+  color: var(--bauhaus-yellow);
 }
 
 .vaultAuthTitle {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .vaultAuthBody {
-  padding: 18px;
+  padding: var(--space-6);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--space-5);
 }
 
 .vaultAuthLabel {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-2);
   font-size: 13px;
+  font-weight: 600;
 }
 
 .vaultAuthLabel span {
   color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .vaultAuthInput {
   width: 100%;
   box-sizing: border-box;
-  padding: 10px 12px;
+  padding: var(--space-3) var(--space-4);
   font-size: 14px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--panel-border);
   background: var(--button-bg);
   color: var(--text-primary);
   outline: none;
+  transition: border-color var(--transition-base);
 }
 
 .vaultAuthInput:focus {
-  border-color: var(--button-hover-border);
+  border-color: var(--bauhaus-yellow);
 }
 
 .vaultAuthError {
-  padding: 10px 12px;
+  padding: var(--space-3) var(--space-4);
   font-size: 13px;
-  border-radius: 8px;
-  background: rgba(255, 95, 95, 0.1);
-  border: 1px solid rgba(255, 95, 95, 0.3);
-  color: #ff6b6b;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: rgba(225, 38, 28, 0.1);
+  border: 2px solid var(--bauhaus-red);
+  color: var(--bauhaus-red);
 }
 
 .vaultAuthHint {
   font-size: 12px;
+  font-weight: 500;
   color: var(--text-muted);
+  line-height: 1.5;
 }
 
 .vaultAuthFooter {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 10px;
-  padding: 14px 18px;
-  border-top: 1px solid var(--panel-border);
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  border-top: 2px solid var(--panel-border);
   background: var(--panel-bg);
 }
 
 .vaultAuthCancel,
 .vaultAuthSubmit {
-  padding: 8px 16px;
+  padding: var(--space-3) var(--space-5);
   font-size: 13px;
-  border-radius: 8px;
-  border: 1px solid var(--button-border);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--button-border);
   background: var(--button-bg);
   color: var(--text-primary);
+  transition: all var(--transition-base);
 }
 
 .vaultAuthCancel:hover,
 .vaultAuthSubmit:hover {
-  border-color: var(--button-hover-border);
+  border-color: var(--bauhaus-blue);
+  background: var(--button-hover-bg);
 }
 
 .vaultAuthSubmit {
-  background: rgba(110, 231, 135, 0.15);
-  border-color: rgba(110, 231, 135, 0.4);
+  background: var(--bauhaus-yellow);
+  border-color: var(--bauhaus-yellow);
+  color: var(--bauhaus-black);
 }
 
 .vaultAuthSubmit:hover {
-  background: rgba(110, 231, 135, 0.25);
+  background: var(--bauhaus-yellow);
+  border-color: var(--bauhaus-yellow);
+  color: var(--bauhaus-black);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .vaultAuthSubmit:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  transform: none;
 }
 
 /* ============================================
