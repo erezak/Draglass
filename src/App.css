@@ -15,11 +15,11 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  height: 44px;
+  height: 52px;
   padding: 0 var(--topbar-padding-right) 0 var(--topbar-padding-left);
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: var(--border-thick) solid var(--panel-border);
   background: var(--panel-bg);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 var(--border-thick) 0 var(--panel-border);
 }
 
 .platform-mac .topbar {
@@ -48,9 +48,10 @@
   display: inline-flex;
   gap: 4px;
   padding: 4px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  border-radius: var(--radius-sm);
+  border: var(--border-medium) solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-sm);
 }
 
 .leftPaneCollapseButton {
@@ -65,12 +66,30 @@
 }
 
 .brand {
-  font-weight: 650;
-  letter-spacing: 0.2px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  font-size: 16px;
+  text-transform: uppercase;
 }
 
 .vaultButton {
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
+  border: var(--border-medium) solid var(--panel-border);
+  background: var(--panel-bg);
+  padding: 6px 12px;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.vaultButton:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px var(--panel-border);
+}
+
+.vaultButton:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--panel-border);
 }
 
 .vaultButtonIcon {
@@ -83,30 +102,34 @@
 }
 
 .iconButton {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  border-radius: var(--radius-sm);
+  border: var(--border-medium) solid var(--panel-border);
+  background: var(--panel-bg);
   color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .iconButton:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px var(--panel-border);
 }
 
 .iconButton:active {
-  transform: translateY(1px);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--panel-border);
 }
 
 .iconButton:focus-visible {
-  outline: 2px solid var(--button-hover-border);
-  outline-offset: 2px;
+  outline: var(--border-medium) solid var(--highlight);
+  outline-offset: 3px;
 }
 
 
@@ -158,10 +181,10 @@
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 1px;
-  transform: translateX(-0.5px);
-  background: var(--panel-border-strong);
-  opacity: 0.7;
+  width: var(--border-medium);
+  transform: translateX(-1.5px);
+  background: var(--panel-border);
+  opacity: 1;
 }
 
 .paneResizer--left {
@@ -173,7 +196,7 @@
 }
 
 .paneResizer:hover::after {
-  background: var(--button-hover-border);
+  background: var(--accent);
   opacity: 1;
 }
 
@@ -184,7 +207,7 @@
 
 .toolbox {
   padding: 10px 8px;
-  border-right: 1px solid var(--panel-border);
+  border-right: var(--border-thick) solid var(--panel-border);
   background: var(--panel-bg);
   display: flex;
   flex-direction: column;
@@ -194,32 +217,40 @@
 }
 
 .toolboxButton {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  border-radius: var(--radius-sm);
+  border: var(--border-medium) solid var(--panel-border);
+  background: var(--panel-bg);
   color: var(--toolbox-icon);
   opacity: 1;
   padding: 0;
   line-height: 1;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
 }
 
 .toolboxButton:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent);
   color: var(--text-primary);
   opacity: 1;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px var(--panel-border);
+}
+
+.toolboxButton:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--panel-border);
 }
 
 .toolboxButton--active {
-  border-color: var(--button-hover-border);
   background: var(--highlight);
   color: var(--text-primary);
   opacity: 1;
+  box-shadow: var(--shadow-md);
 }
 
 .toolboxIcon {
@@ -240,7 +271,7 @@
   overflow: hidden;
   min-height: 0;
   min-width: 0;
-  border-right: 1px solid var(--panel-border);
+  border-right: var(--border-thick) solid var(--panel-border);
 }
 
 .paneWrapper.paneHidden,
@@ -278,27 +309,36 @@
   flex-direction: column;
   gap: 6px;
   padding: 8px;
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
+  border: var(--border-medium) solid var(--panel-border);
+  border-radius: var(--radius-md);
   background: var(--panel-bg);
+  box-shadow: var(--shadow-sm);
 }
 
 .leftPaneToggleButton {
   padding: 6px 8px;
-  border-radius: 999px;
-  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  border: var(--border-thin) solid transparent;
   background: transparent;
   font-size: 12px;
+  font-weight: 700;
   color: var(--text-muted);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.leftPaneToggleButton:hover {
+  border-color: var(--panel-border);
+  background: var(--panel-bg);
 }
 
 .leftPaneToggleButton--active {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  border-color: var(--panel-border);
+  background: var(--accent);
   color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .leftPaneActions {
@@ -316,20 +356,31 @@
   padding: 6px 8px;
   min-width: 48px;
   font-size: 12px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  border: var(--border-medium) solid var(--panel-border);
+  background: var(--panel-bg);
   color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .leftPaneActionButton:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--panel-border);
+}
+
+.leftPaneActionButton:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--panel-border);
 }
 
 .leftPaneActionButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .leftPaneActionIcon {
@@ -354,10 +405,19 @@
   box-sizing: border-box;
   padding: 8px 10px;
   font-size: 13px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: var(--border-thin) solid var(--panel-border);
+  background: var(--panel-bg);
   color: var(--text-primary);
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.1);
+  transition: border-width var(--transition-fast);
+}
+
+.searchStubInput:focus {
+  outline: none;
+  border-width: var(--border-medium);
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.2);
 }
 
 .searchStubInput:disabled {
@@ -367,7 +427,7 @@
 .sidebarFooter {
   margin-top: auto;
   padding-top: 10px;
-  border-top: 1px solid var(--panel-border);
+  border-top: var(--border-medium) solid var(--panel-border);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -407,14 +467,15 @@
 }
 
 .settingsButton:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-sm);
   opacity: 1;
 }
 
 .rightPane {
   border-right: none;
-  border-left: 1px solid var(--panel-border);
+  border-left: var(--border-thick) solid var(--panel-border);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -427,16 +488,18 @@
 }
 
 .rightPaneTab {
-  width: 38px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   padding: 0;
-  border-radius: 12px;
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
+  border-radius: var(--radius-sm);
+  border: var(--border-medium) solid var(--panel-border);
+  background: var(--panel-bg);
   color: var(--text-muted);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
 }
 
 .rightPaneTabIcon {
@@ -445,13 +508,21 @@
 }
 
 .rightPaneTab:hover {
-  border-color: var(--button-hover-border);
+  background: var(--accent);
+  color: var(--text-primary);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--panel-border);
+}
+
+.rightPaneTab:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--panel-border);
 }
 
 .rightPaneTab--active {
-  border-color: var(--panel-border-strong);
-  color: var(--text-primary);
   background: var(--highlight);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
 }
 
 .rightPaneScroll {
@@ -673,21 +744,26 @@
   width: 100%;
   text-align: left;
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  border: var(--border-thin) solid var(--panel-border);
   background: var(--panel-bg);
   display: flex;
   align-items: center;
   gap: 6px;
+  font-weight: 700;
+  transition: all var(--transition-fast);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
 }
 
 .folderItem--selected {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  border-width: var(--border-medium);
+  background: var(--accent);
+  box-shadow: var(--shadow-sm);
 }
 
 .folderItem:hover {
-  border-color: var(--button-hover-border);
+  background: var(--accent);
+  transform: translateX(2px);
 }
 
 .caret {
@@ -701,26 +777,51 @@
   width: 100%;
   text-align: left;
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  border: var(--border-thin) solid var(--panel-border);
   background: var(--panel-bg);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+.fileItem:hover,
+.linkItem:hover {
+  background: var(--accent);
+  transform: translateX(2px);
+}
+
+.fileItem--selected,
+.linkItem--selected {
+  border-width: var(--border-medium);
+  background: var(--highlight);
+  box-shadow: var(--shadow-sm);
 }
 .tagItem {
   width: 100%;
   text-align: left;
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  border: var(--border-thin) solid var(--panel-border);
   background: var(--panel-bg);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  font-weight: 700;
+  transition: all var(--transition-fast);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+.tagItem:hover {
+  background: var(--accent);
+  transform: translateX(2px);
 }
 
 .tagItem--active {
-  border-color: var(--button-hover-border);
+  border-width: var(--border-medium);
   background: var(--highlight);
+  box-shadow: var(--shadow-sm);
 }
 
 .tagItemLabel {
@@ -730,11 +831,13 @@
 
 .tagItemCount {
   font-size: 11px;
-  color: var(--text-muted);
-  border: 1px solid var(--panel-border);
-  border-radius: 999px;
+  font-weight: 800;
+  color: var(--text-primary);
+  border: var(--border-thin) solid var(--panel-border);
+  border-radius: var(--radius-sm);
   padding: 2px 6px;
-  background: var(--panel-bg);
+  background: var(--accent);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
 }
 .tagNoteList {
   display: flex;
@@ -749,9 +852,17 @@
   width: 100%;
   text-align: left;
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  border: var(--border-thin) solid var(--panel-border);
   background: var(--panel-bg);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+.tagNoteItem:hover {
+  background: var(--accent);
+  transform: translateX(2px);
 }
 
 .tagNoteTitle {
@@ -1919,22 +2030,24 @@
 
 .qsCard {
   width: min(720px, 96vw);
-  border-radius: 12px;
-  border: 1px solid var(--panel-border-strong);
+  border-radius: var(--radius-md);
+  border: var(--border-thick) solid var(--panel-border);
   background: var(--panel-solid);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
 
 .qsInput {
   width: 100%;
   box-sizing: border-box;
-  padding: 12px 12px;
+  padding: 14px 14px;
   border: none;
+  border-bottom: var(--border-medium) solid var(--panel-border);
   outline: none;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text-primary);
-  background: var(--button-bg);
+  background: var(--accent);
 }
 
 .qsMeta {
@@ -1943,9 +2056,10 @@
   justify-content: space-between;
   gap: 10px;
   font-size: 12px;
+  font-weight: 700;
   color: var(--text-muted);
   padding: 8px 12px;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: var(--border-thin) solid var(--panel-border);
 }
 
 .qsBusy {
@@ -1968,22 +2082,25 @@
   text-align: left;
   padding: 10px 12px;
   border: none;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: var(--border-thin) solid var(--panel-border);
   background: transparent;
   cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
 .qsItem:hover {
-  background: var(--highlight);
+  background: var(--accent);
+  transform: translateX(4px);
 }
 
 .qsItem--selected {
   background: var(--highlight);
+  border-left: var(--border-thick) solid var(--accent);
 }
 
 .qsItemPrimary {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2018,10 +2135,10 @@
 
 .settingsCard {
   width: min(760px, 96vw);
-  border-radius: 14px;
-  border: 1px solid var(--panel-border-strong);
+  border-radius: var(--radius-md);
+  border: var(--border-thick) solid var(--panel-border);
   background: var(--panel-solid);
-  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--shadow-xl);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -2033,12 +2150,15 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 18px;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: var(--border-medium) solid var(--panel-border);
+  background: var(--accent);
 }
 
 .settingsTitle {
-  font-size: 16px;
-  font-weight: 650;
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
 }
 
 .settingsSubtitle {
@@ -2049,9 +2169,22 @@
 
 .settingsClose {
   padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--button-border);
-  background: var(--button-bg);
+  border-radius: var(--radius-sm);
+  border: var(--border-medium) solid var(--panel-border);
+  background: var(--panel-bg);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.settingsClose:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--panel-border);
+}
+
+.settingsClose:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--panel-border);
 }
 
 .settingsBody {
@@ -2087,15 +2220,25 @@
 
 .settingsRow select {
   min-width: 160px;
-  background: var(--button-bg);
+  background: var(--panel-bg);
   color: inherit;
-  border: 1px solid var(--button-border);
-  border-radius: 8px;
+  border: var(--border-thin) solid var(--panel-border);
+  border-radius: var(--radius-sm);
   padding: 6px 10px;
+  font-weight: 500;
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.1);
+  transition: border-width var(--transition-fast);
+}
+
+.settingsRow select:focus {
+  outline: none;
+  border-width: var(--border-medium);
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.2);
 }
 
 .settingsRow input[type='checkbox'] {
-  transform: scale(1.1);
+  transform: scale(1.3);
+  accent-color: var(--accent);
 }
 
 .settingsFooter {
@@ -2104,7 +2247,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 14px 18px;
-  border-top: 1px solid var(--panel-border);
+  border-top: var(--border-medium) solid var(--panel-border);
   background: var(--panel-bg);
 }
 
@@ -2814,16 +2957,17 @@
 
 .vaultAuthModal {
   width: min(400px, 92vw);
-  border-radius: 12px;
-  border: 1px solid var(--panel-border-strong);
+  border-radius: var(--radius-md);
+  border: var(--border-thick) solid var(--panel-border);
   background: var(--panel-solid);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
 
 .vaultAuthHeader {
   padding: 16px 18px;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: var(--border-medium) solid var(--panel-border);
+  background: var(--accent);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -2837,7 +2981,8 @@
 
 .vaultAuthTitle {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .vaultAuthBody {
@@ -2863,15 +3008,19 @@
   box-sizing: border-box;
   padding: 10px 12px;
   font-size: 14px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: var(--border-thin) solid var(--panel-border);
+  background: var(--panel-bg);
   color: var(--text-primary);
   outline: none;
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.1);
+  transition: border-width var(--transition-fast);
 }
 
 .vaultAuthInput:focus {
-  border-color: var(--button-hover-border);
+  border-width: var(--border-medium);
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.2);
 }
 
 .vaultAuthError {
