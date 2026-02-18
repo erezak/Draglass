@@ -108,6 +108,56 @@ pub struct ClipboardImage {
     pub mime: String,
 }
 
+fn parse_applescript_data_output(output: &str) -> Option<Vec<u8>> {
+    let re = regex::Regex::new(r"(?is)«data [a-z0-9]{4}([0-9a-f\s]+)»").ok()?;
+    let captures = re.captures(output)?;
+    let mut hex = captures.get(1)?.as_str().to_string();
+    hex.retain(|ch| ch.is_ascii_hexdigit());
+    if hex.is_empty() || hex.len() % 2 != 0 {
+        return None;
+    }
+
+    let mut out = Vec::with_capacity(hex.len() / 2);
+    let bytes = hex.as_bytes();
+    for i in (0..bytes.len()).step_by(2) {
+        let pair = std::str::from_utf8(&bytes[i..i + 2]).ok()?;
+        out.push(u8::from_str_radix(pair, 16).ok()?);
+    }
+    Some(out)
+}
+
+#[cfg(target_os = "macos")]
+fn read_clipboard_image_applescript(class_code: &str, mime: &str) -> Option<ClipboardImage> {
+    let script = format!(
+        "set theData to the clipboard as «class {class_code}»\nreturn theData"
+    );
+    let output = std::process::Command::new("osascript")
+        .arg("-e")
+        .arg(script)
+        .output()
+        .ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    let stdout = String::from_utf8(output.stdout).ok()?;
+    let bytes = parse_applescript_data_output(&stdout)?;
+    Some(ClipboardImage {
+        bytes,
+        mime: mime.to_string(),
+    })
+}
+
+#[cfg(target_os = "macos")]
+fn read_clipboard_image_macos_fallback() -> Option<ClipboardImage> {
+    read_clipboard_image_applescript("PNGf", "image/png")
+        .or_else(|| read_clipboard_image_applescript("TIFF", "image/tiff"))
+}
+
+#[cfg(not(target_os = "macos"))]
+fn read_clipboard_image_macos_fallback() -> Option<ClipboardImage> {
+    None
+}
+
 pub fn read_clipboard_image_impl() -> Result<Option<ClipboardImage>, String> {
     let mut clipboard = arboard::Clipboard::new()
         .map_err(|e| format!("failed to access clipboard: {e}"))?;
@@ -147,5 +197,20 @@ pub fn read_clipboard_image_impl() -> Result<Option<ClipboardImage>, String> {
         }
     }
 
+    if let Some(image) = read_clipboard_image_macos_fallback() {
+        return Ok(Some(image));
+    }
+
     Ok(None)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_applescript_data_output;
+
+    #[test]
+    fn parse_applescript_data_parses_hex() {
+        let parsed = parse_applescript_data_output("«data PNGf89504E47 0D0A1A0A»");
+        assert_eq!(parsed, Some(vec![0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]));
+    }
 }
