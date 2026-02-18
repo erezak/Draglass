@@ -533,6 +533,7 @@
 
 .panelTitle {
   font-size: 12px;
+  font-weight: 800;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -548,18 +549,23 @@
 .showHiddenToggle {
   padding: 6px 10px;
   font-size: 12px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  border: var(--border-medium) solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
 }
 
 .showHiddenToggle:hover {
-  border-color: var(--button-hover-border);
+  background: var(--accent);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--panel-border);
 }
 
 .showHiddenToggle--on {
-  border-color: var(--button-hover-border);
   background: var(--highlight);
+  box-shadow: var(--shadow-md);
 }
 
 .panelEmpty {
@@ -583,10 +589,26 @@
 
 .calendarActionButton,
 .calendarNavButton {
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
+  border: var(--border-medium) solid var(--panel-border);
+  background: var(--panel-bg);
   color: var(--text-primary);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.calendarActionButton:hover,
+.calendarNavButton:hover {
+  background: var(--accent);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--panel-border);
+}
+
+.calendarActionButton:active,
+.calendarNavButton:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--panel-border);
 }
 
 .calendarActionButton {
@@ -629,15 +651,24 @@
 
 .calendarDay {
   min-height: 30px;
-  border: 1px solid var(--panel-border);
-  border-radius: 8px;
-  background: var(--button-bg);
+  border: var(--border-thin) solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  background: var(--panel-bg);
   color: var(--text-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
   font-size: 12px;
+  font-weight: 700;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+  transition: all var(--transition-fast);
+}
+
+.calendarDay:hover:not(:disabled) {
+  background: var(--accent);
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0px var(--panel-border);
 }
 
 .calendarDay:disabled {
@@ -651,11 +682,12 @@
 }
 
 .calendarDay--today {
-  border-color: var(--button-hover-border);
+  background: var(--highlight);
+  box-shadow: var(--shadow-sm);
 }
 
 .calendarDay--hasNote {
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .calendarDayDot {
@@ -715,17 +747,22 @@
 }
 .tagExplorerFilter {
   width: 100%;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  border: var(--border-thin) solid var(--panel-border);
   background: var(--panel-bg);
   color: var(--text-primary);
   padding: 6px 8px;
   font-size: 12px;
+  font-weight: 500;
   margin-bottom: 8px;
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.1);
+  transition: border-width var(--transition-fast);
 }
 
 .tagExplorerFilter:focus {
-  outline: 1px solid var(--button-hover-border);
+  outline: none;
+  border-width: var(--border-medium);
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.2);
 }
 
 .fileTree {
@@ -880,27 +917,32 @@
   width: 100%;
   text-align: left;
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  border: var(--border-thin) solid var(--panel-border);
   background: var(--panel-bg);
   display: flex;
   flex-direction: column;
   gap: 4px;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
 }
 
 .fileItem:hover,
 .linkItem:hover {
-  border-color: var(--button-hover-border);
+  background: var(--accent);
+  transform: translateX(2px);
 }
 
 .taskItem:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent);
+  transform: translateX(2px);
 }
 
 .fileItem.active {
-  border-color: var(--button-hover-border);
+  border-width: var(--border-medium);
   background: var(--highlight);
+  box-shadow: var(--shadow-sm);
 }
 
 .editorPane {
