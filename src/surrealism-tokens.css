@@ -1,0 +1,279 @@
+/**
+ * Surrealism Design Tokens
+ * Dali-inspired dream-logic interface design system
+ * 
+ * Layered approach:
+ * - Base layer: reliable, accessible foundation
+ * - Expression layer: surreal visual motifs
+ * - Control layer: user-tunable intensity
+ */
+
+:root {
+  /* ============================================
+     DESERT DUSK PALETTE
+     Inspired by Dalí's Catalan landscapes
+     ============================================ */
+  
+  /* Sky gradients - golden hour to twilight */
+  --surreal-sky-gold: #ffa947;
+  --surreal-sky-amber: #ff8c42;
+  --surreal-sky-peach: #ffb366;
+  --surreal-sky-dusk: #8b5a8d;
+  --surreal-sky-twilight: #4a3c5e;
+  --surreal-sky-night: #2a1f3d;
+  
+  /* Earth tones - desert sands and rocks */
+  --surreal-sand-light: #e8d4b8;
+  --surreal-sand-warm: #d4b896;
+  --surreal-sand-deep: #a68a6a;
+  --surreal-rock-warm: #6b5d52;
+  --surreal-rock-cool: #4a4240;
+  --surreal-shadow-purple: #3d2c47;
+  
+  /* Accent colors - symbolic objects */
+  --surreal-key-brass: #c9a961;
+  --surreal-eye-iris: #7ba3d0;
+  --surreal-clock-gold: #d4af37;
+  --surreal-drawer-wood: #8b6f47;
+  --surreal-glow-warm: #ffe4b3;
+  --surreal-glow-cool: #b3d4ff;
+  
+  /* Transparency layers */
+  --surreal-melt-alpha: 0.85;
+  --surreal-float-alpha: 0.92;
+  --surreal-atmosphere-alpha: 0.15;
+  
+  /* ============================================
+     SHAPE MORPHING TOKENS
+     Define impossible geometries
+     ============================================ */
+  
+  /* Base shapes */
+  --shape-crisp: 0px;
+  --shape-soft: 12px;
+  --shape-elastic: 24px;
+  --shape-impossible: 999px;
+  
+  /* Melting effect parameters */
+  --melt-offset: 8px;
+  --melt-curve: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Metamorphosis states */
+  --morph-oval: 50%;
+  --morph-rect: 8px;
+  --morph-duration: 350ms;
+  
+  /* ============================================
+     SHADOW & DEPTH TOKENS
+     Long shadows for temporal distortion
+     ============================================ */
+  
+  /* Long shadows (Dalí-style stretched forms) */
+  --shadow-levitate-sm: 0 4px 12px -2px rgba(42, 31, 61, 0.3);
+  --shadow-levitate-md: 0 8px 24px -4px rgba(42, 31, 61, 0.4);
+  --shadow-levitate-lg: 0 16px 48px -8px rgba(42, 31, 61, 0.5);
+  
+  /* Soft, diffused shadows */
+  --shadow-soft-sm: 0 2px 16px rgba(139, 90, 141, 0.2);
+  --shadow-soft-md: 0 4px 32px rgba(139, 90, 141, 0.25);
+  --shadow-soft-lg: 0 8px 64px rgba(139, 90, 141, 0.3);
+  
+  /* Glow effects (luminous focal points) */
+  --glow-warm-sm: 0 0 8px rgba(255, 228, 179, 0.4);
+  --glow-warm-md: 0 0 16px rgba(255, 228, 179, 0.5);
+  --glow-warm-lg: 0 0 32px rgba(255, 228, 179, 0.6);
+  
+  --glow-cool-sm: 0 0 8px rgba(179, 212, 255, 0.4);
+  --glow-cool-md: 0 0 16px rgba(179, 212, 255, 0.5);
+  --glow-cool-lg: 0 0 32px rgba(179, 212, 255, 0.6);
+  
+  /* ============================================
+     MOTION & TIMING
+     Dreamlike easing and temporal elasticity
+     ============================================ */
+  
+  /* Dreamlike easing curves */
+  --ease-dream: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-melt: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-float: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-warp: cubic-bezier(0.87, 0, 0.13, 1);
+  
+  /* Temporal distortion durations */
+  --duration-instant: 100ms;
+  --duration-quick: 200ms;
+  --duration-dream: 350ms;
+  --duration-slow: 600ms;
+  --duration-dilated: 1000ms;
+  
+  /* ============================================
+     INTENSITY LEVELS
+     User-controlled surreal effect strength
+     ============================================ */
+  
+  /* Default: Subtle mode */
+  --intensity-melt: 0.5;
+  --intensity-float: 0.3;
+  --intensity-morph: 0.6;
+  --intensity-parallax: 0.4;
+  --intensity-glow: 0.5;
+  
+  /* Animation enablement */
+  --enable-metamorphosis: 1;
+  --enable-parallax: 1;
+  --enable-temporal-distortion: 1;
+}
+
+/* ============================================
+   INTENSITY VARIANTS
+   User-selectable surreal strength
+   ============================================ */
+
+/* Off mode - Classic Clarity */
+:root[data-surreal-intensity="off"] {
+  --intensity-melt: 0;
+  --intensity-float: 0;
+  --intensity-morph: 0;
+  --intensity-parallax: 0;
+  --intensity-glow: 0;
+  --enable-metamorphosis: 0;
+  --enable-parallax: 0;
+  --enable-temporal-distortion: 0;
+  
+  /* Override durations to instant */
+  --duration-dream: 150ms;
+  --duration-slow: 200ms;
+  --duration-dilated: 250ms;
+}
+
+/* Subtle mode - Default (already defined above) */
+
+/* Full mode - Maximum surrealism */
+:root[data-surreal-intensity="full"] {
+  --intensity-melt: 1;
+  --intensity-float: 1;
+  --intensity-morph: 1;
+  --intensity-parallax: 1;
+  --intensity-glow: 1;
+}
+
+/* ============================================
+   REDUCED MOTION OVERRIDES
+   Accessibility-first: respect user preferences
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    /* Disable all morphing and parallax */
+    --enable-metamorphosis: 0;
+    --enable-parallax: 0;
+    --enable-temporal-distortion: 0;
+    
+    /* Reduce all durations */
+    --duration-instant: 0ms;
+    --duration-quick: 0ms;
+    --duration-dream: 0ms;
+    --duration-slow: 0ms;
+    --duration-dilated: 0ms;
+    
+    /* Keep only subtle static effects */
+    --intensity-float: 0.1;
+    --intensity-glow: 0.3;
+  }
+}
+
+/* ============================================
+   THEME VARIANTS
+   Day Reality vs Dream Reality
+   ============================================ */
+
+/* Day Reality - Lighter desert palette */
+:root[data-theme="light"][data-surreal-enabled="true"] {
+  --surreal-bg-primary: var(--surreal-sand-light);
+  --surreal-bg-secondary: var(--surreal-sand-warm);
+  --surreal-surface: rgba(255, 255, 255, 0.6);
+  --surreal-text-primary: var(--surreal-shadow-purple);
+  --surreal-text-muted: var(--surreal-rock-cool);
+  --surreal-border: rgba(61, 44, 71, 0.2);
+  --surreal-accent: var(--surreal-sky-amber);
+}
+
+/* Dream Reality - Twilight desert palette (default dark) */
+:root[data-theme="dark"][data-surreal-enabled="true"],
+:root[data-surreal-enabled="true"] {
+  --surreal-bg-primary: var(--surreal-sky-night);
+  --surreal-bg-secondary: var(--surreal-sky-twilight);
+  --surreal-surface: rgba(139, 90, 141, 0.15);
+  --surreal-text-primary: var(--surreal-sand-light);
+  --surreal-text-muted: var(--surreal-sand-warm);
+  --surreal-border: rgba(232, 212, 184, 0.15);
+  --surreal-accent: var(--surreal-sky-gold);
+}
+
+/* ============================================
+   SYMBOLIC COLOR MAPPINGS
+   Actions mapped to Dalí-inspired symbols
+   ============================================ */
+
+:root[data-surreal-enabled="true"] {
+  --action-save: var(--surreal-key-brass);      /* Key turning in lock */
+  --action-search: var(--surreal-eye-iris);     /* Eye opening */
+  --action-archive: var(--surreal-drawer-wood); /* Drawer sliding shut */
+  --action-time: var(--surreal-clock-gold);     /* Melting clock */
+  --focus-glow: var(--glow-warm-md);
+  --hover-glow: var(--glow-cool-sm);
+}
+
+/* ============================================
+   SPACING & LAYOUT
+   Maintain rational grid under surreal skin
+   ============================================ */
+
+:root {
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   High-legibility base with expressive display
+   ============================================ */
+
+:root[data-surreal-enabled="true"] {
+  /* Body text - always legible */
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+  
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  
+  --line-tight: 1.25;
+  --line-base: 1.5;
+  --line-loose: 1.75;
+  
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+}
+
+/* ============================================
+   PERFORMANCE CONSTRAINTS
+   Transform and opacity only
+   ============================================ */
+
+:root {
+  /* Will-change hints for animated properties */
+  --will-change-transform: transform;
+  --will-change-opacity: opacity;
+  --will-change-morph: transform, opacity;
+}
