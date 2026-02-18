@@ -911,7 +911,7 @@
 }
 
 .frontmatterPanel {
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: var(--border-medium) solid var(--panel-border);
   background: var(--panel-bg);
   padding: 12px 16px 16px;
   display: flex;
@@ -962,8 +962,9 @@
 
 .frontmatterHeader {
   font-size: 20px;
-  font-weight: 600;
-  letter-spacing: 0;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
   color: var(--text-primary);
 }
 
@@ -983,16 +984,18 @@
   gap: 12px;
   align-items: center;
   padding: 4px 6px;
-  border-radius: 8px;
-  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  border: var(--border-thin) solid transparent;
   background: transparent;
   font-size: 16px;
   position: relative;
+  transition: all var(--transition-fast);
 }
 
 .frontmatterRow:hover {
-  border-color: rgba(148, 163, 184, 0.35);
-  background: rgba(148, 163, 184, 0.08);
+  border-color: var(--panel-border);
+  background: var(--accent);
+  box-shadow: var(--shadow-sm);
 }
 
 .frontmatterRow--adding {
@@ -2376,7 +2379,7 @@
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: var(--border-medium) solid var(--panel-border);
   background: var(--panel-bg);
 }
 
@@ -2389,15 +2392,19 @@
   width: 100%;
   padding: 8px 12px;
   font-size: 13px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: var(--border-thin) solid var(--panel-border);
+  background: var(--panel-bg);
   color: var(--text-primary);
   outline: none;
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.1);
+  transition: border-width var(--transition-fast);
 }
 
 .graphSearchInput:focus {
-  border-color: var(--button-hover-border);
+  border-width: var(--border-medium);
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.2);
 }
 
 .graphSearchInput::placeholder {
@@ -2414,44 +2421,64 @@
 .graphScopeToggle {
   padding: 6px 12px;
   font-size: 12px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  border: var(--border-medium) solid var(--panel-border);
+  background: var(--panel-bg);
   color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
 }
 
 .graphScopeToggle:hover {
-  border-color: var(--button-hover-border);
+  background: var(--accent);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--panel-border);
+}
+
+.graphScopeToggle:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--panel-border);
 }
 
 .graphScopeToggle--local {
   background: var(--highlight);
-  border-color: var(--button-hover-border);
+  box-shadow: var(--shadow-md);
 }
 
 .graphRefreshButton,
 .graphSettingsButton {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  border-radius: var(--radius-sm);
+  border: var(--border-medium) solid var(--panel-border);
+  background: var(--panel-bg);
   color: var(--text-primary);
   padding: 0;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
 }
 
 .graphRefreshButton:hover,
 .graphSettingsButton:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--panel-border);
+}
+
+.graphRefreshButton:active,
+.graphSettingsButton:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--panel-border);
 }
 
 .graphRefreshButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
 .graphRefreshIcon,
@@ -3093,10 +3120,11 @@
   display: flex;
   gap: 6px;
   align-items: center;
-  padding: 6px 10px;
-  background: var(--button-bg);
-  border: 1px solid var(--panel-border-strong);
-  border-radius: 10px;
+  padding: 8px 12px;
+  background: var(--panel-bg);
+  border: var(--border-medium) solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
 }
 
 .searchInput {
@@ -3106,23 +3134,31 @@
   background: transparent;
   color: var(--text-primary);
   font-size: 13px;
+  font-weight: 700;
   outline: none;
 }
 
 .searchExtraToggle {
-  padding: 2px 6px;
+  padding: 3px 8px;
   font-size: 11px;
-  font-weight: 600;
-  border-radius: 4px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  border: var(--border-thin) solid var(--panel-border);
+  background: var(--panel-bg);
   color: var(--text-muted);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+  transition: all var(--transition-fast);
+}
+
+.searchExtraToggle:hover {
+  background: var(--accent);
+  color: var(--text-primary);
 }
 
 .searchExtraToggle--active {
-  border-color: var(--button-hover-border);
   background: var(--highlight);
   color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .searchResults {
