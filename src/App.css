@@ -655,20 +655,39 @@
 
 .calendarActionButton,
 .calendarNavButton {
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
-  color: var(--text-primary);
-  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--md3-on-surface-variant);
+  border-radius: var(--md3-shape-corner-small);
+  position: relative;
+  transition: all var(--md3-duration-short2) var(--md3-easing-standard);
+}
+
+.calendarActionButton::before,
+.calendarNavButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--md3-on-surface);
+  opacity: 0;
+  transition: opacity var(--md3-duration-short2) var(--md3-easing-standard);
+}
+
+.calendarActionButton:hover::before,
+.calendarNavButton:hover::before {
+  opacity: var(--md3-state-hover-opacity);
 }
 
 .calendarActionButton {
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: var(--md3-spacing-1) var(--md3-spacing-2);
+  font-size: var(--md3-label-medium-size);
+  line-height: var(--md3-label-medium-line-height);
 }
 
 .calendarNavButton {
-  width: 26px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -678,63 +697,92 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: var(--md3-spacing-2);
 }
 
 .calendarMonthLabel {
-  font-size: 12px;
-  color: var(--text-primary);
+  font-size: var(--md3-title-medium-size);
+  font-weight: var(--md3-title-medium-weight);
+  line-height: var(--md3-title-medium-line-height);
+  color: var(--md3-on-surface);
 }
 
 .calendarWeekdays,
 .calendarGrid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 4px;
+  gap: var(--md3-spacing-1);
 }
 
 .calendarWeekday {
   text-align: center;
-  font-size: 11px;
-  color: var(--text-muted);
+  font-size: var(--md3-label-small-size);
+  line-height: var(--md3-label-small-line-height);
+  font-weight: var(--md3-label-small-weight);
+  color: var(--md3-on-surface-variant);
+  padding: var(--md3-spacing-1);
 }
 
 .calendarDay {
-  min-height: 30px;
-  border: 1px solid var(--panel-border);
-  border-radius: 8px;
-  background: var(--button-bg);
-  color: var(--text-primary);
+  min-height: 36px;
+  border: none;
+  border-radius: var(--md3-shape-corner-medium);
+  background: transparent;
+  color: var(--md3-on-surface);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  font-size: 12px;
+  gap: var(--md3-spacing-1);
+  font-size: var(--md3-body-medium-size);
+  line-height: var(--md3-body-medium-line-height);
+  position: relative;
+  transition: all var(--md3-duration-short2) var(--md3-easing-standard);
+}
+
+.calendarDay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--md3-on-surface);
+  opacity: 0;
+  transition: opacity var(--md3-duration-short2) var(--md3-easing-standard);
+}
+
+.calendarDay:hover:not(:disabled)::before {
+  opacity: var(--md3-state-hover-opacity);
 }
 
 .calendarDay:disabled {
-  opacity: 0.55;
+  opacity: 0.38;
   cursor: not-allowed;
 }
 
 .calendarDay--outside {
-  color: var(--text-muted);
-  opacity: 0.65;
+  color: var(--md3-on-surface-variant);
+  opacity: 0.6;
 }
 
 .calendarDay--today {
-  border-color: var(--button-hover-border);
+  background: var(--md3-primary-container);
+  color: var(--md3-on-primary-container);
+}
+
+.calendarDay--today::before {
+  display: none;
 }
 
 .calendarDay--hasNote {
-  font-weight: 700;
+  font-weight: var(--md3-label-large-weight);
 }
 
 .calendarDayDot {
-  width: 5px;
-  height: 5px;
-  border-radius: 999px;
-  background: var(--text-primary);
+  width: 6px;
+  height: 6px;
+  border-radius: var(--md3-shape-corner-full);
+  background: var(--md3-primary);
+  position: relative;
+  z-index: 1;
 }
 
 .placeholderCard {
@@ -1069,27 +1117,27 @@
 }
 
 .frontmatterPanel {
-  border-bottom: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-  padding: 12px 16px 16px;
+  border-bottom: 1px solid var(--md3-outline-variant);
+  background: var(--md3-surface-container);
+  padding: var(--md3-spacing-3) var(--md3-spacing-4) var(--md3-spacing-4);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--md3-spacing-2);
 }
 
 .frontmatterPanel--collapsed {
-  padding-bottom: 12px;
+  padding-bottom: var(--md3-spacing-3);
 }
 
 .frontmatterHeaderRow {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--md3-spacing-3);
   border: none;
   background: transparent;
   padding: 0;
   cursor: pointer;
-  color: var(--text-primary);
+  color: var(--md3-on-surface);
 }
 
 .frontmatterToggle {
@@ -1098,14 +1146,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
+  color: var(--md3-on-surface-variant);
   opacity: 0;
-  transition: opacity 120ms ease, transform 120ms ease;
+  transition: opacity var(--md3-duration-short2) var(--md3-easing-standard), 
+              transform var(--md3-duration-short2) var(--md3-easing-standard);
 }
 
 .frontmatterToggle svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .frontmatterPanel--collapsed .frontmatterToggle {
@@ -1119,16 +1168,17 @@
 }
 
 .frontmatterHeader {
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: 0;
-  color: var(--text-primary);
+  font-size: var(--md3-title-large-size);
+  font-weight: var(--md3-title-large-weight);
+  line-height: var(--md3-title-large-line-height);
+  letter-spacing: var(--md3-title-large-tracking);
+  color: var(--md3-on-surface);
 }
 
 .frontmatterList {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--md3-spacing-1);
 }
 
 .frontmatterPanel--collapsed .frontmatterList {
@@ -1138,19 +1188,30 @@
 .frontmatterRow {
   display: grid;
   grid-template-columns: minmax(220px, 280px) minmax(200px, 1fr);
-  gap: 12px;
+  gap: var(--md3-spacing-3);
   align-items: center;
-  padding: 4px 6px;
-  border-radius: 8px;
-  border: 1px solid transparent;
+  padding: var(--md3-spacing-2) var(--md3-spacing-2);
+  border-radius: var(--md3-shape-corner-medium);
+  border: none;
   background: transparent;
-  font-size: 16px;
+  font-size: var(--md3-body-large-size);
+  line-height: var(--md3-body-large-line-height);
   position: relative;
+  transition: background-color var(--md3-duration-short2) var(--md3-easing-standard);
 }
 
-.frontmatterRow:hover {
-  border-color: rgba(148, 163, 184, 0.35);
-  background: rgba(148, 163, 184, 0.08);
+.frontmatterRow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--md3-on-surface);
+  opacity: 0;
+  transition: opacity var(--md3-duration-short2) var(--md3-easing-standard);
+}
+
+.frontmatterRow:hover::before {
+  opacity: var(--md3-state-hover-opacity);
 }
 
 .frontmatterRow--adding {
@@ -1160,62 +1221,78 @@
 .frontmatterKey {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: var(--text-muted);
+  gap: var(--md3-spacing-3);
+  color: var(--md3-on-surface-variant);
+  position: relative;
+  z-index: 1;
 }
 
 .frontmatterTypeButton {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  border: 1px solid transparent;
+  border-radius: var(--md3-shape-corner-full);
+  border: none;
   background: transparent;
   padding: 0;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--md3-on-surface-variant);
+  position: relative;
+  transition: all var(--md3-duration-short2) var(--md3-easing-standard);
 }
 
-.frontmatterTypeButton:hover {
-  background: rgba(148, 163, 184, 0.12);
-  border-color: rgba(148, 163, 184, 0.2);
-  color: var(--text-primary);
+.frontmatterTypeButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--md3-on-surface);
+  opacity: 0;
+  transition: opacity var(--md3-duration-short2) var(--md3-easing-standard);
+}
+
+.frontmatterTypeButton:hover::before {
+  opacity: var(--md3-state-hover-opacity);
 }
 
 .frontmatterIcon {
   width: 20px;
   height: 20px;
-  color: var(--text-muted);
+  color: var(--md3-on-surface-variant);
   flex: 0 0 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .frontmatterKeyInput,
 .frontmatterValueInput {
   width: 100%;
   border: none;
-  border-radius: 6px;
-  padding: 4px 4px;
+  border-radius: var(--md3-shape-corner-small);
+  padding: var(--md3-spacing-1);
   background: transparent;
-  color: var(--text-primary);
-  font-size: 16px;
+  color: var(--md3-on-surface);
+  font-size: var(--md3-body-large-size);
+  line-height: var(--md3-body-large-line-height);
   outline: none;
+  position: relative;
+  z-index: 1;
 }
 
 .frontmatterKeyInput {
-  font-weight: 500;
-  color: var(--text-muted);
-  text-transform: none;
+  font-weight: var(--md3-label-large-weight);
+  color: var(--md3-on-surface-variant);
 }
 
 .frontmatterValueInput {
-  font-weight: 500;
+  font-weight: var(--md3-body-large-weight);
 }
 
 .frontmatterValueInput::placeholder {
-  color: var(--text-muted);
-  opacity: 0.7;
+  color: var(--md3-on-surface-variant);
+  opacity: 0.6;
 }
 
 .frontmatterKeyInput:focus,
