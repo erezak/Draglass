@@ -223,6 +223,16 @@ identifier = "get-demo-vault-path-legacy"
 description = "Allows getting the path to the demo vault (legacy command name)."
 commands.allow = ["get_demo_vault_path"]
 
+[[permission]]
+identifier = "print-main-window"
+description = "Allows printing from the main Tauri window."
+commands.allow = ["print_main_window"]
+
+[[permission]]
+identifier = "print-main-window-legacy"
+description = "Allows printing from the main Tauri window (legacy command name)."
+commands.allow = ["print_main_window"]
+
 [[set]]
 identifier = "vault"
 description = "Allows the main window to access vault-related app commands."
@@ -272,4 +282,6 @@ permissions = [
   "verify-vault-password-legacy",
   "get-demo-vault-path",
   "get-demo-vault-path-legacy",
+  "print-main-window",
+  "print-main-window-legacy",
 ]

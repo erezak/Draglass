@@ -95,6 +95,7 @@ pub fn run() {
             hash_vault_password,
             verify_vault_password,
             get_demo_vault_path,
+            print_main_window,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -160,6 +161,14 @@ use crate::vault_index::{
     RebuildOptions, RebuildResult, RemoveResult, SearchFlags, SearchResponse, TagNote, TagSummary,
     TaskItem, WatcherResult, WatcherStopResult, start_index_watcher_impl, stop_index_watcher_impl,
 };
+
+#[tauri::command]
+fn print_main_window(app_handle: tauri::AppHandle) -> Result<(), String> {
+    let window = app_handle
+        .get_webview_window("main")
+        .ok_or_else(|| "missing main window".to_string())?;
+    window.print().map_err(|e| e.to_string())
+}
 
 #[tauri::command]
 async fn list_markdown_files(vault_path: String) -> Result<Vec<NoteEntry>, String> {

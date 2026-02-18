@@ -107,6 +107,13 @@ export function isTauri(): boolean {
   return '__TAURI__' in window || '__TAURI_INTERNALS__' in window
 }
 
+export async function printMainWindow(): Promise<void> {
+  if (isTauri()) {
+    return invoke<void>('print_main_window')
+  }
+  window.print()
+}
+
 // Tauri v2 IPC: command names = Rust fn names (snake_case),
 // arg keys = Rust param names auto-converted to camelCase.
 

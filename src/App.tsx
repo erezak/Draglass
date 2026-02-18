@@ -28,13 +28,14 @@ import { useTags } from './features/tags/useTags'
 import { useEditorTheme } from './features/theme/useEditorTheme'
 import { useVault } from './features/vault/useVault'
 import { useVaultAuth, hasVaultPassword, checkVaultPassword } from './features/vault/useVaultAuth'
-import { createDir, createNote, isTauri, onVaultFileChanged, readNote, rebuildIndex, writeNote } from './tauri'
+import { createDir, createNote, isTauri, onVaultFileChanged, printMainWindow, readNote, rebuildIndex, writeNote } from './tauri'
 import { mergeFrontmatterForTemplateInsert, renderTemplate } from './templateRenderer'
 import { listTemplateFiles, normalizeTemplatesFolder } from './templates'
 import { parseFrontmatter } from './frontmatter'
 import { fileStem } from './path'
 import { buildDailyNoteRelPath, listExistingDailyNoteDates, resolveDailyNoteTemplatePath } from './dailyNotes'
 import { normalizeTag } from './tags'
+import { exportNoteAsPdf } from './exportPdf'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 import { ExcalidrawEditor } from './components/ExcalidrawEditor'
@@ -1013,6 +1014,15 @@ function App() {
     }
   }, [ensureTemplatesFolderExists, setError, vaultPath])
 
+  const exportCurrentNoteAsPdf = useCallback(async () => {
+    if (!activeRelPath || graphViewOpen) return
+    const baseTitle = noteTitle ?? fileStem(activeRelPath)
+
+    const includeTitle = window.confirm('Include the file name as an H1 title in the PDF?')
+
+    await exportNoteAsPdf(noteText, { title: baseTitle, includeTitle }, () => printMainWindow())
+  }, [activeRelPath, graphViewOpen, noteText, noteTitle])
+
   const dailyTemplateRelPath = useMemo(
     () =>
       resolveDailyNoteTemplatePath(
@@ -1154,6 +1164,15 @@ function App() {
       },
     },
     {
+      id: 'export-note-as-pdf',
+      label: 'Export Note as PDF',
+      description: 'Export the current note to a printable PDF document',
+      enabled: !!activeRelPath && !graphViewOpen,
+      onExecute: () => {
+        void exportCurrentNoteAsPdf().catch((e) => setError(String(e)))
+      },
+    },
+    {
       id: 'open-today-daily-note',
       label: "Open today's daily note",
       description: 'Open or create the note for today',
@@ -1254,7 +1273,7 @@ function App() {
         })()
       },
     },
-  ], [activeRelPath, createNewNote, deleteActiveNote, graphViewOpen, hasLockedContent, isVaultUnlocked, loadVault, lockVault, noteTitle, onRequestUnlock, openChangePasswordModal, openInsertTemplatePicker, openNewNoteFromTemplatePicker, openTodayDailyNote, setError, settings.dailyNotesEnabled, vaultHasPassword, vaultPath])
+  ], [activeRelPath, createNewNote, deleteActiveNote, exportCurrentNoteAsPdf, graphViewOpen, hasLockedContent, isVaultUnlocked, loadVault, lockVault, noteTitle, onRequestUnlock, openChangePasswordModal, openInsertTemplatePicker, openNewNoteFromTemplatePicker, openTodayDailyNote, setError, settings.dailyNotesEnabled, vaultHasPassword, vaultPath])
 
   const onTaskClick = useCallback(
     async (relPath: string, lineNumber: number) => {
