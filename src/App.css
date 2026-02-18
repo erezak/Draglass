@@ -17,9 +17,13 @@
   gap: 12px;
   height: 44px;
   padding: 0 var(--topbar-padding-right) 0 var(--topbar-padding-left);
-  border-bottom: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-md);
+  -webkit-backdrop-filter: var(--blur-md);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  z-index: 10;
 }
 
 .platform-mac .topbar {
@@ -48,9 +52,12 @@
   display: inline-flex;
   gap: 4px;
   padding: 4px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  box-shadow: var(--shadow-sm);
 }
 
 .leftPaneCollapseButton {
@@ -89,19 +96,26 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   color: var(--text-primary);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .iconButton:hover {
   border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent-glass-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .iconButton:active {
-  transform: translateY(1px);
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
 }
 
 .iconButton:focus-visible {
@@ -184,13 +198,16 @@
 
 .toolbox {
   padding: 10px 8px;
-  border-right: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  border-right: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-md);
+  -webkit-backdrop-filter: var(--blur-md);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 .toolboxButton {
@@ -199,27 +216,34 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   color: var(--toolbox-icon);
   opacity: 1;
   padding: 0;
   line-height: 1;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .toolboxButton:hover {
   border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent-glass-hover);
   color: var(--text-primary);
   opacity: 1;
+  transform: translateX(2px);
+  box-shadow: var(--shadow-md);
 }
 
 .toolboxButton--active {
   border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent-glass);
   color: var(--text-primary);
   opacity: 1;
+  box-shadow: var(--shadow-md);
 }
 
 .toolboxIcon {
@@ -240,7 +264,11 @@
   overflow: hidden;
   min-height: 0;
   min-width: 0;
-  border-right: 1px solid var(--panel-border);
+  border-right: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-md);
+  -webkit-backdrop-filter: var(--blur-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .paneWrapper.paneHidden,
@@ -278,14 +306,17 @@
   flex-direction: column;
   gap: 6px;
   padding: 8px;
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
-  background: var(--panel-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-strong);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  box-shadow: var(--shadow-sm);
 }
 
 .leftPaneToggleButton {
   padding: 6px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   border: 1px solid transparent;
   background: transparent;
   font-size: 12px;
@@ -293,12 +324,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: all var(--transition-fast);
 }
 
 .leftPaneToggleButton--active {
   border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent-glass);
   color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .leftPaneActions {
@@ -316,15 +349,21 @@
   padding: 6px 8px;
   min-width: 48px;
   font-size: 12px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   color: var(--text-primary);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .leftPaneActionButton:hover {
   border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent-glass-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .leftPaneActionButton:disabled {
@@ -414,7 +453,7 @@
 
 .rightPane {
   border-right: none;
-  border-left: 1px solid var(--panel-border);
+  border-left: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -430,13 +469,17 @@
   width: 38px;
   height: 36px;
   padding: 0;
-  border-radius: 12px;
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   color: var(--text-muted);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .rightPaneTabIcon {
@@ -446,12 +489,15 @@
 
 .rightPaneTab:hover {
   border-color: var(--button-hover-border);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .rightPaneTab--active {
-  border-color: var(--panel-border-strong);
+  border-color: var(--button-hover-border);
   color: var(--text-primary);
-  background: var(--highlight);
+  background: var(--accent-glass);
+  box-shadow: var(--shadow-md);
 }
 
 .rightPaneScroll {
@@ -477,18 +523,25 @@
 .showHiddenToggle {
   padding: 6px 10px;
   font-size: 12px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .showHiddenToggle:hover {
   border-color: var(--button-hover-border);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .showHiddenToggle--on {
   border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent-glass);
+  box-shadow: var(--shadow-md);
 }
 
 .panelEmpty {
@@ -673,21 +726,29 @@
   width: 100%;
   text-align: left;
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   display: flex;
   align-items: center;
   gap: 6px;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .folderItem--selected {
   border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent-glass);
+  box-shadow: var(--shadow-md);
 }
 
 .folderItem:hover {
   border-color: var(--button-hover-border);
+  background: var(--accent-glass-hover);
+  transform: translateX(2px);
+  box-shadow: var(--shadow-md);
 }
 
 .caret {
@@ -701,26 +762,35 @@
   width: 100%;
   text-align: left;
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 .tagItem {
   width: 100%;
   text-align: left;
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .tagItem--active {
   border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent-glass);
+  box-shadow: var(--shadow-md);
 }
 
 .tagItemLabel {
@@ -1909,7 +1979,8 @@
   position: fixed;
   inset: 0;
   background: var(--overlay-bg);
-  backdrop-filter: blur(8px);
+  backdrop-filter: var(--blur-lg);
+  -webkit-backdrop-filter: var(--blur-lg);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -1919,10 +1990,12 @@
 
 .qsCard {
   width: min(720px, 96vw);
-  border-radius: 12px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--panel-solid);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: var(--modal-bg);
+  backdrop-filter: var(--blur-xl);
+  -webkit-backdrop-filter: var(--blur-xl);
+  box-shadow: var(--shadow-xl);
   overflow: hidden;
 }
 
@@ -1934,7 +2007,9 @@
   outline: none;
   font-size: 14px;
   color: var(--text-primary);
-  background: var(--button-bg);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
 }
 
 .qsMeta {
@@ -1945,7 +2020,7 @@
   font-size: 12px;
   color: var(--text-muted);
   padding: 8px 12px;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .qsBusy {
@@ -1968,17 +2043,18 @@
   text-align: left;
   padding: 10px 12px;
   border: none;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 1px solid var(--glass-border);
   background: transparent;
   cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
 .qsItem:hover {
-  background: var(--highlight);
+  background: var(--accent-glass-hover);
 }
 
 .qsItem--selected {
-  background: var(--highlight);
+  background: var(--accent-glass);
 }
 
 .qsItemPrimary {
@@ -2001,14 +2077,17 @@
   font-size: 12px;
   color: var(--text-muted);
   padding: 10px 12px;
-  background: var(--panel-bg);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
 }
 
 .settingsOverlay {
   position: fixed;
   inset: 0;
   background: var(--overlay-bg);
-  backdrop-filter: blur(8px);
+  backdrop-filter: var(--blur-lg);
+  -webkit-backdrop-filter: var(--blur-lg);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -2018,10 +2097,12 @@
 
 .settingsCard {
   width: min(760px, 96vw);
-  border-radius: 14px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--panel-solid);
-  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.55);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: var(--modal-bg);
+  backdrop-filter: var(--blur-xl);
+  -webkit-backdrop-filter: var(--blur-xl);
+  box-shadow: var(--shadow-xl);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -2033,7 +2114,10 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 18px;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
 }
 
 .settingsTitle {
@@ -2049,9 +2133,19 @@
 
 .settingsClose {
   padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--button-border);
-  background: var(--button-bg);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.settingsClose:hover {
+  background: var(--accent-glass-hover);
+  border-color: var(--button-hover-border);
+  box-shadow: var(--shadow-md);
 }
 
 .settingsBody {
@@ -2075,10 +2169,19 @@
   justify-content: space-between;
   gap: 12px;
   padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   font-size: 13px;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.settingsRow:hover {
+  background: var(--glass-bg-strong);
+  box-shadow: var(--shadow-md);
 }
 
 .settingsRow input[type='number'] {
@@ -2087,11 +2190,19 @@
 
 .settingsRow select {
   min-width: 160px;
-  background: var(--button-bg);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   color: inherit;
-  border: 1px solid var(--button-border);
-  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
   padding: 6px 10px;
+  transition: all var(--transition-fast);
+}
+
+.settingsRow select:hover {
+  background: var(--glass-bg-strong);
+  border-color: var(--button-hover-border);
 }
 
 .settingsRow input[type='checkbox'] {
@@ -2104,15 +2215,27 @@
   justify-content: space-between;
   gap: 12px;
   padding: 14px 18px;
-  border-top: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  border-top: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
 }
 
 .settingsReset {
   padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--button-border);
-  background: var(--button-bg);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.settingsReset:hover {
+  background: var(--accent-glass-hover);
+  border-color: var(--button-hover-border);
+  box-shadow: var(--shadow-md);
 }
 
 .settingsHint {

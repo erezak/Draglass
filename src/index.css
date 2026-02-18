@@ -1,25 +1,79 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.92);
-  background-color: #14161a;
+  color: rgba(255, 255, 255, 0.95);
+  background-color: #0a0e1a;
 
-  --app-bg: #14161a;
-  --panel-bg: rgba(0, 0, 0, 0.22);
-  --panel-solid: #0f1115;
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --panel-border-strong: rgba(255, 255, 255, 0.18);
-  --text-primary: rgba(255, 255, 255, 0.92);
-  --text-muted: rgba(255, 255, 255, 0.7);
+  /* Glassmorphism Design Tokens - Dark Theme */
+  
+  /* Background & Surfaces */
+  --app-bg: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 100%);
+  --panel-bg: rgba(255, 255, 255, 0.05);
+  --panel-bg-hover: rgba(255, 255, 255, 0.08);
+  --panel-solid: rgba(15, 20, 35, 0.85);
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg-strong: rgba(255, 255, 255, 0.1);
+  
+  /* Borders */
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --panel-border-strong: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  
+  /* Text */
+  --text-primary: rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --text-disabled: rgba(255, 255, 255, 0.35);
+  
+  /* Buttons */
   --button-bg: rgba(255, 255, 255, 0.08);
-  --button-border: rgba(255, 255, 255, 0.2);
-  --button-hover-border: rgba(100, 108, 255, 0.7);
-  --highlight: rgba(100, 108, 255, 0.15);
-  --overlay-bg: rgba(0, 0, 0, 0.6);
-  --toolbox-icon: rgba(255, 255, 255, 0.92);
+  --button-bg-hover: rgba(255, 255, 255, 0.12);
+  --button-bg-active: rgba(255, 255, 255, 0.15);
+  --button-border: rgba(255, 255, 255, 0.15);
+  --button-hover-border: rgba(120, 130, 255, 0.6);
+  
+  /* Accent Colors */
+  --accent-primary: rgba(120, 130, 255, 1);
+  --accent-primary-hover: rgba(140, 150, 255, 1);
+  --accent-glass: rgba(120, 130, 255, 0.15);
+  --accent-glass-hover: rgba(120, 130, 255, 0.25);
+  --highlight: rgba(120, 130, 255, 0.12);
+  
+  /* Overlays & Modals */
+  --overlay-bg: rgba(0, 0, 0, 0.65);
+  --modal-bg: rgba(20, 25, 40, 0.92);
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.4);
+  
+  /* Glass Effects */
+  --blur-sm: blur(8px);
+  --blur-md: blur(12px);
+  --blur-lg: blur(20px);
+  --blur-xl: blur(32px);
+  
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+  
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Icons */
+  --toolbox-icon: rgba(255, 255, 255, 0.85);
+  --icon-primary: rgba(255, 255, 255, 0.9);
+  --icon-secondary: rgba(255, 255, 255, 0.7);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -29,22 +83,76 @@
 
 :root[data-theme='light'] {
   color-scheme: light;
-  color: #1f2328;
-  background-color: #f3f4f6;
+  color: #1a1f2e;
+  background-color: #e8ecf5;
 
-  --app-bg: #f3f4f6;
-  --panel-bg: rgba(255, 255, 255, 0.8);
-  --panel-solid: #ffffff;
-  --panel-border: rgba(15, 23, 42, 0.12);
-  --panel-border-strong: rgba(15, 23, 42, 0.18);
-  --text-primary: #1f2328;
-  --text-muted: rgba(15, 23, 42, 0.65);
+  /* Glassmorphism Design Tokens - Light Theme */
+  
+  /* Background & Surfaces */
+  --app-bg: linear-gradient(135deg, #e8ecf5 0%, #f5f7fc 100%);
+  --panel-bg: rgba(255, 255, 255, 0.6);
+  --panel-bg-hover: rgba(255, 255, 255, 0.75);
+  --panel-solid: rgba(255, 255, 255, 0.95);
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-strong: rgba(255, 255, 255, 0.75);
+  
+  /* Borders */
+  --panel-border: rgba(15, 23, 42, 0.1);
+  --panel-border-strong: rgba(15, 23, 42, 0.15);
+  --glass-border: rgba(15, 23, 42, 0.12);
+  
+  /* Text */
+  --text-primary: #1a1f2e;
+  --text-secondary: rgba(15, 23, 42, 0.8);
+  --text-muted: rgba(15, 23, 42, 0.6);
+  --text-disabled: rgba(15, 23, 42, 0.35);
+  
+  /* Buttons */
   --button-bg: rgba(15, 23, 42, 0.06);
-  --button-border: rgba(15, 23, 42, 0.2);
-  --button-hover-border: rgba(59, 74, 159, 0.6);
-  --highlight: rgba(59, 74, 159, 0.18);
-  --overlay-bg: rgba(15, 23, 42, 0.25);
-  --toolbox-icon: #1f2328;
+  --button-bg-hover: rgba(15, 23, 42, 0.1);
+  --button-bg-active: rgba(15, 23, 42, 0.14);
+  --button-border: rgba(15, 23, 42, 0.15);
+  --button-hover-border: rgba(80, 95, 180, 0.5);
+  
+  /* Accent Colors */
+  --accent-primary: rgba(80, 95, 180, 1);
+  --accent-primary-hover: rgba(100, 115, 200, 1);
+  --accent-glass: rgba(80, 95, 180, 0.15);
+  --accent-glass-hover: rgba(80, 95, 180, 0.25);
+  --highlight: rgba(80, 95, 180, 0.12);
+  
+  /* Overlays & Modals */
+  --overlay-bg: rgba(15, 23, 42, 0.35);
+  --modal-bg: rgba(245, 247, 252, 0.95);
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.12);
+  --shadow-lg: 0 8px 32px rgba(15, 23, 42, 0.16);
+  --shadow-xl: 0 16px 48px rgba(15, 23, 42, 0.2);
+  
+  /* Glass Effects */
+  --blur-sm: blur(8px);
+  --blur-md: blur(12px);
+  --blur-lg: blur(20px);
+  --blur-xl: blur(32px);
+  
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+  
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Icons */
+  --toolbox-icon: rgba(15, 23, 42, 0.8);
+  --icon-primary: rgba(15, 23, 42, 0.85);
+  --icon-secondary: rgba(15, 23, 42, 0.65);
 }
 
 a {
@@ -62,10 +170,24 @@ body {
   min-height: 100vh;
   background: var(--app-bg);
   color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--app-bg);
+  z-index: -1;
 }
 
 #root {
   height: 100vh;
+  position: relative;
 }
 
 h1 {
