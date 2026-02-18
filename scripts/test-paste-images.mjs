@@ -75,5 +75,11 @@ assert.equal(pastedImage.isLikelyImageClipboardType('image/png'), true)
 assert.equal(pastedImage.isLikelyImageClipboardType('Files'), true)
 assert.equal(pastedImage.isLikelyImageClipboardType('public.tiff'), true)
 assert.equal(pastedImage.isLikelyImageClipboardType('text/plain'), false)
+{
+  const decoded = pastedImage.decodeImageDataUrl('data:image/png;base64,aGVsbG8=')
+  assert.equal(decoded?.mimeType, 'image/png')
+  assert.equal(Buffer.from(decoded?.bytes ?? []).toString('utf8'), 'hello')
+}
+assert.equal(pastedImage.decodeImageDataUrl('data:text/plain;base64,aGVsbG8='), null)
 
 console.log('paste-images: ok')

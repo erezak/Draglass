@@ -49,6 +49,26 @@ export function isLikelyImageClipboardType(type: string | null | undefined): boo
   return isImageMimeType(normalized) || IMAGE_CLIPBOARD_TYPE_HINTS.has(normalized)
 }
 
+export function decodeImageDataUrl(dataUrl: string): { mimeType: string; bytes: Uint8Array } | null {
+  const trimmed = dataUrl.trim()
+  const match = /^data:(image\/[a-z0-9.+-]+);base64,([a-z0-9+/=\s]+)$/i.exec(trimmed)
+  if (!match) return null
+  const mimeType = match[1].toLowerCase()
+  const payload = (match[2] ?? '').replace(/\s+/g, '')
+  if (!payload) return null
+
+  try {
+    const binary = atob(payload)
+    const bytes = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i += 1) {
+      bytes[i] = binary.charCodeAt(i)
+    }
+    return { mimeType, bytes }
+  } catch {
+    return null
+  }
+}
+
 function extensionForImageMimeType(mimeType: string): string {
   switch (mimeType.toLowerCase()) {
     case 'image/png':

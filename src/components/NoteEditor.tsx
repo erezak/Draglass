@@ -24,6 +24,7 @@ import { frontmatterEndLineField } from '../editor/frontmatterPreview'
 import { createWikilinkCompletionExtension } from '../editor/wikilinkCompletion'
 import {
   buildPastedImageRelPath,
+  decodeImageDataUrl,
   imageEmbedWikilinkForPath,
   isLikelyClipboardImageFileMeta,
   isLikelyImageClipboardType,
@@ -588,6 +589,35 @@ export const NoteEditor = function NoteEditor({
             return null
           }
 
+          const readImageFromClipboardStrings = async () => {
+            const fromDataUrl = (value: string | null | undefined) => {
+              const decoded = decodeImageDataUrl(value ?? '')
+              if (!decoded) return null
+              return {
+                type: decoded.mimeType,
+                arrayBuffer: () => Promise.resolve(new Uint8Array(decoded.bytes).buffer),
+              }
+            }
+
+            const htmlData = clipboard?.getData('text/html')
+            const htmlMatch = /src=['"](data:image\/[^'"]+)['"]/i.exec(htmlData || '')
+            const fromHtml = fromDataUrl(htmlMatch?.[1])
+            if (fromHtml) return fromHtml
+
+            const plainData = clipboard?.getData('text/plain')
+            const fromPlain = fromDataUrl(plainData)
+            if (fromPlain) return fromPlain
+
+            for (const item of Array.from(clipboard?.items ?? [])) {
+              if (item.kind !== 'string') continue
+              const value = await new Promise<string>((resolve) => item.getAsString(resolve))
+              const fromItem = fromDataUrl(value)
+              if (fromItem) return fromItem
+            }
+
+            return null
+          }
+
           const writePastedImage = async (resolvedFile: {
             type: string
             arrayBuffer: () => Promise<ArrayBuffer>
@@ -639,7 +669,9 @@ export const NoteEditor = function NoteEditor({
 
           if (!file) {
             const likelyImagePasteIntent = !(clipboard?.types ?? []).includes('text/plain')
-            void readImageFromNavigatorClipboard()
+            void Promise.resolve()
+              .then(() => readImageFromClipboardStrings())
+              .then((resolvedFromStrings) => resolvedFromStrings ?? readImageFromNavigatorClipboard())
               .then((resolvedFile) => {
                 if (!resolvedFile) {
                   if (likelyImagePasteIntent) {
