@@ -147,9 +147,11 @@ export const NoteEditor = function NoteEditor({
   const initialTasksRef = useRef<LivePreviewTaskItem[]>(tasks)
   const [initError, setInitError] = useState<Error | null>(null)
   const [lightbox, setLightbox] = useState<{ src: string; alt?: string } | null>(null)
+  const [pasteFeedback, setPasteFeedback] = useState<string | null>(null)
   const highlightTimerRef = useRef<number | null>(null)
   const pendingRevealRef = useRef<number | null>(null)
   const pendingCursorRef = useRef<number | null>(null)
+  const pasteFeedbackTimerRef = useRef<number | null>(null)
   const currentVaultPathRef = useRef<string | null>(vaultPath)
   const currentNoteRelPathRef = useRef<string | null>(noteRelPath)
   const currentPastedImagesFolderRef = useRef<string>(
@@ -207,6 +209,17 @@ export const NoteEditor = function NoteEditor({
         annotations: Transaction.addToHistory.of(false),
       })
     }, 1200)
+  }, [])
+
+  const showPasteFeedback = useCallback((message: string) => {
+    if (pasteFeedbackTimerRef.current != null) {
+      window.clearTimeout(pasteFeedbackTimerRef.current)
+    }
+    setPasteFeedback(message)
+    pasteFeedbackTimerRef.current = window.setTimeout(() => {
+      setPasteFeedback(null)
+      pasteFeedbackTimerRef.current = null
+    }, 2200)
   }, [])
 
   /**
@@ -429,6 +442,10 @@ export const NoteEditor = function NoteEditor({
         window.clearTimeout(highlightTimerRef.current)
         highlightTimerRef.current = null
       }
+      if (pasteFeedbackTimerRef.current != null) {
+        window.clearTimeout(pasteFeedbackTimerRef.current)
+        pasteFeedbackTimerRef.current = null
+      }
     }
   }, [])
 
@@ -621,13 +638,20 @@ export const NoteEditor = function NoteEditor({
           const file = imageFromItem ?? imageFromFiles
 
           if (!file) {
+            const likelyImagePasteIntent = !(clipboard?.types ?? []).includes('text/plain')
             void readImageFromNavigatorClipboard()
               .then((resolvedFile) => {
-                if (!resolvedFile) return
+                if (!resolvedFile) {
+                  if (likelyImagePasteIntent) {
+                    showPasteFeedback('No image found in clipboard')
+                  }
+                  return
+                }
                 return writePastedImage(resolvedFile)
               })
               .catch((error) => {
                 console.error('failed to paste image', error)
+                showPasteFeedback('No image found in clipboard')
               })
             return false
           }
@@ -636,6 +660,7 @@ export const NoteEditor = function NoteEditor({
 
           void writePastedImage(file).catch((error) => {
             console.error('failed to paste image', error)
+            showPasteFeedback('No image found in clipboard')
           })
 
           return true
@@ -654,7 +679,7 @@ export const NoteEditor = function NoteEditor({
         ...historyKeymap,
       ]),
     ]
-  }, [theme, renderLockedSections, isVaultUnlocked, onRequestUnlock, onLockedSectionsDetected, files])
+  }, [theme, renderLockedSections, isVaultUnlocked, onRequestUnlock, onLockedSectionsDetected, files, showPasteFeedback])
 
   useEffect(() => {
     if (!hostRef.current) return
@@ -815,6 +840,26 @@ export const NoteEditor = function NoteEditor({
   return (
     <div className={`noteEditor ${livePreview ? 'noteEditor--livePreview' : 'noteEditor--source'}`}>
       <div className="noteEditorHost" ref={hostRef} />
+      {pasteFeedback ? (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            position: 'absolute',
+            right: 14,
+            bottom: 12,
+            padding: '6px 10px',
+            borderRadius: 8,
+            background: 'rgba(16, 20, 26, 0.86)',
+            color: 'rgba(255,255,255,0.92)',
+            fontSize: 12,
+            pointerEvents: 'none',
+            zIndex: 30,
+          }}
+        >
+          {pasteFeedback}
+        </div>
+      ) : null}
       {lightbox ? (
         <div className="imageLightbox" role="presentation" onMouseDown={() => setLightbox(null)}>
           <div
