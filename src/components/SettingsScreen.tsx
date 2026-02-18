@@ -133,6 +133,14 @@ export function SettingsScreen({
                 onChange={onToggle('filesRememberExpandedFolders')}
               />
             </label>
+            <label className="settingsRow">
+              <span>Pasted images folder</span>
+              <input
+                type="text"
+                value={settings.pastedImagesFolder}
+                onChange={(e) => onChange({ pastedImagesFolder: e.target.value })}
+              />
+            </label>
           </section>
 
           <section className="settingsSection">

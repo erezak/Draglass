@@ -22,8 +22,20 @@ import { markdown } from '@codemirror/lang-markdown'
 import { createLivePreviewExtension, type LivePreviewTaskItem } from '../editor/livePreview'
 import { frontmatterEndLineField } from '../editor/frontmatterPreview'
 import { createWikilinkCompletionExtension } from '../editor/wikilinkCompletion'
+import {
+  buildPastedImageRelPath,
+  decodeImageDataUrl,
+  imageEmbedWikilinkForPath,
+  isLikelyClipboardImageFileMeta,
+  isLikelyImageClipboardType,
+} from '../editor/pastedImage'
 import type { HeadingSection, LockedBodyRange } from '../lockedSections'
 import type { NoteEntry } from '../types'
+import { createDir, readClipboardImage, writeVaultAsset } from '../tauri'
+import {
+  DEFAULT_PASTED_IMAGES_FOLDER,
+  normalizePastedImagesFolder,
+} from '../pastedImagesSettings'
 
 const setTaskHighlightEffect = StateEffect.define<number>()
 const clearTaskHighlightEffect = StateEffect.define<void>()
@@ -80,6 +92,7 @@ type NoteEditorProps = {
   isVaultUnlocked?: boolean
   onRequestUnlock?: () => void
   onLockedSectionsDetected?: (sections: HeadingSection[], ranges: LockedBodyRange[]) => void
+  pastedImagesFolder?: string
   files?: NoteEntry[]
   tasks?: LivePreviewTaskItem[]
 }
@@ -113,6 +126,7 @@ export const NoteEditor = function NoteEditor({
     isVaultUnlocked = false,
     onRequestUnlock,
     onLockedSectionsDetected,
+    pastedImagesFolder = DEFAULT_PASTED_IMAGES_FOLDER,
     files = [],
     tasks = [],
     ref,
@@ -134,9 +148,16 @@ export const NoteEditor = function NoteEditor({
   const initialTasksRef = useRef<LivePreviewTaskItem[]>(tasks)
   const [initError, setInitError] = useState<Error | null>(null)
   const [lightbox, setLightbox] = useState<{ src: string; alt?: string } | null>(null)
+  const [pasteFeedback, setPasteFeedback] = useState<string | null>(null)
   const highlightTimerRef = useRef<number | null>(null)
   const pendingRevealRef = useRef<number | null>(null)
   const pendingCursorRef = useRef<number | null>(null)
+  const pasteFeedbackTimerRef = useRef<number | null>(null)
+  const currentVaultPathRef = useRef<string | null>(vaultPath)
+  const currentNoteRelPathRef = useRef<string | null>(noteRelPath)
+  const currentPastedImagesFolderRef = useRef<string>(
+    normalizePastedImagesFolder(pastedImagesFolder),
+  )
 
   const onOpenImage = useCallback((src: string, alt?: string) => {
     setLightbox({ src, alt })
@@ -189,6 +210,17 @@ export const NoteEditor = function NoteEditor({
         annotations: Transaction.addToHistory.of(false),
       })
     }, 1200)
+  }, [])
+
+  const showPasteFeedback = useCallback((message: string) => {
+    if (pasteFeedbackTimerRef.current != null) {
+      window.clearTimeout(pasteFeedbackTimerRef.current)
+    }
+    setPasteFeedback(message)
+    pasteFeedbackTimerRef.current = window.setTimeout(() => {
+      setPasteFeedback(null)
+      pasteFeedbackTimerRef.current = null
+    }, 2200)
   }, [])
 
   /**
@@ -342,6 +374,18 @@ export const NoteEditor = function NoteEditor({
   }, [renderTags])
 
   useEffect(() => {
+    currentVaultPathRef.current = vaultPath
+  }, [vaultPath])
+
+  useEffect(() => {
+    currentNoteRelPathRef.current = noteRelPath
+  }, [noteRelPath])
+
+  useEffect(() => {
+    currentPastedImagesFolderRef.current = normalizePastedImagesFolder(pastedImagesFolder)
+  }, [pastedImagesFolder])
+
+  useEffect(() => {
     if (viewRef.current == null) {
       initialVaultPathRef.current = vaultPath
     }
@@ -398,6 +442,10 @@ export const NoteEditor = function NoteEditor({
       if (highlightTimerRef.current != null) {
         window.clearTimeout(highlightTimerRef.current)
         highlightTimerRef.current = null
+      }
+      if (pasteFeedbackTimerRef.current != null) {
+        window.clearTimeout(pasteFeedbackTimerRef.current)
+        pasteFeedbackTimerRef.current = null
       }
     }
   }, [])
@@ -505,6 +553,155 @@ export const NoteEditor = function NoteEditor({
         if (applyingExternalValueRef.current) return
         onChangeRef.current(update.state.doc.toString())
       }),
+      EditorView.domEventHandlers({
+        paste: (event, view) => {
+          const clipboard = event.clipboardData
+          const vaultPathForPaste = currentVaultPathRef.current
+          const noteRelPathForPaste = currentNoteRelPathRef.current
+          if (!vaultPathForPaste || !noteRelPathForPaste) return false
+
+          const readImageFromNavigatorClipboard = async () => {
+            if (
+              typeof navigator !== 'undefined' &&
+              navigator.clipboard &&
+              typeof navigator.clipboard.read === 'function'
+            ) {
+              try {
+                const clipboardItems = await navigator.clipboard.read()
+                for (const item of clipboardItems) {
+                  const preferredType = item.types.find((type) => isLikelyImageClipboardType(type))
+                  if (!preferredType) continue
+                  const blob = await item.getType(preferredType)
+                  return {
+                    type:
+                      blob.type ||
+                      (preferredType.toLowerCase() === 'public.tiff' ? 'image/tiff' : 'image/png'),
+                    name: '',
+                    size: blob.size,
+                    arrayBuffer: () => blob.arrayBuffer(),
+                  }
+                }
+              } catch {
+                // continue to native fallback
+              }
+            }
+            const nativeClipboard = await readClipboardImage()
+            if (!nativeClipboard) return null
+            return {
+              type: nativeClipboard.mime,
+              arrayBuffer: () => Promise.resolve(new Uint8Array(nativeClipboard.bytes).buffer),
+            }
+          }
+
+          const readImageFromClipboardStrings = async () => {
+            const fromDataUrl = (value: string | null | undefined) => {
+              const decoded = decodeImageDataUrl(value ?? '')
+              if (!decoded) return null
+              return {
+                type: decoded.mimeType,
+                arrayBuffer: () => Promise.resolve(new Uint8Array(decoded.bytes).buffer),
+              }
+            }
+
+            const htmlData = clipboard?.getData('text/html')
+            const htmlMatch = /src=['"](data:image\/[^'"]+)['"]/i.exec(htmlData || '')
+            const fromHtml = fromDataUrl(htmlMatch?.[1])
+            if (fromHtml) return fromHtml
+
+            const plainData = clipboard?.getData('text/plain')
+            const fromPlain = fromDataUrl(plainData)
+            if (fromPlain) return fromPlain
+
+            for (const item of Array.from(clipboard?.items ?? [])) {
+              if (item.kind !== 'string') continue
+              const value = await new Promise<string>((resolve) => item.getAsString(resolve))
+              const fromItem = fromDataUrl(value)
+              if (fromItem) return fromItem
+            }
+
+            return null
+          }
+
+          const writePastedImage = async (resolvedFile: {
+            type: string
+            arrayBuffer: () => Promise<ArrayBuffer>
+          }) => {
+            const folder = currentPastedImagesFolderRef.current
+            try {
+              await createDir(vaultPathForPaste, folder)
+            } catch (error) {
+              const message = error instanceof Error ? error.message : String(error)
+              if (!message.toLowerCase().includes('already exists')) {
+                throw error
+              }
+            }
+
+            const relPath = buildPastedImageRelPath(
+              folder,
+              noteRelPathForPaste,
+              resolvedFile.type,
+              Date.now(),
+              typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+                ? crypto.randomUUID().slice(0, 8)
+                : Math.random().toString(36).slice(2, 10),
+            )
+            const bytes = Array.from(new Uint8Array(await resolvedFile.arrayBuffer()))
+            await writeVaultAsset(vaultPathForPaste, relPath, bytes)
+
+            const embed = imageEmbedWikilinkForPath(relPath)
+            const selection = view.state.selection.main
+            view.dispatch({
+              changes: { from: selection.from, to: selection.to, insert: embed },
+              selection: { anchor: selection.from + embed.length },
+              scrollIntoView: true,
+            })
+          }
+
+          const item = Array.from(clipboard?.items ?? []).find((entry) => {
+            if (entry.kind !== 'file') return false
+            const maybeFile = entry.getAsFile()
+            if (!maybeFile) return false
+            return isLikelyClipboardImageFileMeta(maybeFile.type, maybeFile.name, maybeFile.size)
+          })
+
+          const imageFromItem = item?.getAsFile() ?? null
+          const imageFromFiles =
+            Array.from(clipboard?.files ?? []).find((candidate) =>
+              isLikelyClipboardImageFileMeta(candidate.type, candidate.name, candidate.size),
+            ) ?? null
+          const file = imageFromItem ?? imageFromFiles
+
+          if (!file) {
+            const likelyImagePasteIntent = !(clipboard?.types ?? []).includes('text/plain')
+            void Promise.resolve()
+              .then(() => readImageFromClipboardStrings())
+              .then((resolvedFromStrings) => resolvedFromStrings ?? readImageFromNavigatorClipboard())
+              .then((resolvedFile) => {
+                if (!resolvedFile) {
+                  if (likelyImagePasteIntent) {
+                    showPasteFeedback('No image found in clipboard')
+                  }
+                  return
+                }
+                return writePastedImage(resolvedFile)
+              })
+              .catch((error) => {
+                console.error('failed to paste image', error)
+                showPasteFeedback('Could not read image from clipboard')
+              })
+            return false
+          }
+
+          event.preventDefault()
+
+          void writePastedImage(file).catch((error) => {
+            console.error('failed to paste image', error)
+            showPasteFeedback('Failed to paste image')
+          })
+
+          return true
+        },
+      }),
       keymap.of([
         {
           key: 'Mod-s',
@@ -518,7 +715,7 @@ export const NoteEditor = function NoteEditor({
         ...historyKeymap,
       ]),
     ]
-  }, [theme, renderLockedSections, isVaultUnlocked, onRequestUnlock, onLockedSectionsDetected, files])
+  }, [theme, renderLockedSections, isVaultUnlocked, onRequestUnlock, onLockedSectionsDetected, files, showPasteFeedback])
 
   useEffect(() => {
     if (!hostRef.current) return
@@ -679,6 +876,26 @@ export const NoteEditor = function NoteEditor({
   return (
     <div className={`noteEditor ${livePreview ? 'noteEditor--livePreview' : 'noteEditor--source'}`}>
       <div className="noteEditorHost" ref={hostRef} />
+      {pasteFeedback ? (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            position: 'absolute',
+            right: 14,
+            bottom: 12,
+            padding: '6px 10px',
+            borderRadius: 8,
+            background: 'rgba(16, 20, 26, 0.86)',
+            color: 'rgba(255,255,255,0.92)',
+            fontSize: 12,
+            pointerEvents: 'none',
+            zIndex: 30,
+          }}
+        >
+          {pasteFeedback}
+        </div>
+      ) : null}
       {lightbox ? (
         <div className="imageLightbox" role="presentation" onMouseDown={() => setLightbox(null)}>
           <div

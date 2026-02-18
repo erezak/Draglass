@@ -89,6 +89,26 @@ description = "Allows reading an image asset from the selected vault (legacy com
 commands.allow = ["read_vault_image"]
 
 [[permission]]
+identifier = "read-clipboard-image"
+description = "Allows reading image data from the system clipboard."
+commands.allow = ["read_clipboard_image"]
+
+[[permission]]
+identifier = "read-clipboard-image-legacy"
+description = "Allows reading image data from the system clipboard (legacy command name)."
+commands.allow = ["read_clipboard_image"]
+
+[[permission]]
+identifier = "write-vault-asset"
+description = "Allows writing an image asset file into the selected vault."
+commands.allow = ["write_vault_asset"]
+
+[[permission]]
+identifier = "write-vault-asset-legacy"
+description = "Allows writing an image asset file into the selected vault (legacy command name)."
+commands.allow = ["write_vault_asset"]
+
+[[permission]]
 identifier = "build-graph"
 description = "Allows building the graph data from the selected vault."
 commands.allow = ["build_graph"]
@@ -225,6 +245,10 @@ permissions = [
   "find-backlinks-legacy",
   "read-vault-image",
   "read-vault-image-legacy",
+  "read-clipboard-image",
+  "read-clipboard-image-legacy",
+  "write-vault-asset",
+  "write-vault-asset-legacy",
   "build-graph",
   "build-graph-legacy",
   "search-vault",
