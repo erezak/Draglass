@@ -42,6 +42,8 @@
     "verify-vault-password",
     "verify-vault-password-legacy",
     "get-demo-vault-path",
-    "get-demo-vault-path-legacy"
+    "get-demo-vault-path-legacy",
+    "print-main-window",
+    "print-main-window-legacy"
   ]
 }
