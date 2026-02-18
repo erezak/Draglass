@@ -2,6 +2,7 @@ use tauri::Manager;
 
 mod auth;
 mod backlinks;
+mod clipboard;
 mod common;
 mod demo_vault;
 mod graph;
@@ -74,6 +75,7 @@ pub fn run() {
             create_dir,
             find_backlinks,
             read_vault_image,
+            read_clipboard_image,
             write_vault_asset,
             build_graph,
             search_vault,
@@ -141,6 +143,7 @@ fn persist_window_state(
 
 use crate::auth::{hash_password_impl, verify_password_impl, HashResult};
 use crate::backlinks::find_backlinks_impl;
+use crate::clipboard::{read_clipboard_image_impl, ClipboardImage};
 use crate::demo_vault::get_demo_vault_path_impl;
 use crate::graph::{build_graph_impl, GraphData, GraphOptions};
 use crate::vault::{
@@ -273,6 +276,13 @@ async fn find_backlinks(
 #[tauri::command]
 async fn read_vault_image(vault_path: String, rel_path: String) -> Result<VaultImage, String> {
     tauri::async_runtime::spawn_blocking(move || read_vault_image_impl(&vault_path, &rel_path))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn read_clipboard_image() -> Result<Option<ClipboardImage>, String> {
+    tauri::async_runtime::spawn_blocking(move || read_clipboard_image_impl())
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }

@@ -31,7 +31,7 @@ import {
 } from '../editor/pastedImage'
 import type { HeadingSection, LockedBodyRange } from '../lockedSections'
 import type { NoteEntry } from '../types'
-import { createDir, writeVaultAsset } from '../tauri'
+import { createDir, readClipboardImage, writeVaultAsset } from '../tauri'
 import {
   DEFAULT_PASTED_IMAGES_FOLDER,
   normalizePastedImagesFolder,
@@ -562,31 +562,35 @@ export const NoteEditor = function NoteEditor({
 
           const readImageFromNavigatorClipboard = async () => {
             if (
-              typeof navigator === 'undefined' ||
-              !navigator.clipboard ||
-              typeof navigator.clipboard.read !== 'function'
+              typeof navigator !== 'undefined' &&
+              navigator.clipboard &&
+              typeof navigator.clipboard.read === 'function'
             ) {
-              return null
-            }
-            try {
-              const clipboardItems = await navigator.clipboard.read()
-              for (const item of clipboardItems) {
-                const preferredType = item.types.find((type) => isLikelyImageClipboardType(type))
-                if (!preferredType) continue
-                const blob = await item.getType(preferredType)
-                return {
-                  type:
-                    blob.type ||
-                    (preferredType.toLowerCase() === 'public.tiff' ? 'image/tiff' : 'image/png'),
-                  name: '',
-                  size: blob.size,
-                  arrayBuffer: () => blob.arrayBuffer(),
+              try {
+                const clipboardItems = await navigator.clipboard.read()
+                for (const item of clipboardItems) {
+                  const preferredType = item.types.find((type) => isLikelyImageClipboardType(type))
+                  if (!preferredType) continue
+                  const blob = await item.getType(preferredType)
+                  return {
+                    type:
+                      blob.type ||
+                      (preferredType.toLowerCase() === 'public.tiff' ? 'image/tiff' : 'image/png'),
+                    name: '',
+                    size: blob.size,
+                    arrayBuffer: () => blob.arrayBuffer(),
+                  }
                 }
+              } catch {
+                // continue to native fallback
               }
-            } catch {
-              return null
             }
-            return null
+            const nativeClipboard = await readClipboardImage()
+            if (!nativeClipboard) return null
+            return {
+              type: nativeClipboard.mime,
+              arrayBuffer: () => Promise.resolve(new Uint8Array(nativeClipboard.bytes).buffer),
+            }
           }
 
           const readImageFromClipboardStrings = async () => {

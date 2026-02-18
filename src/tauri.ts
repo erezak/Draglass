@@ -96,6 +96,11 @@ export type VaultImageResponse = {
   mtime_ms: number
 }
 
+export type ClipboardImageResponse = {
+  bytes: number[]
+  mime: string
+}
+
 // Detect if we're running in Tauri or plain web browser
 export function isTauri(): boolean {
   if (typeof window === 'undefined') return false
@@ -235,6 +240,10 @@ async function tauriWriteVaultAsset(
   return invoke<void>('write_vault_asset', { vaultPath, relPath, bytes })
 }
 
+async function tauriReadClipboardImage(): Promise<ClipboardImageResponse | null> {
+  return invoke<ClipboardImageResponse | null>('read_clipboard_image')
+}
+
 export async function readVaultImage(
   vaultPath: string,
   relPath: string,
@@ -258,6 +267,11 @@ export async function writeVaultAsset(
     const { webWriteVaultAsset } = await import('./webVault')
     return webWriteVaultAsset(vaultPath, relPath, bytes)
   }
+}
+
+export async function readClipboardImage(): Promise<ClipboardImageResponse | null> {
+  if (!isTauri()) return null
+  return tauriReadClipboardImage()
 }
 
 async function tauriFindBacklinks(
