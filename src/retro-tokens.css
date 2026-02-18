@@ -1,0 +1,336 @@
+/**
+ * RETRO FUTURISM DESIGN TOKENS
+ * 
+ * A comprehensive design system inspired by 1970s-1980s sci-fi aesthetics,
+ * combining vintage futuristic vision with modern UI/UX principles.
+ * 
+ * Visual Language:
+ * - Neon color accents (cyan, magenta, orange)
+ * - Dark, space-like backgrounds
+ * - Grid patterns and geometric shapes
+ * - Glowing effects and phosphor bloom
+ * - Terminal/monospace typography
+ * - CRT scanline textures
+ * - Holographic gradients
+ */
+
+:root {
+  /* ========================================
+     COLOR SYSTEM - Retro Futurism Palette
+     ======================================== */
+  
+  /* Core Background Colors */
+  --retro-space-black: #0a0e27;
+  --retro-deep-space: #0f1419;
+  --retro-void: #060a14;
+  --retro-panel-base: rgba(15, 20, 35, 0.85);
+  --retro-panel-elevated: rgba(20, 28, 50, 0.92);
+  
+  /* Neon Accent Colors */
+  --retro-neon-cyan: #00ffff;
+  --retro-neon-magenta: #ff00ff;
+  --retro-neon-orange: #ff9500;
+  --retro-neon-green: #39ff14;
+  --retro-neon-pink: #ff10f0;
+  --retro-neon-blue: #0080ff;
+  --retro-neon-yellow: #ffff00;
+  
+  /* Primary Color Scheme */
+  --retro-primary: var(--retro-neon-cyan);
+  --retro-secondary: var(--retro-neon-magenta);
+  --retro-accent: var(--retro-neon-orange);
+  --retro-success: var(--retro-neon-green);
+  --retro-warning: var(--retro-neon-yellow);
+  --retro-error: #ff0055;
+  
+  /* Text Colors */
+  --retro-text-primary: #e0f7ff;
+  --retro-text-secondary: #a8d5e2;
+  --retro-text-muted: #6b8a9a;
+  --retro-text-disabled: #3d4f5a;
+  --retro-text-glow: rgba(0, 255, 255, 0.8);
+  
+  /* Border Colors */
+  --retro-border-base: rgba(0, 255, 255, 0.15);
+  --retro-border-strong: rgba(0, 255, 255, 0.35);
+  --retro-border-glow: rgba(0, 255, 255, 0.6);
+  --retro-border-grid: rgba(0, 255, 255, 0.08);
+  
+  /* Surface Colors */
+  --retro-surface-1: rgba(0, 255, 255, 0.03);
+  --retro-surface-2: rgba(0, 255, 255, 0.06);
+  --retro-surface-3: rgba(0, 255, 255, 0.1);
+  --retro-surface-glass: rgba(15, 30, 60, 0.3);
+  
+  /* Glow Effects */
+  --retro-glow-cyan: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3);
+  --retro-glow-magenta: 0 0 10px rgba(255, 0, 255, 0.5), 0 0 20px rgba(255, 0, 255, 0.3);
+  --retro-glow-orange: 0 0 10px rgba(255, 149, 0, 0.5), 0 0 20px rgba(255, 149, 0, 0.3);
+  --retro-glow-subtle: 0 0 5px rgba(0, 255, 255, 0.2);
+  --retro-glow-intense: 0 0 15px rgba(0, 255, 255, 0.7), 0 0 30px rgba(0, 255, 255, 0.4), 0 0 45px rgba(0, 255, 255, 0.2);
+  
+  /* ========================================
+     TYPOGRAPHY
+     ======================================== */
+  
+  /* Font Families */
+  --retro-font-mono: 'Courier New', 'Courier', monospace;
+  --retro-font-display: 'Orbitron', 'Share Tech Mono', monospace;
+  --retro-font-body: system-ui, -apple-system, sans-serif;
+  
+  /* Font Sizes */
+  --retro-text-xs: 0.688rem;   /* 11px */
+  --retro-text-sm: 0.813rem;   /* 13px */
+  --retro-text-base: 0.938rem; /* 15px */
+  --retro-text-lg: 1.125rem;   /* 18px */
+  --retro-text-xl: 1.375rem;   /* 22px */
+  --retro-text-2xl: 1.75rem;   /* 28px */
+  --retro-text-3xl: 2.25rem;   /* 36px */
+  
+  /* Font Weights */
+  --retro-weight-normal: 400;
+  --retro-weight-medium: 500;
+  --retro-weight-semibold: 600;
+  --retro-weight-bold: 700;
+  
+  /* Line Heights */
+  --retro-leading-tight: 1.2;
+  --retro-leading-normal: 1.5;
+  --retro-leading-relaxed: 1.75;
+  
+  /* Letter Spacing */
+  --retro-tracking-tight: -0.02em;
+  --retro-tracking-normal: 0;
+  --retro-tracking-wide: 0.05em;
+  --retro-tracking-wider: 0.1em;
+  
+  /* ========================================
+     SPACING & LAYOUT
+     ======================================== */
+  
+  --retro-space-1: 0.25rem;  /* 4px */
+  --retro-space-2: 0.5rem;   /* 8px */
+  --retro-space-3: 0.75rem;  /* 12px */
+  --retro-space-4: 1rem;     /* 16px */
+  --retro-space-5: 1.25rem;  /* 20px */
+  --retro-space-6: 1.5rem;   /* 24px */
+  --retro-space-8: 2rem;     /* 32px */
+  --retro-space-10: 2.5rem;  /* 40px */
+  --retro-space-12: 3rem;    /* 48px */
+  --retro-space-16: 4rem;    /* 64px */
+  
+  /* ========================================
+     BORDER RADIUS
+     ======================================== */
+  
+  --retro-radius-none: 0;
+  --retro-radius-sm: 2px;
+  --retro-radius-md: 4px;
+  --retro-radius-lg: 6px;
+  --retro-radius-octagon: 8px;
+  
+  /* ========================================
+     SHADOWS & ELEVATION
+     ======================================== */
+  
+  --retro-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --retro-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --retro-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.7);
+  --retro-shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.8);
+  
+  /* Combined shadow + glow */
+  --retro-shadow-glow-sm: 
+    0 2px 8px rgba(0, 0, 0, 0.5),
+    0 0 8px rgba(0, 255, 255, 0.2);
+  --retro-shadow-glow-md: 
+    0 4px 16px rgba(0, 0, 0, 0.6),
+    0 0 12px rgba(0, 255, 255, 0.3);
+  --retro-shadow-glow-lg: 
+    0 8px 32px rgba(0, 0, 0, 0.7),
+    0 0 20px rgba(0, 255, 255, 0.4);
+  
+  /* ========================================
+     BORDERS
+     ======================================== */
+  
+  --retro-border-width-thin: 1px;
+  --retro-border-width-medium: 2px;
+  --retro-border-width-thick: 3px;
+  
+  /* ========================================
+     TRANSITIONS & ANIMATION
+     ======================================== */
+  
+  --retro-transition-fast: 100ms cubic-bezier(0.4, 0, 0.2, 1);
+  --retro-transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --retro-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --retro-transition-glow: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* ========================================
+     Z-INDEX SCALE
+     ======================================== */
+  
+  --retro-z-base: 0;
+  --retro-z-elevated: 10;
+  --retro-z-dropdown: 100;
+  --retro-z-modal: 1000;
+  --retro-z-overlay: 900;
+  --retro-z-tooltip: 1100;
+  
+  /* ========================================
+     GRID PATTERNS
+     ======================================== */
+  
+  --retro-grid-size: 20px;
+  --retro-grid-color: rgba(0, 255, 255, 0.08);
+  
+  /* ========================================
+     COMPONENT-SPECIFIC TOKENS
+     ======================================== */
+  
+  /* Buttons */
+  --retro-button-height: 36px;
+  --retro-button-padding-x: 1.25rem;
+  --retro-button-padding-y: 0.625rem;
+  --retro-button-border: 2px;
+  
+  /* Inputs */
+  --retro-input-height: 40px;
+  --retro-input-padding-x: 1rem;
+  --retro-input-border: 2px;
+  
+  /* Panels */
+  --retro-panel-padding: 1.25rem;
+  --retro-panel-border: 1px;
+  
+  /* ========================================
+     EFFECTS & FILTERS
+     ======================================== */
+  
+  --retro-backdrop-blur: blur(12px);
+  --retro-scanline-opacity: 0.03;
+  --retro-noise-opacity: 0.02;
+}
+
+/* ========================================
+   LIGHT THEME VARIANT (Optional)
+   ======================================== */
+
+:root[data-theme='light'] {
+  /* Inverted colors for light mode - still maintaining retro aesthetic */
+  --retro-space-black: #e8f4f8;
+  --retro-deep-space: #f0f7fa;
+  --retro-void: #ffffff;
+  --retro-panel-base: rgba(255, 255, 255, 0.9);
+  --retro-panel-elevated: rgba(245, 250, 253, 0.95);
+  
+  /* Adjusted neon colors for light backgrounds */
+  --retro-neon-cyan: #0099cc;
+  --retro-neon-magenta: #cc0099;
+  --retro-neon-orange: #ff6600;
+  --retro-neon-green: #00cc44;
+  --retro-neon-pink: #cc0099;
+  --retro-neon-blue: #0066cc;
+  --retro-neon-yellow: #cc9900;
+  
+  /* Text colors for light mode */
+  --retro-text-primary: #0a2540;
+  --retro-text-secondary: #2d5a7b;
+  --retro-text-muted: #6b8a9a;
+  --retro-text-disabled: #a8c5d6;
+  
+  /* Borders for light mode */
+  --retro-border-base: rgba(0, 153, 204, 0.2);
+  --retro-border-strong: rgba(0, 153, 204, 0.4);
+  --retro-border-glow: rgba(0, 153, 204, 0.6);
+  --retro-border-grid: rgba(0, 153, 204, 0.1);
+  
+  /* Surfaces for light mode */
+  --retro-surface-1: rgba(0, 153, 204, 0.04);
+  --retro-surface-2: rgba(0, 153, 204, 0.08);
+  --retro-surface-3: rgba(0, 153, 204, 0.12);
+  
+  /* Adjusted glows for light mode (more subtle) */
+  --retro-glow-cyan: 0 0 8px rgba(0, 153, 204, 0.3), 0 0 16px rgba(0, 153, 204, 0.15);
+  --retro-glow-magenta: 0 0 8px rgba(204, 0, 153, 0.3), 0 0 16px rgba(204, 0, 153, 0.15);
+  --retro-glow-orange: 0 0 8px rgba(255, 102, 0, 0.3), 0 0 16px rgba(255, 102, 0, 0.15);
+  --retro-glow-subtle: 0 0 4px rgba(0, 153, 204, 0.15);
+  --retro-glow-intense: 0 0 10px rgba(0, 153, 204, 0.5), 0 0 20px rgba(0, 153, 204, 0.3);
+  
+  /* Shadows for light mode */
+  --retro-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --retro-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --retro-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+}
+
+/* ========================================
+   UTILITY PATTERNS & MIXINS (via classes)
+   ======================================== */
+
+.retro-grid-bg {
+  background-image: 
+    linear-gradient(var(--retro-grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--retro-grid-color) 1px, transparent 1px);
+  background-size: var(--retro-grid-size) var(--retro-grid-size);
+}
+
+.retro-scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.1) 0px,
+    transparent 1px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 3px
+  );
+  pointer-events: none;
+  opacity: var(--retro-scanline-opacity);
+}
+
+.retro-glow-text {
+  text-shadow: var(--retro-glow-cyan);
+}
+
+.retro-border-glow {
+  border-color: var(--retro-border-glow);
+  box-shadow: var(--retro-glow-subtle);
+}
+
+.retro-glass-panel {
+  background: var(--retro-panel-base);
+  backdrop-filter: var(--retro-backdrop-blur);
+  border: var(--retro-border-width-thin) solid var(--retro-border-base);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes retro-pulse-glow {
+  0%, 100% {
+    box-shadow: var(--retro-glow-cyan);
+  }
+  50% {
+    box-shadow: var(--retro-glow-intense);
+  }
+}
+
+@keyframes retro-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
+}
+
+@keyframes retro-scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.retro-pulse {
+  animation: retro-pulse-glow 2s ease-in-out infinite;
+}
+
+.retro-flicker {
+  animation: retro-flicker 0.15s ease-in-out infinite;
+}

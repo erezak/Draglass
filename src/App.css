@@ -14,12 +14,15 @@
 .topbar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  height: 44px;
+  gap: var(--retro-space-3);
+  height: 48px;
   padding: 0 var(--topbar-padding-right) 0 var(--topbar-padding-left);
-  border-bottom: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-  backdrop-filter: blur(10px);
+  border-bottom: 2px solid var(--retro-border-strong);
+  background: var(--retro-panel-base);
+  backdrop-filter: var(--retro-backdrop-blur);
+  -webkit-backdrop-filter: var(--retro-backdrop-blur);
+  position: relative;
+  box-shadow: 0 2px 0 var(--retro-primary), var(--retro-shadow-glow-sm);
 }
 
 .platform-mac .topbar {
@@ -46,11 +49,12 @@
 
 .topbarViewToggle {
   display: inline-flex;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
+  gap: var(--retro-space-1);
+  padding: var(--retro-space-1);
+  border-radius: var(--retro-radius-md);
+  border: 2px solid var(--retro-border-strong);
+  background: var(--retro-surface-1);
+  box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.05);
 }
 
 .leftPaneCollapseButton {
@@ -65,12 +69,24 @@
 }
 
 .brand {
-  font-weight: 650;
-  letter-spacing: 0.2px;
+  font-family: var(--retro-font-display);
+  font-weight: var(--retro-weight-bold);
+  letter-spacing: var(--retro-tracking-wider);
+  text-transform: uppercase;
+  color: var(--retro-primary);
+  text-shadow: var(--retro-glow-subtle);
+  font-size: var(--retro-text-base);
 }
 
 .vaultButton {
-  border-radius: 10px;
+  border-radius: var(--retro-radius-md);
+  border: 2px solid var(--retro-border-base);
+  transition: all var(--retro-transition-base);
+}
+
+.vaultButton:hover {
+  border-color: var(--retro-border-glow);
+  box-shadow: var(--retro-glow-subtle);
 }
 
 .vaultButtonIcon {
@@ -83,30 +99,34 @@
 }
 
 .iconButton {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
-  color: var(--text-primary);
+  border-radius: var(--retro-radius-md);
+  border: 2px solid var(--retro-border-base);
+  background: var(--retro-surface-1);
+  color: var(--retro-text-primary);
+  transition: all var(--retro-transition-base);
+  position: relative;
 }
 
 .iconButton:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  border-color: var(--retro-border-glow);
+  background: var(--retro-surface-2);
+  box-shadow: var(--retro-glow-subtle);
+  transform: translateY(-1px);
 }
 
 .iconButton:active {
-  transform: translateY(1px);
+  transform: translateY(0);
 }
 
 .iconButton:focus-visible {
-  outline: 2px solid var(--button-hover-border);
-  outline-offset: 2px;
+  outline: 2px solid var(--retro-primary);
+  outline-offset: 4px;
 }
 
 
@@ -158,10 +178,11 @@
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 1px;
-  transform: translateX(-0.5px);
-  background: var(--panel-border-strong);
+  width: 2px;
+  transform: translateX(-1px);
+  background: var(--retro-border-strong);
   opacity: 0.7;
+  box-shadow: var(--retro-glow-subtle);
 }
 
 .paneResizer--left {
@@ -173,8 +194,9 @@
 }
 
 .paneResizer:hover::after {
-  background: var(--button-hover-border);
+  background: var(--retro-primary);
   opacity: 1;
+  box-shadow: var(--retro-glow-cyan);
 }
 
 .paneWrapper {
@@ -183,64 +205,86 @@
 
 
 .toolbox {
-  padding: 10px 8px;
-  border-right: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  padding: var(--retro-space-3) var(--retro-space-2);
+  border-right: 2px solid var(--retro-border-strong);
+  background: var(--retro-panel-base);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--retro-space-2);
   overflow: hidden;
+  position: relative;
+}
+
+.toolbox::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--retro-primary);
+  opacity: 0.3;
+  box-shadow: -1px 0 8px rgba(0, 255, 255, 0.2);
 }
 
 .toolboxButton {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
-  color: var(--toolbox-icon);
+  border-radius: var(--retro-radius-md);
+  border: 2px solid var(--retro-border-base);
+  background: var(--retro-surface-1);
+  color: var(--retro-text-secondary);
   opacity: 1;
   padding: 0;
   line-height: 1;
+  transition: all var(--retro-transition-base);
+  position: relative;
 }
 
 .toolboxButton:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
-  color: var(--text-primary);
+  border-color: var(--retro-border-glow);
+  background: var(--retro-surface-2);
+  color: var(--retro-primary);
   opacity: 1;
+  box-shadow: var(--retro-glow-subtle);
+  transform: translateX(2px);
 }
 
 .toolboxButton--active {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
-  color: var(--text-primary);
+  border-color: var(--retro-primary);
+  background: var(--retro-surface-3);
+  color: var(--retro-primary);
   opacity: 1;
+  box-shadow: var(--retro-glow-cyan);
 }
 
 .toolboxIcon {
   width: 20px;
   height: 20px;
   display: block;
-  color: var(--toolbox-icon);
+  color: currentColor;
+  filter: drop-shadow(0 0 2px currentColor);
 }
 
 .toolboxIcon * {
-  fill: var(--toolbox-icon);
+  fill: currentColor;
   stroke: none;
 }
 
 .sidebar,
 .rightPane {
-  padding: 10px;
+  padding: var(--retro-space-3);
   overflow: hidden;
   min-height: 0;
   min-width: 0;
-  border-right: 1px solid var(--panel-border);
+  border-right: 2px solid var(--retro-border-base);
+  background: var(--retro-panel-base);
+  backdrop-filter: var(--retro-backdrop-blur);
+  -webkit-backdrop-filter: var(--retro-backdrop-blur);
 }
 
 .paneWrapper.paneHidden,
@@ -252,7 +296,7 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--retro-space-3);
 }
 
 .sidebarBody {
@@ -261,7 +305,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--retro-space-3);
 }
 
 .sidebarScroll {
@@ -270,40 +314,51 @@
   overflow: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--retro-space-3);
 }
 
 .leftPaneToolbar {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px;
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
-  background: var(--panel-bg);
+  gap: var(--retro-space-2);
+  padding: var(--retro-space-2);
+  border: 2px solid var(--retro-border-base);
+  border-radius: var(--retro-radius-md);
+  background: var(--retro-surface-1);
+  box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.05);
 }
 
 .leftPaneToggleButton {
-  padding: 6px 8px;
-  border-radius: 999px;
+  padding: var(--retro-space-2) var(--retro-space-3);
+  border-radius: var(--retro-radius-md);
   border: 1px solid transparent;
   background: transparent;
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: var(--retro-text-sm);
+  color: var(--retro-text-muted);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-family: var(--retro-font-mono);
+  text-transform: uppercase;
+  letter-spacing: var(--retro-tracking-wide);
+  transition: all var(--retro-transition-base);
+}
+
+.leftPaneToggleButton:hover {
+  color: var(--retro-text-primary);
+  background: var(--retro-surface-1);
 }
 
 .leftPaneToggleButton--active {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
-  color: var(--text-primary);
+  border-color: var(--retro-primary);
+  background: var(--retro-surface-2);
+  color: var(--retro-primary);
+  box-shadow: var(--retro-glow-subtle);
 }
 
 .leftPaneActions {
   display: flex;
-  gap: 6px;
+  gap: var(--retro-space-2);
   align-items: center;
   justify-content: flex-start;
 }
@@ -312,24 +367,41 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 6px 8px;
+  gap: var(--retro-space-2);
+  padding: var(--retro-space-2) var(--retro-space-3);
   min-width: 48px;
-  font-size: 12px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
-  color: var(--text-primary);
+  font-size: var(--retro-text-sm);
+  font-family: var(--retro-font-mono);
+  border-radius: var(--retro-radius-md);
+  border: 2px solid var(--retro-border-base);
+  background: var(--retro-surface-1);
+  color: var(--retro-text-primary);
+  transition: all var(--retro-transition-base);
+  text-transform: uppercase;
+  letter-spacing: var(--retro-tracking-wide);
 }
 
 .leftPaneActionButton:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  border-color: var(--retro-border-glow);
+  background: var(--retro-surface-2);
+  box-shadow: var(--retro-glow-subtle);
+  transform: translateY(-1px);
+}
+
+.leftPaneActionButton:active {
+  transform: translateY(0);
 }
 
 .leftPaneActionButton:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  border-color: var(--retro-border-base);
+  color: var(--retro-text-disabled);
+}
+
+.leftPaneActionButton:disabled:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .leftPaneActionIcon {

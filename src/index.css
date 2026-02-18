@@ -1,25 +1,29 @@
+/* Import Retro Futurism Design Tokens */
+@import './retro-tokens.css';
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  font-family: var(--retro-font-body);
+  line-height: var(--retro-leading-normal);
+  font-weight: var(--retro-weight-normal);
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.92);
-  background-color: #14161a;
+  color: var(--retro-text-primary);
+  background-color: var(--retro-space-black);
 
-  --app-bg: #14161a;
-  --panel-bg: rgba(0, 0, 0, 0.22);
-  --panel-solid: #0f1115;
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --panel-border-strong: rgba(255, 255, 255, 0.18);
-  --text-primary: rgba(255, 255, 255, 0.92);
-  --text-muted: rgba(255, 255, 255, 0.7);
-  --button-bg: rgba(255, 255, 255, 0.08);
-  --button-border: rgba(255, 255, 255, 0.2);
-  --button-hover-border: rgba(100, 108, 255, 0.7);
-  --highlight: rgba(100, 108, 255, 0.15);
-  --overlay-bg: rgba(0, 0, 0, 0.6);
-  --toolbox-icon: rgba(255, 255, 255, 0.92);
+  /* Map legacy variables to new retro tokens for compatibility */
+  --app-bg: var(--retro-space-black);
+  --panel-bg: var(--retro-panel-base);
+  --panel-solid: var(--retro-deep-space);
+  --panel-border: var(--retro-border-base);
+  --panel-border-strong: var(--retro-border-strong);
+  --text-primary: var(--retro-text-primary);
+  --text-muted: var(--retro-text-muted);
+  --button-bg: var(--retro-surface-1);
+  --button-border: var(--retro-border-base);
+  --button-hover-border: var(--retro-border-glow);
+  --highlight: var(--retro-surface-2);
+  --overlay-bg: rgba(6, 10, 20, 0.85);
+  --toolbox-icon: var(--retro-text-primary);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -29,31 +33,41 @@
 
 :root[data-theme='light'] {
   color-scheme: light;
-  color: #1f2328;
-  background-color: #f3f4f6;
+  color: var(--retro-text-primary);
+  background-color: var(--retro-space-black);
 
-  --app-bg: #f3f4f6;
-  --panel-bg: rgba(255, 255, 255, 0.8);
-  --panel-solid: #ffffff;
-  --panel-border: rgba(15, 23, 42, 0.12);
-  --panel-border-strong: rgba(15, 23, 42, 0.18);
-  --text-primary: #1f2328;
-  --text-muted: rgba(15, 23, 42, 0.65);
-  --button-bg: rgba(15, 23, 42, 0.06);
-  --button-border: rgba(15, 23, 42, 0.2);
-  --button-hover-border: rgba(59, 74, 159, 0.6);
-  --highlight: rgba(59, 74, 159, 0.18);
+  /* Light theme mappings - still retro themed */
+  --app-bg: var(--retro-space-black);
+  --panel-bg: var(--retro-panel-base);
+  --panel-solid: var(--retro-deep-space);
+  --panel-border: var(--retro-border-base);
+  --panel-border-strong: var(--retro-border-strong);
+  --text-primary: var(--retro-text-primary);
+  --text-muted: var(--retro-text-muted);
+  --button-bg: var(--retro-surface-1);
+  --button-border: var(--retro-border-base);
+  --button-hover-border: var(--retro-border-glow);
+  --highlight: var(--retro-surface-2);
   --overlay-bg: rgba(15, 23, 42, 0.25);
-  --toolbox-icon: #1f2328;
+  --toolbox-icon: var(--retro-text-primary);
 }
 
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  font-weight: var(--retro-weight-medium);
+  color: var(--retro-primary);
+  text-decoration: none;
+  transition: all var(--retro-transition-base);
+  position: relative;
 }
+
 a:hover {
-  color: #535bf2;
+  color: var(--retro-neon-cyan);
+  text-shadow: var(--retro-glow-subtle);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--retro-primary);
+  outline-offset: 2px;
 }
 
 body {
@@ -62,33 +76,68 @@ body {
   min-height: 100vh;
   background: var(--app-bg);
   color: var(--text-primary);
+  position: relative;
+}
+
+/* Add subtle grid background to body */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(var(--retro-grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--retro-grid-color) 1px, transparent 1px);
+  background-size: var(--retro-grid-size) var(--retro-grid-size);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
 }
 
 #root {
   height: 100vh;
+  position: relative;
+  z-index: 1;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: var(--retro-text-3xl);
+  line-height: var(--retro-leading-tight);
+  font-family: var(--retro-font-display);
+  font-weight: var(--retro-weight-bold);
+  letter-spacing: var(--retro-tracking-wide);
+  color: var(--retro-primary);
+  text-shadow: var(--retro-glow-subtle);
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  border-radius: var(--retro-radius-md);
+  border: 2px solid var(--retro-border-base);
+  padding: var(--retro-button-padding-y) var(--retro-button-padding-x);
+  font-size: var(--retro-text-base);
+  font-weight: var(--retro-weight-medium);
+  font-family: var(--retro-font-mono);
+  background-color: var(--retro-surface-1);
+  color: var(--retro-text-primary);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all var(--retro-transition-base);
+  text-transform: uppercase;
+  letter-spacing: var(--retro-tracking-wide);
 }
+
 button:hover {
-  border-color: #646cff;
+  border-color: var(--retro-border-glow);
+  background: var(--retro-surface-2);
+  box-shadow: var(--retro-glow-subtle);
+  transform: translateY(-1px);
 }
+
+button:active {
+  transform: translateY(0);
+}
+
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid var(--retro-primary);
+  outline-offset: 4px;
 }
 
