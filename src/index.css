@@ -1,25 +1,67 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* CUBISM DESIGN SYSTEM */
+  
+  /* Typography - Geometric, bold fonts */
+  font-family: 'Arial Black', 'Impact', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  line-height: 1.3;
+  font-weight: 700;
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.92);
-  background-color: #14161a;
+  color: #FFFFFF;
+  background-color: #1a1a2e;
 
-  --app-bg: #14161a;
-  --panel-bg: rgba(0, 0, 0, 0.22);
-  --panel-solid: #0f1115;
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --panel-border-strong: rgba(255, 255, 255, 0.18);
-  --text-primary: rgba(255, 255, 255, 0.92);
-  --text-muted: rgba(255, 255, 255, 0.7);
-  --button-bg: rgba(255, 255, 255, 0.08);
-  --button-border: rgba(255, 255, 255, 0.2);
-  --button-hover-border: rgba(100, 108, 255, 0.7);
-  --highlight: rgba(100, 108, 255, 0.15);
-  --overlay-bg: rgba(0, 0, 0, 0.6);
-  --toolbox-icon: rgba(255, 255, 255, 0.92);
+  /* Cubism Color Palette - Bold, high contrast */
+  --cubism-navy: #1a1a2e;
+  --cubism-charcoal: #16213e;
+  --cubism-orange: #ff6b35;
+  --cubism-yellow: #ffd23f;
+  --cubism-cyan: #00d4ff;
+  --cubism-purple: #9d4edd;
+  --cubism-red: #e63946;
+  --cubism-green: #06ffa5;
+  --cubism-white: #ffffff;
+  --cubism-black: #0a0a0a;
+  
+  /* Application Colors */
+  --app-bg: #1a1a2e;
+  --panel-bg: #16213e;
+  --panel-solid: #16213e;
+  --panel-border: #ff6b35;
+  --panel-border-strong: #ffd23f;
+  --text-primary: #ffffff;
+  --text-muted: #b8c1ec;
+  --button-bg: #16213e;
+  --button-border: #ff6b35;
+  --button-hover-border: #ffd23f;
+  --highlight: #ff6b35;
+  --overlay-bg: rgba(26, 26, 46, 0.95);
+  --toolbox-icon: #ffffff;
+  
+  /* Cubism Specific Tokens */
+  --cubism-accent-primary: #ff6b35;
+  --cubism-accent-secondary: #ffd23f;
+  --cubism-accent-tertiary: #00d4ff;
+  --cubism-border-width: 3px;
+  --cubism-border-radius: 0px; /* No rounded corners in Cubism */
+  --cubism-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+  --cubism-shadow-strong: 10px 10px 0px rgba(0, 0, 0, 0.6);
+  
+  /* Typography Scale */
+  --cubism-text-xs: 11px;
+  --cubism-text-sm: 13px;
+  --cubism-text-base: 15px;
+  --cubism-text-lg: 18px;
+  --cubism-text-xl: 24px;
+  --cubism-text-2xl: 32px;
+  
+  /* Spacing Scale - Angular grid */
+  --cubism-space-1: 4px;
+  --cubism-space-2: 8px;
+  --cubism-space-3: 12px;
+  --cubism-space-4: 16px;
+  --cubism-space-5: 24px;
+  --cubism-space-6: 32px;
+  --cubism-space-8: 48px;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -29,22 +71,42 @@
 
 :root[data-theme='light'] {
   color-scheme: light;
-  color: #1f2328;
-  background-color: #f3f4f6;
+  color: #0a0a0a;
+  background-color: #f5f5f0;
 
-  --app-bg: #f3f4f6;
-  --panel-bg: rgba(255, 255, 255, 0.8);
+  /* Cubism Light Mode Color Palette */
+  --cubism-navy: #f5f5f0;
+  --cubism-charcoal: #e8e8dc;
+  --cubism-orange: #ff6b35;
+  --cubism-yellow: #ffd23f;
+  --cubism-cyan: #00b4d8;
+  --cubism-purple: #9d4edd;
+  --cubism-red: #e63946;
+  --cubism-green: #06dd88;
+  --cubism-white: #ffffff;
+  --cubism-black: #0a0a0a;
+  
+  /* Application Colors - Light Mode */
+  --app-bg: #f5f5f0;
+  --panel-bg: #e8e8dc;
   --panel-solid: #ffffff;
-  --panel-border: rgba(15, 23, 42, 0.12);
-  --panel-border-strong: rgba(15, 23, 42, 0.18);
-  --text-primary: #1f2328;
-  --text-muted: rgba(15, 23, 42, 0.65);
-  --button-bg: rgba(15, 23, 42, 0.06);
-  --button-border: rgba(15, 23, 42, 0.2);
-  --button-hover-border: rgba(59, 74, 159, 0.6);
-  --highlight: rgba(59, 74, 159, 0.18);
-  --overlay-bg: rgba(15, 23, 42, 0.25);
-  --toolbox-icon: #1f2328;
+  --panel-border: #ff6b35;
+  --panel-border-strong: #e63946;
+  --text-primary: #0a0a0a;
+  --text-muted: #4a5568;
+  --button-bg: #ffffff;
+  --button-border: #ff6b35;
+  --button-hover-border: #e63946;
+  --highlight: #ffd23f;
+  --overlay-bg: rgba(245, 245, 240, 0.95);
+  --toolbox-icon: #0a0a0a;
+  
+  /* Cubism Specific Tokens - Light Mode */
+  --cubism-accent-primary: #ff6b35;
+  --cubism-accent-secondary: #e63946;
+  --cubism-accent-tertiary: #00b4d8;
+  --cubism-shadow: 6px 6px 0px rgba(0, 0, 0, 0.15);
+  --cubism-shadow-strong: 10px 10px 0px rgba(0, 0, 0, 0.25);
 }
 
 a {
@@ -74,21 +136,32 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+  border-radius: var(--cubism-border-radius);
+  border: var(--cubism-border-width) solid var(--button-border);
+  padding: var(--cubism-space-2) var(--cubism-space-4);
+  font-size: var(--cubism-text-base);
+  font-weight: 700;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--button-bg);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.15s ease-out;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--button-hover-border);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0px var(--cubism-accent-primary);
+}
+button:active {
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0px var(--cubism-accent-primary);
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: var(--cubism-border-width) solid var(--cubism-accent-tertiary);
+  outline-offset: 3px;
 }
 
