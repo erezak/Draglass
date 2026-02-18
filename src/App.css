@@ -393,10 +393,19 @@
   box-sizing: border-box;
   padding: 8px 10px;
   font-size: 13px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.searchStubInput:focus {
+  outline: 1px solid var(--button-hover-border);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--shadow-md);
 }
 
 .searchStubInput:disabled {
@@ -565,10 +574,21 @@
 
 .calendarActionButton,
 .calendarNavButton {
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   color: var(--text-primary);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.calendarActionButton:hover,
+.calendarNavButton:hover {
+  background: var(--accent-glass-hover);
+  border-color: var(--button-hover-border);
+  box-shadow: var(--shadow-md);
 }
 
 .calendarActionButton {
@@ -611,15 +631,26 @@
 
 .calendarDay {
   min-height: 30px;
-  border: 1px solid var(--panel-border);
-  border-radius: 8px;
-  background: var(--button-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   color: var(--text-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
   font-size: 12px;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.calendarDay:hover:not(:disabled) {
+  background: var(--accent-glass-hover);
+  border-color: var(--button-hover-border);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .calendarDay:disabled {
@@ -634,6 +665,7 @@
 
 .calendarDay--today {
   border-color: var(--button-hover-border);
+  box-shadow: var(--shadow-md);
 }
 
 .calendarDay--hasNote {
@@ -650,13 +682,16 @@
 .placeholderCard {
   margin: 16px;
   padding: 16px;
-  border-radius: 12px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--panel-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   display: flex;
   flex-direction: column;
   gap: 8px;
   color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .placeholderTitle {
@@ -697,17 +732,22 @@
 }
 .tagExplorerFilter {
   width: 100%;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   color: var(--text-primary);
   padding: 6px 8px;
   font-size: 12px;
   margin-bottom: 8px;
+  transition: all var(--transition-fast);
 }
 
 .tagExplorerFilter:focus {
   outline: 1px solid var(--button-hover-border);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--shadow-md);
 }
 
 .fileTree {
@@ -801,10 +841,12 @@
 .tagItemCount {
   font-size: 11px;
   color: var(--text-muted);
-  border: 1px solid var(--panel-border);
-  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
   padding: 2px 6px;
-  background: var(--panel-bg);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
 }
 .tagNoteList {
   display: flex;
@@ -819,9 +861,20 @@
   width: 100%;
   text-align: left;
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.tagNoteItem:hover {
+  background: var(--accent-glass-hover);
+  border-color: var(--button-hover-border);
+  transform: translateX(2px);
+  box-shadow: var(--shadow-md);
 }
 
 .tagNoteTitle {
@@ -839,27 +892,37 @@
   width: 100%;
   text-align: left;
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   display: flex;
   flex-direction: column;
   gap: 4px;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .fileItem:hover,
 .linkItem:hover {
   border-color: var(--button-hover-border);
+  background: var(--accent-glass-hover);
+  transform: translateX(2px);
+  box-shadow: var(--shadow-md);
 }
 
 .taskItem:hover {
   border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent-glass-hover);
+  transform: translateX(2px);
+  box-shadow: var(--shadow-md);
 }
 
 .fileItem.active {
   border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--accent-glass);
+  box-shadow: var(--shadow-md);
 }
 
 .editorPane {
@@ -2927,7 +2990,8 @@
   position: fixed;
   inset: 0;
   background: var(--overlay-bg);
-  backdrop-filter: blur(8px);
+  backdrop-filter: var(--blur-lg);
+  -webkit-backdrop-filter: var(--blur-lg);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -2937,16 +3001,21 @@
 
 .vaultAuthModal {
   width: min(400px, 92vw);
-  border-radius: 12px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--panel-solid);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: var(--modal-bg);
+  backdrop-filter: var(--blur-xl);
+  -webkit-backdrop-filter: var(--blur-xl);
+  box-shadow: var(--shadow-xl);
   overflow: hidden;
 }
 
 .vaultAuthHeader {
   padding: 16px 18px;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -2986,15 +3055,20 @@
   box-sizing: border-box;
   padding: 10px 12px;
   font-size: 14px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   color: var(--text-primary);
   outline: none;
+  transition: all var(--transition-fast);
 }
 
 .vaultAuthInput:focus {
   border-color: var(--button-hover-border);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--shadow-md);
 }
 
 .vaultAuthError {
@@ -3017,23 +3091,30 @@
   justify-content: flex-end;
   gap: 10px;
   padding: 14px 18px;
-  border-top: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  border-top: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
 }
 
 .vaultAuthCancel,
 .vaultAuthSubmit {
   padding: 8px 16px;
   font-size: 13px;
-  border-radius: 8px;
-  border: 1px solid var(--button-border);
-  background: var(--button-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
   color: var(--text-primary);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .vaultAuthCancel:hover,
 .vaultAuthSubmit:hover {
   border-color: var(--button-hover-border);
+  box-shadow: var(--shadow-md);
 }
 
 .vaultAuthSubmit {
@@ -3043,6 +3124,7 @@
 
 .vaultAuthSubmit:hover {
   background: rgba(110, 231, 135, 0.25);
+  transform: translateY(-1px);
 }
 
 .vaultAuthSubmit:disabled {
