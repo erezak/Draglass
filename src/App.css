@@ -14,12 +14,11 @@
 .topbar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   height: 44px;
   padding: 0 var(--topbar-padding-right) 0 var(--topbar-padding-left);
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: var(--border-base) solid var(--panel-border);
   background: var(--panel-bg);
-  backdrop-filter: blur(10px);
 }
 
 .platform-mac .topbar {
@@ -29,7 +28,7 @@
 .topbarLeftPane {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2);
   height: 100%;
   width: var(--left-pane-header-width);
   min-width: var(--left-pane-header-width);
@@ -40,16 +39,16 @@
 .topbarLeft {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2);
   height: 100%;
 }
 
 .topbarViewToggle {
   display: inline-flex;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border-strong);
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--radius-full);
+  border: var(--border-base) solid var(--panel-border-strong);
   background: var(--button-bg);
 }
 
@@ -60,17 +59,18 @@
 .topbarActions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   height: 100%;
 }
 
 .brand {
-  font-weight: 650;
-  letter-spacing: 0.2px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-size: var(--text-base);
 }
 
 .vaultButton {
-  border-radius: 10px;
+  border-radius: var(--radius-base);
 }
 
 .vaultButtonIcon {
@@ -89,23 +89,25 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
+  border-radius: var(--radius-base);
+  border: var(--border-base) solid var(--button-border);
   background: var(--button-bg);
   color: var(--text-primary);
+  transition: all var(--transition-base);
+  cursor: pointer;
 }
 
 .iconButton:hover {
   border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--button-hover-bg);
 }
 
 .iconButton:active {
-  transform: translateY(1px);
+  background: var(--button-active-bg);
 }
 
 .iconButton:focus-visible {
-  outline: 2px solid var(--button-hover-border);
+  outline: var(--border-thick) solid var(--focus-outline);
   outline-offset: 2px;
 }
 
@@ -158,10 +160,11 @@
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 1px;
+  width: var(--border-base);
   transform: translateX(-0.5px);
-  background: var(--panel-border-strong);
-  opacity: 0.7;
+  background: var(--panel-border);
+  opacity: 0.5;
+  transition: all var(--transition-base);
 }
 
 .paneResizer--left {
@@ -183,13 +186,13 @@
 
 
 .toolbox {
-  padding: 10px 8px;
-  border-right: 1px solid var(--panel-border);
+  padding: var(--space-2);
+  border-right: var(--border-base) solid var(--panel-border);
   background: var(--panel-bg);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   overflow: hidden;
 }
 
@@ -199,27 +202,26 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
+  border-radius: var(--radius-base);
+  border: var(--border-base) solid var(--button-border);
   background: var(--button-bg);
   color: var(--toolbox-icon);
-  opacity: 1;
   padding: 0;
   line-height: 1;
+  transition: all var(--transition-base);
+  cursor: pointer;
 }
 
 .toolboxButton:hover {
   border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--button-hover-bg);
   color: var(--text-primary);
-  opacity: 1;
 }
 
 .toolboxButton--active {
   border-color: var(--button-hover-border);
   background: var(--highlight);
   color: var(--text-primary);
-  opacity: 1;
 }
 
 .toolboxIcon {
@@ -236,11 +238,11 @@
 
 .sidebar,
 .rightPane {
-  padding: 10px;
+  padding: var(--space-2);
   overflow: hidden;
   min-height: 0;
   min-width: 0;
-  border-right: 1px solid var(--panel-border);
+  border-right: var(--border-base) solid var(--panel-border);
 }
 
 .paneWrapper.paneHidden,
@@ -252,7 +254,7 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .sidebarBody {
@@ -261,7 +263,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .sidebarScroll {
@@ -270,29 +272,36 @@
   overflow: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .leftPaneToolbar {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px;
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border: var(--border-base) solid var(--panel-border);
+  border-radius: var(--radius-md);
   background: var(--panel-bg);
 }
 
 .leftPaneToggleButton {
-  padding: 6px 8px;
-  border-radius: 999px;
-  border: 1px solid transparent;
+  padding: var(--space-2);
+  border-radius: var(--radius-full);
+  border: var(--border-base) solid transparent;
   background: transparent;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--text-muted);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.leftPaneToggleButton:hover {
+  background: var(--button-hover-bg);
+  color: var(--text-primary);
 }
 
 .leftPaneToggleButton--active {
@@ -303,7 +312,7 @@
 
 .leftPaneActions {
   display: flex;
-  gap: 6px;
+  gap: var(--space-1);
   align-items: center;
   justify-content: flex-start;
 }
@@ -312,19 +321,21 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 6px 8px;
+  gap: var(--space-1);
+  padding: var(--space-2);
   min-width: 48px;
-  font-size: 12px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
+  font-size: var(--text-xs);
+  border-radius: var(--radius-base);
+  border: var(--border-base) solid var(--button-border);
   background: var(--button-bg);
   color: var(--text-primary);
+  transition: all var(--transition-base);
+  cursor: pointer;
 }
 
 .leftPaneActionButton:hover {
   border-color: var(--button-hover-border);
-  background: var(--highlight);
+  background: var(--button-hover-bg);
 }
 
 .leftPaneActionButton:disabled {
@@ -345,38 +356,50 @@
 .searchStub {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 6px 8px;
+  gap: var(--space-2);
+  padding: var(--space-2);
 }
 
 .searchStubInput {
   width: 100%;
   box-sizing: border-box;
-  padding: 8px 10px;
-  font-size: 13px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  padding: var(--space-2);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-base);
+  border: var(--border-base) solid var(--panel-border);
   background: var(--button-bg);
   color: var(--text-primary);
+  transition: all var(--transition-base);
+}
+
+.searchStubInput:hover {
+  border-color: var(--panel-border-strong);
+}
+
+.searchStubInput:focus {
+  outline: var(--border-thick) solid var(--focus-outline);
+  outline-offset: 2px;
+  border-color: var(--panel-border-strong);
 }
 
 .searchStubInput:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .sidebarFooter {
   margin-top: auto;
-  padding-top: 10px;
-  border-top: 1px solid var(--panel-border);
+  padding-top: var(--space-2);
+  border-top: var(--border-base) solid var(--panel-border);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .sidebarVault {
   flex: 1;
-  font-size: 12px;
-  opacity: 0.85;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -384,10 +407,13 @@
 
 .settingsButton {
   padding: 0;
-  font-size: 12px;
-  border-radius: 6px;
-  border: 1px solid transparent;
+  font-size: var(--text-xs);
+  border-radius: var(--radius-base);
+  border: var(--border-base) solid transparent;
   background: transparent;
+  color: var(--text-muted);
+  transition: all var(--transition-base);
+  cursor: pointer;
 }
 
 .settingsButton--icon {
@@ -398,7 +424,6 @@
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  opacity: 0.8;
 }
 
 .settingsIcon {
@@ -407,22 +432,22 @@
 }
 
 .settingsButton:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.06);
-  opacity: 1;
+  border-color: var(--button-border);
+  background: var(--button-hover-bg);
+  color: var(--text-primary);
 }
 
 .rightPane {
   border-right: none;
-  border-left: 1px solid var(--panel-border);
+  border-left: var(--border-base) solid var(--panel-border);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .rightPaneTabs {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
   flex: 0 0 auto;
 }
 
@@ -430,13 +455,15 @@
   width: 38px;
   height: 36px;
   padding: 0;
-  border-radius: 12px;
-  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  border: var(--border-base) solid var(--button-border);
   background: var(--button-bg);
   color: var(--text-muted);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: all var(--transition-base);
+  cursor: pointer;
 }
 
 .rightPaneTabIcon {
@@ -446,6 +473,9 @@
 
 .rightPaneTab:hover {
   border-color: var(--button-hover-border);
+  background: var(--button-hover-bg);
+  color: var(--text-primary);
+}
 }
 
 .rightPaneTab--active {
