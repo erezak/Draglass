@@ -687,7 +687,7 @@ export const NoteEditor = function NoteEditor({
               })
               .catch((error) => {
                 console.error('failed to paste image', error)
-                showPasteFeedback('No image found in clipboard')
+                showPasteFeedback('Could not read image from clipboard')
               })
             return false
           }
@@ -696,7 +696,7 @@ export const NoteEditor = function NoteEditor({
 
           void writePastedImage(file).catch((error) => {
             console.error('failed to paste image', error)
-            showPasteFeedback('No image found in clipboard')
+            showPasteFeedback('Failed to paste image')
           })
 
           return true
