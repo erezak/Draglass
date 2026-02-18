@@ -1,25 +1,29 @@
+/* Import Material Design 3 tokens */
+@import './md3-tokens.css';
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.92);
-  background-color: #14161a;
+  color: var(--md3-on-background);
+  background-color: var(--md3-background);
 
-  --app-bg: #14161a;
-  --panel-bg: rgba(0, 0, 0, 0.22);
-  --panel-solid: #0f1115;
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --panel-border-strong: rgba(255, 255, 255, 0.18);
-  --text-primary: rgba(255, 255, 255, 0.92);
-  --text-muted: rgba(255, 255, 255, 0.7);
-  --button-bg: rgba(255, 255, 255, 0.08);
-  --button-border: rgba(255, 255, 255, 0.2);
-  --button-hover-border: rgba(100, 108, 255, 0.7);
-  --highlight: rgba(100, 108, 255, 0.15);
-  --overlay-bg: rgba(0, 0, 0, 0.6);
-  --toolbox-icon: rgba(255, 255, 255, 0.92);
+  /* Legacy variable mappings to MD3 tokens */
+  --app-bg: var(--md3-background);
+  --panel-bg: var(--md3-surface-container);
+  --panel-solid: var(--md3-surface-container-high);
+  --panel-border: var(--md3-outline-variant);
+  --panel-border-strong: var(--md3-outline);
+  --text-primary: var(--md3-on-surface);
+  --text-muted: var(--md3-on-surface-variant);
+  --button-bg: var(--md3-surface-container-highest);
+  --button-border: var(--md3-outline);
+  --button-hover-border: var(--md3-primary);
+  --highlight: var(--md3-primary-container);
+  --overlay-bg: var(--md3-scrim);
+  --toolbox-icon: var(--md3-on-surface);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -29,31 +33,33 @@
 
 :root[data-theme='light'] {
   color-scheme: light;
-  color: #1f2328;
-  background-color: #f3f4f6;
+  color: var(--md3-on-background);
+  background-color: var(--md3-background);
 
-  --app-bg: #f3f4f6;
-  --panel-bg: rgba(255, 255, 255, 0.8);
-  --panel-solid: #ffffff;
-  --panel-border: rgba(15, 23, 42, 0.12);
-  --panel-border-strong: rgba(15, 23, 42, 0.18);
-  --text-primary: #1f2328;
-  --text-muted: rgba(15, 23, 42, 0.65);
-  --button-bg: rgba(15, 23, 42, 0.06);
-  --button-border: rgba(15, 23, 42, 0.2);
-  --button-hover-border: rgba(59, 74, 159, 0.6);
-  --highlight: rgba(59, 74, 159, 0.18);
-  --overlay-bg: rgba(15, 23, 42, 0.25);
-  --toolbox-icon: #1f2328;
+  /* Light theme uses same MD3 token mappings */
+  --app-bg: var(--md3-background);
+  --panel-bg: var(--md3-surface-container);
+  --panel-solid: var(--md3-surface-container-high);
+  --panel-border: var(--md3-outline-variant);
+  --panel-border-strong: var(--md3-outline);
+  --text-primary: var(--md3-on-surface);
+  --text-muted: var(--md3-on-surface-variant);
+  --button-bg: var(--md3-surface-container-highest);
+  --button-border: var(--md3-outline);
+  --button-hover-border: var(--md3-primary);
+  --highlight: var(--md3-primary-container);
+  --overlay-bg: var(--md3-scrim);
+  --toolbox-icon: var(--md3-on-surface);
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--md3-primary);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--md3-primary);
+  opacity: 0.8;
 }
 
 body {
@@ -74,21 +80,26 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+  border-radius: var(--md3-shape-corner-full);
+  border: 1px solid var(--md3-outline);
+  padding: var(--md3-spacing-2) var(--md3-spacing-6);
+  font-size: var(--md3-label-large-size);
+  font-weight: var(--md3-label-large-weight);
+  line-height: var(--md3-label-large-line-height);
+  letter-spacing: var(--md3-label-large-tracking);
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--md3-surface-container-high);
+  color: var(--md3-on-surface);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all var(--md3-duration-short4) var(--md3-easing-standard);
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--md3-primary);
+  background-color: var(--md3-surface-container-highest);
+  box-shadow: var(--md3-elevation-1);
 }
-button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid var(--md3-primary);
+  outline-offset: 2px;
 }
 

@@ -14,12 +14,12 @@
 .topbar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  height: 44px;
+  gap: var(--md3-spacing-3);
+  height: 56px;
   padding: 0 var(--topbar-padding-right) 0 var(--topbar-padding-left);
-  border-bottom: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--md3-outline-variant);
+  background: var(--md3-surface-container);
+  box-shadow: var(--md3-elevation-1);
 }
 
 .platform-mac .topbar {
@@ -83,30 +83,52 @@
 }
 
 .iconButton {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
-  color: var(--text-primary);
+  border-radius: var(--md3-shape-corner-full);
+  border: none;
+  background: transparent;
+  color: var(--md3-on-surface-variant);
+  position: relative;
+  transition: all var(--md3-duration-short2) var(--md3-easing-standard);
 }
 
-.iconButton:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+.iconButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--md3-on-surface-variant);
+  opacity: 0;
+  transition: opacity var(--md3-duration-short2) var(--md3-easing-standard);
 }
 
-.iconButton:active {
-  transform: translateY(1px);
+.iconButton:hover::before {
+  opacity: var(--md3-state-hover-opacity);
+}
+
+.iconButton:focus-visible::before {
+  opacity: var(--md3-state-focus-opacity);
+}
+
+.iconButton:active::before {
+  opacity: var(--md3-state-pressed-opacity);
 }
 
 .iconButton:focus-visible {
-  outline: 2px solid var(--button-hover-border);
+  outline: 2px solid var(--md3-primary);
   outline-offset: 2px;
+}
+
+.iconButton svg {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  z-index: 1;
 }
 
 
@@ -183,64 +205,93 @@
 
 
 .toolbox {
-  padding: 10px 8px;
-  border-right: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  padding: var(--md3-spacing-2);
+  border-right: 1px solid var(--md3-outline-variant);
+  background: var(--md3-surface-container);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--md3-spacing-1);
   overflow: hidden;
 }
 
 .toolboxButton {
-  width: 32px;
-  height: 32px;
+  width: 48px;
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
-  color: var(--toolbox-icon);
-  opacity: 1;
+  border-radius: var(--md3-shape-corner-medium);
+  border: none;
+  background: transparent;
+  color: var(--md3-on-surface-variant);
   padding: 0;
   line-height: 1;
+  position: relative;
+  transition: all var(--md3-duration-short2) var(--md3-easing-standard);
 }
 
-.toolboxButton:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
-  color: var(--text-primary);
-  opacity: 1;
+.toolboxButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--md3-on-surface);
+  opacity: 0;
+  transition: opacity var(--md3-duration-short2) var(--md3-easing-standard);
+}
+
+.toolboxButton:hover::before {
+  opacity: var(--md3-state-hover-opacity);
+}
+
+.toolboxButton:focus-visible::before {
+  opacity: var(--md3-state-focus-opacity);
+}
+
+.toolboxButton:active::before {
+  opacity: var(--md3-state-pressed-opacity);
 }
 
 .toolboxButton--active {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
-  color: var(--text-primary);
-  opacity: 1;
+  background: var(--md3-secondary-container);
+  color: var(--md3-on-secondary-container);
+}
+
+.toolboxButton--active::before {
+  display: none;
+}
+
+.toolboxButton:focus-visible {
+  outline: 2px solid var(--md3-primary);
+  outline-offset: 2px;
 }
 
 .toolboxIcon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   display: block;
-  color: var(--toolbox-icon);
+  position: relative;
+  z-index: 1;
+}
+
+.toolboxButton--active .toolboxIcon {
+  color: var(--md3-on-secondary-container);
 }
 
 .toolboxIcon * {
-  fill: var(--toolbox-icon);
+  fill: currentColor;
   stroke: none;
 }
 
 .sidebar,
 .rightPane {
-  padding: 10px;
+  padding: var(--md3-spacing-3);
   overflow: hidden;
   min-height: 0;
   min-width: 0;
-  border-right: 1px solid var(--panel-border);
+  border-right: 1px solid var(--md3-outline-variant);
+  background: var(--md3-surface);
 }
 
 .paneWrapper.paneHidden,
@@ -276,29 +327,56 @@
 .leftPaneToolbar {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px;
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
-  background: var(--panel-bg);
+  gap: var(--md3-spacing-1);
+  padding: var(--md3-spacing-1);
+  border: 1px solid var(--md3-outline-variant);
+  border-radius: var(--md3-shape-corner-large);
+  background: var(--md3-surface-container-low);
 }
 
 .leftPaneToggleButton {
-  padding: 6px 8px;
-  border-radius: 999px;
-  border: 1px solid transparent;
+  padding: var(--md3-spacing-2) var(--md3-spacing-3);
+  border-radius: var(--md3-shape-corner-full);
+  border: none;
   background: transparent;
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: var(--md3-label-medium-size);
+  font-weight: var(--md3-label-medium-weight);
+  line-height: var(--md3-label-medium-line-height);
+  letter-spacing: var(--md3-label-medium-tracking);
+  color: var(--md3-on-surface-variant);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  transition: all var(--md3-duration-short2) var(--md3-easing-standard);
+}
+
+.leftPaneToggleButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--md3-on-surface);
+  opacity: 0;
+  transition: opacity var(--md3-duration-short2) var(--md3-easing-standard);
+}
+
+.leftPaneToggleButton:hover::before {
+  opacity: var(--md3-state-hover-opacity);
 }
 
 .leftPaneToggleButton--active {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
-  color: var(--text-primary);
+  background: var(--md3-secondary-container);
+  color: var(--md3-on-secondary-container);
+}
+
+.leftPaneToggleButton--active::before {
+  display: none;
+}
+
+.leftPaneToggleButton:focus-visible {
+  outline: 2px solid var(--md3-primary);
+  outline-offset: 2px;
 }
 
 .leftPaneActions {
@@ -312,24 +390,37 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 6px 8px;
+  gap: var(--md3-spacing-2);
+  padding: var(--md3-spacing-2) var(--md3-spacing-3);
   min-width: 48px;
-  font-size: 12px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--button-bg);
-  color: var(--text-primary);
+  height: 40px;
+  font-size: var(--md3-label-large-size);
+  font-weight: var(--md3-label-large-weight);
+  line-height: var(--md3-label-large-line-height);
+  letter-spacing: var(--md3-label-large-tracking);
+  border-radius: var(--md3-shape-corner-full);
+  border: 1px solid var(--md3-outline);
+  background: var(--md3-surface-container-low);
+  color: var(--md3-on-surface);
+  transition: all var(--md3-duration-short2) var(--md3-easing-standard);
 }
 
 .leftPaneActionButton:hover {
-  border-color: var(--button-hover-border);
-  background: var(--highlight);
+  border-color: var(--md3-outline);
+  background: var(--md3-surface-container-highest);
+  box-shadow: var(--md3-elevation-1);
 }
 
 .leftPaneActionButton:disabled {
-  opacity: 0.5;
+  opacity: 0.38;
   cursor: not-allowed;
+  background: var(--md3-surface-container-low);
+  color: var(--md3-on-surface);
+}
+
+.leftPaneActionButton:focus-visible {
+  outline: 2px solid var(--md3-primary);
+  outline-offset: 2px;
 }
 
 .leftPaneActionIcon {
@@ -352,16 +443,34 @@
 .searchStubInput {
   width: 100%;
   box-sizing: border-box;
-  padding: 8px 10px;
-  font-size: 13px;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
-  background: var(--button-bg);
-  color: var(--text-primary);
+  padding: var(--md3-spacing-3) var(--md3-spacing-4);
+  font-size: var(--md3-body-large-size);
+  line-height: var(--md3-body-large-line-height);
+  border-radius: var(--md3-shape-corner-small);
+  border: 1px solid var(--md3-outline);
+  background: var(--md3-surface-container-highest);
+  color: var(--md3-on-surface);
+  transition: all var(--md3-duration-short2) var(--md3-easing-standard);
+}
+
+.searchStubInput:hover {
+  border-color: var(--md3-on-surface);
+}
+
+.searchStubInput:focus {
+  outline: none;
+  border-color: var(--md3-primary);
+  border-width: 2px;
+  padding: calc(var(--md3-spacing-3) - 1px) calc(var(--md3-spacing-4) - 1px);
+}
+
+.searchStubInput::placeholder {
+  color: var(--md3-on-surface-variant);
 }
 
 .searchStubInput:disabled {
-  opacity: 0.6;
+  opacity: 0.38;
+  cursor: not-allowed;
 }
 
 .sidebarFooter {
@@ -2007,21 +2116,20 @@
 .settingsOverlay {
   position: fixed;
   inset: 0;
-  background: var(--overlay-bg);
-  backdrop-filter: blur(8px);
+  background: color-mix(in srgb, var(--md3-scrim) 50%, transparent);
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 8vh 16px 16px;
+  padding: 8vh var(--md3-spacing-4) var(--md3-spacing-4);
   z-index: 1100;
 }
 
 .settingsCard {
   width: min(760px, 96vw);
-  border-radius: 14px;
-  border: 1px solid var(--panel-border-strong);
-  background: var(--panel-solid);
-  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.55);
+  border-radius: var(--md3-shape-corner-extra-large);
+  border: none;
+  background: var(--md3-surface-container-high);
+  box-shadow: var(--md3-elevation-3);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -2032,92 +2140,150 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--panel-border);
+  padding: var(--md3-spacing-6) var(--md3-spacing-6);
+  border-bottom: none;
 }
 
 .settingsTitle {
-  font-size: 16px;
-  font-weight: 650;
+  font-size: var(--md3-headline-small-size);
+  font-weight: var(--md3-headline-small-weight);
+  line-height: var(--md3-headline-small-line-height);
+  letter-spacing: var(--md3-headline-small-tracking);
+  color: var(--md3-on-surface);
 }
 
 .settingsSubtitle {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 4px;
+  font-size: var(--md3-body-medium-size);
+  line-height: var(--md3-body-medium-line-height);
+  color: var(--md3-on-surface-variant);
+  margin-top: var(--md3-spacing-1);
 }
 
 .settingsClose {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--button-border);
-  background: var(--button-bg);
+  padding: var(--md3-spacing-2) var(--md3-spacing-6);
+  border-radius: var(--md3-shape-corner-full);
+  border: none;
+  background: var(--md3-primary);
+  color: var(--md3-on-primary);
+  font-size: var(--md3-label-large-size);
+  font-weight: var(--md3-label-large-weight);
+  line-height: var(--md3-label-large-line-height);
+  letter-spacing: var(--md3-label-large-tracking);
+  transition: all var(--md3-duration-short2) var(--md3-easing-standard);
+}
+
+.settingsClose:hover {
+  box-shadow: var(--md3-elevation-1);
 }
 
 .settingsBody {
-  padding: 18px;
+  padding: 0 var(--md3-spacing-6) var(--md3-spacing-6);
   overflow: auto;
   display: grid;
-  gap: 18px;
+  gap: var(--md3-spacing-6);
 }
 
 .settingsSection h3 {
-  font-size: 12px;
+  font-size: var(--md3-title-small-size);
+  font-weight: var(--md3-title-small-weight);
+  line-height: var(--md3-title-small-line-height);
+  letter-spacing: var(--md3-title-small-tracking);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  margin: 0 0 10px;
+  color: var(--md3-primary);
+  margin: 0 0 var(--md3-spacing-3);
 }
 
 .settingsRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-  font-size: 13px;
+  gap: var(--md3-spacing-3);
+  padding: var(--md3-spacing-4);
+  border-radius: var(--md3-shape-corner-medium);
+  border: 1px solid var(--md3-outline-variant);
+  background: var(--md3-surface-container);
+  font-size: var(--md3-body-large-size);
+  line-height: var(--md3-body-large-line-height);
+  transition: all var(--md3-duration-short2) var(--md3-easing-standard);
 }
 
-.settingsRow input[type='number'] {
-  width: 140px;
+.settingsRow:hover {
+  background: var(--md3-surface-container-highest);
+  border-color: var(--md3-outline);
 }
 
 .settingsRow select {
   min-width: 160px;
-  background: var(--button-bg);
-  color: inherit;
-  border: 1px solid var(--button-border);
-  border-radius: 8px;
-  padding: 6px 10px;
+  background: var(--md3-surface-container-highest);
+  color: var(--md3-on-surface);
+  border: 1px solid var(--md3-outline);
+  border-radius: var(--md3-shape-corner-small);
+  padding: var(--md3-spacing-2) var(--md3-spacing-3);
+  font-size: var(--md3-body-large-size);
+  line-height: var(--md3-body-large-line-height);
+}
+
+.settingsRow select:focus {
+  outline: none;
+  border-color: var(--md3-primary);
+  border-width: 2px;
+  padding: calc(var(--md3-spacing-2) - 1px) calc(var(--md3-spacing-3) - 1px);
 }
 
 .settingsRow input[type='checkbox'] {
-  transform: scale(1.1);
+  width: 20px;
+  height: 20px;
+  accent-color: var(--md3-primary);
+  cursor: pointer;
+}
+
+.settingsRow input[type='number'] {
+  width: 140px;
+  background: var(--md3-surface-container-highest);
+  color: var(--md3-on-surface);
+  border: 1px solid var(--md3-outline);
+  border-radius: var(--md3-shape-corner-small);
+  padding: var(--md3-spacing-2) var(--md3-spacing-3);
+  font-size: var(--md3-body-large-size);
+  line-height: var(--md3-body-large-line-height);
+}
+
+.settingsRow input[type='number']:focus {
+  outline: none;
+  border-color: var(--md3-primary);
+  border-width: 2px;
+  padding: calc(var(--md3-spacing-2) - 1px) calc(var(--md3-spacing-3) - 1px);
 }
 
 .settingsFooter {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 14px 18px;
-  border-top: 1px solid var(--panel-border);
-  background: var(--panel-bg);
+  gap: var(--md3-spacing-3);
+  padding: var(--md3-spacing-4) var(--md3-spacing-6);
+  border-top: 1px solid var(--md3-outline-variant);
+  background: var(--md3-surface-container);
 }
 
 .settingsReset {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--button-border);
-  background: var(--button-bg);
+  padding: var(--md3-spacing-2) var(--md3-spacing-6);
+  border-radius: var(--md3-shape-corner-full);
+  border: 1px solid var(--md3-outline);
+  background: var(--md3-surface-container-highest);
+  color: var(--md3-on-surface);
+  font-size: var(--md3-label-large-size);
+  font-weight: var(--md3-label-large-weight);
+  transition: all var(--md3-duration-short2) var(--md3-easing-standard);
+}
+
+.settingsReset:hover {
+  background: var(--md3-surface-container-highest);
+  box-shadow: var(--md3-elevation-1);
 }
 
 .settingsHint {
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: var(--md3-body-medium-size);
+  color: var(--md3-on-surface-variant);
 }
 
 .imageLightbox {

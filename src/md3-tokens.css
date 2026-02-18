@@ -1,0 +1,400 @@
+/**
+ * Material Design 3 Design Tokens
+ * 
+ * Defines the complete MD3 design system including:
+ * - Color system (primary, secondary, tertiary, error, neutral, neutral-variant)
+ * - Typography scale (display, headline, title, body, label)
+ * - Spacing tokens (4px base grid)
+ * - Elevation & shadows
+ * - Shape (border radius)
+ * - Motion (easing & duration)
+ * - State layers (hover, focus, pressed, dragged)
+ */
+
+:root {
+  /* ============================================
+     COLOR SYSTEM - Dark Theme (Default)
+     ============================================ */
+  
+  /* Primary - Brand color, used for key components */
+  --md3-primary: #a8c7fa;
+  --md3-on-primary: #0a2e6e;
+  --md3-primary-container: #1e4391;
+  --md3-on-primary-container: #d8e2ff;
+
+  /* Secondary - Supporting color for less prominent components */
+  --md3-secondary: #bcc7dc;
+  --md3-on-secondary: #263141;
+  --md3-secondary-container: #3c4758;
+  --md3-on-secondary-container: #d8e3f8;
+
+  /* Tertiary - Accent color for highlighting */
+  --md3-tertiary: #d9bbde;
+  --md3-on-tertiary: #3e2845;
+  --md3-tertiary-container: #563e5d;
+  --md3-on-tertiary-container: #f5dafc;
+
+  /* Error - For errors and destructive actions */
+  --md3-error: #ffb4ab;
+  --md3-on-error: #690005;
+  --md3-error-container: #93000a;
+  --md3-on-error-container: #ffdad6;
+
+  /* Surface - Background surfaces at different elevations */
+  --md3-surface: #1a1c1e;
+  --md3-on-surface: #e3e2e6;
+  --md3-surface-variant: #43474e;
+  --md3-on-surface-variant: #c3c6cf;
+
+  /* Surface containers - Different elevation levels */
+  --md3-surface-container-lowest: #0f1113;
+  --md3-surface-container-low: #1a1c1e;
+  --md3-surface-container: #1e2022;
+  --md3-surface-container-high: #282a2c;
+  --md3-surface-container-highest: #333537;
+
+  /* Outline - For borders and dividers */
+  --md3-outline: #8d9199;
+  --md3-outline-variant: #43474e;
+
+  /* Background */
+  --md3-background: #1a1c1e;
+  --md3-on-background: #e3e2e6;
+
+  /* Inverse colors for special cases */
+  --md3-inverse-surface: #e3e2e6;
+  --md3-inverse-on-surface: #2f3033;
+  --md3-inverse-primary: #415f91;
+
+  /* Surface tints */
+  --md3-surface-tint: #a8c7fa;
+
+  /* Shadow colors */
+  --md3-shadow: #000000;
+  --md3-scrim: #000000;
+
+  /* ============================================
+     STATE LAYERS - Opacity overlays for states
+     ============================================ */
+  --md3-state-hover-opacity: 0.08;
+  --md3-state-focus-opacity: 0.12;
+  --md3-state-pressed-opacity: 0.12;
+  --md3-state-dragged-opacity: 0.16;
+
+  /* ============================================
+     ELEVATION - Shadows for raised surfaces
+     ============================================ */
+  --md3-elevation-0: none;
+  --md3-elevation-1: 
+    0px 1px 2px 0px rgba(0, 0, 0, 0.30),
+    0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  --md3-elevation-2:
+    0px 1px 2px 0px rgba(0, 0, 0, 0.30),
+    0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  --md3-elevation-3:
+    0px 4px 8px 3px rgba(0, 0, 0, 0.15),
+    0px 1px 3px 0px rgba(0, 0, 0, 0.30);
+  --md3-elevation-4:
+    0px 6px 10px 4px rgba(0, 0, 0, 0.15),
+    0px 2px 3px 0px rgba(0, 0, 0, 0.30);
+  --md3-elevation-5:
+    0px 8px 12px 6px rgba(0, 0, 0, 0.15),
+    0px 4px 4px 0px rgba(0, 0, 0, 0.30);
+
+  /* ============================================
+     TYPOGRAPHY SCALE
+     ============================================ */
+  
+  /* Display - Largest text, used sparingly */
+  --md3-display-large-size: 57px;
+  --md3-display-large-line-height: 64px;
+  --md3-display-large-weight: 400;
+  --md3-display-large-tracking: -0.25px;
+
+  --md3-display-medium-size: 45px;
+  --md3-display-medium-line-height: 52px;
+  --md3-display-medium-weight: 400;
+  --md3-display-medium-tracking: 0px;
+
+  --md3-display-small-size: 36px;
+  --md3-display-small-line-height: 44px;
+  --md3-display-small-weight: 400;
+  --md3-display-small-tracking: 0px;
+
+  /* Headline - High-emphasis text */
+  --md3-headline-large-size: 32px;
+  --md3-headline-large-line-height: 40px;
+  --md3-headline-large-weight: 400;
+  --md3-headline-large-tracking: 0px;
+
+  --md3-headline-medium-size: 28px;
+  --md3-headline-medium-line-height: 36px;
+  --md3-headline-medium-weight: 400;
+  --md3-headline-medium-tracking: 0px;
+
+  --md3-headline-small-size: 24px;
+  --md3-headline-small-line-height: 32px;
+  --md3-headline-small-weight: 400;
+  --md3-headline-small-tracking: 0px;
+
+  /* Title - Medium-emphasis text */
+  --md3-title-large-size: 22px;
+  --md3-title-large-line-height: 28px;
+  --md3-title-large-weight: 400;
+  --md3-title-large-tracking: 0px;
+
+  --md3-title-medium-size: 16px;
+  --md3-title-medium-line-height: 24px;
+  --md3-title-medium-weight: 500;
+  --md3-title-medium-tracking: 0.15px;
+
+  --md3-title-small-size: 14px;
+  --md3-title-small-line-height: 20px;
+  --md3-title-small-weight: 500;
+  --md3-title-small-tracking: 0.1px;
+
+  /* Body - Default text */
+  --md3-body-large-size: 16px;
+  --md3-body-large-line-height: 24px;
+  --md3-body-large-weight: 400;
+  --md3-body-large-tracking: 0.5px;
+
+  --md3-body-medium-size: 14px;
+  --md3-body-medium-line-height: 20px;
+  --md3-body-medium-weight: 400;
+  --md3-body-medium-tracking: 0.25px;
+
+  --md3-body-small-size: 12px;
+  --md3-body-small-line-height: 16px;
+  --md3-body-small-weight: 400;
+  --md3-body-small-tracking: 0.4px;
+
+  /* Label - Small text for labels */
+  --md3-label-large-size: 14px;
+  --md3-label-large-line-height: 20px;
+  --md3-label-large-weight: 500;
+  --md3-label-large-tracking: 0.1px;
+
+  --md3-label-medium-size: 12px;
+  --md3-label-medium-line-height: 16px;
+  --md3-label-medium-weight: 500;
+  --md3-label-medium-tracking: 0.5px;
+
+  --md3-label-small-size: 11px;
+  --md3-label-small-line-height: 16px;
+  --md3-label-small-weight: 500;
+  --md3-label-small-tracking: 0.5px;
+
+  /* ============================================
+     SPACING TOKENS - 4px base grid
+     ============================================ */
+  --md3-spacing-1: 4px;
+  --md3-spacing-2: 8px;
+  --md3-spacing-3: 12px;
+  --md3-spacing-4: 16px;
+  --md3-spacing-5: 20px;
+  --md3-spacing-6: 24px;
+  --md3-spacing-7: 28px;
+  --md3-spacing-8: 32px;
+  --md3-spacing-9: 36px;
+  --md3-spacing-10: 40px;
+  --md3-spacing-12: 48px;
+  --md3-spacing-16: 64px;
+  --md3-spacing-20: 80px;
+  --md3-spacing-24: 96px;
+
+  /* ============================================
+     SHAPE - Border radius
+     ============================================ */
+  --md3-shape-corner-none: 0px;
+  --md3-shape-corner-extra-small: 4px;
+  --md3-shape-corner-small: 8px;
+  --md3-shape-corner-medium: 12px;
+  --md3-shape-corner-large: 16px;
+  --md3-shape-corner-extra-large: 28px;
+  --md3-shape-corner-full: 9999px;
+
+  /* ============================================
+     MOTION - Easing & duration
+     ============================================ */
+  
+  /* Easing curves */
+  --md3-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md3-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --md3-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md3-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --md3-easing-legacy: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Duration */
+  --md3-duration-short1: 50ms;
+  --md3-duration-short2: 100ms;
+  --md3-duration-short3: 150ms;
+  --md3-duration-short4: 200ms;
+  --md3-duration-medium1: 250ms;
+  --md3-duration-medium2: 300ms;
+  --md3-duration-medium3: 350ms;
+  --md3-duration-medium4: 400ms;
+  --md3-duration-long1: 450ms;
+  --md3-duration-long2: 500ms;
+  --md3-duration-long3: 550ms;
+  --md3-duration-long4: 600ms;
+  --md3-duration-extra-long1: 700ms;
+  --md3-duration-extra-long2: 800ms;
+  --md3-duration-extra-long3: 900ms;
+  --md3-duration-extra-long4: 1000ms;
+}
+
+/* ============================================
+   LIGHT THEME OVERRIDES
+   ============================================ */
+:root[data-theme='light'] {
+  /* Primary */
+  --md3-primary: #415f91;
+  --md3-on-primary: #ffffff;
+  --md3-primary-container: #d8e2ff;
+  --md3-on-primary-container: #001a41;
+
+  /* Secondary */
+  --md3-secondary: #565e71;
+  --md3-on-secondary: #ffffff;
+  --md3-secondary-container: #dae2f9;
+  --md3-on-secondary-container: #131c2b;
+
+  /* Tertiary */
+  --md3-tertiary: #705575;
+  --md3-on-tertiary: #ffffff;
+  --md3-tertiary-container: #fad8fd;
+  --md3-on-tertiary-container: #28132e;
+
+  /* Error */
+  --md3-error: #ba1a1a;
+  --md3-on-error: #ffffff;
+  --md3-error-container: #ffdad6;
+  --md3-on-error-container: #410002;
+
+  /* Surface */
+  --md3-surface: #faf9fd;
+  --md3-on-surface: #1a1c1e;
+  --md3-surface-variant: #e1e2ec;
+  --md3-on-surface-variant: #44474f;
+
+  /* Surface containers */
+  --md3-surface-container-lowest: #ffffff;
+  --md3-surface-container-low: #f4f3f7;
+  --md3-surface-container: #eeedf1;
+  --md3-surface-container-high: #e9e7ec;
+  --md3-surface-container-highest: #e3e2e6;
+
+  /* Outline */
+  --md3-outline: #74777f;
+  --md3-outline-variant: #c4c6d0;
+
+  /* Background */
+  --md3-background: #faf9fd;
+  --md3-on-background: #1a1c1e;
+
+  /* Inverse */
+  --md3-inverse-surface: #2f3033;
+  --md3-inverse-on-surface: #f1f0f4;
+  --md3-inverse-primary: #a8c7fa;
+
+  /* Surface tints */
+  --md3-surface-tint: #415f91;
+
+  /* Shadow */
+  --md3-shadow: #000000;
+  --md3-scrim: #000000;
+
+  /* Elevation overrides for light theme - lighter shadows */
+  --md3-elevation-1: 
+    0px 1px 2px 0px rgba(0, 0, 0, 0.15),
+    0px 1px 3px 1px rgba(0, 0, 0, 0.10);
+  --md3-elevation-2:
+    0px 1px 2px 0px rgba(0, 0, 0, 0.15),
+    0px 2px 6px 2px rgba(0, 0, 0, 0.10);
+  --md3-elevation-3:
+    0px 4px 8px 3px rgba(0, 0, 0, 0.10),
+    0px 1px 3px 0px rgba(0, 0, 0, 0.15);
+  --md3-elevation-4:
+    0px 6px 10px 4px rgba(0, 0, 0, 0.10),
+    0px 2px 3px 0px rgba(0, 0, 0, 0.15);
+  --md3-elevation-5:
+    0px 8px 12px 6px rgba(0, 0, 0, 0.10),
+    0px 4px 4px 0px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Typography helpers */
+.md3-display-large {
+  font-size: var(--md3-display-large-size);
+  line-height: var(--md3-display-large-line-height);
+  font-weight: var(--md3-display-large-weight);
+  letter-spacing: var(--md3-display-large-tracking);
+}
+
+.md3-headline-small {
+  font-size: var(--md3-headline-small-size);
+  line-height: var(--md3-headline-small-line-height);
+  font-weight: var(--md3-headline-small-weight);
+  letter-spacing: var(--md3-headline-small-tracking);
+}
+
+.md3-title-large {
+  font-size: var(--md3-title-large-size);
+  line-height: var(--md3-title-large-line-height);
+  font-weight: var(--md3-title-large-weight);
+  letter-spacing: var(--md3-title-large-tracking);
+}
+
+.md3-title-medium {
+  font-size: var(--md3-title-medium-size);
+  line-height: var(--md3-title-medium-line-height);
+  font-weight: var(--md3-title-medium-weight);
+  letter-spacing: var(--md3-title-medium-tracking);
+}
+
+.md3-title-small {
+  font-size: var(--md3-title-small-size);
+  line-height: var(--md3-title-small-line-height);
+  font-weight: var(--md3-title-small-weight);
+  letter-spacing: var(--md3-title-small-tracking);
+}
+
+.md3-body-large {
+  font-size: var(--md3-body-large-size);
+  line-height: var(--md3-body-large-line-height);
+  font-weight: var(--md3-body-large-weight);
+  letter-spacing: var(--md3-body-large-tracking);
+}
+
+.md3-body-medium {
+  font-size: var(--md3-body-medium-size);
+  line-height: var(--md3-body-medium-line-height);
+  font-weight: var(--md3-body-medium-weight);
+  letter-spacing: var(--md3-body-medium-tracking);
+}
+
+.md3-label-large {
+  font-size: var(--md3-label-large-size);
+  line-height: var(--md3-label-large-line-height);
+  font-weight: var(--md3-label-large-weight);
+  letter-spacing: var(--md3-label-large-tracking);
+}
+
+.md3-label-medium {
+  font-size: var(--md3-label-medium-size);
+  line-height: var(--md3-label-medium-line-height);
+  font-weight: var(--md3-label-medium-weight);
+  letter-spacing: var(--md3-label-medium-tracking);
+}
+
+/* Surface elevation helpers */
+.md3-elevation-0 { box-shadow: var(--md3-elevation-0); }
+.md3-elevation-1 { box-shadow: var(--md3-elevation-1); }
+.md3-elevation-2 { box-shadow: var(--md3-elevation-2); }
+.md3-elevation-3 { box-shadow: var(--md3-elevation-3); }
+.md3-elevation-4 { box-shadow: var(--md3-elevation-4); }
+.md3-elevation-5 { box-shadow: var(--md3-elevation-5); }
