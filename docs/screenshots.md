@@ -87,6 +87,7 @@ Configuration dialog for customizing Draglass behavior and appearance.
 - Modal overlay with organized settings sections
 - **Editor** section: Soft wrap, render diagrams, render images, render callouts toggles
 - **Theme** dropdown: Dark mode selected
+- **Surrealism intensity** dropdown: Dali-inspired style controls (Off/Subtle/Full)
 - **Files** section: Remember last vault, show hidden paths, remember expanded folders
 - **Autosave** settings (visible when scrolling)
 - Reset to defaults button
@@ -243,6 +244,7 @@ All screenshots show Draglass in **Dark mode**, which features:
 While not fully captured in static screenshots, Live Preview mode provides:
 - **Inline rendering**: Formatting appears as you type
 - **Hidden markup**: Bold, italic, and link syntax hidden until cursor enters
+- **Strikethrough rendering**: `~~text~~` is rendered inline
 - **Clickable wikilinks**: Click to navigate without leaving edit mode
 - **Properties panel**: Obsidian-style frontmatter editor above the note
 - **Rendered diagrams**: Mermaid flowcharts displayed inline
@@ -250,6 +252,7 @@ While not fully captured in static screenshots, Live Preview mode provides:
 - **Callout blocks**: Styled notes, tips, and warnings with icons
 - **Image lightbox**: Click thumbnails for full-size view
 - **Task checkboxes**: Click to toggle between open/done/cancelled
+- **Task done date automation**: marking done adds `✅ YYYY-MM-DD`
 
 ---
 

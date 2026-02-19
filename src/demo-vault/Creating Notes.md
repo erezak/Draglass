@@ -39,6 +39,8 @@ You can create folders from the toolbar to organize notes hierarchically. The fi
 
 Every note is a standard Markdown file. You can open them in any text editor, back them up with Git, or move them across machines. Draglass never wraps your data in a proprietary format. See [[Markdown Syntax]] for what you can write.
 
+If a note has frontmatter, Draglass maintains time metadata automatically: new notes receive `created` and `updated`, and `updated` refreshes when the note is saved.
+
 > [!note] Hidden files
 > Dotfiles, `node_modules`, and `.DS_Store` are hidden from the tree by default. Toggle **Show hidden/ignored paths** in [[Customizing Draglass|Settings]] to reveal them. See [[Privacy and Security]] for details.
 

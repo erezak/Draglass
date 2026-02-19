@@ -20,6 +20,7 @@ Powered by CodeMirror 6, one of the most advanced code editors available. Fast, 
 ### Live Preview Mode
 Format as you type with inline rendering:
 - **Hidden markup**: Bold, italic, and wikilink syntax disappears, showing only the formatted result
+- **Strikethrough rendering**: `~~text~~` displays as inline strikethrough in Live Preview
 - **Cursor-aware reveal**: Move your cursor into formatted text to see and edit the raw Markdown
 - **Clickable elements**: Task checkboxes, wikilinks, tags, and images are all interactive
 - **Real-time rendering**: Mermaid diagrams, callouts, and images render inline
@@ -165,6 +166,7 @@ The **Tasks panel** in the right sidebar automatically collects all open tasks f
 Features:
 - **Vault-wide scanning**: See all open tasks in one place
 - **Clickable checkboxes** in Live Preview mode (cycle through open → done → cancelled)
+- **Automatic done date**: Checking a task as done appends `✅ YYYY-MM-DD` when missing
 - **Task field menu**: Right-click a checkbox in Live Preview to add emoji task fields (dates, priority, recurrence)
 - **Task query due dates**: Fenced `tasks` query blocks show a Due column when tasks include `📅 YYYY-MM-DD`
 - **Smart filtering**: Completed and cancelled tasks hidden from panel
@@ -199,6 +201,7 @@ Features:
 - **Insert Template…**: Inserts template content into the current note at selection/cursor
 - **New Note from Template…**: Creates a new note from the selected template
 - **Action-time variables**: `{{date}}`, `{{time}}`, `{{datetime}}`, `{{title}}`, `{{cursor}}`
+- **Create-time expression evaluation**: `<% tp.date.now("...") %>` and `moment(tp.file.title, ...).format(...)` resolve when creating notes
 - **Frontmatter-aware apply**: Template frontmatter merges into existing notes without overwriting existing keys
 - **Search-safe**: Template files are excluded from indexing and search results
 
@@ -211,6 +214,8 @@ Features:
 - Settings in browser localStorage (or Tauri local storage)
 - No network calls, no cloud sync, no telemetry
 - Works completely offline
+- New notes automatically get `created` and `updated` frontmatter timestamps
+- `updated` is refreshed on save for notes that already contain frontmatter
 
 ### Locked Sections
 Protect sensitive content within notes by marking headings as locked:

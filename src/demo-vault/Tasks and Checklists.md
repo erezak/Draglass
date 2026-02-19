@@ -32,6 +32,7 @@ In [[Live Preview]] mode, every `- [ ]` item shows a real checkbox widget. Click
 3. **Cancelled** `[-]` — struck through / indeterminate
 
 The underlying Markdown updates instantly, so the change is saved automatically.
+When you mark a task as done, Draglass also adds a `✅ YYYY-MM-DD` done-date field automatically if one is not already present.
 
 Right-click a task checkbox in Live Preview to open the task menu. You can add emoji fields like:
 
