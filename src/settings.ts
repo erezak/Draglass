@@ -112,6 +112,12 @@ function normalizeSettings(raw: unknown): DraglassSettings {
   if (!raw || typeof raw !== 'object') return DEFAULT_SETTINGS
   const r = raw as Record<string, unknown>
   const editorTheme = r.editorTheme === 'light' || r.editorTheme === 'dark' ? r.editorTheme : null
+  const surrealismIntensity =
+    r.surrealismIntensity === 'off' ||
+    r.surrealismIntensity === 'subtle' ||
+    r.surrealismIntensity === 'full'
+      ? r.surrealismIntensity
+      : null
 
   return {
     editorWrap: asBool(r.editorWrap, DEFAULT_SETTINGS.editorWrap),
@@ -120,6 +126,7 @@ function normalizeSettings(raw: unknown): DraglassSettings {
     editorRenderImages: asBool(r.editorRenderImages, DEFAULT_SETTINGS.editorRenderImages),
     editorRenderCallouts: asBool(r.editorRenderCallouts, DEFAULT_SETTINGS.editorRenderCallouts),
     editorTheme: editorTheme ?? DEFAULT_SETTINGS.editorTheme,
+    surrealismIntensity: surrealismIntensity ?? DEFAULT_SETTINGS.surrealismIntensity,
     filesShowHidden: asBool(r.filesShowHidden, DEFAULT_SETTINGS.filesShowHidden),
     filesRememberExpandedFolders: asBool(
       r.filesRememberExpandedFolders,
