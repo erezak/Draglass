@@ -46,6 +46,7 @@ async function loadTsModule(modulePath) {
 
 const templates = await loadTsModule('src/templates.ts')
 const renderer = await loadTsModule('src/templateRenderer.ts')
+const frontmatter = await loadTsModule('src/frontmatter.ts')
 
 assert.equal(templates.isTemplatePath('_templates/note.md', '_templates'), true)
 assert.equal(templates.isTemplatePath('_templates/nested/note.md', '_templates'), true)
@@ -90,5 +91,28 @@ const merged = renderer.mergeFrontmatterForTemplateInsert(
 assert.equal(merged.textWithMergedFrontmatter.includes('title: Existing'), true)
 assert.equal(merged.textWithMergedFrontmatter.includes('created: 2026-02-03'), true)
 assert.equal(merged.textWithMergedFrontmatter.includes('title: Template'), false)
+
+const defaultsOnEmpty = frontmatter.applyDefaultNoteFrontmatter('', new Date(2026, 1, 3, 4, 5))
+const defaultsOnEmptyParsed = frontmatter.parseFrontmatter(defaultsOnEmpty)
+assert.equal(defaultsOnEmptyParsed.entries.some((entry) => entry.key === 'created' && entry.value === '2026-02-03 04:05'), true)
+assert.equal(defaultsOnEmptyParsed.entries.some((entry) => entry.key === 'updated' && entry.value === '2026-02-03 04:05'), true)
+
+const defaultsWithExistingCreated = frontmatter.applyDefaultNoteFrontmatter(
+  ['---', 'created: 2024-01-01 12:34', '---', '', 'Body'].join('\n'),
+  new Date(2026, 1, 3, 4, 5),
+)
+const defaultsWithExistingCreatedParsed = frontmatter.parseFrontmatter(defaultsWithExistingCreated)
+assert.equal(
+  defaultsWithExistingCreatedParsed.entries.some((entry) => entry.key === 'created' && entry.value === '2024-01-01 12:34'),
+  true,
+)
+assert.equal(
+  defaultsWithExistingCreatedParsed.entries.some((entry) => entry.key === 'created' && entry.value === '2026-02-03 04:05'),
+  false,
+)
+assert.equal(
+  defaultsWithExistingCreatedParsed.entries.some((entry) => entry.key === 'updated' && entry.value === '2026-02-03 04:05'),
+  true,
+)
 
 console.log('templates: ok')
