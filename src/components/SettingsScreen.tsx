@@ -105,6 +105,17 @@ export function SettingsScreen({
                 <option value="light">Light</option>
               </select>
             </label>
+            <label className="settingsRow settingsRow--select">
+              <span>Surrealism intensity</span>
+              <select
+                value={settings.surrealismIntensity}
+                onChange={(e) => onChange({ surrealismIntensity: e.target.value as DraglassSettings['surrealismIntensity'] })}
+              >
+                <option value="off">Classic Clarity (Off)</option>
+                <option value="subtle">Subtle Dream (Default)</option>
+                <option value="full">Full Surrealism</option>
+              </select>
+            </label>
           </section>
 
           <section className="settingsSection">

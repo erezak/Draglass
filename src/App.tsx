@@ -27,6 +27,7 @@ import { useRecentNotes } from './features/recents/useRecentNotes'
 import { useTasks } from './features/tasks/useTasks'
 import { useTags } from './features/tags/useTags'
 import { useEditorTheme } from './features/theme/useEditorTheme'
+import { useSurrealTheme } from './features/theme/useSurrealTheme'
 import { useVault } from './features/vault/useVault'
 import { useVaultAuth, hasVaultPassword, checkVaultPassword } from './features/vault/useVaultAuth'
 import { createDir, createNote, isTauri, onVaultFileChanged, printMainWindow, readNote, rebuildIndex, writeNote } from './tauri'
@@ -700,6 +701,7 @@ function App() {
   }, [flushAutosave])
 
   useEditorTheme(settings.editorTheme)
+  useSurrealTheme(settings.surrealismIntensity)
 
   useEffect(() => {
     resetNoteState()
