@@ -18,6 +18,8 @@ export type TaskMatch = {
 const TASK_LINE_RE = /^(\s*)([-+*])\s+\[([^\]])\]\s*(.*)$/
 const FENCE_RE = /^\s{0,3}```/
 const BLOCKQUOTE_RE = /^\s*>/
+const DONE_DATE_FIELD_RE = /(^|\s)(✅\s*\d{4}-\d{2}-\d{2})(?=\s|$)/u
+const DONE_DATE_STRUCK_RE = /(^|\s)~~(✅\s*\d{4}-\d{2}-\d{2})~~(?=\s|$)/u
 
 export function parseTaskLine(lineText: string, lineNumber: number): TaskMatch | null {
   const match = TASK_LINE_RE.exec(lineText)
@@ -50,6 +52,23 @@ export function replaceTaskState(lineText: string, next: TaskState): string | nu
 
   const stateIndex = bracketIndex + 1
   return `${lineText.slice(0, stateIndex)}${next}${lineText.slice(stateIndex + 1)}`
+}
+
+export function updateTaskDoneDateField(
+  lineText: string,
+  previousState: TaskState,
+  nextState: TaskState,
+  today: string,
+): string {
+  if (previousState !== 'x' && nextState === 'x') {
+    if (DONE_DATE_FIELD_RE.test(lineText)) return lineText
+    return `${lineText.trimEnd()} ✅ ${today}`
+  }
+  if (previousState === 'x' && nextState !== 'x') {
+    if (DONE_DATE_STRUCK_RE.test(lineText)) return lineText
+    return lineText.replace(DONE_DATE_FIELD_RE, '$1~~$2~~')
+  }
+  return lineText
 }
 
 export function extractTasksFromText(text: string): TaskMatch[] {

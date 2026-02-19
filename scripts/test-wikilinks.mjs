@@ -52,6 +52,12 @@ assert.deepEqual(highlights[0], { markerFrom: 7, markerTo: 15, textFrom: 9, text
 assert.deepEqual(highlights[1], { markerFrom: 20, markerTo: 37, textFrom: 22, textTo: 35 })
 assert.deepEqual(livePreview.extractHighlightMatches('no highlight here'), [])
 
+const strikethroughs = livePreview.extractStrikethroughMatches('one ~~done~~ and ~~archived item~~')
+assert.equal(strikethroughs.length, 2)
+assert.deepEqual(strikethroughs[0], { markerFrom: 4, markerTo: 12, textFrom: 6, textTo: 10 })
+assert.deepEqual(strikethroughs[1], { markerFrom: 17, markerTo: 34, textFrom: 19, textTo: 32 })
+assert.deepEqual(livePreview.extractStrikethroughMatches('no strike here'), [])
+
 const linkText = 'Start [[Note Name|Alias]] end'
 const match = livePreview.extractWikilinkAt(linkText, 10)
 assert.equal(match?.rawTarget, 'Note Name|Alias')
