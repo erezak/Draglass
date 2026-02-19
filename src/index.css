@@ -1,25 +1,16 @@
+@import './editorial-tokens.css';
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  font-family: var(--ed-font-sans);
+  font-size: 16px;
+  line-height: var(--ed-leading-normal);
+  font-weight: var(--ed-weight-normal);
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.92);
-  background-color: #14161a;
+  color: var(--text-primary);
+  background-color: var(--app-bg);
 
-  --app-bg: #14161a;
-  --panel-bg: rgba(0, 0, 0, 0.22);
-  --panel-solid: #0f1115;
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --panel-border-strong: rgba(255, 255, 255, 0.18);
-  --text-primary: rgba(255, 255, 255, 0.92);
-  --text-muted: rgba(255, 255, 255, 0.7);
-  --button-bg: rgba(255, 255, 255, 0.08);
-  --button-border: rgba(255, 255, 255, 0.2);
-  --button-hover-border: rgba(100, 108, 255, 0.7);
-  --highlight: rgba(100, 108, 255, 0.15);
-  --overlay-bg: rgba(0, 0, 0, 0.6);
-  --toolbox-icon: rgba(255, 255, 255, 0.92);
+  --toolbox-icon: var(--text-primary);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -29,31 +20,17 @@
 
 :root[data-theme='light'] {
   color-scheme: light;
-  color: #1f2328;
-  background-color: #f3f4f6;
-
-  --app-bg: #f3f4f6;
-  --panel-bg: rgba(255, 255, 255, 0.8);
-  --panel-solid: #ffffff;
-  --panel-border: rgba(15, 23, 42, 0.12);
-  --panel-border-strong: rgba(15, 23, 42, 0.18);
-  --text-primary: #1f2328;
-  --text-muted: rgba(15, 23, 42, 0.65);
-  --button-bg: rgba(15, 23, 42, 0.06);
-  --button-border: rgba(15, 23, 42, 0.2);
-  --button-hover-border: rgba(59, 74, 159, 0.6);
-  --highlight: rgba(59, 74, 159, 0.18);
-  --overlay-bg: rgba(15, 23, 42, 0.25);
-  --toolbox-icon: #1f2328;
 }
 
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  font-weight: var(--ed-weight-medium);
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--ed-duration-fast) var(--ed-ease-out);
 }
 a:hover {
-  color: #535bf2;
+  color: var(--link-hover);
 }
 
 body {
@@ -69,26 +46,86 @@ body {
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-family: var(--ed-font-serif);
+  font-size: var(--ed-text-3xl);
+  font-weight: var(--ed-weight-bold);
+  line-height: var(--ed-leading-tight);
+  letter-spacing: var(--ed-tracking-tighter);
+  margin: 0 0 var(--ed-space-6) 0;
+}
+
+h2 {
+  font-family: var(--ed-font-serif);
+  font-size: var(--ed-text-2xl);
+  font-weight: var(--ed-weight-bold);
+  line-height: var(--ed-leading-tight);
+  letter-spacing: var(--ed-tracking-tight);
+  margin: var(--ed-space-8) 0 var(--ed-space-4) 0;
+}
+
+h3 {
+  font-family: var(--ed-font-serif);
+  font-size: var(--ed-text-xl);
+  font-weight: var(--ed-weight-bold);
+  line-height: var(--ed-leading-tight);
+  letter-spacing: var(--ed-tracking-tight);
+  margin: var(--ed-space-6) 0 var(--ed-space-3) 0;
+}
+
+h4 {
+  font-family: var(--ed-font-serif);
+  font-size: var(--ed-text-lg);
+  font-weight: var(--ed-weight-semibold);
+  line-height: var(--ed-leading-snug);
+  margin: var(--ed-space-5) 0 var(--ed-space-2) 0;
+}
+
+h5, h6 {
+  font-family: var(--ed-font-sans);
+  font-size: var(--ed-text-base);
+  font-weight: var(--ed-weight-semibold);
+  line-height: var(--ed-leading-normal);
+  text-transform: uppercase;
+  letter-spacing: var(--ed-tracking-wide);
+  margin: var(--ed-space-4) 0 var(--ed-space-2) 0;
+}
+
+p {
+  font-family: var(--ed-font-serif);
+  font-size: var(--ed-text-base);
+  line-height: var(--ed-leading-normal);
+  margin: 0 0 var(--ed-space-4) 0;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  font-family: var(--ed-font-sans);
+  font-size: var(--ed-text-base);
+  font-weight: var(--ed-weight-semibold);
+  border-radius: var(--ed-radius-none);
+  border: var(--ed-border-medium) solid var(--button-border);
+  padding: var(--ed-space-3) var(--ed-space-6);
+  background-color: var(--button-bg);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all var(--ed-duration-fast) var(--ed-ease-out);
 }
+
 button:hover {
-  border-color: #646cff;
+  background-color: var(--button-hover-bg);
+  border-color: var(--button-hover-border);
 }
-button:focus,
+
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: none;
+  box-shadow: var(--ed-focus-ring-offset), var(--ed-focus-ring);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 

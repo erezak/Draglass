@@ -1,0 +1,290 @@
+/**
+ * Editorial/Swiss Design Tokens
+ * Typography-first, grid-based, minimalist design system
+ * Inspired by Swiss International Style and editorial design
+ * 
+ * Core principles:
+ * - Typography is the primary design element
+ * - Mathematical precision in spacing and alignment
+ * - Maximum clarity and readability
+ * - Functional minimalism (no decoration)
+ * - Asymmetric balance with strong grid
+ */
+
+:root {
+  /* ============================================
+     EDITORIAL COLOR PALETTE
+     High contrast, neutral with editorial accent
+     ============================================ */
+  
+  /* Monochromatic foundation */
+  --ed-black: #000000;
+  --ed-gray-900: #1a1a1a;
+  --ed-gray-800: #2b2b2b;
+  --ed-gray-700: #404040;
+  --ed-gray-600: #595959;
+  --ed-gray-500: #737373;
+  --ed-gray-400: #8c8c8c;
+  --ed-gray-300: #a6a6a6;
+  --ed-gray-200: #c0c0c0;
+  --ed-gray-150: #d9d9d9;
+  --ed-gray-100: #e6e6e6;
+  --ed-gray-50: #f2f2f2;
+  --ed-white: #ffffff;
+  
+  /* Editorial accent (classic newspaper red) */
+  --ed-accent: #cc0000;
+  --ed-accent-light: #e60000;
+  --ed-accent-dark: #990000;
+  
+  /* Semantic colors (minimal, used sparingly) */
+  --ed-link: #0051a5;
+  --ed-link-hover: #003d7a;
+  --ed-success: #006600;
+  --ed-warning: #996600;
+  --ed-error: #cc0000;
+  
+  /* ============================================
+     EDITORIAL TYPOGRAPHY
+     Serif for content, sans for UI
+     ============================================ */
+  
+  /* Font families */
+  --ed-font-serif: "Charter", "Iowan Old Style", "Georgia", "Palatino Linotype", serif;
+  --ed-font-sans: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  --ed-font-mono: "Courier New", "Courier", monospace;
+  
+  /* Type scale - modular scale based on 1rem (16px) with 1.25 ratio */
+  --ed-text-xs: 0.64rem;      /* 10.24px */
+  --ed-text-sm: 0.8rem;       /* 12.8px */
+  --ed-text-base: 1rem;       /* 16px - body text */
+  --ed-text-md: 1.25rem;      /* 20px - subheadings */
+  --ed-text-lg: 1.563rem;     /* 25px - section headings */
+  --ed-text-xl: 1.953rem;     /* 31.25px - page headings */
+  --ed-text-2xl: 2.441rem;    /* 39px - major headings */
+  --ed-text-3xl: 3.052rem;    /* 48.8px - hero/display */
+  --ed-text-4xl: 3.815rem;    /* 61px - large display */
+  
+  /* Line heights - optimized for readability */
+  --ed-leading-none: 1;
+  --ed-leading-tight: 1.15;   /* Headlines */
+  --ed-leading-snug: 1.3;     /* Subheads */
+  --ed-leading-normal: 1.5;   /* Body text */
+  --ed-leading-relaxed: 1.625; /* Long-form reading */
+  --ed-leading-loose: 1.75;   /* Captions, metadata */
+  
+  /* Font weights - limited palette for clarity */
+  --ed-weight-normal: 400;
+  --ed-weight-medium: 500;
+  --ed-weight-semibold: 600;
+  --ed-weight-bold: 700;
+  --ed-weight-black: 900;
+  
+  /* Letter spacing */
+  --ed-tracking-tighter: -0.03em;
+  --ed-tracking-tight: -0.02em;
+  --ed-tracking-normal: 0;
+  --ed-tracking-wide: 0.025em;
+  --ed-tracking-wider: 0.05em;
+  
+  /* ============================================
+     SWISS GRID SYSTEM
+     8px base unit, mathematical precision
+     ============================================ */
+  
+  --ed-unit: 8px;
+  
+  /* Spacing scale - multiples of base unit */
+  --ed-space-0: 0;
+  --ed-space-1: calc(var(--ed-unit) * 0.5);  /* 4px */
+  --ed-space-2: var(--ed-unit);              /* 8px */
+  --ed-space-3: calc(var(--ed-unit) * 1.5);  /* 12px */
+  --ed-space-4: calc(var(--ed-unit) * 2);    /* 16px */
+  --ed-space-5: calc(var(--ed-unit) * 2.5);  /* 20px */
+  --ed-space-6: calc(var(--ed-unit) * 3);    /* 24px */
+  --ed-space-8: calc(var(--ed-unit) * 4);    /* 32px */
+  --ed-space-10: calc(var(--ed-unit) * 5);   /* 40px */
+  --ed-space-12: calc(var(--ed-unit) * 6);   /* 48px */
+  --ed-space-16: calc(var(--ed-unit) * 8);   /* 64px */
+  --ed-space-20: calc(var(--ed-unit) * 10);  /* 80px */
+  --ed-space-24: calc(var(--ed-unit) * 12);  /* 96px */
+  
+  /* ============================================
+     MINIMALIST BORDERS & RADIUS
+     Clean lines, no ornamentation
+     ============================================ */
+  
+  /* Border widths */
+  --ed-border-none: 0;
+  --ed-border-thin: 1px;
+  --ed-border-medium: 2px;
+  --ed-border-thick: 3px;
+  --ed-border-heavy: 4px;
+  
+  /* Border radius - minimal (Swiss style prefers sharp corners) */
+  --ed-radius-none: 0;
+  --ed-radius-sm: 2px;
+  --ed-radius-md: 4px;
+  --ed-radius-lg: 6px;
+  
+  /* ============================================
+     ELEVATION & SHADOWS
+     Subtle, functional depth
+     ============================================ */
+  
+  /* Shadows - very subtle, functional only */
+  --ed-shadow-none: none;
+  --ed-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --ed-shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --ed-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --ed-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --ed-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  
+  /* Focus ring - high contrast for accessibility */
+  --ed-focus-ring: 0 0 0 3px var(--ed-gray-900);
+  --ed-focus-ring-offset: 0 0 0 1px var(--ed-white);
+  
+  /* ============================================
+     TRANSITIONS & MOTION
+     Snappy, functional (no decoration)
+     ============================================ */
+  
+  /* Duration - quick and purposeful */
+  --ed-duration-instant: 0ms;
+  --ed-duration-fast: 100ms;
+  --ed-duration-base: 150ms;
+  --ed-duration-moderate: 200ms;
+  --ed-duration-slow: 300ms;
+  
+  /* Easing - sharp, mechanical */
+  --ed-ease-linear: linear;
+  --ed-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ed-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ed-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* ============================================
+     DARK MODE COLOR ASSIGNMENTS
+     Default to dark editorial theme
+     ============================================ */
+  
+  --app-bg: var(--ed-gray-900);
+  --panel-bg: var(--ed-gray-800);
+  --panel-solid: var(--ed-black);
+  --panel-border: var(--ed-gray-700);
+  --panel-border-strong: var(--ed-gray-600);
+  
+  --text-primary: var(--ed-gray-50);
+  --text-secondary: var(--ed-gray-300);
+  --text-muted: var(--ed-gray-400);
+  --text-disabled: var(--ed-gray-600);
+  
+  --button-bg: var(--ed-gray-800);
+  --button-border: var(--ed-gray-600);
+  --button-hover-bg: var(--ed-gray-700);
+  --button-hover-border: var(--ed-gray-500);
+  --button-active-bg: var(--ed-gray-600);
+  --button-disabled-bg: var(--ed-gray-800);
+  
+  --accent: var(--ed-accent);
+  --accent-hover: var(--ed-accent-light);
+  --accent-active: var(--ed-accent-dark);
+  
+  --link: var(--ed-link);
+  --link-hover: var(--ed-link-hover);
+  
+  --input-bg: var(--ed-black);
+  --input-border: var(--ed-gray-600);
+  --input-focus-border: var(--ed-gray-400);
+  
+  --overlay-bg: rgba(0, 0, 0, 0.85);
+  --overlay-border: var(--ed-gray-700);
+  
+  --highlight: var(--ed-gray-700);
+  --highlight-strong: var(--ed-gray-600);
+  
+  --success: var(--ed-success);
+  --warning: var(--ed-warning);
+  --error: var(--ed-error);
+}
+
+:root[data-theme='light'] {
+  /* ============================================
+     LIGHT MODE COLOR ASSIGNMENTS
+     High contrast editorial light theme
+     ============================================ */
+  
+  --app-bg: var(--ed-white);
+  --panel-bg: var(--ed-gray-50);
+  --panel-solid: var(--ed-white);
+  --panel-border: var(--ed-gray-200);
+  --panel-border-strong: var(--ed-gray-300);
+  
+  --text-primary: var(--ed-black);
+  --text-secondary: var(--ed-gray-700);
+  --text-muted: var(--ed-gray-500);
+  --text-disabled: var(--ed-gray-400);
+  
+  --button-bg: var(--ed-white);
+  --button-border: var(--ed-gray-300);
+  --button-hover-bg: var(--ed-gray-50);
+  --button-hover-border: var(--ed-gray-400);
+  --button-active-bg: var(--ed-gray-100);
+  --button-disabled-bg: var(--ed-gray-50);
+  
+  --accent: var(--ed-accent);
+  --accent-hover: var(--ed-accent-light);
+  --accent-active: var(--ed-accent-dark);
+  
+  --link: var(--ed-link);
+  --link-hover: var(--ed-link-hover);
+  
+  --input-bg: var(--ed-white);
+  --input-border: var(--ed-gray-300);
+  --input-focus-border: var(--ed-gray-600);
+  
+  --overlay-bg: rgba(255, 255, 255, 0.95);
+  --overlay-border: var(--ed-gray-200);
+  
+  --highlight: var(--ed-gray-150);
+  --highlight-strong: var(--ed-gray-200);
+  
+  --success: var(--ed-success);
+  --warning: var(--ed-warning);
+  --error: var(--ed-error);
+  
+  --ed-focus-ring: 0 0 0 3px var(--ed-gray-900);
+  --ed-focus-ring-offset: 0 0 0 1px var(--ed-white);
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   Mobile-first, content-driven
+   ============================================ */
+
+:root {
+  --ed-breakpoint-mobile: 360px;
+  --ed-breakpoint-tablet: 768px;
+  --ed-breakpoint-desktop: 1280px;
+  --ed-breakpoint-wide: 1920px;
+  
+  /* Content width constraints for optimal reading */
+  --ed-content-narrow: 45rem;   /* ~65-75 characters per line */
+  --ed-content-medium: 60rem;
+  --ed-content-wide: 75rem;
+  --ed-content-full: 100%;
+}
+
+/* ============================================
+   Z-INDEX LAYERS
+   Clear stacking hierarchy
+   ============================================ */
+
+:root {
+  --ed-z-base: 0;
+  --ed-z-dropdown: 100;
+  --ed-z-sticky: 200;
+  --ed-z-overlay: 300;
+  --ed-z-modal: 400;
+  --ed-z-toast: 500;
+  --ed-z-tooltip: 600;
+}
