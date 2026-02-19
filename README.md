@@ -17,14 +17,18 @@ Draglass is a privacy-first, offline-first knowledge management app that stores 
 - **Command Palette** (`Cmd/Ctrl + Shift + P`): Searchable list of all app commands
 - **Global Search** (`Cmd/Ctrl + Shift + F`): Full-text search across your entire vault
 - **Templates v1**: Create notes and insert content from Markdown templates in a configurable templates folder
+- **Template Date Resolution**: `tp.date.now(...)` and `moment(tp.file.title, ...).format(...)` expressions resolve automatically when creating notes from templates
 - **Graph View**: Visual network diagram showing all notes and their connections (global and local modes)
 - **Tasks and Checklists**: Automatic scanning and collection of `- [ ]` checkboxes across all notes
+- **Task Done Date Automation**: Marking a task done automatically appends a `✅ YYYY-MM-DD` field
+- **Automatic Frontmatter Timestamps**: New notes get `created`/`updated` fields, and `updated` refreshes on save
 - **Local-First**: Your data stays on your device - no cloud sync, no telemetry, no network calls
 - **Cross-Platform**: Desktop app built with Tauri (Rust + React)
 - **Privacy-First**: Open source, clean-room implementation with no analytics or tracking
 - **Locked Sections**: Password-protect sensitive content by marking headings with `{locked}`
 - **CodeMirror 6**: Powerful, extensible editor with markdown support and Live Preview
-- **Live Preview**: Inline rendering with a Source toggle, including Mermaid diagrams, callouts, and image lightbox
+- **Live Preview**: Inline rendering with a Source toggle, including strikethrough text, Mermaid diagrams, callouts, and image lightbox
+- **Dali-Inspired UI**: Surrealism intensity setting (`Off`, `Subtle`, `Full`) for dreamlike visual styling
 - **Customizable**: Dark/Light themes, resizable panes, configurable autosave and settings
 - **Demo Vault**: Built-in interactive guide that showcases all features
 

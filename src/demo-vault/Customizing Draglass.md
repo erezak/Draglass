@@ -11,6 +11,7 @@ Open **Settings** by clicking the gear icon at the bottom of the left sidebar (o
 | Render images | Show image thumbnails inline in [[Live Preview]] | On |
 | Render callouts | Style `> [!type]` blocks as callout cards | On |
 | Theme | Switch between **Dark** and **Light** appearance | Dark |
+| Surrealism intensity | Dali-inspired visual styling: **Classic Clarity**, **Subtle Dream**, **Full Surrealism** | Subtle Dream |
 
 The theme applies to the editor, the [[Graph View]], and Mermaid diagrams simultaneously.
 
@@ -76,6 +77,7 @@ Template commands are available in the Command Palette:
 Supported template variables are resolved when you apply the template:
 
 - `{{date}}`, `{{time}}`, `{{datetime}}`, `{{title}}`, `{{cursor}}`
+- Create-time expressions like `<% tp.date.now("YYYY-MM-DD") %>` and `moment(tp.file.title, ...).format(...)` are resolved when creating a note from a template
 
 Template files are excluded from [[Searching Your Vault|Global Search]] results.
 

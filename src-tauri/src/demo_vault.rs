@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use tauri::Manager;
 
 /// Bump this whenever demo vault files are added or changed.
-const DEMO_VAULT_VERSION: &str = "4";
+const DEMO_VAULT_VERSION: &str = "5";
 
 /// Get the path to the demo vault, creating/copying it if necessary
 pub fn get_demo_vault_path_impl(app_handle: &tauri::AppHandle) -> Result<String, String> {

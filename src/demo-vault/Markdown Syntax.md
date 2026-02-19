@@ -16,6 +16,15 @@ Draglass notes are plain Markdown files. Everything you write is portable — op
 - *Italic* with `*asterisks*`
 - **Bold** with `**double asterisks**`
 - ***Bold italic*** with `***triple***`
+- ~~Strikethrough~~ with `~~double tildes~~`
+
+## Strikethrough
+
+Strikethrough renders inline in [[Live Preview]] mode while keeping the original Markdown text.
+
+```markdown
+~~This text is struck through~~
+```
 
 ## Lists
 

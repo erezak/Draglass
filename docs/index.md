@@ -44,7 +44,7 @@ drawings, callouts, tags, task checkboxes, and image lightbox.
 
 ### 🎨 Customizable
 Dark and light themes, resizable panes, configurable autosave, and dozens of settings to make
-Draglass work your way.
+Draglass work your way, including Dali-inspired Surrealism intensity controls.
 
 ---
 
