@@ -46,8 +46,16 @@ export type HighlightMatch = {
   textTo: number
 }
 
+export type StrikethroughMatch = {
+  markerFrom: number
+  markerTo: number
+  textFrom: number
+  textTo: number
+}
+
 const TAG_RE = /(^|[^A-Za-z0-9_/])#([A-Za-z0-9][A-Za-z0-9_-]*(?:\/[A-Za-z0-9][A-Za-z0-9_-]*)*)/g
 const HIGHLIGHT_RE = /==([^=]+)==/g
+const STRIKETHROUGH_RE = /~~([^~]+)~~/g
 
 export function extractWikilinkAt(text: string, offset: number): WikilinkMatch | null {
   if (offset < 0 || offset > text.length) return null
@@ -84,6 +92,20 @@ export function extractTagAt(text: string, offset: number): TagMatch | null {
 export function extractHighlightMatches(text: string): HighlightMatch[] {
   const matches: HighlightMatch[] = []
   for (const match of text.matchAll(HIGHLIGHT_RE)) {
+    if (match.index == null) continue
+    const content = match[1] ?? ''
+    const markerFrom = match.index
+    const textFrom = markerFrom + 2
+    const textTo = textFrom + content.length
+    const markerTo = textTo + 2
+    matches.push({ markerFrom, markerTo, textFrom, textTo })
+  }
+  return matches
+}
+
+export function extractStrikethroughMatches(text: string): StrikethroughMatch[] {
+  const matches: StrikethroughMatch[] = []
+  for (const match of text.matchAll(STRIKETHROUGH_RE)) {
     if (match.index == null) continue
     const content = match[1] ?? ''
     const markerFrom = match.index

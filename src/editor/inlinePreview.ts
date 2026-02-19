@@ -15,7 +15,7 @@ import {
   isExternalImageTarget,
   resolveImageTarget,
 } from './imagePreviewHelpers'
-import { extractHighlightMatches, shouldHideMarkup } from './livePreviewHelpers'
+import { extractHighlightMatches, extractStrikethroughMatches, shouldHideMarkup } from './livePreviewHelpers'
 import { findMermaidStartForLine, getFenceLang, MERMAID_LANG } from './mermaidBlocks'
 import { EXCALIDRAW_LANG, findExcalidrawStartForLine } from './excalidrawBlocks'
 import { extractTagsFromLine } from '../tags'
@@ -857,6 +857,26 @@ function buildInlineLivePreviewDecorations(
         const markerFrom = line.from + match.markerFrom
         const markerTo = line.from + match.markerTo
         addInlineMark(decorations, start, end, 'cm-livePreview-highlight')
+        if (!selectionIntersects(markerFrom, markerTo)) {
+          decorations.push({
+            from: markerFrom,
+            to: markerFrom + 2,
+            decoration: Decoration.replace({ widget: new HiddenMarkerWidget() }),
+          })
+          decorations.push({
+            from: markerTo - 2,
+            to: markerTo,
+            decoration: Decoration.replace({ widget: new HiddenMarkerWidget() }),
+          })
+        }
+      }
+
+      for (const match of extractStrikethroughMatches(text)) {
+        const start = line.from + match.textFrom
+        const end = line.from + match.textTo
+        const markerFrom = line.from + match.markerFrom
+        const markerTo = line.from + match.markerTo
+        addInlineMark(decorations, start, end, 'cm-livePreview-strikethrough')
         if (!selectionIntersects(markerFrom, markerTo)) {
           decorations.push({
             from: markerFrom,
