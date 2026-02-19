@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { orderCommandsByMru } from '../features/recents/commandPaletteOrdering'
 
 export type Command = {
   id: string
@@ -12,7 +13,10 @@ export type Command = {
 type CommandPaletteProps = {
   open: boolean
   commands: Command[]
+  mruEnabled: boolean
+  recentCommandIds: string[]
   onRequestClose: () => void
+  onCommandExecute: (commandId: string) => void
 }
 
 function isModShiftP(e: KeyboardEvent | React.KeyboardEvent): boolean {
@@ -41,7 +45,10 @@ function scoreCommand(queryLower: string, cmd: Command): number | null {
 export function CommandPalette({
   open,
   commands,
+  mruEnabled,
+  recentCommandIds,
   onRequestClose,
+  onCommandExecute,
 }: CommandPaletteProps) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const listRef = useRef<HTMLDivElement | null>(null)
@@ -56,7 +63,7 @@ export function CommandPalette({
     if (!open) return []
 
     if (!q) {
-      return enabledCommands
+      return orderCommandsByMru(enabledCommands, recentCommandIds, mruEnabled)
     }
 
     const scored: Array<{ cmd: Command; score: number }> = []
@@ -72,7 +79,7 @@ export function CommandPalette({
     })
 
     return scored.map((x) => x.cmd)
-  }, [enabledCommands, open, query])
+  }, [enabledCommands, mruEnabled, open, query, recentCommandIds])
 
   // Reset state when palette opens (render-time adjustment, not an effect)
   const [prevOpen, setPrevOpen] = useState(open)
@@ -109,11 +116,13 @@ export function CommandPalette({
     const selected = results[selectedIndex]
     if (!selected) return
     onRequestClose()
+    onCommandExecute(selected.id)
     selected.onExecute()
   }
 
   const executeCommand = (cmd: Command) => {
     onRequestClose()
+    onCommandExecute(cmd.id)
     cmd.onExecute()
   }
 

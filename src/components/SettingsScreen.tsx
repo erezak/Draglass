@@ -219,6 +219,14 @@ export function SettingsScreen({
                 onChange={onNumberChange('quickSwitcherMaxRecents')}
               />
             </label>
+            <label className="settingsRow">
+              <span>Command palette MRU ordering</span>
+              <input
+                type="checkbox"
+                checked={settings.commandPaletteMruEnabled}
+                onChange={onToggle('commandPaletteMruEnabled')}
+              />
+            </label>
           </section>
 
           <section className="settingsSection">
