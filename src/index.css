@@ -1,25 +1,26 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  font-family: var(--skeuo-font-sans);
+  line-height: var(--skeuo-leading-normal);
+  font-weight: var(--skeuo-weight-normal);
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.92);
-  background-color: #14161a;
+  color: var(--skeuo-text-on-dark);
+  background-color: var(--skeuo-bg-primary);
 
-  --app-bg: #14161a;
-  --panel-bg: rgba(0, 0, 0, 0.22);
-  --panel-solid: #0f1115;
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --panel-border-strong: rgba(255, 255, 255, 0.18);
-  --text-primary: rgba(255, 255, 255, 0.92);
-  --text-muted: rgba(255, 255, 255, 0.7);
-  --button-bg: rgba(255, 255, 255, 0.08);
-  --button-border: rgba(255, 255, 255, 0.2);
-  --button-hover-border: rgba(100, 108, 255, 0.7);
-  --highlight: rgba(100, 108, 255, 0.15);
-  --overlay-bg: rgba(0, 0, 0, 0.6);
-  --toolbox-icon: rgba(255, 255, 255, 0.92);
+  /* Map semantic tokens to skeuomorphic tokens */
+  --app-bg: var(--skeuo-bg-primary);
+  --panel-bg: var(--skeuo-bg-secondary);
+  --panel-solid: var(--skeuo-bg-tertiary);
+  --panel-border: var(--skeuo-border-subtle);
+  --panel-border-strong: var(--skeuo-border-medium-strength);
+  --text-primary: var(--skeuo-text-on-dark);
+  --text-muted: var(--skeuo-text-muted-dark);
+  --button-bg: var(--skeuo-surface-metal);
+  --button-border: var(--skeuo-border-medium-strength);
+  --button-hover-border: var(--skeuo-interactive-bronze);
+  --highlight: var(--skeuo-interactive-hover);
+  --overlay-bg: rgba(0, 0, 0, 0.7);
+  --toolbox-icon: var(--skeuo-text-on-dark);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -29,31 +30,32 @@
 
 :root[data-theme='light'] {
   color-scheme: light;
-  color: #1f2328;
-  background-color: #f3f4f6;
+  color: var(--skeuo-text-on-light);
+  background-color: var(--skeuo-bg-primary);
 
-  --app-bg: #f3f4f6;
-  --panel-bg: rgba(255, 255, 255, 0.8);
-  --panel-solid: #ffffff;
-  --panel-border: rgba(15, 23, 42, 0.12);
-  --panel-border-strong: rgba(15, 23, 42, 0.18);
-  --text-primary: #1f2328;
-  --text-muted: rgba(15, 23, 42, 0.65);
-  --button-bg: rgba(15, 23, 42, 0.06);
-  --button-border: rgba(15, 23, 42, 0.2);
-  --button-hover-border: rgba(59, 74, 159, 0.6);
-  --highlight: rgba(59, 74, 159, 0.18);
-  --overlay-bg: rgba(15, 23, 42, 0.25);
-  --toolbox-icon: #1f2328;
+  --app-bg: var(--skeuo-bg-primary);
+  --panel-bg: var(--skeuo-bg-secondary);
+  --panel-solid: var(--skeuo-bg-tertiary);
+  --panel-border: var(--skeuo-border-subtle);
+  --panel-border-strong: var(--skeuo-border-medium-strength);
+  --text-primary: var(--skeuo-text-on-light);
+  --text-muted: var(--skeuo-text-muted-light);
+  --button-bg: var(--skeuo-surface-metal);
+  --button-border: var(--skeuo-border-medium-strength);
+  --button-hover-border: var(--skeuo-interactive-bronze);
+  --highlight: var(--skeuo-interactive-hover);
+  --overlay-bg: rgba(15, 23, 42, 0.3);
+  --toolbox-icon: var(--skeuo-text-on-light);
 }
 
 a {
-  font-weight: 500;
-  color: #646cff;
+  font-weight: var(--skeuo-weight-medium);
+  color: var(--skeuo-interactive-bronze);
   text-decoration: inherit;
+  transition: color var(--skeuo-transition-fast) var(--skeuo-ease-default);
 }
 a:hover {
-  color: #535bf2;
+  color: var(--skeuo-interactive-brass);
 }
 
 body {
@@ -74,21 +76,34 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+  border-radius: var(--skeuo-radius-md);
+  border: var(--skeuo-border-width) solid var(--skeuo-border-medium-strength);
+  padding: var(--skeuo-space-sm) var(--skeuo-space-lg);
+  font-size: var(--skeuo-text-base);
+  font-weight: var(--skeuo-weight-medium);
   font-family: inherit;
-  background-color: #1a1a1a;
+  background: var(--skeuo-surface-metal);
+  color: var(--skeuo-text-on-dark);
   cursor: pointer;
-  transition: border-color 0.25s;
+  box-shadow: var(--skeuo-shadow-emboss-md);
+  transition: all var(--skeuo-transition-base) var(--skeuo-ease-default);
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--skeuo-interactive-bronze);
+  box-shadow: var(--skeuo-shadow-emboss-lg);
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #9aa2a9 0%, #8a9199 50%, #9aa2a9 100%);
+}
+button:active {
+  box-shadow: var(--skeuo-shadow-inset-sm);
+  transform: translateY(0px);
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: var(--skeuo-focus-ring);
+  outline-offset: var(--skeuo-focus-offset);
+  box-shadow: 
+    var(--skeuo-shadow-emboss-md),
+    var(--skeuo-focus-glow);
 }
 
