@@ -963,7 +963,10 @@ function App() {
         const templateName = templateRelPath.split('/').pop()?.replace(/\.(md|markdown)$/i, '') || 'Untitled'
         const relPath = await createUniqueNote(vaultPath, selectedFolderPath, templateName)
         const templateText = await readNote(vaultPath, templateRelPath)
-        const rendered = renderTemplate(templateText, { title: fileStem(relPath) })
+        const rendered = renderTemplate(templateText, {
+          title: fileStem(relPath),
+          evaluateCreateExpressions: true,
+        })
         const initialText = rendered.frontmatterEntries.length
           ? mergeFrontmatterForTemplateInsert(rendered.bodyText, rendered.frontmatterEntries).textWithMergedFrontmatter
           : rendered.bodyText
@@ -1093,7 +1096,11 @@ function App() {
           let initialText = ''
           if (dailyTemplateRelPath) {
             const templateText = await readNote(vaultPath, dailyTemplateRelPath)
-            const rendered = renderTemplate(templateText, { title: fileStem(relPath), now: date })
+            const rendered = renderTemplate(templateText, {
+              title: fileStem(relPath),
+              now: date,
+              evaluateCreateExpressions: true,
+            })
             initialText = rendered.frontmatterEntries.length
               ? mergeFrontmatterForTemplateInsert(rendered.bodyText, rendered.frontmatterEntries)
                 .textWithMergedFrontmatter

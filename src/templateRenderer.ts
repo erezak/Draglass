@@ -11,6 +11,7 @@ const CURSOR_MARKER = '{{cursor}}'
 export type TemplateRenderContext = {
   title: string
   now?: Date
+  evaluateCreateExpressions?: boolean
 }
 
 export type RenderedTemplate = {
@@ -46,6 +47,108 @@ function substituteKnownVariables(text: string, context: TemplateRenderContext):
   })
 }
 
+function formatWithPattern(date: Date, pattern: string): string {
+  const weekdayLong = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(date)
+  const monthLong = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(date)
+  const monthShort = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(date)
+  const replacements: Array<[string, string]> = [
+    ['YYYY', String(date.getFullYear())],
+    ['MMMM', monthLong],
+    ['MMM', monthShort],
+    ['MM', pad2(date.getMonth() + 1)],
+    ['DD', pad2(date.getDate())],
+    ['HH', pad2(date.getHours())],
+    ['mm', pad2(date.getMinutes())],
+    ['dddd', weekdayLong],
+    ['D', String(date.getDate())],
+  ]
+
+  let output = pattern
+  for (const [token, value] of replacements) {
+    output = output.replace(new RegExp(token, 'g'), value)
+  }
+  return output
+}
+
+function parseDateWithPattern(value: string, pattern: string): Date | null {
+  const tokens = ['YYYY', 'MM', 'DD', 'HH', 'mm']
+  let regexSource = ''
+  const seenTokens: string[] = []
+
+  for (let i = 0; i < pattern.length;) {
+    const token = tokens.find((candidate) => pattern.startsWith(candidate, i))
+    if (token) {
+      seenTokens.push(token)
+      regexSource += token === 'YYYY' ? '(\\d{4})' : '(\\d{1,2})'
+      i += token.length
+      continue
+    }
+    const char = pattern[i]
+    regexSource += char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    i += 1
+  }
+
+  const match = value.match(new RegExp(`^${regexSource}$`))
+  if (!match) return null
+
+  let year = 1970
+  let month = 1
+  let day = 1
+  let hours = 0
+  let minutes = 0
+
+  for (let i = 0; i < seenTokens.length; i += 1) {
+    const token = seenTokens[i]
+    const parsed = Number(match[i + 1])
+    if (!Number.isFinite(parsed)) return null
+    if (token === 'YYYY') year = parsed
+    else if (token === 'MM') month = parsed
+    else if (token === 'DD') day = parsed
+    else if (token === 'HH') hours = parsed
+    else if (token === 'mm') minutes = parsed
+  }
+
+  const date = new Date(year, month - 1, day, hours, minutes)
+  if (
+    date.getFullYear() !== year
+    || date.getMonth() !== month - 1
+    || date.getDate() !== day
+    || date.getHours() !== hours
+    || date.getMinutes() !== minutes
+  ) {
+    return null
+  }
+  return date
+}
+
+function evaluateCreateExpression(expression: string, context: TemplateRenderContext): string | null {
+  const now = context.now ?? new Date()
+  const trimmed = expression.trim()
+
+  const nowMatch = trimmed.match(/^tp\.date\.now\((['"])(.*?)\1\)$/)
+  if (nowMatch) {
+    return formatWithPattern(now, nowMatch[2])
+  }
+
+  const momentMatch = trimmed.match(
+    /^moment\(\s*tp\.file\.title\s*,\s*(['"])(.*?)\1\s*\)\.format\(\s*(['"])(.*?)\3\s*\)$/,
+  )
+  if (momentMatch) {
+    const parsedTitleDate = parseDateWithPattern(context.title, momentMatch[2])
+    if (!parsedTitleDate) return null
+    return formatWithPattern(parsedTitleDate, momentMatch[4])
+  }
+
+  return null
+}
+
+function substituteCreateExpressions(text: string, context: TemplateRenderContext): string {
+  return text.replace(/<%\s*([\s\S]*?)\s*%>/g, (match, expression: string) => {
+    const evaluated = evaluateCreateExpression(expression, context)
+    return evaluated ?? match
+  })
+}
+
 function stripCursorMarkers(text: string): { text: string; cursorOffset: number | null } {
   let cursorOffset: number | null = null
   let output = ''
@@ -70,16 +173,22 @@ export function renderTemplate(templateText: string, context: TemplateRenderCont
 
   const frontmatterEntries = parsed.entries.map((entry) => {
     const substitutedValue = substituteKnownVariables(entry.value, context)
-    const type = inferEntryType(substitutedValue)
+    const evaluatedValue = context.evaluateCreateExpressions
+      ? substituteCreateExpressions(substitutedValue, context)
+      : substitutedValue
+    const type = inferEntryType(evaluatedValue)
     return {
       key: entry.key,
-      value: normalizeEntryValue(substitutedValue, type),
+      value: normalizeEntryValue(evaluatedValue, type),
       type,
     }
   })
 
   const bodyWithVariables = substituteKnownVariables(parsed.body, context)
-  const cursor = stripCursorMarkers(bodyWithVariables)
+  const bodyWithExpressions = context.evaluateCreateExpressions
+    ? substituteCreateExpressions(bodyWithVariables, context)
+    : bodyWithVariables
+  const cursor = stripCursorMarkers(bodyWithExpressions)
 
   return {
     frontmatterEntries,
