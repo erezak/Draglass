@@ -64,6 +64,26 @@ assert.equal(
   scanner.replaceTaskState('* [/] In progress', '-'),
   '* [-] In progress',
 )
+assert.equal(
+  scanner.updateTaskDoneDateField('- [x] Ship release', ' ', 'x', '2026-02-19'),
+  '- [x] Ship release ✅ 2026-02-19',
+)
+assert.equal(
+  scanner.updateTaskDoneDateField('- [x] Ship release ✅ 2026-02-19', ' ', 'x', '2026-02-20'),
+  '- [x] Ship release ✅ 2026-02-19',
+)
+assert.equal(
+  scanner.updateTaskDoneDateField('- [ ] Ship release ✅ 2026-02-19', 'x', ' ', '2026-02-20'),
+  '- [ ] Ship release ~~✅ 2026-02-19~~',
+)
+assert.equal(
+  scanner.updateTaskDoneDateField('- [-] Ship release ✅ 2026-02-19', 'x', '-', '2026-02-20'),
+  '- [-] Ship release ~~✅ 2026-02-19~~',
+)
+assert.equal(
+  scanner.updateTaskDoneDateField('- [ ] Ship release ~~✅ 2026-02-19~~', 'x', ' ', '2026-02-20'),
+  '- [ ] Ship release ~~✅ 2026-02-19~~',
+)
 
 const sample = [
   'Intro',

@@ -19,6 +19,11 @@ import { extractHighlightMatches, shouldHideMarkup } from './livePreviewHelpers'
 import { findMermaidStartForLine, getFenceLang, MERMAID_LANG } from './mermaidBlocks'
 import { EXCALIDRAW_LANG, findExcalidrawStartForLine } from './excalidrawBlocks'
 import { extractTagsFromLine } from '../tags'
+import {
+  replaceTaskState,
+  type TaskState,
+  updateTaskDoneDateField,
+} from '../features/tasks/taskScanner'
 
 const WIKILINK_RE = /\[\[([^\]]+?)\]\]/g
 const INLINE_CODE_RE = /`([^`]+)`/g
@@ -76,10 +81,15 @@ function updateTaskLine(view: EditorView, togglePos: number, mutator: (lineText:
 }
 
 function setTaskState(view: EditorView, togglePos: number, nextState: string) {
-  view.dispatch({
-    changes: { from: togglePos, to: togglePos + 1, insert: nextState.slice(0, 1) || ' ' },
+  updateTaskLine(view, togglePos, (lineText) => {
+    const match = TASK_RE.exec(lineText)
+    const rawPrev = (match?.[1] ?? ' ').slice(0, 1).toLowerCase()
+    const previous: TaskState = rawPrev === 'x' || rawPrev === '-' ? rawPrev : ' '
+    const rawNext = nextState.slice(0, 1).toLowerCase()
+    const next: TaskState = rawNext === 'x' || rawNext === '-' ? rawNext : ' '
+    const withState = replaceTaskState(lineText, next) ?? lineText
+    return updateTaskDoneDateField(withState, previous, next, todayIsoDate())
   })
-  view.focus()
 }
 
 function todayIsoDate(): string {
@@ -323,10 +333,7 @@ class TaskCheckboxWidget extends WidgetType {
       event.stopPropagation()
       closeTaskMenu()
       const next = normalizedState === ' ' ? 'x' : normalizedState === 'x' ? '-' : ' '
-      view.dispatch({
-        changes: { from: this.togglePos, to: this.togglePos + 1, insert: next },
-      })
-      view.focus()
+      setTaskState(view, this.togglePos, next)
     })
     input.addEventListener('contextmenu', (event) => {
       event.preventDefault()
