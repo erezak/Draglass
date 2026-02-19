@@ -20,6 +20,19 @@
   border-bottom: 1px solid var(--panel-border);
   background: var(--panel-bg);
   backdrop-filter: blur(10px);
+  transition: background 0.25s, border-color 0.25s;
+}
+
+/* Surrealism: Enhanced atmospheric blur */
+:root[data-surreal-enabled='true'] .topbar {
+  backdrop-filter: blur(12px);
+  transition: background var(--duration-dream) var(--ease-float),
+              border-color var(--duration-dream) var(--ease-float);
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .topbar {
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-soft-sm);
 }
 
 .platform-mac .topbar {
@@ -93,11 +106,32 @@
   border: 1px solid var(--panel-border-strong);
   background: var(--button-bg);
   color: var(--text-primary);
+  transition: border-color 0.25s, background 0.25s, transform 0.12s;
+}
+
+/* Surrealism: Dreamlike transitions */
+:root[data-surreal-enabled='true'] .iconButton {
+  transition: border-color var(--duration-dream) var(--ease-float),
+              background var(--duration-dream) var(--ease-float),
+              transform var(--duration-quick) var(--ease-float),
+              box-shadow var(--duration-dream) var(--ease-float);
 }
 
 .iconButton:hover {
   border-color: var(--button-hover-border);
   background: var(--highlight);
+}
+
+/* Surrealism: Subtle levitation on hover */
+:root[data-surreal-enabled='true'][data-surreal-intensity='subtle'] .iconButton:hover,
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .iconButton:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft-sm);
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .iconButton:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-levitate-sm);
 }
 
 .iconButton:active {
@@ -107,6 +141,23 @@
 .iconButton:focus-visible {
   outline: 2px solid var(--button-hover-border);
   outline-offset: 2px;
+}
+
+/* Surrealism: Enhanced focus glow */
+:root[data-surreal-enabled='true'] .iconButton:focus-visible {
+  outline: 2px solid var(--surreal-accent);
+  outline-offset: 2px;
+  box-shadow: var(--glow-warm-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iconButton {
+    transition: none;
+  }
+  
+  :root[data-surreal-enabled='true'] .iconButton:hover {
+    transform: none;
+  }
 }
 
 
@@ -206,6 +257,28 @@
   opacity: 1;
   padding: 0;
   line-height: 1;
+  transition: border-color 0.25s, background 0.25s, opacity 0.25s;
+}
+
+/* Surrealism: Metamorphic shape on hover (subtle rounding) */
+:root[data-surreal-enabled='true'] .toolboxButton {
+  transition: border-color var(--duration-dream) var(--ease-dream),
+              background var(--duration-dream) var(--ease-float),
+              opacity var(--duration-quick),
+              border-radius var(--morph-duration) var(--ease-dream),
+              transform var(--duration-quick) var(--ease-float),
+              box-shadow var(--duration-dream) var(--ease-float);
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='subtle'] .toolboxButton:hover,
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .toolboxButton:hover {
+  border-radius: 12px;
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .toolboxButton:hover {
+  border-radius: 16px;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft-sm);
 }
 
 .toolboxButton:hover {
@@ -220,6 +293,26 @@
   background: var(--highlight);
   color: var(--text-primary);
   opacity: 1;
+}
+
+/* Surrealism: Levitation for active state */
+:root[data-surreal-enabled='true'][data-surreal-intensity='subtle'] .toolboxButton--active,
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .toolboxButton--active {
+  box-shadow: var(--shadow-soft-sm);
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .toolboxButton--active {
+  box-shadow: var(--shadow-levitate-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toolboxButton {
+    transition: border-color 0.1s, background 0.1s, opacity 0.1s;
+  }
+  
+  :root[data-surreal-enabled='true'] .toolboxButton:hover {
+    transform: none;
+  }
 }
 
 .toolboxIcon {
@@ -604,6 +697,33 @@
   flex-direction: column;
   gap: 8px;
   color: var(--text-primary);
+  transition: border-radius 0.25s, box-shadow 0.25s;
+}
+
+/* Surrealism: Melting panel edges (subtle drip effect) */
+:root[data-surreal-enabled='true'][data-surreal-intensity='subtle'] .placeholderCard,
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .placeholderCard {
+  border-radius: var(--shape-soft) var(--shape-soft) var(--shape-elastic) var(--shape-soft);
+  transition: border-radius var(--duration-dream) var(--ease-melt),
+              box-shadow var(--duration-dream) var(--ease-float),
+              transform var(--duration-quick) var(--ease-float);
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .placeholderCard {
+  border-radius: var(--shape-soft) var(--shape-soft) 28px var(--shape-elastic);
+}
+
+/* Crisp edges on focus/hover */
+:root[data-surreal-enabled='true'] .placeholderCard:hover,
+:root[data-surreal-enabled='true'] .placeholderCard:focus-within {
+  border-radius: var(--shape-soft);
+  box-shadow: var(--shadow-soft-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .placeholderCard {
+    transition: none;
+  }
 }
 
 .placeholderTitle {
@@ -1924,6 +2044,17 @@
   background: var(--panel-solid);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   overflow: hidden;
+  transition: box-shadow 0.25s;
+}
+
+/* Surrealism: Enhanced shadow and subtle glow for modals */
+:root[data-surreal-enabled='true'] .qsCard {
+  box-shadow: var(--shadow-levitate-lg);
+  transition: box-shadow var(--duration-dream) var(--ease-float);
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .qsCard {
+  box-shadow: var(--shadow-levitate-lg), var(--glow-cool-sm);
 }
 
 .qsInput {
@@ -2026,6 +2157,17 @@
   display: flex;
   flex-direction: column;
   max-height: min(84vh, 860px);
+  transition: box-shadow 0.25s;
+}
+
+/* Surrealism: Enhanced modal elevation */
+:root[data-surreal-enabled='true'] .settingsCard {
+  box-shadow: var(--shadow-levitate-lg);
+  transition: box-shadow var(--duration-dream) var(--ease-float);
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .settingsCard {
+  box-shadow: var(--shadow-levitate-lg), var(--glow-warm-sm);
 }
 
 .settingsHeader {
