@@ -81,6 +81,28 @@ assert.equal(rendered.cursorOffsetInBody != null, true)
 assert.equal(rendered.bodyText.includes('2026-02-03 04:05'), true)
 assert.equal(rendered.bodyText.includes('Unknown {{foo}}'), true)
 
+const createOnlyExpressionsTemplate = '<% tp.date.now("YYYY-MM-DD") %>\n<% moment(tp.file.title, "YYYY-MM-DD").format("dddd, MMMM D, YYYY") %>'
+const renderedWithoutCreateEvaluation = renderer.renderTemplate(createOnlyExpressionsTemplate, {
+  title: '2026-02-03',
+  now,
+})
+assert.equal(renderedWithoutCreateEvaluation.bodyText.includes('<% tp.date.now("YYYY-MM-DD") %>'), true)
+
+const renderedWithCreateEvaluation = renderer.renderTemplate(createOnlyExpressionsTemplate, {
+  title: '2026-02-03',
+  now,
+  evaluateCreateExpressions: true,
+})
+assert.equal(renderedWithCreateEvaluation.bodyText.includes('2026-02-03'), true)
+assert.equal(renderedWithCreateEvaluation.bodyText.includes('Tuesday, February 3, 2026'), true)
+
+const renderedWithFilenameTitle = renderer.renderTemplate(createOnlyExpressionsTemplate, {
+  title: '2026-02-03.md',
+  now,
+  evaluateCreateExpressions: true,
+})
+assert.equal(renderedWithFilenameTitle.bodyText.includes('Tuesday, February 3, 2026'), true)
+
 const merged = renderer.mergeFrontmatterForTemplateInsert(
   ['---', 'title: Existing', 'tags: one', '---', '', 'Hello'].join('\n'),
   [
