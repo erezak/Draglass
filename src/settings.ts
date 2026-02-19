@@ -33,6 +33,7 @@ export type DraglassSettings = {
   quickSwitcherDebounceMs: number
   quickSwitcherMaxResults: number
   quickSwitcherMaxRecents: number
+  commandPaletteMruEnabled: boolean
 
   templatesFolder: string
   tasksEnabled: boolean
@@ -81,6 +82,7 @@ export const DEFAULT_SETTINGS: DraglassSettings = {
   quickSwitcherDebounceMs: 60,
   quickSwitcherMaxResults: 50,
   quickSwitcherMaxRecents: 20,
+  commandPaletteMruEnabled: true,
 
   templatesFolder: DEFAULT_TEMPLATES_FOLDER,
   tasksEnabled: true,
@@ -161,6 +163,10 @@ function normalizeSettings(raw: unknown): DraglassSettings {
       DEFAULT_SETTINGS.quickSwitcherMaxRecents,
       1,
       200,
+    ),
+    commandPaletteMruEnabled: asBool(
+      r.commandPaletteMruEnabled,
+      DEFAULT_SETTINGS.commandPaletteMruEnabled,
     ),
     templatesFolder: normalizeTemplatesFolder(
       typeof r.templatesFolder === 'string' ? r.templatesFolder : DEFAULT_SETTINGS.templatesFolder,

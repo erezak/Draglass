@@ -22,6 +22,7 @@ import { createUniqueFolder, createUniqueNote } from './fs'
 import { useSettings } from './settings'
 import { useBacklinks } from './features/backlinks/useBacklinks'
 import { useNoteManager } from './features/notes/useNoteManager'
+import { useRecentCommands } from './features/recents/useRecentCommands'
 import { useRecentNotes } from './features/recents/useRecentNotes'
 import { useTasks } from './features/tasks/useTasks'
 import { useTags } from './features/tags/useTags'
@@ -239,6 +240,7 @@ function App() {
   const scheduleTagsScanRef = useRef<() => void>(() => {})
 
   const { recentRelPaths, recordRecent } = useRecentNotes(settings.quickSwitcherMaxRecents)
+  const { recentCommandIds, recordRecentCommand } = useRecentCommands()
 
   const { vaultPath, files, navFiles, vaultName, refreshFileList, pickVault, loadVault } = useVault({
     rememberLast: settings.vaultRememberLast,
@@ -2183,7 +2185,10 @@ function App() {
       <CommandPalette
         open={commandPaletteOpen}
         commands={commands}
+        mruEnabled={settings.commandPaletteMruEnabled}
+        recentCommandIds={recentCommandIds}
         onRequestClose={closeCommandPalette}
+        onCommandExecute={recordRecentCommand}
       />
 
       {vaultAuthModalOpen && (
