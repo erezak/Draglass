@@ -767,10 +767,30 @@ export const NoteEditor = function NoteEditor({
     const current = view.state.doc.toString()
     if (current === value) return
 
+    // Compute the minimal changed range to preserve cursor position.
+    // A full-document replace (from: 0, to: current.length) maps all cursors
+    // to position 0; a targeted replace leaves cursors outside the changed
+    // region unmoved.
+    let from = 0
+    const minLen = Math.min(current.length, value.length)
+    while (from < minLen && current[from] === value[from]) {
+      from++
+    }
+    let toFromEnd = 0
+    while (
+      toFromEnd < current.length - from &&
+      toFromEnd < value.length - from &&
+      current[current.length - 1 - toFromEnd] === value[value.length - 1 - toFromEnd]
+    ) {
+      toFromEnd++
+    }
+    const to = current.length - toFromEnd
+    const insert = value.slice(from, value.length - toFromEnd)
+
     applyingExternalValueRef.current = true
     try {
       view.dispatch({
-        changes: { from: 0, to: current.length, insert: value },
+        changes: { from, to, insert },
       })
     } finally {
       applyingExternalValueRef.current = false

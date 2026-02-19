@@ -5,6 +5,7 @@ import { createNote, deleteNote, readNote, renameNote, writeNote } from '../../t
 import { fileStem } from '../../path'
 import { isIgnoredPath } from '../../ignore'
 import { normalizeWikiTarget } from '../../wikilinks'
+import { applyUpdatedTimestamp } from '../../frontmatter'
 import { useNoteAutosave } from '../../components/useNoteAutosave'
 import { stripWikilinkTarget, targetToRelPath } from './noteTargets'
 
@@ -64,10 +65,13 @@ export function useNoteManager({
   const isDirty = noteText !== savedText
 
   const handleSaved = useCallback(
-    (contents: string) => {
-      setSavedText(contents)
+    (original: string, saved: string) => {
+      setSavedText(saved)
+      // If the editor content hasn't changed since we captured it for saving,
+      // update it to reflect the saved content (e.g. the updated timestamp).
+      setNoteText((current) => (current === original ? saved : current))
       if (activeRelPath) {
-        onDidSaveNote?.(activeRelPath, contents)
+        onDidSaveNote?.(activeRelPath, saved)
       }
     },
     [activeRelPath, onDidSaveNote],
@@ -80,6 +84,7 @@ export function useNoteManager({
     text: noteText,
     isDirty,
     debounceMs: autosaveDebounceMs,
+    transformBeforeSave: applyUpdatedTimestamp,
     save: writeNote,
     onSaved: handleSaved,
   })
