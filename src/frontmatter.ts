@@ -12,7 +12,7 @@ type FrontmatterParseResult = {
 
 const FRONTMATTER_RE = /^---\s*\n([\s\S]*?)\n---\s*\n?/
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
-const DATETIME_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
+const DATETIME_RE = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/
 const NUMBER_RE = /^-?\d+(?:\.\d+)?$/
 
 function pad2(value: number): string {
@@ -131,6 +131,23 @@ export function applyDefaultNoteFrontmatter(noteText: string, now: Date = new Da
   }
   if (!existingKeys.has('updated')) {
     nextEntries.push({ key: 'updated', value: timestamp, type: 'datetime' })
+  }
+
+  return buildFrontmatter(noteText, nextEntries)
+}
+
+export function applyUpdatedTimestamp(noteText: string, now: Date = new Date()): string {
+  const parsed = parseFrontmatter(noteText)
+  if (!parsed.hasFrontmatter) return noteText
+
+  const timestamp = formatDefaultDateTime(now)
+  const updatedIdx = parsed.entries.findIndex((e) => e.key.toLowerCase() === 'updated')
+  const nextEntries = [...parsed.entries]
+
+  if (updatedIdx === -1) {
+    nextEntries.push({ key: 'updated', value: timestamp, type: 'datetime' })
+  } else {
+    nextEntries[updatedIdx] = { ...nextEntries[updatedIdx], value: timestamp, type: 'datetime' }
   }
 
   return buildFrontmatter(noteText, nextEntries)

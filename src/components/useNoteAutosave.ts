@@ -9,8 +9,9 @@ type UseNoteAutosaveArgs = {
   text: string
   isDirty: boolean
   debounceMs?: number
+  transformBeforeSave?: (text: string) => string
   save: (vaultPath: string, relPath: string, contents: string) => Promise<void>
-  onSaved: (contents: string) => void
+  onSaved: (original: string, saved: string) => void
 }
 
 type UseNoteAutosaveResult = {
@@ -29,6 +30,7 @@ export function useNoteAutosave({
   text,
   isDirty,
   debounceMs = DEFAULT_DEBOUNCE_MS,
+  transformBeforeSave,
   save,
   onSaved,
 }: UseNoteAutosaveArgs): UseNoteAutosaveResult {
@@ -82,13 +84,14 @@ export function useNoteAutosave({
       }
 
       const contents = textRef.current
+      const savedContents = transformBeforeSave ? transformBeforeSave(contents) : contents
 
       const promise = (async (): Promise<boolean> => {
         inFlightSeqRef.current = seq
         setStatus('saving')
 
         try {
-          await save(vaultPath, relPath, contents)
+          await save(vaultPath, relPath, savedContents)
         } catch {
           if (keyRef.current === keyAtStart) {
             setStatus('error')
@@ -101,7 +104,7 @@ export function useNoteAutosave({
         }
 
         if (keyRef.current === keyAtStart) {
-          onSaved(contents)
+          onSaved(contents, savedContents)
           setStatus(isDirtyRef.current ? 'saving' : 'saved')
         }
 
@@ -124,7 +127,7 @@ export function useNoteAutosave({
       }
       return ok
     },
-    [debounceMs, enabled, onSaved, relPath, save, vaultPath],
+    [debounceMs, enabled, onSaved, relPath, save, transformBeforeSave, vaultPath],
   )
 
   useEffect(() => {
