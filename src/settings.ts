@@ -15,6 +15,7 @@ export type DraglassSettings = {
   editorRenderImages: boolean
   editorRenderCallouts: boolean
   editorTheme: 'dark' | 'light'
+  surrealismIntensity: 'off' | 'subtle' | 'full'
   filesShowHidden: boolean
   filesRememberExpandedFolders: boolean
   vaultRememberLast: boolean
@@ -63,6 +64,7 @@ export const DEFAULT_SETTINGS: DraglassSettings = {
   editorRenderImages: true,
   editorRenderCallouts: true,
   editorTheme: 'dark',
+  surrealismIntensity: 'subtle',
   filesShowHidden: false,
   filesRememberExpandedFolders: true,
   vaultRememberLast: true,
