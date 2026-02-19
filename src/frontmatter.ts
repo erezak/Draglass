@@ -15,6 +15,10 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 const DATETIME_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
 const NUMBER_RE = /^-?\d+(?:\.\d+)?$/
 
+function pad2(value: number): string {
+  return String(value).padStart(2, '0')
+}
+
 function coerceType(value: string): FrontmatterEntry['type'] {
   const trimmed = value.trim()
   if (trimmed.length === 0) return 'text'
@@ -110,4 +114,24 @@ export function normalizeEntryValue(value: string, type: FrontmatterEntry['type'
 
 export function inferEntryType(value: string): FrontmatterEntry['type'] {
   return coerceType(value)
+}
+
+function formatDefaultDateTime(now: Date): string {
+  return `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())} ${pad2(now.getHours())}:${pad2(now.getMinutes())}`
+}
+
+export function applyDefaultNoteFrontmatter(noteText: string, now: Date = new Date()): string {
+  const timestamp = formatDefaultDateTime(now)
+  const parsed = parseFrontmatter(noteText)
+  const existingKeys = new Set(parsed.entries.map((entry) => entry.key.toLowerCase()))
+  const nextEntries = [...parsed.entries]
+
+  if (!existingKeys.has('created')) {
+    nextEntries.push({ key: 'created', value: timestamp, type: 'datetime' })
+  }
+  if (!existingKeys.has('updated')) {
+    nextEntries.push({ key: 'updated', value: timestamp, type: 'datetime' })
+  }
+
+  return buildFrontmatter(noteText, nextEntries)
 }

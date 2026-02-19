@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/core'
 
 import type { NoteEntry, SearchHit } from './types'
 import type { GraphData, GraphOptions } from './features/graph/graphTypes'
+import { applyDefaultNoteFrontmatter } from './frontmatter'
 import { DEFAULT_TEMPLATES_FOLDER, isTemplatePath, normalizeTemplatesFolder } from './templates'
 
 export type SearchFlags = {
@@ -177,11 +178,12 @@ export async function createNote(
   relPath: string,
   contents: string,
 ): Promise<void> {
+  const contentsWithDefaultFrontmatter = applyDefaultNoteFrontmatter(contents)
   if (isTauri()) {
-    return tauriCreateNote(vaultPath, relPath, contents)
+    return tauriCreateNote(vaultPath, relPath, contentsWithDefaultFrontmatter)
   } else {
     const { webCreateNote } = await import('./webVault')
-    return webCreateNote(vaultPath, relPath, contents)
+    return webCreateNote(vaultPath, relPath, contentsWithDefaultFrontmatter)
   }
 }
 

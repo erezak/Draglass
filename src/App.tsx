@@ -31,7 +31,7 @@ import { useVaultAuth, hasVaultPassword, checkVaultPassword } from './features/v
 import { createDir, createNote, isTauri, onVaultFileChanged, printMainWindow, readNote, rebuildIndex, writeNote } from './tauri'
 import { mergeFrontmatterForTemplateInsert, renderTemplate } from './templateRenderer'
 import { listTemplateFiles, normalizeTemplatesFolder } from './templates'
-import { parseFrontmatter } from './frontmatter'
+import { applyDefaultNoteFrontmatter, parseFrontmatter } from './frontmatter'
 import { fileStem } from './path'
 import { buildDailyNoteRelPath, listExistingDailyNoteDates, resolveDailyNoteTemplatePath } from './dailyNotes'
 import { normalizeTag } from './tags'
@@ -967,12 +967,13 @@ function App() {
         const initialText = rendered.frontmatterEntries.length
           ? mergeFrontmatterForTemplateInsert(rendered.bodyText, rendered.frontmatterEntries).textWithMergedFrontmatter
           : rendered.bodyText
-        await writeNote(vaultPath, relPath, initialText)
+        const initialTextWithDefaults = applyDefaultNoteFrontmatter(initialText)
+        await writeNote(vaultPath, relPath, initialTextWithDefaults)
         await refreshFileList(vaultPath)
         const opened = await openNoteByRelPath(relPath)
         if (opened) {
-          const parsed = parseFrontmatter(initialText)
-          const frontmatterLen = initialText.length - parsed.body.length
+          const parsed = parseFrontmatter(initialTextWithDefaults)
+          const frontmatterLen = initialTextWithDefaults.length - parsed.body.length
           const cursorOffset = rendered.cursorOffsetInBody != null
             ? frontmatterLen + rendered.cursorOffsetInBody
             : null
