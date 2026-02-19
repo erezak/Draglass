@@ -9,6 +9,27 @@
   --topbar-padding-left: 12px;
   --topbar-padding-right: 12px;
   --left-pane-border-gap: 80px;
+  position: relative;
+}
+
+/* Surrealism: Subtle atmospheric glow at full intensity */
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .appShell::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: radial-gradient(ellipse at top, 
+    rgba(255, 169, 71, 0.03) 0%, 
+    transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .appShell > * {
+  position: relative;
+  z-index: 1;
 }
 
 .topbar {
@@ -334,6 +355,18 @@
   min-height: 0;
   min-width: 0;
   border-right: 1px solid var(--panel-border);
+  transition: border-color 0.25s;
+}
+
+/* Surrealism: Subtle atmospheric effect on panes */
+:root[data-surreal-enabled='true'] .sidebar,
+:root[data-surreal-enabled='true'] .rightPane {
+  transition: border-color var(--duration-dream) var(--ease-float);
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .sidebar,
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .rightPane {
+  box-shadow: inset -1px 0 0 var(--surreal-border);
 }
 
 .paneWrapper.paneHidden,
@@ -824,7 +857,18 @@
   border-radius: 8px;
   border: 1px solid var(--panel-border);
   background: var(--panel-bg);
+  transition: border-color 0.2s, background 0.2s;
 }
+
+/* Surrealism: Subtle metamorphosis and levitation */
+:root[data-surreal-enabled='true'] .fileItem,
+:root[data-surreal-enabled='true'] .linkItem {
+  transition: border-color var(--duration-dream) var(--ease-float),
+              background var(--duration-dream) var(--ease-float),
+              transform var(--duration-quick) var(--ease-float),
+              box-shadow var(--duration-quick) var(--ease-float);
+}
+
 .tagItem {
   width: 100%;
   text-align: left;
@@ -836,11 +880,30 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+:root[data-surreal-enabled='true'] .tagItem {
+  transition: border-color var(--duration-dream) var(--ease-float),
+              background var(--duration-dream) var(--ease-float),
+              transform var(--duration-quick) var(--ease-float),
+              box-shadow var(--duration-quick) var(--ease-float);
 }
 
 .tagItem--active {
   border-color: var(--button-hover-border);
   background: var(--highlight);
+}
+
+/* Surrealism: Active tag levitation */
+:root[data-surreal-enabled='true'][data-surreal-intensity='subtle'] .tagItem--active,
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .tagItem--active {
+  box-shadow: var(--shadow-soft-sm);
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .tagItem--active {
+  transform: translateX(2px);
+  box-shadow: var(--shadow-levitate-sm);
 }
 
 .tagItemLabel {
@@ -902,14 +965,53 @@
   border-color: var(--button-hover-border);
 }
 
+/* Surrealism: Hover levitation for list items */
+:root[data-surreal-enabled='true'][data-surreal-intensity='subtle'] .fileItem:hover,
+:root[data-surreal-enabled='true'][data-surreal-intensity='subtle'] .linkItem:hover {
+  transform: translateX(1px);
+  box-shadow: var(--shadow-soft-sm);
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .fileItem:hover,
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .linkItem:hover {
+  transform: translateX(2px);
+  box-shadow: var(--shadow-levitate-sm);
+}
+
 .taskItem:hover {
   border-color: var(--button-hover-border);
   background: var(--highlight);
 }
 
+:root[data-surreal-enabled='true'][data-surreal-intensity='subtle'] .taskItem:hover,
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .taskItem:hover {
+  transform: translateX(1px);
+  box-shadow: var(--shadow-soft-sm);
+}
+
 .fileItem.active {
   border-color: var(--button-hover-border);
   background: var(--highlight);
+}
+
+/* Surrealism: Active file levitation */
+:root[data-surreal-enabled='true'][data-surreal-intensity='subtle'] .fileItem.active {
+  box-shadow: var(--shadow-soft-sm);
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .fileItem.active {
+  transform: translateX(2px);
+  box-shadow: var(--shadow-levitate-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-surreal-enabled='true'] .fileItem:hover,
+  :root[data-surreal-enabled='true'] .linkItem:hover,
+  :root[data-surreal-enabled='true'] .taskItem:hover,
+  :root[data-surreal-enabled='true'] .fileItem.active,
+  :root[data-surreal-enabled='true'] .tagItem--active {
+    transform: none;
+  }
 }
 
 .editorPane {
@@ -2066,6 +2168,21 @@
   font-size: 14px;
   color: var(--text-primary);
   background: var(--button-bg);
+  transition: background 0.2s;
+}
+
+/* Surrealism: Subtle glow on focus */
+:root[data-surreal-enabled='true'] .qsInput {
+  transition: background var(--duration-dream) var(--ease-float),
+              box-shadow var(--duration-quick) var(--ease-float);
+}
+
+:root[data-surreal-enabled='true'] .qsInput:focus {
+  box-shadow: inset 0 0 0 1px var(--surreal-accent), var(--glow-cool-sm);
+}
+
+:root[data-surreal-enabled='true'][data-surreal-intensity='full'] .qsInput:focus {
+  box-shadow: inset 0 0 0 2px var(--surreal-accent), var(--glow-cool-md);
 }
 
 .qsMeta {
