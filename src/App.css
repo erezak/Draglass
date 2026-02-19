@@ -3293,3 +3293,150 @@
   background: var(--bauhaus-yellow);
   color: var(--bauhaus-black);
 }
+
+/* ============================================
+   Responsive Layout - Bauhaus
+   ============================================ */
+
+/* Mobile (max-width: 767px) */
+@media (max-width: 767px) {
+  .appShell {
+    --toolbox-width: 48px;
+    --sidebar-width: 200px;
+    --right-pane-width: 100%;
+  }
+
+  .topbar {
+    height: 44px;
+    padding: 0 var(--space-2);
+  }
+
+  .brand {
+    font-size: 0.75em;
+  }
+
+  .iconButton {
+    width: 28px;
+    height: 28px;
+  }
+
+  .toolboxButton {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Stack panes on mobile */
+  .content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .content--left-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Hide toolbox on very small screens */
+  @media (max-width: 360px) {
+    .toolbox {
+      display: none;
+    }
+
+    .appShell {
+      --toolbox-width: 0px;
+    }
+  }
+
+  /* Modal adjustments */
+  .qsCard,
+  .settingsCard {
+    width: 96vw;
+    max-height: 90vh;
+  }
+
+  .qsInput {
+    font-size: 14px;
+    padding: var(--space-3);
+  }
+
+  /* Reduce padding in panels */
+  .sidebar,
+  .rightPane {
+    padding: var(--space-2);
+  }
+}
+
+/* Tablet (768px - 1279px) */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .appShell {
+    --sidebar-width: 220px;
+    --right-pane-width: 240px;
+  }
+
+  .qsCard {
+    width: min(640px, 90vw);
+  }
+
+  .settingsCard {
+    width: min(680px, 90vw);
+  }
+}
+
+/* Desktop (1280px+) */
+@media (min-width: 1280px) {
+  .appShell {
+    --sidebar-width: 260px;
+    --right-pane-width: 280px;
+  }
+
+  .qsCard {
+    width: min(760px, 90vw);
+  }
+
+  .settingsCard {
+    width: min(800px, 90vw);
+  }
+
+  /* More breathing room on large screens */
+  .topbar {
+    padding: 0 var(--space-6) 0 var(--topbar-padding-left);
+  }
+}
+
+/* Very large screens (1920px+) */
+@media (min-width: 1920px) {
+  .appShell {
+    --sidebar-width: 300px;
+    --right-pane-width: 320px;
+  }
+
+  .qsCard {
+    width: min(840px, 85vw);
+  }
+
+  .settingsCard {
+    width: min(920px, 85vw);
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets */
+  .iconButton,
+  .toolboxButton,
+  .leftPaneActionButton {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  button {
+    min-height: 36px;
+    padding: var(--space-3) var(--space-5);
+  }
+
+  /* Remove hover effects on touch devices */
+  .iconButton:hover,
+  .toolboxButton:hover,
+  .fileItem:hover,
+  .folderItem:hover {
+    transform: none;
+  }
+}

@@ -229,3 +229,76 @@ button:disabled {
   transform: none;
 }
 
+/* ============================================
+   Responsive Breakpoints - Bauhaus
+   ============================================ */
+
+/* Mobile - Small screens (360px - 767px) */
+@media (max-width: 767px) {
+  :root {
+    /* Adjust spacing for mobile */
+    --space-3: 10px;
+    --space-4: 14px;
+    --space-5: 18px;
+    --space-6: 22px;
+  }
+
+  h1 {
+    font-size: 2em;
+  }
+
+  h2 {
+    font-size: 1.75em;
+  }
+
+  h3 {
+    font-size: 1.25em;
+  }
+
+  button {
+    padding: var(--space-2) var(--space-4);
+    font-size: 0.875em;
+  }
+}
+
+/* Tablet - Medium screens (768px - 1279px) */
+@media (min-width: 768px) and (max-width: 1279px) {
+  :root {
+    /* Standard spacing for tablets */
+  }
+}
+
+/* Desktop - Large screens (1280px+) */
+@media (min-width: 1280px) {
+  :root {
+    /* Enhanced spacing for large screens */
+    --space-8: 36px;
+    --space-10: 44px;
+    --space-12: 52px;
+  }
+}
+
+/* High DPI / Retina displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  :root {
+    /* Ensure crisp borders on retina */
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  button:hover,
+  .iconButton:hover,
+  .toolboxButton:hover {
+    transform: none !important;
+  }
+}
+
