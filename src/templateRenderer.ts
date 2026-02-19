@@ -5,6 +5,7 @@ import {
   parseFrontmatter,
   type FrontmatterEntry,
 } from './frontmatter'
+import { fileStem } from './path'
 
 const CURSOR_MARKER = '{{cursor}}'
 
@@ -135,6 +136,7 @@ function evaluateCreateExpression(expression: string, context: TemplateRenderCon
   )
   if (momentMatch) {
     const parsedTitleDate = parseDateWithPattern(context.title, momentMatch[2])
+      ?? parseDateWithPattern(fileStem(context.title), momentMatch[2])
     if (!parsedTitleDate) return null
     return formatWithPattern(parsedTitleDate, momentMatch[4])
   }

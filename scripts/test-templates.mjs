@@ -96,6 +96,13 @@ const renderedWithCreateEvaluation = renderer.renderTemplate(createOnlyExpressio
 assert.equal(renderedWithCreateEvaluation.bodyText.includes('2026-02-03'), true)
 assert.equal(renderedWithCreateEvaluation.bodyText.includes('Tuesday, February 3, 2026'), true)
 
+const renderedWithFilenameTitle = renderer.renderTemplate(createOnlyExpressionsTemplate, {
+  title: '2026-02-03.md',
+  now,
+  evaluateCreateExpressions: true,
+})
+assert.equal(renderedWithFilenameTitle.bodyText.includes('Tuesday, February 3, 2026'), true)
+
 const merged = renderer.mergeFrontmatterForTemplateInsert(
   ['---', 'title: Existing', 'tags: one', '---', '', 'Hello'].join('\n'),
   [
