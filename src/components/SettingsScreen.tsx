@@ -319,6 +319,67 @@ export function SettingsScreen({
               </datalist>
             </label>
           </section>
+
+          <section className="settingsSection">
+            <h3>Git</h3>
+            <label className="settingsRow">
+              <span>Enable git sync</span>
+              <input
+                type="checkbox"
+                checked={settings.gitEnabled}
+                onChange={onToggle('gitEnabled')}
+              />
+            </label>
+            <label className="settingsRow">
+              <span>Enable autocommit</span>
+              <input
+                type="checkbox"
+                checked={settings.gitAutocommitEnabled}
+                disabled={!settings.gitEnabled}
+                onChange={onToggle('gitAutocommitEnabled')}
+              />
+            </label>
+            <label className="settingsRow settingsRow--number">
+              <span>Autocommit interval (minutes)</span>
+              <input
+                type="number"
+                min={1}
+                max={1440}
+                value={settings.gitAutocommitIntervalMinutes}
+                disabled={!settings.gitEnabled || !settings.gitAutocommitEnabled}
+                onChange={onNumberChange('gitAutocommitIntervalMinutes')}
+              />
+            </label>
+            <label className="settingsRow">
+              <span>Enable autopush</span>
+              <input
+                type="checkbox"
+                checked={settings.gitAutopushEnabled}
+                disabled={!settings.gitEnabled}
+                onChange={onToggle('gitAutopushEnabled')}
+              />
+            </label>
+            <label className="settingsRow">
+              <span>Enable autopull</span>
+              <input
+                type="checkbox"
+                checked={settings.gitAutopullEnabled}
+                disabled={!settings.gitEnabled}
+                onChange={onToggle('gitAutopullEnabled')}
+              />
+            </label>
+            <label className="settingsRow settingsRow--number">
+              <span>Autopull interval (minutes)</span>
+              <input
+                type="number"
+                min={1}
+                max={1440}
+                value={settings.gitAutopullIntervalMinutes}
+                disabled={!settings.gitEnabled || !settings.gitAutopullEnabled}
+                onChange={onNumberChange('gitAutopullIntervalMinutes')}
+              />
+            </label>
+          </section>
         </div>
 
         <div className="settingsFooter">
