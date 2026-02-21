@@ -46,6 +46,13 @@ export type DraglassSettings = {
   dailyNotesTemplatePath: string
   pastedImagesFolder: string
   rightPaneTab: 'links' | 'tasks' | 'tags' | 'calendar'
+
+  gitEnabled: boolean
+  gitAutocommitEnabled: boolean
+  gitAutocommitIntervalMinutes: number
+  gitAutopushEnabled: boolean
+  gitAutopullEnabled: boolean
+  gitAutopullIntervalMinutes: number
 }
 
 type SettingsUpdate =
@@ -96,6 +103,13 @@ export const DEFAULT_SETTINGS: DraglassSettings = {
   dailyNotesTemplatePath: '',
   pastedImagesFolder: DEFAULT_PASTED_IMAGES_FOLDER,
   rightPaneTab: 'links',
+
+  gitEnabled: false,
+  gitAutocommitEnabled: true,
+  gitAutocommitIntervalMinutes: 10,
+  gitAutopushEnabled: true,
+  gitAutopullEnabled: true,
+  gitAutopullIntervalMinutes: 10,
 }
 
 function clampInt(value: unknown, fallback: number, min: number, max: number): number {
@@ -208,6 +222,23 @@ function normalizeSettings(raw: unknown): DraglassSettings {
       r.rightPaneTab === 'calendar'
         ? r.rightPaneTab
         : DEFAULT_SETTINGS.rightPaneTab,
+
+    gitEnabled: asBool(r.gitEnabled, DEFAULT_SETTINGS.gitEnabled),
+    gitAutocommitEnabled: asBool(r.gitAutocommitEnabled, DEFAULT_SETTINGS.gitAutocommitEnabled),
+    gitAutocommitIntervalMinutes: clampInt(
+      r.gitAutocommitIntervalMinutes,
+      DEFAULT_SETTINGS.gitAutocommitIntervalMinutes,
+      1,
+      1440,
+    ),
+    gitAutopushEnabled: asBool(r.gitAutopushEnabled, DEFAULT_SETTINGS.gitAutopushEnabled),
+    gitAutopullEnabled: asBool(r.gitAutopullEnabled, DEFAULT_SETTINGS.gitAutopullEnabled),
+    gitAutopullIntervalMinutes: clampInt(
+      r.gitAutopullIntervalMinutes,
+      DEFAULT_SETTINGS.gitAutopullIntervalMinutes,
+      1,
+      1440,
+    ),
   }
 }
 

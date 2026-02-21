@@ -233,6 +233,26 @@ identifier = "print-main-window-legacy"
 description = "Allows printing from the main Tauri window (legacy command name)."
 commands.allow = ["print_main_window"]
 
+[[permission]]
+identifier = "git-status"
+description = "Allows checking if the vault is a git repository."
+commands.allow = ["git_status"]
+
+[[permission]]
+identifier = "git-commit"
+description = "Allows committing vault changes to git."
+commands.allow = ["git_commit"]
+
+[[permission]]
+identifier = "git-push"
+description = "Allows pushing commits to the remote git repository."
+commands.allow = ["git_push"]
+
+[[permission]]
+identifier = "git-pull"
+description = "Allows pulling from the remote git repository."
+commands.allow = ["git_pull"]
+
 [[set]]
 identifier = "vault"
 description = "Allows the main window to access vault-related app commands."
@@ -284,4 +304,8 @@ permissions = [
   "get-demo-vault-path-legacy",
   "print-main-window",
   "print-main-window-legacy",
+  "git-status",
+  "git-commit",
+  "git-push",
+  "git-pull",
 ]

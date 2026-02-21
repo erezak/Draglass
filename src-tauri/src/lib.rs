@@ -5,6 +5,7 @@ mod backlinks;
 mod clipboard;
 mod common;
 mod demo_vault;
+mod git;
 mod graph;
 mod locked_sections;
 mod vault;
@@ -96,6 +97,10 @@ pub fn run() {
             verify_vault_password,
             get_demo_vault_path,
             print_main_window,
+            git_status,
+            git_commit,
+            git_push,
+            git_pull,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -146,6 +151,7 @@ use crate::auth::{hash_password_impl, verify_password_impl, HashResult};
 use crate::backlinks::find_backlinks_impl;
 use crate::clipboard::{read_clipboard_image_impl, ClipboardImage};
 use crate::demo_vault::get_demo_vault_path_impl;
+use crate::git::{git_commit_impl, git_pull_impl, git_push_impl, git_status_impl, GitCommitResult, GitStatus};
 use crate::graph::{build_graph_impl, GraphData, GraphOptions};
 use crate::vault::{
     create_dir_impl, create_note_impl, delete_note_impl, list_markdown_files_impl,
@@ -535,6 +541,34 @@ async fn verify_vault_password(password: String, hash: String) -> Result<bool, S
 #[tauri::command]
 async fn get_demo_vault_path(app_handle: tauri::AppHandle) -> Result<String, String> {
     tauri::async_runtime::spawn_blocking(move || get_demo_vault_path_impl(&app_handle))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn git_status(vault_path: String) -> Result<GitStatus, String> {
+    tauri::async_runtime::spawn_blocking(move || Ok(git_status_impl(&vault_path)))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn git_commit(vault_path: String) -> Result<GitCommitResult, String> {
+    tauri::async_runtime::spawn_blocking(move || git_commit_impl(&vault_path))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn git_push(vault_path: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || git_push_impl(&vault_path))
+        .await
+        .map_err(|e| format!("failed to join task: {e}"))?
+}
+
+#[tauri::command]
+async fn git_pull(vault_path: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || git_pull_impl(&vault_path))
         .await
         .map_err(|e| format!("failed to join task: {e}"))?
 }

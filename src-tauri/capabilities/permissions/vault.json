@@ -48,6 +48,10 @@
     "get-demo-vault-path",
     "get-demo-vault-path-legacy",
     "print-main-window",
-    "print-main-window-legacy"
+    "print-main-window-legacy",
+    "git-status",
+    "git-commit",
+    "git-push",
+    "git-pull"
   ]
 }

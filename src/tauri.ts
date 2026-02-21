@@ -681,3 +681,49 @@ export async function getDemoVaultPath(): Promise<string> {
     return webGetDemoVaultPath()
   }
 }
+
+export type GitStatusResult = {
+  isGitRepo: boolean
+  gitAvailable: boolean
+}
+
+export type GitCommitResult = {
+  committed: boolean
+  message: string
+}
+
+async function tauriGitStatus(vaultPath: string): Promise<GitStatusResult> {
+  return invoke<GitStatusResult>('git_status', { vaultPath })
+}
+
+export async function gitStatus(vaultPath: string): Promise<GitStatusResult> {
+  if (!isTauri()) return { isGitRepo: false, gitAvailable: false }
+  return tauriGitStatus(vaultPath)
+}
+
+async function tauriGitCommit(vaultPath: string): Promise<GitCommitResult> {
+  return invoke<GitCommitResult>('git_commit', { vaultPath })
+}
+
+export async function gitCommit(vaultPath: string): Promise<GitCommitResult> {
+  if (!isTauri()) return { committed: false, message: 'not in Tauri' }
+  return tauriGitCommit(vaultPath)
+}
+
+async function tauriGitPush(vaultPath: string): Promise<string> {
+  return invoke<string>('git_push', { vaultPath })
+}
+
+export async function gitPush(vaultPath: string): Promise<string> {
+  if (!isTauri()) return ''
+  return tauriGitPush(vaultPath)
+}
+
+async function tauriGitPull(vaultPath: string): Promise<string> {
+  return invoke<string>('git_pull', { vaultPath })
+}
+
+export async function gitPull(vaultPath: string): Promise<string> {
+  if (!isTauri()) return ''
+  return tauriGitPull(vaultPath)
+}

@@ -21,6 +21,7 @@ import { GraphView } from './features/graph'
 import { createUniqueFolder, createUniqueNote } from './fs'
 import { useSettings } from './settings'
 import { useBacklinks } from './features/backlinks/useBacklinks'
+import { useGitSync } from './features/git/useGitSync'
 import { useNoteManager } from './features/notes/useNoteManager'
 import { useRecentCommands } from './features/recents/useRecentCommands'
 import { useRecentNotes } from './features/recents/useRecentNotes'
@@ -702,6 +703,7 @@ function App() {
 
   useEditorTheme(settings.editorTheme)
   useSurrealTheme(settings.surrealismIntensity)
+  useGitSync({ vaultPath, settings, onError: (msg) => setError(msg) })
 
   useEffect(() => {
     resetNoteState()
