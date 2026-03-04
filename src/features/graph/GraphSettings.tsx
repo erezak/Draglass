@@ -239,7 +239,7 @@ export function GraphSettings({
             <input
               type="range"
               min={-1000}
-              max={0}
+              max={-10}
               step={10}
               value={forces.repelStrength}
               onChange={(e) => onForcesChange({ repelStrength: Number(e.target.value) })}

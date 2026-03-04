@@ -36,7 +36,7 @@ function loadSettings(): GraphSettings {
           parsed.forces?.repelStrength,
           DEFAULT_GRAPH_SETTINGS.forces.repelStrength,
           -1000,
-          0,
+          -10,
         ),
         linkStrength: clampFloat(
           parsed.forces?.linkStrength,

@@ -1,10 +1,12 @@
 import {
   forceCenter,
+  forceCollide,
   forceLink,
   forceManyBody,
   forceSimulation,
 } from 'd3-force'
 import type {
+  ForceCollide,
   Simulation,
   SimulationLinkDatum,
 } from 'd3-force'
@@ -53,6 +55,9 @@ type GraphCanvasProps = {
 
 let pixiPluginsRegistered = false
 
+/** Multiplier applied to nodeSize when detecting hover (larger than drag hit area). */
+const HOVER_HIT_AREA_MULTIPLIER = 1.5
+
 function ensurePixiPluginsRegistered() {
   if (pixiPluginsRegistered) return
   extensions.remove(ResizePlugin)
@@ -60,36 +65,94 @@ function ensurePixiPluginsRegistered() {
   pixiPluginsRegistered = true
 }
 
-// Theme colors
+// Theme colors – tuned to match Obsidian MD's graph view aesthetic
 const THEME_COLORS = {
   dark: {
-    background: 0x1a1b26,
-    node: 0x7aa2ff,
-    nodeStroke: 0x5a82df,
-    nodeActive: 0xffd700,
-    nodeSelected: 0xff7a7a,
-    nodeHovered: 0xb8d4ff,
-    edge: 0x4a5568,
-    edgeHighlight: 0x7aa2ff,
-    text: 0xc0caf5,
-    textMuted: 0x565f89,
+    background: 0x1a1a1a,
+    node: 0x7f6df2,
+    nodeStroke: 0x6358d0,
+    nodeActive: 0xffba28,
+    nodeSelected: 0xe06c75,
+    nodeHovered: 0xa78bfa,
+    edge: 0x3d3d5c,
+    edgeHighlight: 0x9480e2,
+    text: 0xdcddde,
+    textMuted: 0x555577,
   },
   light: {
-    background: 0xf8fafc,
-    node: 0x3b4a9f,
-    nodeStroke: 0x2a3980,
-    nodeActive: 0xd97706,
-    nodeSelected: 0xdc2626,
-    nodeHovered: 0x5a6ad0,
-    edge: 0xcbd5e1,
-    edgeHighlight: 0x3b4a9f,
-    text: 0x1e293b,
-    textMuted: 0x94a3b8,
+    background: 0xfafafa,
+    node: 0x7f6df2,
+    nodeStroke: 0x6358d0,
+    nodeActive: 0xe09020,
+    nodeSelected: 0xe06c75,
+    nodeHovered: 0x9b87f5,
+    edge: 0xc4c4c4,
+    edgeHighlight: 0x7f6df2,
+    text: 0x333333,
+    textMuted: 0x999999,
   },
 }
 
 function hexToNumber(hex: string): number {
   return parseInt(hex.replace('#', ''), 16)
+}
+
+// ── Collision physics constants ──────────────────────────────────────────────
+// These match the same degree-scaling formula used in the visual radius so that
+// the collision boundary closely tracks the drawn circle.
+const COLLIDE_DEGREE_SCALE_OFFSET = 2
+const COLLIDE_DEGREE_SCALE_MULTIPLIER = 0.5
+const COLLIDE_DEGREE_RADIUS_MULTIPLIER = 2
+/** Extra padding factor: collision radius is 30% larger than visual radius. */
+const COLLIDE_PADDING_FACTOR = 1.3
+/** Collision resolution strength: 0–1, higher = harder collision. */
+const COLLIDE_STRENGTH = 0.8
+
+/** Compute the collision radius for a node given the base nodeSize. */
+function collisionRadius(node: { degreeIn: number }, nodeSize: number): number {
+  const degreeScale = Math.log2(node.degreeIn + COLLIDE_DEGREE_SCALE_OFFSET) * COLLIDE_DEGREE_SCALE_MULTIPLIER
+  return (nodeSize + degreeScale * COLLIDE_DEGREE_RADIUS_MULTIPLIER) * COLLIDE_PADDING_FACTOR
+}
+
+/**
+ * Matches a single group query against a node.
+ * Supports Obsidian-style prefixes: path:, file:, tag: (ignored – no tag data),
+ * and leading `-` for negation.
+ */
+function matchesGroupQuery(node: GraphNode, rawQuery: string): boolean {
+  const q = rawQuery.trim()
+  if (!q) return false
+
+  // Negation: check on original case before lowercasing to avoid re-processing
+  if (q.startsWith('-')) {
+    const inner = q.slice(1).trim()
+    return inner.length > 0 && !matchesGroupQuery(node, inner)
+  }
+
+  const ql = q.toLowerCase()
+
+  // path: prefix – match against the relative path
+  if (ql.startsWith('path:')) {
+    const part = ql.slice(5).trim()
+    return part.length > 0 && node.relPath.toLowerCase().includes(part)
+  }
+
+  // file: prefix – match against the note title (filename without extension)
+  if (ql.startsWith('file:')) {
+    const part = ql.slice(5).trim()
+    return part.length > 0 && node.title.toLowerCase().includes(part)
+  }
+
+  // tag: prefix – no tag data available; never matches
+  if (ql.startsWith('tag:')) {
+    return false
+  }
+
+  // Plain text: match title or full path (default Obsidian behaviour)
+  return (
+    node.title.toLowerCase().includes(ql) ||
+    node.relPath.toLowerCase().includes(ql)
+  )
 }
 
 export function GraphCanvas({
@@ -110,8 +173,6 @@ export function GraphCanvas({
   onBackgroundClick,
   onRenderError,
 }: GraphCanvasProps) {
-  void _hoveredNodeId // reserved for future hover highlighting
-  void _onNodeHover // reserved for future hover highlighting
   const containerRef = useRef<HTMLDivElement>(null)
   const appRef = useRef<Application | null>(null)
   const simulationRef = useRef<Simulation<SimulationNode, SimulationEdge> | null>(null)
@@ -140,12 +201,14 @@ export function GraphCanvas({
   })
   const renderFnRef = useRef<(() => void) | null>(null)
   const initialBackgroundRef = useRef<number | null>(null)
+  const hoveredNodeIdRef = useRef<string | null>(null)
   const [initialized, setInitialized] = useState(false)
 
   // Use refs for callbacks to avoid effect re-runs
   const onNodeClickRef = useRef(onNodeClick)
   const onNodeRightClickRef = useRef(onNodeRightClick)
   const onRenderErrorRef = useRef(onRenderError)
+  const onNodeHoverRef = useRef(_onNodeHover)
 
   const animatingRef = useRef(animating)
   const animationProgressRef = useRef(animationProgress)
@@ -155,9 +218,11 @@ export function GraphCanvas({
     onNodeClickRef.current = onNodeClick
     onNodeRightClickRef.current = onNodeRightClick
     onRenderErrorRef.current = onRenderError
+    onNodeHoverRef.current = _onNodeHover
     animatingRef.current = animating
     animationProgressRef.current = animationProgress
     displayRef.current = display
+    hoveredNodeIdRef.current = _hoveredNodeId
   })
 
   const colors = THEME_COLORS[theme]
@@ -185,11 +250,7 @@ export function GraphCanvas({
     (node: GraphNode): number => {
       for (const group of groups) {
         if (!group.enabled || !group.query.trim()) continue
-        const query = group.query.toLowerCase()
-        if (
-          node.title.toLowerCase().includes(query) ||
-          node.relPath.toLowerCase().includes(query)
-        ) {
+        if (matchesGroupQuery(node, group.query)) {
           return hexToNumber(group.color)
         }
       }
@@ -329,7 +390,13 @@ export function GraphCanvas({
     // Stop existing simulation
     simulationRef.current?.stop()
 
-    // Create new simulation
+    // Snapshot nodeSize at creation time for collision radii
+    const nodeSize = displayRef.current.nodeSize
+
+    // Create new simulation with Obsidian-like physics:
+    // - forceCollide prevents node overlap and produces elastic "bounce"
+    // - lower velocityDecay = less damping = more springy oscillation
+    // - lower alphaDecay = slower cooling = longer, smoother settlement
     const simulation = forceSimulation<SimulationNode, SimulationEdge>(simNodes)
       .force('center', forceCenter(0, 0).strength(forces.centerStrength))
       .force('charge', forceManyBody<SimulationNode>().strength(forces.repelStrength))
@@ -340,7 +407,9 @@ export function GraphCanvas({
           .strength(forces.linkStrength)
           .distance(forces.linkDistance),
       )
-      .alphaDecay(0.02)
+      .force('collide', forceCollide<SimulationNode>().radius((d) => collisionRadius(d, nodeSize)).strength(COLLIDE_STRENGTH))
+      .alphaDecay(0.015)
+      .velocityDecay(0.25)
 
     simulationRef.current = simulation
 
@@ -392,7 +461,8 @@ export function GraphCanvas({
     // The actual render function is defined later and will re-render on each frame
     let animationId: number | null = null
     const startTime = Date.now()
-    const maxSimMs = 2000
+    // Allow enough time for the slower alphaDecay to reach natural equilibrium
+    const maxSimMs = 8000
     const scheduleRender = () => {
       if (animationId !== null) return
       animationId = requestAnimationFrame(() => {
@@ -401,16 +471,16 @@ export function GraphCanvas({
         renderFnRef.current?.()
       })
     }
+    // stopSimulation only halts the timer; it intentionally keeps the tick/end
+    // handlers registered so that drag-induced simulation restarts work correctly.
     const stopSimulation = () => {
       simulation.stop()
-      simulation.on('tick', null)
-      simulation.on('end', null)
       renderFnRef.current?.()
     }
     const handleTick = () => {
       scheduleRender()
       const elapsed = Date.now() - startTime
-      if (simulation.alpha() <= 0.01 || elapsed >= maxSimMs) {
+      if (simulation.alpha() <= 0.005 || elapsed >= maxSimMs) {
         stopSimulation()
       }
     }
@@ -463,8 +533,20 @@ export function GraphCanvas({
       linkForce.strength(forces.linkStrength).distance(forces.linkDistance)
     }
 
-    simulation.alpha(0.3).restart()
+    simulation.alpha(0.5).restart()
   }, [forces.centerStrength, forces.repelStrength, forces.linkStrength, forces.linkDistance])
+
+  // Update collide radius when nodeSize display setting changes
+  useEffect(() => {
+    const simulation = simulationRef.current
+    if (!simulation) return
+    const newNodeSize = display.nodeSize
+    const collideForce = simulation.force('collide') as ForceCollide<SimulationNode> | undefined
+    if (collideForce) {
+      collideForce.radius((d) => collisionRadius(d, newNodeSize))
+      simulation.alpha(0.3).restart()
+    }
+  }, [display.nodeSize])
 
   // Render function
   const renderGraph = useCallback(() => {
@@ -500,6 +582,23 @@ export function GraphCanvas({
       simNodes.forEach((n) => visibleNodeIds.add(n.id))
     }
 
+    // Hover state – build connected-node set for highlight/dim logic
+    const currentHoveredId = hoveredNodeIdRef.current
+    const hasHover = currentHoveredId !== null
+    const connectedIds = new Set<string>()
+
+    if (hasHover) {
+      connectedIds.add(currentHoveredId!)
+      for (const edge of simEdges) {
+        const srcId = typeof edge.source === 'string' ? edge.source : (edge.source as SimulationNode).id
+        const tgtId = typeof edge.target === 'string' ? edge.target : (edge.target as SimulationNode).id
+        if (srcId === currentHoveredId || tgtId === currentHoveredId) {
+          connectedIds.add(srcId)
+          connectedIds.add(tgtId)
+        }
+      }
+    }
+
     // Clear edge graphics
     edgeGraphics.clear()
     highlightGraphics.clear()
@@ -521,8 +620,9 @@ export function GraphCanvas({
       const tx = target.x * viewport.scale + viewport.x
       const ty = target.y * viewport.scale + viewport.y
 
-      const edgeColor = colors.edge
-      const edgeAlpha = 0.6
+      const isConnectedEdge = !hasHover || connectedIds.has(source.id) || connectedIds.has(target.id)
+      const edgeColor = hasHover && isConnectedEdge ? colors.edgeHighlight : colors.edge
+      const edgeAlpha = hasHover ? (isConnectedEdge ? 0.85 : 0.06) : 0.6
 
       edgeGraphics.moveTo(sx, sy)
       edgeGraphics.lineTo(tx, ty)
@@ -572,13 +672,25 @@ export function GraphCanvas({
       sprite.clear()
       sprite.position.set(x, y)
 
-      // Determine node color and style
+      // Hover-based dimming: unconnected nodes fade out like Obsidian
+      const isConnectedNode = !hasHover || connectedIds.has(node.id)
+      sprite.alpha = hasHover ? (isConnectedNode ? 1.0 : 0.15) : 1.0
+
+      // Determine node color and style.
+      // Obsidian uses plain solid circles with no stroke by default; only
+      // special states (hovered, active, selected) draw a visible outline.
       let nodeColor = getNodeColor(node)
-      let strokeColor = colors.nodeStroke
-      let strokeWidth = 1
+      let strokeColor = 0x000000
+      let strokeWidth = 0 // no stroke by default (Obsidian style)
 
       if (node.id === activeNodeId) {
         nodeColor = colors.nodeActive
+        strokeColor = colors.nodeActive
+        strokeWidth = 2
+      }
+      if (node.id === currentHoveredId) {
+        nodeColor = colors.nodeHovered
+        strokeColor = colors.nodeHovered
         strokeWidth = 2
       }
       if (node.id === selectedNodeId) {
@@ -588,15 +700,17 @@ export function GraphCanvas({
 
       sprite.circle(0, 0, radius)
       sprite.fill({ color: nodeColor, alpha: 1 })
-      sprite.stroke({ width: strokeWidth, color: strokeColor, alpha: 1 })
+      if (strokeWidth > 0) {
+        sprite.stroke({ width: strokeWidth, color: strokeColor, alpha: 1 })
+      }
 
       // Update label
       label.position.set(x, y + radius + 4)
 
-      // Apply text fade threshold based on zoom
+      // Apply text fade threshold based on zoom, then dim if unconnected
       const labelAlpha = viewport.scale >= currentDisplay.textFadeThreshold ? 1 : viewport.scale / currentDisplay.textFadeThreshold
-      label.alpha = labelAlpha
-      label.visible = visible && labelAlpha > 0.1
+      label.alpha = hasHover ? (isConnectedNode ? labelAlpha : 0.05) : labelAlpha
+      label.visible = visible && label.alpha > 0.05
     }
 
     // Explicit render since the Pixi ticker is stopped.
@@ -624,6 +738,7 @@ export function GraphCanvas({
     animationProgress,
     selectedNodeId,
     activeNodeId,
+    _hoveredNodeId,
     getNodeColor,
   ])
 
@@ -721,7 +836,11 @@ export function GraphCanvas({
         node.fy = y
         node.x = x
         node.y = y
-        simulationRef.current?.tick()
+        // Reheat the simulation so nearby nodes spring away elastically
+        const sim = simulationRef.current
+        if (sim && sim.alpha() < 0.3) {
+          sim.alpha(0.3).restart()
+        }
         renderGraph()
         return
       }
@@ -748,8 +867,8 @@ export function GraphCanvas({
         draggedNode.vx = 0
         draggedNode.vy = 0
         nodeDragRef.current = { active: false, node: null, startX: 0, startY: 0, moved: false }
-        simulationRef.current?.tick()
-        simulationRef.current?.stop()
+        // Release node and reheat so others spring back to equilibrium
+        simulationRef.current?.alpha(0.5).restart()
         renderGraph()
 
         if (!moved) {
@@ -788,6 +907,46 @@ export function GraphCanvas({
       window.removeEventListener('mouseup', handleMouseUp)
     }
   }, [renderGraph, onBackgroundClick])
+
+  // Handle hover – detect which node the cursor is over and dim unconnected nodes/edges
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // Skip hover detection while dragging
+      if (nodeDragRef.current.active || dragRef.current.active) return
+
+      const rect = container.getBoundingClientRect()
+      const viewport = viewportRef.current
+      const x = (e.clientX - rect.left - viewport.x) / viewport.scale
+      const y = (e.clientY - rect.top - viewport.y) / viewport.scale
+
+      const hovered = pickNodeAtWorldPoint(nodesRef.current, x, y, displayRef.current.nodeSize * HOVER_HIT_AREA_MULTIPLIER)
+      const newId = hovered?.id ?? null
+
+      if (newId !== hoveredNodeIdRef.current) {
+        hoveredNodeIdRef.current = newId
+        onNodeHoverRef.current(newId)
+        renderGraph()
+      }
+    }
+
+    const handleMouseLeave = () => {
+      if (hoveredNodeIdRef.current !== null) {
+        hoveredNodeIdRef.current = null
+        onNodeHoverRef.current(null)
+        renderGraph()
+      }
+    }
+
+    container.addEventListener('mousemove', handleMouseMove)
+    container.addEventListener('mouseleave', handleMouseLeave)
+    return () => {
+      container.removeEventListener('mousemove', handleMouseMove)
+      container.removeEventListener('mouseleave', handleMouseLeave)
+    }
+  }, [renderGraph])
 
   // Handle keyboard controls
   useEffect(() => {
