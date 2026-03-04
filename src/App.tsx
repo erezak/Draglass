@@ -1294,7 +1294,14 @@ function App() {
       setGraphViewOpen(false)
       const opened = await openNoteByRelPath(relPath)
       if (!opened) return
-      queueMicrotask(() => editorRef.current?.revealLine(lineNumber))
+
+      // Wait for the note switch render to commit before revealing the line.
+      // A microtask can run too early on first open, revealing in the previous doc.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          editorRef.current?.revealLine(lineNumber)
+        })
+      })
     },
     [openNoteByRelPath],
   )
