@@ -237,6 +237,7 @@ function App() {
   const leftPaneCollapseRef = useRef<HTMLButtonElement | null>(null)
 
   const editorRef = useRef<NoteEditorHandle | null>(null)
+  const pendingRevealLineRef = useRef<number | null>(null)
   const titleInputRef = useRef<HTMLInputElement | null>(null)
   const scheduleTasksScanRef = useRef<() => void>(() => {})
   const scheduleTagsScanRef = useRef<() => void>(() => {})
@@ -1295,16 +1296,36 @@ function App() {
       const opened = await openNoteByRelPath(relPath)
       if (!opened) return
 
-      // Wait for the note switch render to commit before revealing the line.
-      // A microtask can run too early on first open, revealing in the previous doc.
-      requestAnimationFrame(() => {
+      if (editorRef.current) {
+        // Editor is already mounted (a note was open before the click).
+        // Double rAF lets React flush any pending value update before we scroll.
         requestAnimationFrame(() => {
-          editorRef.current?.revealLine(lineNumber)
+          requestAnimationFrame(() => {
+            editorRef.current?.revealLine(lineNumber)
+          })
         })
-      })
+      } else {
+        // No editor was mounted yet (vault open but no note selected).
+        // React will mount NoteEditor on the next commit; store the line so the
+        // useEffect below can fire the reveal after editorRef is populated.
+        pendingRevealLineRef.current = lineNumber
+      }
     },
     [openNoteByRelPath],
   )
+
+  // When the editor mounts for the first time (activeRelPath transitions from null),
+  // fire any reveal that was queued by onTaskClick before the editor existed.
+  useEffect(() => {
+    const line = pendingRevealLineRef.current
+    if (line === null) return
+    pendingRevealLineRef.current = null
+    // editorRef.current is populated by useImperativeHandle during the commit
+    // phase, so it should be set by the time this effect runs. The ?. guard is
+    // a safety net for unexpected unmount races. NoteEditor's own pendingRevealRef
+    // handles the case where the CodeMirror view is not yet initialised.
+    editorRef.current?.revealLine(line)
+  }, [activeRelPath])
 
   const onTagNoteClick = useCallback(
     async (relPath: string, lineNumber: number | null) => {
