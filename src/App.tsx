@@ -39,6 +39,7 @@ import { fileStem } from './path'
 import { buildDailyNoteRelPath, listExistingDailyNoteDates, resolveDailyNoteTemplatePath } from './dailyNotes'
 import { normalizeTag } from './tags'
 import { exportNoteAsPdf } from './exportPdf'
+import { exportNoteAsHtmlFile } from './exportHtml'
 
 const NoteEditor = lazy(() => import('./components/NoteEditor'))
 import { ExcalidrawEditor } from './components/ExcalidrawEditor'
@@ -1033,6 +1034,15 @@ function App() {
     await exportNoteAsPdf(noteText, { title: baseTitle, includeTitle }, () => printMainWindow())
   }, [activeRelPath, graphViewOpen, noteText, noteTitle])
 
+  const exportCurrentNoteAsHtml = useCallback(() => {
+    if (!activeRelPath || graphViewOpen) return
+    const baseTitle = noteTitle ?? fileStem(activeRelPath)
+
+    const includeTitle = window.confirm('Include the file name as an H1 title in the HTML export?')
+
+    exportNoteAsHtmlFile(noteText, { title: baseTitle, includeTitle })
+  }, [activeRelPath, graphViewOpen, noteText, noteTitle])
+
   const dailyTemplateRelPath = useMemo(
     () =>
       resolveDailyNoteTemplatePath(
@@ -1187,6 +1197,15 @@ function App() {
       },
     },
     {
+      id: 'export-note-as-html',
+      label: 'Export Note as HTML',
+      description: 'Export the current note as an HTML file',
+      enabled: !!activeRelPath && !graphViewOpen,
+      onExecute: () => {
+        exportCurrentNoteAsHtml()
+      },
+    },
+    {
       id: 'open-today-daily-note',
       label: "Open today's daily note",
       description: 'Open or create the note for today',
@@ -1287,7 +1306,7 @@ function App() {
         })()
       },
     },
-  ], [activeRelPath, createNewNote, deleteActiveNote, exportCurrentNoteAsPdf, graphViewOpen, hasLockedContent, isVaultUnlocked, loadVault, lockVault, noteTitle, onRequestUnlock, openChangePasswordModal, openInsertTemplatePicker, openNewNoteFromTemplatePicker, openTodayDailyNote, setError, settings.dailyNotesEnabled, vaultHasPassword, vaultPath])
+  ], [activeRelPath, createNewNote, deleteActiveNote, exportCurrentNoteAsHtml, exportCurrentNoteAsPdf, graphViewOpen, hasLockedContent, isVaultUnlocked, loadVault, lockVault, noteTitle, onRequestUnlock, openChangePasswordModal, openInsertTemplatePicker, openNewNoteFromTemplatePicker, openTodayDailyNote, setError, settings.dailyNotesEnabled, vaultHasPassword, vaultPath])
 
   const onTaskClick = useCallback(
     async (relPath: string, lineNumber: number) => {
