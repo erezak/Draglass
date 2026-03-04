@@ -86,10 +86,10 @@ export type GraphSettings = {
 }
 
 export const DEFAULT_GRAPH_FORCES: GraphForces = {
-  centerStrength: 0.3,
-  repelStrength: -150,
-  linkStrength: 0.3,
-  linkDistance: 80,
+  centerStrength: 0.05,
+  repelStrength: -200,
+  linkStrength: 0.5,
+  linkDistance: 100,
 }
 
 export const DEFAULT_GRAPH_DISPLAY: GraphDisplay = {

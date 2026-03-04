@@ -1,10 +1,12 @@
 import {
   forceCenter,
+  forceCollide,
   forceLink,
   forceManyBody,
   forceSimulation,
 } from 'd3-force'
 import type {
+  ForceCollide,
   Simulation,
   SimulationLinkDatum,
 } from 'd3-force'
@@ -93,6 +95,64 @@ const THEME_COLORS = {
 
 function hexToNumber(hex: string): number {
   return parseInt(hex.replace('#', ''), 16)
+}
+
+// ── Collision physics constants ──────────────────────────────────────────────
+// These match the same degree-scaling formula used in the visual radius so that
+// the collision boundary closely tracks the drawn circle.
+const COLLIDE_DEGREE_SCALE_OFFSET = 2
+const COLLIDE_DEGREE_SCALE_MULTIPLIER = 0.5
+const COLLIDE_DEGREE_RADIUS_MULTIPLIER = 2
+/** Extra padding factor: collision radius is 30% larger than visual radius. */
+const COLLIDE_PADDING_FACTOR = 1.3
+/** Collision resolution strength: 0–1, higher = harder collision. */
+const COLLIDE_STRENGTH = 0.8
+
+/** Compute the collision radius for a node given the base nodeSize. */
+function collisionRadius(node: { degreeIn: number }, nodeSize: number): number {
+  const degreeScale = Math.log2(node.degreeIn + COLLIDE_DEGREE_SCALE_OFFSET) * COLLIDE_DEGREE_SCALE_MULTIPLIER
+  return (nodeSize + degreeScale * COLLIDE_DEGREE_RADIUS_MULTIPLIER) * COLLIDE_PADDING_FACTOR
+}
+
+/**
+ * Matches a single group query against a node.
+ * Supports Obsidian-style prefixes: path:, file:, tag: (ignored – no tag data),
+ * and leading `-` for negation.
+ */
+function matchesGroupQuery(node: GraphNode, rawQuery: string): boolean {
+  const q = rawQuery.trim()
+  if (!q) return false
+
+  // Negation: check on original case before lowercasing to avoid re-processing
+  if (q.startsWith('-')) {
+    const inner = q.slice(1).trim()
+    return inner.length > 0 && !matchesGroupQuery(node, inner)
+  }
+
+  const ql = q.toLowerCase()
+
+  // path: prefix – match against the relative path
+  if (ql.startsWith('path:')) {
+    const part = ql.slice(5).trim()
+    return part.length > 0 && node.relPath.toLowerCase().includes(part)
+  }
+
+  // file: prefix – match against the note title (filename without extension)
+  if (ql.startsWith('file:')) {
+    const part = ql.slice(5).trim()
+    return part.length > 0 && node.title.toLowerCase().includes(part)
+  }
+
+  // tag: prefix – no tag data available; never matches
+  if (ql.startsWith('tag:')) {
+    return false
+  }
+
+  // Plain text: match title or full path (default Obsidian behaviour)
+  return (
+    node.title.toLowerCase().includes(ql) ||
+    node.relPath.toLowerCase().includes(ql)
+  )
 }
 
 export function GraphCanvas({
@@ -190,11 +250,7 @@ export function GraphCanvas({
     (node: GraphNode): number => {
       for (const group of groups) {
         if (!group.enabled || !group.query.trim()) continue
-        const query = group.query.toLowerCase()
-        if (
-          node.title.toLowerCase().includes(query) ||
-          node.relPath.toLowerCase().includes(query)
-        ) {
+        if (matchesGroupQuery(node, group.query)) {
           return hexToNumber(group.color)
         }
       }
@@ -334,7 +390,13 @@ export function GraphCanvas({
     // Stop existing simulation
     simulationRef.current?.stop()
 
-    // Create new simulation
+    // Snapshot nodeSize at creation time for collision radii
+    const nodeSize = displayRef.current.nodeSize
+
+    // Create new simulation with Obsidian-like physics:
+    // - forceCollide prevents node overlap and produces elastic "bounce"
+    // - lower velocityDecay = less damping = more springy oscillation
+    // - lower alphaDecay = slower cooling = longer, smoother settlement
     const simulation = forceSimulation<SimulationNode, SimulationEdge>(simNodes)
       .force('center', forceCenter(0, 0).strength(forces.centerStrength))
       .force('charge', forceManyBody<SimulationNode>().strength(forces.repelStrength))
@@ -345,7 +407,9 @@ export function GraphCanvas({
           .strength(forces.linkStrength)
           .distance(forces.linkDistance),
       )
-      .alphaDecay(0.02)
+      .force('collide', forceCollide<SimulationNode>().radius((d) => collisionRadius(d, nodeSize)).strength(COLLIDE_STRENGTH))
+      .alphaDecay(0.015)
+      .velocityDecay(0.25)
 
     simulationRef.current = simulation
 
@@ -397,7 +461,8 @@ export function GraphCanvas({
     // The actual render function is defined later and will re-render on each frame
     let animationId: number | null = null
     const startTime = Date.now()
-    const maxSimMs = 2000
+    // Allow enough time for the slower alphaDecay to reach natural equilibrium
+    const maxSimMs = 8000
     const scheduleRender = () => {
       if (animationId !== null) return
       animationId = requestAnimationFrame(() => {
@@ -406,16 +471,16 @@ export function GraphCanvas({
         renderFnRef.current?.()
       })
     }
+    // stopSimulation only halts the timer; it intentionally keeps the tick/end
+    // handlers registered so that drag-induced simulation restarts work correctly.
     const stopSimulation = () => {
       simulation.stop()
-      simulation.on('tick', null)
-      simulation.on('end', null)
       renderFnRef.current?.()
     }
     const handleTick = () => {
       scheduleRender()
       const elapsed = Date.now() - startTime
-      if (simulation.alpha() <= 0.01 || elapsed >= maxSimMs) {
+      if (simulation.alpha() <= 0.005 || elapsed >= maxSimMs) {
         stopSimulation()
       }
     }
@@ -468,8 +533,20 @@ export function GraphCanvas({
       linkForce.strength(forces.linkStrength).distance(forces.linkDistance)
     }
 
-    simulation.alpha(0.3).restart()
+    simulation.alpha(0.5).restart()
   }, [forces.centerStrength, forces.repelStrength, forces.linkStrength, forces.linkDistance])
+
+  // Update collide radius when nodeSize display setting changes
+  useEffect(() => {
+    const simulation = simulationRef.current
+    if (!simulation) return
+    const newNodeSize = display.nodeSize
+    const collideForce = simulation.force('collide') as ForceCollide<SimulationNode> | undefined
+    if (collideForce) {
+      collideForce.radius((d) => collisionRadius(d, newNodeSize))
+      simulation.alpha(0.3).restart()
+    }
+  }, [display.nodeSize])
 
   // Render function
   const renderGraph = useCallback(() => {
@@ -599,17 +676,21 @@ export function GraphCanvas({
       const isConnectedNode = !hasHover || connectedIds.has(node.id)
       sprite.alpha = hasHover ? (isConnectedNode ? 1.0 : 0.15) : 1.0
 
-      // Determine node color and style
+      // Determine node color and style.
+      // Obsidian uses plain solid circles with no stroke by default; only
+      // special states (hovered, active, selected) draw a visible outline.
       let nodeColor = getNodeColor(node)
-      let strokeColor = colors.nodeStroke
-      let strokeWidth = 1
+      let strokeColor = 0x000000
+      let strokeWidth = 0 // no stroke by default (Obsidian style)
 
       if (node.id === activeNodeId) {
         nodeColor = colors.nodeActive
+        strokeColor = colors.nodeActive
         strokeWidth = 2
       }
       if (node.id === currentHoveredId) {
         nodeColor = colors.nodeHovered
+        strokeColor = colors.nodeHovered
         strokeWidth = 2
       }
       if (node.id === selectedNodeId) {
@@ -619,7 +700,9 @@ export function GraphCanvas({
 
       sprite.circle(0, 0, radius)
       sprite.fill({ color: nodeColor, alpha: 1 })
-      sprite.stroke({ width: strokeWidth, color: strokeColor, alpha: 1 })
+      if (strokeWidth > 0) {
+        sprite.stroke({ width: strokeWidth, color: strokeColor, alpha: 1 })
+      }
 
       // Update label
       label.position.set(x, y + radius + 4)
@@ -753,7 +836,11 @@ export function GraphCanvas({
         node.fy = y
         node.x = x
         node.y = y
-        simulationRef.current?.tick()
+        // Reheat the simulation so nearby nodes spring away elastically
+        const sim = simulationRef.current
+        if (sim && sim.alpha() < 0.3) {
+          sim.alpha(0.3).restart()
+        }
         renderGraph()
         return
       }
@@ -780,8 +867,8 @@ export function GraphCanvas({
         draggedNode.vx = 0
         draggedNode.vy = 0
         nodeDragRef.current = { active: false, node: null, startX: 0, startY: 0, moved: false }
-        simulationRef.current?.tick()
-        simulationRef.current?.stop()
+        // Release node and reheat so others spring back to equilibrium
+        simulationRef.current?.alpha(0.5).restart()
         renderGraph()
 
         if (!moved) {
