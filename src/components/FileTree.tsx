@@ -78,6 +78,34 @@ function displayLabelForFile(relPath: string): string {
   return isMarkdownPath(relPath) ? fileStem(relPath) : relPath.split('/').pop() ?? relPath
 }
 
+function hashString(value: string): number {
+  let hash = 0
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(i)
+    hash |= 0
+  }
+  return Math.abs(hash)
+}
+
+const FOLDER_COLORS = [
+  'hsl(10 82% 62%)',
+  'hsl(28 88% 60%)',
+  'hsl(48 90% 55%)',
+  'hsl(92 55% 48%)',
+  'hsl(150 60% 45%)',
+  'hsl(193 78% 45%)',
+  'hsl(224 78% 62%)',
+  'hsl(258 74% 66%)',
+  'hsl(290 72% 62%)',
+  'hsl(334 78% 60%)',
+]
+
+function folderAccentForPath(path: string): string {
+  const topLevel = path.split('/').filter(Boolean)[0] ?? path
+  if (!topLevel) return FOLDER_COLORS[0]
+  return FOLDER_COLORS[hashString(topLevel) % FOLDER_COLORS.length]
+}
+
 function buildTree(files: NoteEntry[], extraFolders: string[]): FolderNode {
   const root: FolderBuilder = {
     name: '',
@@ -224,10 +252,15 @@ function FileTreeInner({
               type="button"
               className={
                 selectedFolderPath === node.path
-                  ? 'folderItem folderItem--selected'
-                  : 'folderItem'
+                  ? 'folderItem folderItem--colored folderItem--selected'
+                  : 'folderItem folderItem--colored'
               }
-              style={{ paddingLeft: 10 + depth * 14 }}
+              style={{
+                paddingLeft: 10 + depth * 14,
+                borderLeftWidth: 3,
+                borderLeftStyle: 'solid',
+                borderLeftColor: folderAccentForPath(node.path),
+              }}
               onClick={() => {
                 onSelectFolder?.(node.path)
                 toggleFolder(node.path)
