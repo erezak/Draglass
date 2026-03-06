@@ -26,6 +26,7 @@ import { useNoteManager } from './features/notes/useNoteManager'
 import { useRecentCommands } from './features/recents/useRecentCommands'
 import { useRecentNotes } from './features/recents/useRecentNotes'
 import { useTasks } from './features/tasks/useTasks'
+import { extractTaskDueDate } from './features/tasks/tasksQuery'
 import { useTags } from './features/tags/useTags'
 import { useEditorTheme } from './features/theme/useEditorTheme'
 import { useSurrealTheme } from './features/theme/useSurrealTheme'
@@ -59,6 +60,8 @@ type DragState = {
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
 }
+
+type TaskPreset = 'all' | 'overdue' | 'due-soon' | 'unscheduled'
 
 function isExcalidrawFile(relPath: string): boolean {
   const lower = relPath.toLowerCase()
@@ -354,6 +357,7 @@ function App() {
     activeSavedText: savedText,
   })
 
+  const [taskPreset, setTaskPreset] = useState<TaskPreset>('all')
   const [tagFilter, setTagFilter] = useState('')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [tagNotes, setTagNotes] = useState<
@@ -458,6 +462,50 @@ function App() {
   }, [noteText])
 
   const normalizedTagFilter = useMemo(() => normalizeTag(tagFilter), [tagFilter])
+
+  const displayedTasks = useMemo(() => {
+    const now = new Date()
+    now.setHours(0, 0, 0, 0)
+    const sevenDaysFromNow = new Date(now)
+    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7)
+
+    const toDate = (raw: string | null): Date | null => {
+      if (!raw) return null
+      const parsed = new Date(`${raw}T00:00:00`)
+      return Number.isNaN(parsed.getTime()) ? null : parsed
+    }
+
+    const withDue = tasks.map((task) => {
+      const due = toDate(extractTaskDueDate(task.text))
+      return { task, due }
+    })
+
+    const filtered = withDue.filter(({ due }) => {
+      if (taskPreset === 'all') return true
+      if (taskPreset === 'unscheduled') return due == null
+      if (taskPreset === 'overdue') return due != null && due < now
+      if (taskPreset === 'due-soon') return due != null && due >= now && due <= sevenDaysFromNow
+      return true
+    })
+
+    filtered.sort((left, right) => {
+      if (left.due && right.due) {
+        if (left.due.getTime() !== right.due.getTime()) {
+          return left.due.getTime() - right.due.getTime()
+        }
+      } else if (left.due && !right.due) {
+        return -1
+      } else if (!left.due && right.due) {
+        return 1
+      }
+
+      const byPath = left.task.relPath.localeCompare(right.task.relPath)
+      if (byPath !== 0) return byPath
+      return left.task.lineNumber - right.task.lineNumber
+    })
+
+    return filtered.map(({ task }) => task)
+  }, [taskPreset, tasks])
 
   const visibleTags = useMemo(() => {
     if (!normalizedTagFilter) return tags
@@ -1936,30 +1984,40 @@ function App() {
                       <div className="panelTitle">Tasks</div>
                       {!vaultPath ? (
                         <div className="panelEmpty">Select a vault to view tasks.</div>
-                      ) : tasks.length === 0 ? (
-                        <div className="panelEmpty">No open tasks found.</div>
                       ) : (
                         <>
-                          {tasksBusy ? <div className="panelHint">Scanning tasks…</div> : null}
-                          <div className="taskList" role="list">
-                            {tasks.map((task) => (
-                              <button
-                                key={`${task.relPath}:${task.lineNumber}:${task.text}`}
-                                type="button"
-                                className="taskItem"
-                                onClick={() => {
-                                  void onTaskClick(task.relPath, task.lineNumber)
-                                }}
-                              >
-                                <div className="taskItemText">
-                                  {task.text.length > 0 ? task.text : '(untitled task)'}
-                                </div>
-                                <div className="taskItemMeta">
-                                  {task.noteTitle} • {task.relPath}
-                                </div>
-                              </button>
-                            ))}
+                          <div className="taskPresetRow" role="tablist" aria-label="Task presets">
+                            <button type="button" className={`taskPresetButton ${taskPreset === 'all' ? 'taskPresetButton--active' : ''}`} onClick={() => setTaskPreset('all')}>All</button>
+                            <button type="button" className={`taskPresetButton ${taskPreset === 'overdue' ? 'taskPresetButton--active' : ''}`} onClick={() => setTaskPreset('overdue')}>Overdue</button>
+                            <button type="button" className={`taskPresetButton ${taskPreset === 'due-soon' ? 'taskPresetButton--active' : ''}`} onClick={() => setTaskPreset('due-soon')}>Due 7d</button>
+                            <button type="button" className={`taskPresetButton ${taskPreset === 'unscheduled' ? 'taskPresetButton--active' : ''}`} onClick={() => setTaskPreset('unscheduled')}>No due</button>
                           </div>
+                          {displayedTasks.length === 0 ? (
+                            <div className="panelEmpty">No tasks match this preset.</div>
+                          ) : (
+                            <>
+                              {tasksBusy ? <div className="panelHint">Scanning tasks…</div> : null}
+                              <div className="taskList" role="list">
+                                {displayedTasks.map((task) => (
+                                  <button
+                                    key={`${task.relPath}:${task.lineNumber}:${task.text}`}
+                                    type="button"
+                                    className="taskItem"
+                                    onClick={() => {
+                                      void onTaskClick(task.relPath, task.lineNumber)
+                                    }}
+                                  >
+                                    <div className="taskItemText">
+                                      {task.text.length > 0 ? task.text : '(untitled task)'}
+                                    </div>
+                                    <div className="taskItemMeta">
+                                      {task.noteTitle} • {task.relPath}
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </>
+                          )}
                         </>
                       )}
                     </div>
@@ -2116,30 +2174,40 @@ function App() {
                   <div className="panelTitle">Tasks</div>
                   {!vaultPath ? (
                     <div className="panelEmpty">Select a vault to view tasks.</div>
-                  ) : tasks.length === 0 ? (
-                    <div className="panelEmpty">No open tasks found.</div>
                   ) : (
                     <>
-                      {tasksBusy ? <div className="panelHint">Scanning tasks…</div> : null}
-                      <div className="taskList" role="list">
-                        {tasks.map((task) => (
-                          <button
-                            key={`${task.relPath}:${task.lineNumber}:${task.text}`}
-                            type="button"
-                            className="taskItem"
-                            onClick={() => {
-                              void onTaskClick(task.relPath, task.lineNumber)
-                            }}
-                          >
-                            <div className="taskItemText">
-                              {task.text.length > 0 ? task.text : '(untitled task)'}
-                            </div>
-                            <div className="taskItemMeta">
-                              {task.noteTitle} • {task.relPath}
-                            </div>
-                          </button>
-                        ))}
+                      <div className="taskPresetRow" role="tablist" aria-label="Task presets">
+                        <button type="button" className={`taskPresetButton ${taskPreset === 'all' ? 'taskPresetButton--active' : ''}`} onClick={() => setTaskPreset('all')}>All</button>
+                        <button type="button" className={`taskPresetButton ${taskPreset === 'overdue' ? 'taskPresetButton--active' : ''}`} onClick={() => setTaskPreset('overdue')}>Overdue</button>
+                        <button type="button" className={`taskPresetButton ${taskPreset === 'due-soon' ? 'taskPresetButton--active' : ''}`} onClick={() => setTaskPreset('due-soon')}>Due 7d</button>
+                        <button type="button" className={`taskPresetButton ${taskPreset === 'unscheduled' ? 'taskPresetButton--active' : ''}`} onClick={() => setTaskPreset('unscheduled')}>No due</button>
                       </div>
+                      {displayedTasks.length === 0 ? (
+                        <div className="panelEmpty">No tasks match this preset.</div>
+                      ) : (
+                        <>
+                          {tasksBusy ? <div className="panelHint">Scanning tasks…</div> : null}
+                          <div className="taskList" role="list">
+                            {displayedTasks.map((task) => (
+                              <button
+                                key={`${task.relPath}:${task.lineNumber}:${task.text}`}
+                                type="button"
+                                className="taskItem"
+                                onClick={() => {
+                                  void onTaskClick(task.relPath, task.lineNumber)
+                                }}
+                              >
+                                <div className="taskItemText">
+                                  {task.text.length > 0 ? task.text : '(untitled task)'}
+                                </div>
+                                <div className="taskItemMeta">
+                                  {task.noteTitle} • {task.relPath}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
                     </>
                   )}
                 </div>

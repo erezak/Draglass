@@ -787,6 +787,34 @@
   gap: 6px;
 }
 
+.taskPresetRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.taskPresetButton {
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  color: var(--text-secondary);
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1;
+  padding: 6px 10px;
+}
+
+.taskPresetButton:hover {
+  border-color: var(--button-hover-border);
+  color: var(--text-primary);
+}
+
+.taskPresetButton--active {
+  border-color: var(--button-hover-border);
+  background: var(--highlight);
+  color: var(--text-primary);
+}
+
 .taskList {
   display: flex;
   flex-direction: column;
