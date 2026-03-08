@@ -368,6 +368,7 @@ function App() {
   const [currentLockedRanges, setCurrentLockedRanges] = useState<LockedBodyRange[]>([])
   const [titleDraft, setTitleDraft] = useState('')
   const [titleEditing, setTitleEditing] = useState(false)
+  const pendingRevealLineRef = useRef<number | null>(null)
 
   const onRequestUnlock = useCallback(() => {
     if (!vaultPath) return
@@ -1294,10 +1295,27 @@ function App() {
       setGraphViewOpen(false)
       const opened = await openNoteByRelPath(relPath)
       if (!opened) return
-      queueMicrotask(() => editorRef.current?.revealLine(lineNumber))
+
+      if (editorRef.current) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            editorRef.current?.revealLine(lineNumber)
+          })
+        })
+        return
+      }
+
+      pendingRevealLineRef.current = lineNumber
     },
     [openNoteByRelPath],
   )
+
+  useEffect(() => {
+    const pending = pendingRevealLineRef.current
+    if (pending == null || !activeRelPath) return
+    pendingRevealLineRef.current = null
+    editorRef.current?.revealLine(pending)
+  }, [activeRelPath])
 
   const onTagNoteClick = useCallback(
     async (relPath: string, lineNumber: number | null) => {
