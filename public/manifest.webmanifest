@@ -1,0 +1,18 @@
+{
+  "name": "Draglass",
+  "short_name": "Draglass",
+  "description": "Local-first, privacy-first Markdown knowledge base",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#14161a",
+  "theme_color": "#14161a",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
