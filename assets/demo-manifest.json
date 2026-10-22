@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "entry": "Welcome.md",
+  "title": "Lumen field station",
+  "features": [
+    {
+      "id": "writing",
+      "notes": [
+        "Tours/01 Writing.md"
+      ],
+      "exercise": "Write and edit, follow table links, or click the surrounding cell space to edit"
+    },
+    {
+      "id": "links-embeds",
+      "notes": [
+        "Tours/02 Linking and embeds.md"
+      ],
+      "exercise": "Follow and embed connected notes"
+    },
+    {
+      "id": "properties-ontology",
+      "notes": [
+        "Tours/03 Properties and evidence.md"
+      ],
+      "exercise": "Turn a note into a knowledge entity"
+    },
+    {
+      "id": "graph",
+      "notes": [
+        "Tours/04 Explore the graph.md"
+      ],
+      "exercise": "Explore the Lumen knowledge network"
+    },
+    {
+      "id": "ai",
+      "notes": [
+        "Tours/05 AI conversations.md"
+      ],
+      "exercise": "Ask questions about your knowledge"
+    },
+    {
+      "id": "diagrams",
+      "notes": [
+        "Tours/06 Diagrams and drawings.md"
+      ],
+      "exercise": "Render and edit diagrams"
+    },
+    {
+      "id": "attachments",
+      "notes": [
+        "Tours/07 Attachments.md"
+      ],
+      "exercise": "Work with local attachments"
+    },
+    {
+      "id": "organization",
+      "notes": [
+        "Tours/08 Organize and recover.md"
+      ],
+      "exercise": "Organize ordinary files"
+    },
+    {
+      "id": "search-settings",
+      "notes": [
+        "Tours/09 Search and settings.md"
+      ],
+      "exercise": "Find information and shape the workspace"
+    },
+    {
+      "id": "onboarding",
+      "notes": [
+        "Tours/10 Your next steps.md"
+      ],
+      "exercise": "Make the workspace yours"
+    }
+  ],
+  "entityTypes": [
+    "Identity",
+    "Objective",
+    "Capability",
+    "System",
+    "Component",
+    "Source",
+    "Concept",
+    "Behavior",
+    "DecisionRecord",
+    "Playbook",
+    "Policy"
+  ],
+  "intentionalMissing": [
+    "Systems/Weather relay.md",
+    "Concepts/Future research question.md"
+  ],
+  "minimumNotes": 50,
+  "minimumNamedEdges": 65,
+  "minimumWikiEdges": 60,
+  "desktopChecks": [
+    "About displays the Draglass application version and icon",
+    "Open demo vault ignores Finder metadata and reports failures visibly"
+  ]
+}

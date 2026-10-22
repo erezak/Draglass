@@ -4,8 +4,9 @@ test('desktop cold open restores the vault before routing; warm opens reuse wind
  const root=await fs.mkdtemp(path.join(os.tmpdir(),'draglass-desktop-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
  const vault=path.join(root,'vault');await fs.mkdir(vault);const inside=path.join(vault,'Inside.md'),outside=path.join(root,'Outside.md');await fs.writeFile(inside,'# Inside');await fs.writeFile(outside,'# Outside');
  await new(require('../core/workspace.cjs').WorkspaceStore)(path.join(root,'draglass')).write(vault,{tabs:['Inside.md'],active:'Inside.md'});
- const app=new EventEmitter();Object.assign(app,{isPackaged:true,setName(name){this.name=name;},getPath:()=>root,requestSingleInstanceLock:()=>true,whenReady:()=>Promise.resolve(),quit:()=>{},dock:{setIcon(){}}});
+ const app=new EventEmitter();Object.assign(app,{isPackaged:true,setAboutPanelOptions(options){this.about=options;},setName(name){this.name=name;},getPath:()=>root,requestSingleInstanceLock:()=>true,whenReady:()=>Promise.resolve(),quit:()=>{},dock:{setIcon(){}}});
  t.after(()=>app.emit('before-quit'));
+ let failDemo=false;const demoErrors=[];
  const windows=[],handlers=new Map(),protocols=new Map();
  class Window extends EventEmitter{
   constructor(options){super();this.options=options;this.visible=options.show!==false;this._webContents=new EventEmitter();this.webContents.id=windows.length+1;this.sent=[];this.webContents.send=(...a)=>this.sent.push(a);this.webContents.setWindowOpenHandler=()=>{};this.webContents.session={setPermissionRequestHandler(){}};windows.push(this);}
@@ -15,10 +16,12 @@ test('desktop cold open restores the vault before routing; warm opens reuse wind
   close(){const e={preventDefault(){this.prevented=true;}};this.emit('close',e);if(!e.prevented){this.destroyed=true;this.emit('closed');}}
   static getFocusedWindow(){return Window.focused;}static getAllWindows(){return windows.filter(w=>!w.destroyed);}
  }
- const electron={app,BrowserWindow:Window,dialog:{showErrorBox:(_title,error)=>assert.fail(error)},ipcMain:{handle:(name,fn)=>handlers.set(name,fn)},Menu:{setApplicationMenu(){},buildFromTemplate:items=>items},safeStorage:{},protocol:{registerSchemesAsPrivileged(){},handle:(name,fn)=>protocols.set(name,fn)},shell:{showItemInFolder(){},openExternal:async()=>{}},clipboard:{},nativeImage:{createFromPath:()=>({})}};
+ const electron={app,BrowserWindow:Window,dialog:{showErrorBox:(title,error)=>demoErrors.push({title,error})},ipcMain:{handle:(name,fn)=>handlers.set(name,fn)},Menu:{setApplicationMenu(){},buildFromTemplate:items=>items},safeStorage:{},protocol:{registerSchemesAsPrivileged(){},handle:(name,fn)=>protocols.set(name,fn)},shell:{showItemInFolder(){},openExternal:async()=>{}},clipboard:{},nativeImage:{createFromPath:()=>({})}};
  const filename=path.resolve('electron/main.cjs'),localRequire=createRequire(filename);
+ const {DemoVault}=require('../core/demo-vault.cjs');class TestDemoVault extends DemoVault{async open(){if(failDemo)throw new Error('Demo fixture unavailable');return super.open();}}
  let holdSearch=false,releaseSearch,searchStarted;const started=new Promise(resolve=>searchStarted=resolve);const gate=new Promise(resolve=>releaseSearch=resolve);const {KnowledgeService}=require('../core/backend/client.cjs');class TestKnowledgeService extends KnowledgeService{async request(method,...args){if(method==='search'&&holdSearch){searchStarted();await gate;}return super.request(method,...args);}}
- vm.runInNewContext(await fs.readFile(filename,'utf8'),{require:name=>name==='electron'?electron:name==='../core/backend/client.cjs'?{KnowledgeService:TestKnowledgeService}:localRequire(name),__dirname:path.dirname(filename),process:{platform:'darwin',argv:['Draglass',inside]},setTimeout,clearTimeout,console});
+ vm.runInNewContext(await fs.readFile(filename,'utf8'),{require:name=>name==='electron'?electron:name==='../core/demo-vault.cjs'?{DemoVault:TestDemoVault}:name==='../core/backend/client.cjs'?{KnowledgeService:TestKnowledgeService}:localRequire(name),__dirname:path.dirname(filename),process:{platform:'darwin',argv:['Draglass',inside]},setTimeout,clearTimeout,console});
+ assert.equal(app.about.applicationVersion,require('../package.json').version);assert.equal(app.about.version,require('../package.json').version);assert.ok(app.about.iconPath.endsWith('assets/icon.png'));
  // The OS can deliver another file before readiness.
  app.emit('open-file',{preventDefault(){}},outside);
  for(let i=0;i<50&&!windows.length;i++)await new Promise(r=>setTimeout(r,10));
@@ -32,6 +35,8 @@ test('desktop cold open restores the vault before routing; warm opens reuse wind
  assert.throws(()=>handlers.get('detached:read')(event(primary),'Outside.md'),/Untrusted/);
  assert.throws(()=>handlers.get('vault:read')(event(detached),'Inside.md'),/Untrusted/);
  const state=JSON.parse(await fs.readFile(path.join(root,'draglass','workspace.json'),'utf8'));assert.equal(state.root,vault);
+ failDemo=true;await assert.rejects(handlers.get('vault:demo')(event(primary)),/Demo fixture unavailable/);assert.equal(demoErrors[0].title,'Could not open demo vault');assert.equal((await handlers.get('vault:read')(event(primary),'Inside.md')).text,'# Inside');assert.equal(JSON.parse(await fs.readFile(path.join(root,'draglass','workspace.json'),'utf8')).root,vault);failDemo=false;
+ const demo=await handlers.get('vault:demo')(event(primary));assert.equal(demo.name,'Demo Vault');assert.ok(demo.notes.length>=50);assert.equal(demo.workspace.active,'Welcome.md');assert.notEqual(demo.root,vault);assert.equal(JSON.parse(await fs.readFile(path.join(root,'draglass','workspace.json'),'utf8')).root,demo.root);assert.throws(()=>handlers.get('vault:demo')(event(detached)),/Untrusted/);
  await handlers.get('close-approved')(event(primary));assert.equal(primary.visible,false);assert.equal(primary.destroyed,undefined);
  await handlers.get('detached:close')(event(detached));assert.equal(primary.destroyed,true);
  app.emit('before-quit');

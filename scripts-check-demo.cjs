@@ -1,0 +1,22 @@
+const fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict');
+const {Vault}=require('./core/vault.cjs'),{readMetadata}=require('./core/metadata.cjs'),{buildGraph}=require('./core/graph.cjs'),{parseDrawing}=require('./core/drawings.cjs');
+const {canonical}=require('./core/plugins/ontology.cjs'),{resolveLink}=require('./core/links.cjs');
+const REQUIRED=['writing','links-embeds','properties-ontology','graph','ai','diagrams','attachments','organization','search-settings','onboarding'];
+async function checkDemo(root=path.join(__dirname,'demo-vault'),manifestFile=path.join(__dirname,'assets/demo-manifest.json')){
+ const manifest=JSON.parse(await fs.readFile(manifestFile,'utf8')),vault=new Vault(root);await vault.scan();const notes=vault.notes.filter(n=>n.path.endsWith('.md')),paths=notes.map(n=>n.path);assert.ok(notes.length>=manifest.minimumNotes,'The demo needs a substantial note network.');assert.ok(paths.includes(manifest.entry));
+ assert.deepEqual([...manifest.features.map(f=>f.id)].sort(),[...REQUIRED].sort(),'Update the feature coverage inventory when capabilities change.');
+ for(const feature of manifest.features){assert.ok(feature.exercise?.length>10);for(const target of feature.notes){const n=notes.find(n=>n.path===target);assert.ok(n,'Missing feature tour '+target);assert.ok(readMetadata(n.text).values.demonstrates?.includes(feature.id),'Tour coverage marker missing: '+feature.id);}}
+ const types=new Set(),ids=new Set(),fqns=new Set();let sourced=0;
+ for(const n of notes){const m=readMetadata(n.text);assert.ok(!m.error,'Invalid YAML: '+n.path);if(m.values.type){types.add(m.values.type);assert.ok(canonical.includes(m.values.type));assert.ok(m.values.id&&!ids.has(m.values.id),'Entity IDs must be unique');assert.ok(m.values.fqn&&!fqns.has(m.values.fqn),'Entity FQNs must be unique');ids.add(m.values.id);fqns.add(m.values.fqn);}
+  for(const edge of m.values.relationships||[]){const target=resolveLink(edge.target.replace(/^\[\[|\]\]$/g,''),n.path,paths);assert.ok(target.path,'Missing relationship target in '+n.path);for(const source of edge.sources||[]){const ref=resolveLink(source.ref.replace(/^\[\[|\]\]$/g,''),n.path,paths);assert.ok(ref.path,'Missing evidence note');if(source.quote){assert.ok(notes.find(x=>x.path===ref.path).text.includes(source.quote),'Evidence quote must appear in the fictional source');sourced++;}}}
+ }
+ assert.deepEqual([...types].sort(),[...canonical].sort(),'Every ontology type needs an example.');
+ const graph=buildGraph({notes:vault.notes,attachments:vault.attachments});assert.equal(graph.issues.length,0,JSON.stringify(graph.issues));const missing=graph.nodes.filter(n=>n.exists===false).map(n=>n.path).sort();assert.deepEqual(missing,[...manifest.intentionalMissing].sort(),'Only intentional hollow targets belong in the demo.');const named=graph.edges.filter(e=>e.named).length,wiki=graph.edges.filter(e=>e.kind==='link'&&!e.role).length;assert.ok(named>=manifest.minimumNamedEdges);assert.ok(wiki>=manifest.minimumWikiEdges);assert.ok(sourced>=50,'The graph needs substantial sourced relationships.');
+ const people=graph.nodes.filter(n=>n.person);assert.ok(people.some(n=>n.photo)&&people.some(n=>!n.photo));
+ for(const n of vault.notes.filter(n=>n.path.endsWith('.excalidraw')||n.path.endsWith('.excalidraw.md')))parseDrawing(n.text,n.path);
+ for(const name of ['Attachments/Station.svg','Attachments/Noam.svg','Attachments/Field card.pdf','Attachments/Station chime.wav','Attachments/Status loop.webm','Attachments/readings.csv'])assert.ok(vault.attachments.some(a=>a.path===name),'Missing media example '+name);
+ const packaging=JSON.parse(await fs.readFile(path.join(__dirname,'package.json'),'utf8'));assert.ok(packaging.build.files.includes('demo-vault/**'));assert.ok(packaging.build.files.includes('assets/**'));
+ return {notes:notes.length,entities:ids.size,nodes:graph.nodes.length,namedEdges:named,wikiEdges:wiki,sourcedRelationships:sourced,featureTours:manifest.features.length};
+}
+if(require.main===module)checkDemo().then(result=>console.log(JSON.stringify(result))).catch(error=>{console.error(error.message);process.exitCode=1;});
+module.exports={checkDemo,REQUIRED};

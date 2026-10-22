@@ -1,4 +1,4 @@
-# Draglass Editor · 0.19.0
+# Draglass Editor · 0.20.2
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -13,7 +13,7 @@ pnpm install --frozen-lockfile
 pnpm start
 ```
 
-Open `sample-vault` or an existing Markdown folder. Files remain ordinary Markdown. Editing autosaves continuously; external changes and internal saves use the last completed action.
+On first launch, Draglass opens an editable demo vault. Use **Open demo vault** in the command palette to return to it, or **Open vault** to choose your own Markdown folder. The last active vault reopens on launch. Files remain ordinary Markdown. Editing autosaves continuously; external changes and internal saves use the last completed action.
 
 ## Build
 
@@ -22,6 +22,10 @@ pnpm run dist:mac:app
 ```
 
 Copy `release/mac-arm64/Draglass Editor.app` to `/Applications`. For a DMG, use `pnpm run dist:mac:dmg`. Windows and Linux use `pnpm run dist:win` and `pnpm run dist:linux` on their target systems.
+
+## Explore the demo
+
+The fictional Lumen field station connects people, goals, capabilities, systems, decisions and evidence. Ten tours introduce editing, AI, graphs, properties, drawings, attachments and organization. The demo is editable; updated examples open as a fresh edition while earlier editions and edits are retained.
 
 ## AI conversations
 
@@ -47,3 +51,8 @@ Settings supports Copilot, Codex, OpenCode, OpenAI-compatible/LiteLLM gateways a
 
 Knowledge indexing, search, tags, backlinks and graph construction run in a local Node worker. Safe file writes retain a separate ordered path. Searches include unsaved drafts without fetching the entire vault into the search UI. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for boundaries and limitations, and [docs/ROADMAP.md](docs/ROADMAP.md) for scoped feature acceptance criteria.
 
+## Verification
+
+See [docs/VERIFICATION.md](docs/VERIFICATION.md) for checks and platform limits.
+
+Third-party notices remain in `docs/licenses` and are bundled with the application.

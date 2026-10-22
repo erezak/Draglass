@@ -1,3 +1,6 @@
+import {createRequire} from 'node:module';
+const require=createRequire(import.meta.url);
+await require('./scripts-check-demo.cjs').checkDemo();
 import {build} from 'esbuild';
 import {mkdir,copyFile,readFile,rm,cp} from 'node:fs/promises';
 

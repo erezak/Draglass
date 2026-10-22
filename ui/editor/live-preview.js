@@ -3,7 +3,7 @@ import {StateField,StateEffect} from '@codemirror/state';
 import {EditorView,Decoration,WidgetType} from '@codemirror/view';
 import {syntaxTree} from '@codemirror/language';
 import {undo,redo} from '@codemirror/commands';
-import {marked} from 'marked';
+import {Marked} from 'marked';
 import DOMPurify from 'dompurify';
 
 export const refreshEmbeds=StateEffect.define();
@@ -11,7 +11,9 @@ export const setLiveMode=StateEffect.define();
 const enabledField=StateField.define({create:()=>true,update:(value,tr)=>{for(const effect of tr.effects)if(effect.is(setLiveMode))value=effect.value;return value;}});
 export const isLiveMode=state=>state.field(enabledField,false)===true;
 const intersects=(state,from,to)=>state.selection.ranges.some(range=>range.empty?range.head>=from&&range.head<=to:range.from<to&&range.to>from);
-const plainInline=text=>DOMPurify.sanitize(marked.parseInline(text),{FORBID_TAGS:['img','iframe','form','input','style','button'],ALLOW_DATA_ATTR:false});
+// Use an isolated inline parser so table support does not change other renderers.
+const tableMarkdown=new Marked({extensions:[{name:'tableWikiLink',level:'inline',start:source=>source.indexOf('[['),tokenizer(source){const match=/^\[\[([^\]\n]+)\]\]/.exec(source);if(match)return {type:'tableWikiLink',raw:match[0],body:match[1]};},renderer(token){const [target,...alias]=token.body.replace(/\\\|/g,'|').split('|'),anchor=document.createElement('a');anchor.href='#';anchor.className='cm-live-link';anchor.dataset.wikiTarget=target.trim();anchor.textContent=alias.join('|').trim()||target.trim();anchor.title='Open '+target.trim();return anchor.outerHTML;}}]});
+const plainInline=text=>DOMPurify.sanitize(tableMarkdown.parseInline(text),{FORBID_TAGS:['img','iframe','form','input','style','button'],ALLOW_DATA_ATTR:false,ADD_ATTR:['data-wiki-target']});
 
 class EmbedWidget extends WidgetType {
  constructor(raw,from,render,revision){super();this.raw=raw;this.from=from;this.render=render;this.revision=revision;}
@@ -59,17 +61,18 @@ class WikiWidget extends WidgetType {
 // The table remains a widget while a cell is edited. Each keystroke changes
 // only that cell's Markdown range; no HTML-to-Markdown serialization occurs.
 class TableWidget extends WidgetType {
-  constructor(from,to,rows){super();this.from=from;this.to=to;this.rows=rows;}
+  constructor(from,to,rows,follow){super();this.from=from;this.to=to;this.rows=rows;this.follow=follow;}
   eq(other){return this.from===other.from&&this.to===other.to&&JSON.stringify(this.rows)===JSON.stringify(other.rows);}
   toDOM(view){const root=document.createElement('div');root.className='cm-live-table';root.contentEditable='false';const table=document.createElement('table');root.append(table);
-    for(const [r,row]of this.rows.entries()){const tr=document.createElement('tr');for(const cell of row){const td=document.createElement(r===0?'th':'td');td.tabIndex=0;td.setAttribute('aria-label',`Edit table cell ${r+1}`);td.addEventListener('mousedown',event=>event.stopPropagation());td.addEventListener('click',event=>{event.preventDefault();this.editCell(td,view);});td.addEventListener('keydown',event=>{if(event.key==='Enter'&&!td.querySelector('input')){event.preventDefault();event.stopPropagation();this.editCell(td,view);}});tr.append(td);}table.append(tr);}
+    for(const [r,row]of this.rows.entries()){const tr=document.createElement('tr');for(const cell of row){const td=document.createElement(r===0?'th':'td');td.tabIndex=0;td.setAttribute('aria-label',`Edit table cell ${r+1}`);td.addEventListener('mousedown',event=>event.stopPropagation());td.addEventListener('click',event=>{event.preventDefault();const link=event.target.closest?.('a[href]');if(link){event.stopPropagation();const target=link.dataset.wikiTarget??link.getAttribute('href');if(link.dataset.wikiTarget!==undefined)this.follow(target);else if(!/^(\w+:|\/\/)/.test(target)){try{this.follow(decodeURIComponent(target));}catch{}}return;}if(!td.querySelector('input'))this.editCell(td,view);});td.addEventListener('keydown',event=>{if(event.target.closest?.('a[href]')){if(event.key==='Enter'){event.preventDefault();event.stopPropagation();event.target.closest('a[href]').click();}return;}if(event.key==='Enter'&&!td.querySelector('input')){event.preventDefault();event.stopPropagation();this.editCell(td,view);}});tr.append(td);}table.append(tr);}
     const source=document.createElement('button');source.className='cm-table-source';source.textContent='Edit table Markdown';source.onclick=event=>{event.preventDefault();view.dispatch({selection:{anchor:Number(root.dataset.from)}});view.focus();};root.append(source);this.fill(root);return root;
   }
-  fill(root){root.dataset.from=String(this.from);root.dataset.to=String(this.to);const cells=[...root.querySelectorAll('td,th')];for(const [i,cell]of this.rows.flat().entries()){const td=cells[i];td.dataset.from=String(cell.from);td.dataset.to=String(cell.to);td.dataset.text=cell.text;const input=td.querySelector('input');if(input){const editable=cell.text.replace(/\\\|/g,'|');if(input.value!==editable)input.value=editable;}else td.innerHTML=plainInline(cell.text)||'&nbsp;';}}
+  fill(root){root.dataset.from=String(this.from);root.dataset.to=String(this.to);const cells=[...root.querySelectorAll('td,th')];for(const [i,cell]of this.rows.flat().entries()){const td=cells[i];td.dataset.from=String(cell.from);td.dataset.to=String(cell.to);td.dataset.text=cell.text;const input=td.querySelector('input');if(input){const editable=cell.text.replace(/\\\|/g,'|');if(input.value!==editable)input.value=editable;}else this.renderCell(td);}}
+  renderCell(td){td.innerHTML=plainInline(td.dataset.text)||'&nbsp;';}
   updateDOM(root){const actual=[...root.querySelectorAll('tr')].map(row=>row.children.length);if(actual.length!==this.rows.length||actual.some((length,i)=>length!==this.rows[i].length))return false;this.fill(root);return true;}
   editCell(td,view){if(td.querySelector('input'))return;const input=document.createElement('input');input.className='cm-table-cell-editor';input.value=td.dataset.text.replace(/\\\|/g,'|');input.setAttribute('aria-label','Table cell text');td.replaceChildren(input);input.addEventListener('input',()=>{const from=Number(td.dataset.from),to=Number(td.dataset.to);const value=input.value.replace(/(?<!\\)\|/g,'\\|');view.dispatch({changes:{from,to,insert:value}});});
     input.addEventListener('keydown',event=>{event.stopPropagation();if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==='z'){event.preventDefault();(event.shiftKey?redo:undo)(view);}if(event.key==='Enter'||event.key==='Escape'){event.preventDefault();input.blur();view.focus();}if(event.key==='Tab'){event.preventDefault();const cells=[...td.closest('table').querySelectorAll('td,th')],index=cells.indexOf(td),next=cells[index+(event.shiftKey?-1:1)];input.blur();if(next)this.editCell(next,view);else view.focus();}});
-    input.addEventListener('blur',()=>{if(input.isConnected)td.innerHTML=plainInline(td.dataset.text)||'&nbsp;';});input.focus();input.select();
+    input.addEventListener('blur',()=>{if(input.isConnected)this.renderCell(td);});input.focus();input.select();
   }
   ignoreEvent(){return true;}
 }
@@ -104,7 +107,7 @@ export function livePreview({enabled=true,onFollow=()=>{},onEmbed=()=>{},onDiagr
       const node=ref.node,name=node.name;if(name!=='Document'&&node.from<frontEnd)return false;const active=intersects(state,node.from,node.to),parts=children(node);
       if(name==='Table'){
         blocked.push([node.from,node.to]);
-        if(!active){ranges.push(Decoration.replace({widget:new TableWidget(node.from,node.to,tableRows(node,state)),block:true}).range(node.from,node.to));return false;}
+        if(!active){ranges.push(Decoration.replace({widget:new TableWidget(node.from,node.to,tableRows(node,state),onFollow),block:true}).range(node.from,node.to));return false;}
         eachLine(node.from,node.to,l=>line(l.from,'cm-live-table-source-line'));return false;
       }
       if(name==='FencedCode'||name==='CodeBlock'){

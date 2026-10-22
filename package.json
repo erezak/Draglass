@@ -1,6 +1,6 @@
 {
   "name": "draglass-editor",
-  "version": "0.19.0",
+  "version": "0.20.2",
   "private": true,
   "description": "Local Markdown workspace with tabs and connected notes",
   "main": "electron/main.cjs",
@@ -13,7 +13,8 @@
     "dist:win": "node scripts-build.mjs && electron-builder --win",
     "dist:linux": "node scripts-build.mjs && electron-builder --linux",
     "dist:mac:dmg": "node scripts-build.mjs && electron-builder --mac dmg",
-    "dist:mac:app": "node scripts-build.mjs && electron-builder --mac --dir"
+    "dist:mac:app": "node scripts-build.mjs && electron-builder --mac --dir",
+    "check:demo": "node scripts-check-demo.cjs"
   },
   "dependencies": {
     "@codemirror/autocomplete": "6.20.3",
@@ -51,6 +52,7 @@
       "core/**",
       "dist/**",
       "assets/**",
+      "demo-vault/**",
       "package.json"
     ],
     "mac": {

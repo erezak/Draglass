@@ -3,6 +3,7 @@ contextBridge.exposeInMainWorld('vaultAPI', {
   restore:()=>ipcRenderer.invoke('vault:restore'),
   workspace:value=>ipcRenderer.invoke('vault:workspace',value),
   open:()=>ipcRenderer.invoke('vault:open'),
+  demo:()=>ipcRenderer.invoke('vault:demo'),
   resources:()=>ipcRenderer.invoke('vault:resources'),
   importFiles:(files,from,config)=>ipcRenderer.invoke('vault:importFiles',files,from,config),
   pickAttachments:(from,config)=>ipcRenderer.invoke('vault:pickAttachments',from,config),

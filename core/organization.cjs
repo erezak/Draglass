@@ -8,7 +8,7 @@ function rewriteLinks(text,from,paths,mapping){
  const isBlocked=(a,b)=>blocked.some(([s,e])=>a<e&&b>s),nextFrom=mapping(from);
  for(const m of text.matchAll(/!?\[\[([^\]\n]+)\]\]/g)){
   if(isBlocked(m.index,m.index+m[0].length))continue;
-  const raw=m[1],bar=raw.indexOf('|'),target=bar<0?raw:raw.slice(0,bar),hash=target.indexOf('#'),file=(hash<0?target:target.slice(0,hash)).trim(),suffix=hash<0?'':target.slice(hash),alias=bar<0?'':raw.slice(bar);
+  const raw=m[1],pipe=raw.indexOf('|'),bar=pipe>0&&raw[pipe-1]==='\\'?pipe-1:pipe,target=bar<0?raw:raw.slice(0,bar),hash=target.indexOf('#'),file=(hash<0?target:target.slice(0,hash)).trim(),suffix=hash<0?'':target.slice(hash),alias=bar<0?'':raw.slice(bar);
   if(!file)continue;const resolved=m[0].startsWith('!')?resolveAsset(file,from,paths):(resolveLink(file,from,paths.filter(p=>p.endsWith('.md'))).path||resolveAsset(file,from,paths));
   if(!resolved||(mapping(resolved)===resolved&&nextFrom===from))continue;
   let destination=mapping(resolved);if(destination.endsWith('.md')&&!file.endsWith('.md'))destination=destination.slice(0,-3);
