@@ -17,12 +17,14 @@ test('desktop cold open restores the vault before routing; warm opens reuse wind
  }
  const electron={app,BrowserWindow:Window,dialog:{showErrorBox:(_title,error)=>assert.fail(error)},ipcMain:{handle:(name,fn)=>handlers.set(name,fn)},Menu:{setApplicationMenu(){},buildFromTemplate:items=>items},safeStorage:{},protocol:{registerSchemesAsPrivileged(){},handle:(name,fn)=>protocols.set(name,fn)},shell:{showItemInFolder(){},openExternal:async()=>{}},clipboard:{},nativeImage:{createFromPath:()=>({})}};
  const filename=path.resolve('electron/main.cjs'),localRequire=createRequire(filename);
- vm.runInNewContext(await fs.readFile(filename,'utf8'),{require:name=>name==='electron'?electron:localRequire(name),__dirname:path.dirname(filename),process:{platform:'darwin',argv:['Draglass',inside]},setTimeout,clearTimeout,console});
+ let holdSearch=false,releaseSearch,searchStarted;const started=new Promise(resolve=>searchStarted=resolve);const gate=new Promise(resolve=>releaseSearch=resolve);const {KnowledgeService}=require('../core/backend/client.cjs');class TestKnowledgeService extends KnowledgeService{async request(method,...args){if(method==='search'&&holdSearch){searchStarted();await gate;}return super.request(method,...args);}}
+ vm.runInNewContext(await fs.readFile(filename,'utf8'),{require:name=>name==='electron'?electron:name==='../core/backend/client.cjs'?{KnowledgeService:TestKnowledgeService}:localRequire(name),__dirname:path.dirname(filename),process:{platform:'darwin',argv:['Draglass',inside]},setTimeout,clearTimeout,console});
  // The OS can deliver another file before readiness.
  app.emit('open-file',{preventDefault(){}},outside);
  for(let i=0;i<50&&!windows.length;i++)await new Promise(r=>setTimeout(r,10));
  const primary=windows[0],event=w=>({sender:w.webContents,senderFrame:{url:pathToFileURL(w.loaded).href}});
  await handlers.get('vault:restore')(event(primary));assert.equal(primary.sent.length,0);
+ holdSearch=true;const reading=handlers.get('vault:search')(event(primary),'Inside');await started;let deadline;const save=await Promise.race([handlers.get('vault:write')(event(primary),'Inside.md','# Inside'),new Promise((_,reject)=>{deadline=setTimeout(()=>reject(new Error('A read blocked the save queue.')),2000);})]).finally(()=>clearTimeout(deadline));assert.equal(save.text,'# Inside');holdSearch=false;releaseSearch();assert.equal((await reading)[0].path,'Inside.md');
  await handlers.get('desktop:ready')(event(primary));assert.ok(primary.sent.some(([name,value])=>name==='desktop:open-file'&&value.path==='Inside.md'));
  assert.equal(windows.length,2);const detached=windows[1],restored=await handlers.get('detached:restore')(event(detached));assert.equal(restored.absolute,outside);assert.equal(restored.text,'# Outside');
  app.emit('second-instance',{},['Draglass',outside],root);await new Promise(r=>setTimeout(r,30));assert.equal(windows.length,2);assert.equal(detached.visible,true);

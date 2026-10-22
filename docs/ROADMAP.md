@@ -1,5 +1,36 @@
 # Draglass Editor roadmap
 
-Current capabilities include local Markdown editing and recovery, organization and search, ontology properties and relationships, global/local graphs, attachments and embeds, Mermaid and Excalidraw, entity templates, provider settings and independent AI conversations.
+This is the working backlog. Entries describe current gaps and acceptance criteria, not promises of existing functionality. Implement one reviewable slice at a time; preserve plain Markdown, continuous autosave, last-completed-action-wins external refresh, AI context visibility, and the type/subtype ontology.
 
-Possible future work includes richer conversation organization, additional reviewed note tools, graph-driven research, improved accessibility and native cross-platform verification.
+## Architecture slice · 0.19.0
+
+Move read indexing and knowledge queries behind an Electron-independent Node service in a worker thread. Keep ordered safe writes separate from read queries. Search and tags must include unsaved drafts without fetching every note into the renderer. Reuse unchanged file contents and parsed search metadata; cancel superseded query requests and discard stale responses. Construct knowledge graphs outside the renderer. See [ARCHITECTURE.md](ARCHITECTURE.md) for implemented boundaries, protocol, lifecycle and remaining work.
+
+## Compatible feature backlog
+
+| ID | Feature and scope | Acceptance criteria and integration notes |
+| --- | --- | --- |
+| F01 | Vault-wide task browser | Aggregate Markdown tasks with note path and exact source range; filter by state, tag and path; navigate to the task; include drafts and external edits through the knowledge service. Toggle through safe editor/file operations with undo and stale-version checks. A task panel must coexist with chat and backlinks. No separate task database as the source of truth. |
+| F02 | Task states and completion dates | Support `[ ]`, `[x]` and `[-]` with explicit accessible state selection. Completion-date insertion is optional and idempotent; define reopening/cancellation date policy before implementing. Preserve unrelated source and metadata. Test repeated toggles, dates already present, undo and external edits. |
+| F03 | Outgoing connections panel | Show outgoing wiki/Markdown links and named ontology relationships with provenance. Distinguish missing and ambiguous targets; creating a missing target uses existing entity creation. Include drafts, navigate without losing chat, and preserve the separate incoming/backlink view. |
+| F04 | Callouts | Render `> [!note]`, tip, warning, info, abstract, question, success and failure with accessible labels and light/dark contrast. Keep ordinary Markdown authoritative, reveal source for editing, support multiline content and nesting without executing HTML. Cover Live Preview, reading view, embeds and detached Markdown. |
+| F05 | Image viewer | Click a local image preview to open fit/zoom/pan controls, caption, Escape and keyboard navigation. Respect asset validation, detached-file scope and vault changes. No remote-image fetching by default. Clicking must not unintentionally edit Markdown. |
+| F06 | Generic Markdown templates | Configurable template folder; create-note and insert-template commands. Templates are ordinary Markdown. Preserve the ontology entity-template plugin; optionally classified templates must validate type/subtype, and generated notes must receive fresh IDs instead of copying template identity. Preview substitutions, reject collisions and support undo. No executable template scripts. |
+| F07 | Fuzzy quick switcher and recents | Match noncontiguous characters, rank exact/prefix matches first and retain deterministic ordering. Show a bounded per-vault recent-note list. Handle moves, deletions and duplicate titles; keyboard navigation and selection must remain stable. Keep Cmd/Ctrl+P. |
+| F08 | Precise search navigation and highlighting | Return actual match ranges from the backend, group matches by file and highlight matches safely. Open at the selected range in source or Live Preview. Handle unsaved drafts and stale revisions; avoid using the current approximate snippet line as an exact location. Add a visible case-sensitivity control backed by existing query semantics. |
+| F09 | Graph theme integration | Adapt graph background, nodes, edges, labels and inspectors to Light/Dark/System while retaining custom color groups and person photos. Maintain contrast, export appearance and graph controls. Theme switching must not reset positions, camera or selection. |
+| F10 | Onboarding sample vault | Offer an explicit first-run action to copy/open sample notes without overwriting user data or changing vaults silently. Include demonstrations of the current AI, ontology, diagrams and editing features. Keep the shipped sample folder usable without onboarding. |
+| F11 | Privacy-aware sections | Requires a separate design before implementation. Define `{locked}` section boundaries, descendants, password/session behavior and the distinction between display hiding and encryption at rest. A locked section must be consistently excluded from search snippets, tasks, backlinks, graph-derived text, previews and AI context/tools. Test unlock/relock, external edits, recovery copies and detached files. Never claim file encryption without implementing and verifying it. Existing markers currently have no special meaning. |
+| F12 | Focus and rendering preferences | Add a combined sidebar focus command, configurable soft wrap and optional rich-content rendering controls where useful. Preserve sidebar state and drafts. Rendering preferences must affect presentation only, without rewriting notes. No option to disable mandatory autosave. |
+| F13 | Safe performance preferences | Only expose scan/query limits or debounce settings with measured value and bounded defaults. Do not make hidden-file/symlink access unrestricted or allow settings that undermine safe path handling. Keep current platform protections. |
+| F14 | Browser edition | Separate future product scope: define storage adapter and credential/privacy model, then reuse the service contract where practical. Do not assume Node filesystem APIs or Electron IPC exist in a browser. A browser demo must clearly distinguish sample/in-memory data from a disk vault. |
+
+## Sequencing and boundaries
+
+After the architecture slice, F07/F08 benefit directly from the query service, and F01/F03 can share its derived knowledge. F04/F05 are independent presentation slices. F11 must be designed across every content-consuming path, including AI, before promising private content support. F14 is optional and follows a storage design.
+
+Keep the new AI and ontology workflows. Retain the existing command-palette shortcut, light default, provider/proxy settings, link-aware file operations and detached editing. Do not restore obsolete branding or introduce a Rust rewrite, a theme marketplace or an arbitrary third-party plugin API as prerequisites for these features.
+
+## Architecture follow-up
+
+Move graph filtering and force simulation off the renderer; return compact models instead of raw-note snapshots where callers permit. Add filesystem-event-driven dirty-path refresh with periodic reconciliation, cancellation inside long-running work, persistent derived indexes if measurements justify them, and separate AI orchestration/mutation planning from the desktop main process. Profile realistic vaults before choosing new storage engines or languages.

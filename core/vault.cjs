@@ -4,7 +4,7 @@ const {createHash, randomUUID} = require('node:crypto');
 const {wikiLinks, resolveLink} = require('./links.cjs');
 const hash = text => createHash('sha256').update(text).digest('hex');
 class Vault {
-  constructor(root) { this.root=path.resolve(root);this.assetId=randomUUID(); this.notes=[]; this.busy=false; }
+  constructor(root) { this.root=path.resolve(root);this.assetId=randomUUID(); this.notes=[]; this.busy=false; this.scanCache=new Map(); this.scanReads=0; this.scanQueue=Promise.resolve(); }
   async checked(relative, creating=false, attachment=false) {
     if (typeof relative !== 'string' || !relative || relative.includes('\\') || relative.includes('\0') || path.isAbsolute(relative) || relative.split('/').some(p => !p || p === '..' || p === '.' || p.startsWith('.') || /[<>:"|?*]/.test(p) || /[. ]$/.test(p) || /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\.|$)/i.test(p)) || (!attachment&&!require('./file-open.cjs').supported(relative))) throw new Error('Use a portable Markdown path inside the vault.');
     const full=path.join(this.root,...relative.split('/'));
@@ -20,8 +20,9 @@ class Vault {
     if(parent!==root && !parent.startsWith(root+path.sep)) throw new Error('Path leaves the vault.');
     return full;
   }
-  async scan() {
-    const notes=[],attachments=[],folders=[];
+  scan() { const job=this.scanQueue.catch(()=>{}).then(()=>this.scanNow());this.scanQueue=job;return job; }
+  async scanNow() {
+    const notes=[],attachments=[],folders=[],cache=new Map();
     const walk=async (dir, prefix='') => {
       for(const entry of await fs.readdir(dir,{withFileTypes:true})) {
         if(entry.name.startsWith('.') || entry.isSymbolicLink()) continue;
@@ -31,12 +32,13 @@ class Vault {
         else if(entry.isFile() && (require('./file-open.cjs').supported(entry.name))) {
           const stat=await fs.stat(path.join(dir,entry.name));
           if(stat.size>8*1024*1024) continue;
-          const text=await fs.readFile(path.join(dir,entry.name),'utf8');
-          notes.push({path:rel,title:entry.name.replace(/\.(?:excalidraw(?:\.md)?|md)$/,''),text,version:hash(text),createdAt:stat.birthtimeMs||stat.mtimeMs,modifiedAt:stat.mtimeMs});
+          const stamp=[stat.mtimeMs,stat.ctimeMs,stat.size,stat.ino].join(':'),old=this.scanCache.get(rel);
+          let text,version;if(old?.stamp===stamp){text=old.text;version=old.version;}else{text=await fs.readFile(path.join(dir,entry.name),'utf8');version=hash(text);this.scanReads++;}cache.set(rel,{stamp,text,version});
+          notes.push({path:rel,title:entry.name.replace(/\.(?:excalidraw(?:\.md)?|md)$/,''),text,version,createdAt:stat.birthtimeMs||stat.mtimeMs,modifiedAt:stat.mtimeMs});
         }
       }
     };
-    await walk(this.root); this.folders=folders;this.attachments=attachments;this.notes=notes.sort((a,b)=>a.path.localeCompare(b.path));
+    await walk(this.root); this.scanCache=cache; this.folders=folders;this.attachments=attachments;this.notes=notes.sort((a,b)=>a.path.localeCompare(b.path));
     return this.notes.map(({text,...note})=>note);
   }
   async graph(){await this.scan();return {notes:this.notes,attachments:this.attachments};}

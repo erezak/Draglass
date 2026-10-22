@@ -3,6 +3,7 @@ const path=require('node:path');
 const fs=require('node:fs');
 const {pathToFileURL}=require('node:url');
 const {Vault}=require('../core/vault.cjs');
+const {KnowledgeService}=require('../core/backend/client.cjs');
 const {WorkspaceStore}=require('../core/workspace.cjs');
 const {AIService}=require('../core/ai/service.cjs');
 const organization=require('../core/organization.cjs');
@@ -10,7 +11,9 @@ const {importFiles,assetResponse,MAX}=require('../core/attachments.cjs');
 protocol.registerSchemesAsPrivileged([{scheme:'draglass-asset',privileges:{standard:true,secure:true,stream:true}}]);
 app.setName('Draglass Editor');
 app.setAboutPanelOptions?.({applicationName:'Draglass Editor',copyright:'Copyright © 2026 Erez Korn'});
-let window, vault, workspace,watcher,watchTimer,ai,detached;
+let window, vault, workspace,watcher,watchTimer,ai,detached,knowledgeService;
+async function prepareVault(root){const candidate=new Vault(root),service=new KnowledgeService(root);try{const notes=await service.request('scan');return {candidate,service,notes};}catch(e){await service.close();throw e;}}
+function useVault(candidate,service){knowledgeService?.close().catch(()=>{});vault=candidate;knowledgeService=service;watchVault();}
 const {classifyFile,filesFromArgs,FileOpenQueue}=require('../core/file-open.cjs');
 const initialFiles=filesFromArgs(process.argv.slice(app.isPackaged?1:2));
 const fileQueue=new FileOpenQueue(openUserFile,error=>{if(window&&!window.isDestroyed())window.show();dialog.showErrorBox('Could not open file',error.message);});
@@ -62,10 +65,10 @@ ipcMain.handle('desktop:reopenFile',(event,file)=>{validate(event);if(!openedFil
 ipcMain.handle('desktop:pickFiles',event=>{validate(event);return pickDocuments();});
 function validate(event){if(event.sender!==window?.webContents || event.senderFrame?.url!==entry) throw new Error('Untrusted caller.');}
 const handlers={
-  open:async()=>{const result=await dialog.showOpenDialog(window,{properties:['openDirectory'],title:'Open Markdown vault'});if(result.canceled)return null;const candidate=new Vault(result.filePaths[0]);const notes=await candidate.scan();ai.cancel();vault=candidate;watchVault();return {root:vault.root,name:path.basename(vault.root),notes};},
-  restore:async()=>{const saved=await workspace.read();if(!saved)return null;try{const candidate=new Vault(saved.root);const notes=await candidate.scan();vault=candidate;watchVault();return {root:vault.root,name:path.basename(vault.root),notes,workspace:saved};}catch{return {error:'Previous vault is unavailable. Open a vault to continue.'};}},
+  open:async()=>{const result=await dialog.showOpenDialog(window,{properties:['openDirectory'],title:'Open Markdown vault'});if(result.canceled)return null;const {candidate,service,notes}=await prepareVault(result.filePaths[0]);ai.cancel();useVault(candidate,service);return {root:vault.root,name:path.basename(vault.root),notes};},
+  restore:async()=>{const saved=await workspace.read();if(!saved)return null;try{const {candidate,service,notes}=await prepareVault(saved.root);useVault(candidate,service);return {root:vault.root,name:path.basename(vault.root),notes,workspace:saved};}catch{return {error:'Previous vault is unavailable. Open a vault to continue.'};}},
   workspace:value=>workspace.write(vault.root,value),
-  resources:async()=>{await vault.scan();return {paths:[...vault.notes.map(n=>n.path),...vault.attachments.map(a=>a.path)],version:JSON.stringify([...vault.notes.map(n=>[n.path,n.version]),...vault.attachments.map(a=>[a.path,a.version])]),base:'draglass-asset://'+vault.assetId+'/'};},
+  resources:async()=>{const target=vault,service=knowledgeService;return {...await service.request('resources'),base:'draglass-asset://'+target.assetId+'/'};},
   importFiles:(files,from,config)=>importFiles(vault,files,from,config),
   pickAttachments:async(from,config)=>{const target=vault;const chosen=await dialog.showOpenDialog(window,{properties:['openFile','multiSelections'],title:'Attach files'});if(chosen.canceled)return [];const files=[];if(chosen.filePaths.length>20)throw new Error('Import up to 20 files at a time.');let total=0;for(const file of chosen.filePaths){const size=(await require('node:fs/promises').stat(file)).size;total+=size;if(size>MAX||total>128*1024*1024)throw new Error('Import up to 64 MiB per file and 128 MiB per batch.');}for(const file of chosen.filePaths){files.push({name:path.basename(file),bytes:await require('node:fs/promises').readFile(file)});}return importFiles(target,files,from,config);},
   revealAttachment:async p=>{const file=await vault.checked(p,false,true);shell.showItemInFolder(file);},
@@ -73,7 +76,7 @@ const handlers={
   actionApply:async (id,index,text)=>{const result=await ai.actions.apply(vault,id,index,text);return result;},
   actionReject:async (id,index)=>{const result=await ai.actions.reject(vault,id,index);return result;},
   actionUndo:async (id,index,text)=>{const result=await ai.actions.undo(vault,id,index,text);return result;},
-  folders:async()=>{await vault.scan();return vault.folders;},
+  folders:()=>knowledgeService.request('folders'),
   createFolder:p=>organization.mkdir(vault,p),
   createDrawing:async p=>{if(!p.endsWith('.excalidraw'))throw new Error('Use a .excalidraw filename.');return vault.create(p,require('../core/drawings.cjs').emptyDrawing());},
   previewMove:(from,to,update)=>organization.preview(vault,from,to,update),
@@ -81,13 +84,14 @@ const handlers={
   remove:(p,mode)=>organization.remove(vault,p,mode,file=>shell.trashItem(file)),
   trash:()=>organization.trash(vault),restoreTrash:id=>organization.restore(vault,id),
   reveal:async p=>shell.showItemInFolder(p?await vault.checked(p,false,true):vault.root),
-  scan:()=>vault.scan(),graph:()=>vault.graph(),read:p=>vault.read(p),write:(p,t)=>vault.write(p,t),create:(p,text)=>vault.create(p,text),
-  search:async q=>{await vault.scan();return vault.search(q);},backlinks:async p=>{await vault.scan();return vault.backlinks(p);}
+  scan:()=>knowledgeService.request('scan'),graph:()=>knowledgeService.request('graph'),graphModel:drafts=>knowledgeService.latest('graph','graphModel',{drafts}),tags:drafts=>knowledgeService.latest('tags','tags',{drafts}),read:p=>vault.read(p),write:(p,t)=>vault.write(p,t),create:(p,text)=>vault.create(p,text),
+  search:(query,options={})=>knowledgeService.latest('search','search',{query,sort:options.sort,drafts:options.drafts}),backlinks:(p,drafts)=>knowledgeService.request('backlinks',{path:p,drafts})
 };
+const knowledgeReads=new Set(['scan','folders','resources','graph','graphModel','search','tags','backlinks']);
 let vaultQueue=Promise.resolve();
-for(const [name,fn] of Object.entries(handlers))ipcMain.handle('vault:'+name,(event,...args)=>{validate(event);const job=vaultQueue.catch(()=>{}).then(()=>{if(!['open','restore'].includes(name)&&!vault)throw new Error('Open a vault first.');return fn(...args);});vaultQueue=job;return job;});
+for(const [name,fn] of Object.entries(handlers))ipcMain.handle('vault:'+name,(event,...args)=>{validate(event);if(knowledgeReads.has(name)){if(!vault)throw new Error('Open a vault first.');return fn(...args);}const job=vaultQueue.catch(()=>{}).then(()=>{if(!['open','restore'].includes(name)&&!vault)throw new Error('Open a vault first.');return fn(...args);});vaultQueue=job;return job;});
 for(const [name,handler] of Object.entries({settings:()=>ai.settings(),save:value=>ai.save(value),cancel:()=>ai.cancel(),chat:request=>{if(!vault&&request?.context?.length)throw new Error('Open a vault to mention notes.');return ai.chat(vault,request);},conversations:note=>ai.store.listConversations(vault?.root||'@global',note||''),newConversation:note=>ai.store.newConversation(vault?.root||'@global',note||''),thread:(note,id)=>ai.store.thread(vault?.root||'@global',note||'',id),clear:(note,id)=>ai.store.writeThread(vault?.root||'@global',note||'',[],id)}))ipcMain.handle('ai:'+name,(event,...args)=>{validate(event);return handler(...args);});
 ipcMain.handle('close-approved',event=>{validate(event);if(detached?.sessions.size){window.hide();}else{window.forceClose=true;window.close();}});
-app.on('before-quit',()=>{ai?.cancel();watcher?.close();clearTimeout(watchTimer);});
+app.on('before-quit',()=>{ai?.cancel();knowledgeService?.close().catch(()=>{});watcher?.close();clearTimeout(watchTimer);});
 if(primary)app.whenReady().then(start);app.on('window-all-closed',()=>app.quit());
 app.on('activate',()=>{if(window&&!window.isDestroyed()){window.show();window.focus();}});

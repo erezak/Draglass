@@ -22,11 +22,13 @@ contextBridge.exposeInMainWorld('vaultAPI', {
   reveal:path=>ipcRenderer.invoke('vault:reveal',path),
   scan:()=>ipcRenderer.invoke('vault:scan'),
   graph:()=>ipcRenderer.invoke('vault:graph'),
+  graphModel:drafts=>ipcRenderer.invoke('vault:graphModel',drafts),
+  tags:drafts=>ipcRenderer.invoke('vault:tags',drafts),
   read:path=>ipcRenderer.invoke('vault:read',path),
   write:(path,text)=>ipcRenderer.invoke('vault:write',path,text),
   create:(path,text)=>ipcRenderer.invoke('vault:create',path,text),
-  search:query=>ipcRenderer.invoke('vault:search',query),
-  backlinks:path=>ipcRenderer.invoke('vault:backlinks',path),
+  search:(query,options)=>ipcRenderer.invoke('vault:search',query,options),
+  backlinks:(path,drafts)=>ipcRenderer.invoke('vault:backlinks',path,drafts),
   onChanged:callback=>{const listener=()=>callback();ipcRenderer.on('vault:changed',listener);return ()=>ipcRenderer.removeListener('vault:changed',listener);},
   onCommand:callback=>{const listener=(_,command)=>callback(command);ipcRenderer.on('command',listener);return ()=>ipcRenderer.removeListener('command',listener);}
 });

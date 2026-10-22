@@ -1,4 +1,4 @@
-# Draglass Editor · 0.18.2
+# Draglass Editor · 0.19.0
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -43,8 +43,7 @@ Settings supports Copilot, Codex, OpenCode, OpenAI-compatible/LiteLLM gateways a
 - Element-local horizontal scrolling and hover scrollbars; Mermaid Fit and zoom controls.
 - OS Markdown/Excalidraw file associations and clearly labelled detached editing.
 
-## Verification
+## Architecture and roadmap
 
-This ZIP contains the latest source without Git history. You can initialize a new repository and make your own initial commit. See [docs/VERIFICATION.md](docs/VERIFICATION.md) for checks and platform limits.
+Knowledge indexing, search, tags, backlinks and graph construction run in a local Node worker. Safe file writes retain a separate ordered path. Searches include unsaved drafts without fetching the entire vault into the search UI. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for boundaries and limitations, and [docs/ROADMAP.md](docs/ROADMAP.md) for scoped feature acceptance criteria.
 
-Third-party notices remain in `docs/licenses` and are bundled with the application.
