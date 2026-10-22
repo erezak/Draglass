@@ -1,122 +1,50 @@
-# Draglass
+# Draglass Editor · 0.18.2
 
-A local-first, cross-platform knowledge base application built with Tauri, React, and TypeScript.
+Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
-## Overview
+Copyright © 2026 Erez Korn.
 
-Draglass is a privacy-first, offline-first knowledge management app that stores your notes as plain Markdown files in a local vault folder. It features wikilinks, backlinks, and a clean, focused interface for organizing your thoughts.
+## Run
 
-> **Try it now**: Run `pnpm install && pnpm dev` to try the web version with the built-in Demo Vault.  
-> **Documentation**: Visit the [Draglass website](https://erezak.github.io/Draglass/) for detailed guides and screenshots.
+Use Node.js 24 LTS and your installed pnpm. The project does not select or download a specific pnpm version.
 
-### Core Features
-
-- **Markdown Notes**: All notes stored as plain `.md` files in your vault folder
-- **Wikilinks & Backlinks**: Link between notes using `[[Note Name]]` syntax with automatic backlink detection
-- **Quick Switcher** (`Cmd/Ctrl + P`): Fuzzy search to instantly jump to any note
-- **Command Palette** (`Cmd/Ctrl + Shift + P`): Searchable list of all app commands
-- **Global Search** (`Cmd/Ctrl + Shift + F`): Full-text search across your entire vault
-- **Templates v1**: Create notes and insert content from Markdown templates in a configurable templates folder
-- **Template Date Resolution**: `tp.date.now(...)` and `moment(tp.file.title, ...).format(...)` expressions resolve automatically when creating notes from templates
-- **Graph View**: Visual network diagram showing all notes and their connections (global and local modes)
-- **Tasks and Checklists**: Automatic scanning and collection of `- [ ]` checkboxes across all notes
-- **Task Done Date Automation**: Marking a task done automatically appends a `✅ YYYY-MM-DD` field
-- **Automatic Frontmatter Timestamps**: New notes get `created`/`updated` fields, and `updated` refreshes on save
-- **Local-First**: Your data stays on your device - no cloud sync, no telemetry, no network calls
-- **Cross-Platform**: Desktop app built with Tauri (Rust + React)
-- **Privacy-First**: Open source, clean-room implementation with no analytics or tracking
-- **Locked Sections**: Password-protect sensitive content by marking headings with `{locked}`
-- **CodeMirror 6**: Powerful, extensible editor with markdown support and Live Preview
-- **Live Preview**: Inline rendering with a Source toggle, including strikethrough text, Mermaid diagrams, callouts, and image lightbox
-- **Dali-Inspired UI**: Surrealism intensity setting (`Off`, `Subtle`, `Full`) for dreamlike visual styling
-- **Customizable**: Dark/Light themes, resizable panes, configurable autosave and settings
-- **Demo Vault**: Built-in interactive guide that showcases all features
-
-## Architecture
-
-- **Frontend**: React + TypeScript with Vite
-- **Backend**: Tauri (Rust) for file system operations and vault management
-- **Editor**: CodeMirror 6 with Live Preview (default) and Source modes
-
-## Getting Started
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (recommended: latest LTS)
-- [pnpm](https://pnpm.io/) package manager
-- [Rust](https://rustup.rs/) (for Tauri development)
-
-### Installation
-
-```bash
-# Install dependencies
-pnpm install
+```sh
+pnpm install --frozen-lockfile
+pnpm start
 ```
 
-### Development
+Open `sample-vault` or an existing Markdown folder. Files remain ordinary Markdown. Editing autosaves continuously; external changes and internal saves use the last completed action.
 
-**Browser Development (Frontend only)**
-```bash
-pnpm dev
+## Build
+
+```sh
+pnpm run dist:mac:app
 ```
 
-**Desktop Development (Full Tauri app)**
+Copy `release/mac-arm64/Draglass Editor.app` to `/Applications`. For a DMG, use `pnpm run dist:mac:dmg`. Windows and Linux use `pnpm run dist:win` and `pnpm run dist:linux` on their target systems.
 
-In two separate terminals:
-```bash
-# Terminal 1: Start Vite dev server
-pnpm dev
+## AI conversations
 
-# Terminal 2: Start Tauri dev mode
-pnpm tauri dev
-```
+The right sidebar works with or without an open note, and general chat also works before opening a vault. Use **New conversation** to start fresh while preserving earlier conversations; the Conversation selector reopens them. Workspace and individual-note conversations are stored separately and restored after restart.
 
-### Building
+An open note is included automatically. Type `@` to mention existing notes from the current vault. Full Markdown, including YAML metadata, is provided for the selected notes; open editor drafts take precedence over disk text. Context chips show the notes supplied to the model. New conversations begin with empty history.
 
-```bash
-# Build frontend for production
-pnpm build
+Settings supports Copilot, Codex, OpenCode, OpenAI-compatible/LiteLLM gateways and Anthropic connections, custom HTTP headers, Chat Completions or Responses, and shared proxy settings. **Propose changes** creates reviewable note edits and additions. Files change when you accept a proposal; Undo remains available from the review.
 
-# Build desktop application
-pnpm tauri build
-```
+## Editing and knowledge
 
-## Development Guidelines
+- Live Preview, source mode, reading mode, tabs, autosave and recovery.
+- Explorer and AI sidebars collapse independently. Cmd/Ctrl+Shift+P opens the command palette.
+- File organization, link-aware renames and moves, trash/restore, tags and local search.
+- Global and local graphs with ontology types, relationships and edge provenance.
+- YAML property editing, type/subtype selectors and visual relationship editing.
+- Ontology entity templates, configurable in Settings → Core plugins → Entity templates.
+- Attachments, note embeds, editable Mermaid diagrams and Excalidraw canvases.
+- Element-local horizontal scrolling and hover scrollbars; Mermaid Fit and zoom controls.
+- OS Markdown/Excalidraw file associations and clearly labelled detached editing.
 
-For AI coding agents and contributors, see:
-- **[AGENTS.md](./AGENTS.md)** - Development guidelines and coding conventions
-- **[MEMORY.md](./MEMORY.md)** - Key architectural decisions and rationale
+## Verification
 
-### Quick Commands
+This ZIP contains the latest source without Git history. You can initialize a new repository and make your own initial commit. See [docs/VERIFICATION.md](docs/VERIFICATION.md) for checks and platform limits.
 
-```bash
-pnpm lint              # Run ESLint
-pnpm test              # Run tests
-pnpm licenses:generate # Generate third-party licenses
-```
-
-## Storage Model
-
-- Vault is a folder containing Markdown files
-- Each note's identity is its relative path from the vault root
-- Wikilink targets are normalized (case-insensitive, filename-stem matching)
-- Hidden files (dotfiles) and `node_modules` are filtered from navigation by default
-- Template files are stored under a configurable folder (default `_templates`) and excluded from search results
-
-## Tech Stack
-
-- **Frontend**: React 19, TypeScript, CodeMirror 6, Vite
-- **Backend**: Tauri 2.x, Rust
-- **Tooling**: ESLint, pnpm workspaces
-
-## License
-
-See [LICENSE](./LICENSE) and [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md)
-
-## Philosophy
-
-Draglass is built with these principles:
-- **Clean-room**: No copying from proprietary software
-- **Minimal dependencies**: Only add what's necessary
-- **Small changes**: Prefer reviewable, incremental improvements
-- **Local-first**: User data stays local and private by default
+Third-party notices remain in `docs/licenses` and are bundled with the application.

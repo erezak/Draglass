@@ -1,53 +1,108 @@
 {
-  "name": "draglass",
+  "name": "draglass-editor",
+  "version": "0.18.2",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "description": "Local Markdown workspace with tabs and connected notes",
+  "main": "electron/main.cjs",
   "scripts": {
-    "dev": "vite",
-    "dev:kill-ports": "node scripts/kill-ports.mjs",
-    "licenses:generate": "node scripts/generate-third-party-licenses.mjs",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "test": "node scripts/test-wikilinks.mjs && node scripts/test-tags.mjs && node scripts/test-locked-sections.mjs && node scripts/test-tables.mjs && node scripts/test-templates.mjs && node scripts/test-daily-notes.mjs && node scripts/test-tasks.mjs &&  node scripts/test-export-pdf.mjs && node scripts/test-paste-images.mjs && node scripts/test-graph-interaction.mjs && node scripts/test-command-palette.mjs && node scripts/test-frontmatter-update.mjs",
-    "test:locked-sections": "node scripts/test-locked-sections.mjs",
-    "preview": "vite preview"
+    "build": "node scripts-build.mjs",
+    "start": "node scripts-build.mjs && node scripts-start.mjs",
+    "test": "node scripts-build.mjs && node --test",
+    "dist": "node scripts-build.mjs && electron-builder",
+    "dist:mac": "node scripts-build.mjs && electron-builder --mac",
+    "dist:win": "node scripts-build.mjs && electron-builder --win",
+    "dist:linux": "node scripts-build.mjs && electron-builder --linux",
+    "dist:mac:dmg": "node scripts-build.mjs && electron-builder --mac dmg",
+    "dist:mac:app": "node scripts-build.mjs && electron-builder --mac --dir"
   },
   "dependencies": {
-    "@codemirror/autocomplete": "^6.20.0",
-    "@codemirror/commands": "^6.9.1",
-    "@codemirror/lang-markdown": "^6.3.3",
-    "@codemirror/language": "^6.11.3",
-    "@codemirror/state": "^6.5.2",
-    "@codemirror/view": "^6.38.2",
-    "@excalidraw/excalidraw": "^0.18.0",
-    "@tauri-apps/api": "^2.9.0",
-    "@tauri-apps/plugin-dialog": "^2.4.0",
-    "d3-force": "^3.0.0",
-    "lz-string": "^1.5.0",
-    "mermaid": "^11.12.2",
-    "pixi.js": "^8.15.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "@codemirror/autocomplete": "6.20.3",
+    "@codemirror/commands": "^6.10.0",
+    "@codemirror/lang-markdown": "^6.3.0",
+    "@codemirror/language": "6.12.4",
+    "@codemirror/state": "^6.5.0",
+    "@codemirror/view": "^6.38.0",
+    "@excalidraw/excalidraw": "0.18.1",
+    "@lezer/markdown": "1.7.2",
+    "dompurify": "^3.2.0",
+    "lz-string": "1.5.0",
+    "marked": "^17.0.0",
+    "mermaid": "11.17.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "yaml": "2.8.3",
+    "undici": "8.11.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "@tauri-apps/cli": "^2.9.6",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@types/d3-force": "^3.0.10",
-    "@types/node": "^24.10.1",
-    "@types/react": "^19.2.5",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.1",
-    "eslint": "^9.39.1",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.24",
-    "globals": "^16.5.0",
-    "jsdom": "^28.0.0",
-    "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4",
-    "vitest": "^4.0.18"
+    "electron": "^44.5.1",
+    "electron-builder": "26.17.0",
+    "esbuild": "^0.25.0",
+    "jsdom": "30.1.2"
+  },
+  "build": {
+    "appId": "dev.draglass.editor",
+    "productName": "Draglass Editor",
+    "directories": {
+      "output": "release",
+      "buildResources": "assets"
+    },
+    "files": [
+      "electron/**",
+      "core/**",
+      "dist/**",
+      "assets/**",
+      "package.json"
+    ],
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.productivity",
+      "icon": "assets/icon.icns"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Office",
+      "icon": "assets/icon.png",
+      "executableName": "draglass-editor"
+    },
+    "fileAssociations": [
+      {
+        "ext": "md",
+        "name": "Markdown document",
+        "description": "Markdown document",
+        "role": "Editor",
+        "rank": "Alternate",
+        "mimeType": "text/markdown"
+      },
+      {
+        "ext": "excalidraw",
+        "name": "Excalidraw drawing",
+        "description": "Excalidraw drawing",
+        "role": "Editor",
+        "rank": "Alternate",
+        "mimeType": "application/vnd.excalidraw+json"
+      }
+    ],
+    "nsis": {
+      "perMachine": true
+    },
+    "copyright": "Copyright \u00a9 2026 Erez Korn"
+  },
+  "productName": "Draglass Editor",
+  "engines": {
+    "node": ">=24.14.0"
+  },
+  "author": {
+    "name": "Erez Korn",
+    "email": "erakorn@outlook.com"
   }
 }

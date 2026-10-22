@@ -1,0 +1,8 @@
+import ontology from '../core/plugins/ontology.cjs';
+export function relationshipDetails({title,sources=[],declarations=[],onOpen}){
+ const details=document.createElement('details');details.className='relationship-evidence';const summary=document.createElement('summary');summary.textContent=title+' · '+(sources.length?sources.length+' source'+(sources.length===1?'':'s'):'No provenance recorded');details.append(summary);
+ for(const source of sources){const item=document.createElement('div');item.className='relationship-source';const value=typeof source==='string'?{ref:source}:source;const ref=document.createElement('button');ref.type='button';ref.className='relationship-ref';ref.textContent=value.ref||value.url||value.name||'Source';const address=value.ref||value.url;if(typeof address==='string'&&/^https?:\/\//i.test(address)){ref.title='Copy source URL';ref.onclick=async()=>{try{await navigator.clipboard.writeText(address);ref.textContent='Source URL copied';}catch{ref.textContent=address;}};}else ref.onclick=()=>onOpen?.(address);item.append(ref);if(value.locator){const p=document.createElement('p');p.textContent=value.locator;item.append(p);}if(value.quote){const quote=document.createElement('blockquote');quote.textContent=value.quote;item.append(quote);}details.append(item);}
+ if(declarations.length){const recorded=document.createElement('details'),heading=document.createElement('summary'),pre=document.createElement('pre');heading.textContent='Recorded declarations';pre.textContent=JSON.stringify(declarations,null,2);recorded.append(heading,pre);details.append(recorded);}
+ return details;
+}
+export const relationshipLabel=ontology.label;
