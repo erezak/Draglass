@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://erezak.github.io/Draglass/sitemap.xml
