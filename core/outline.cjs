@@ -1,0 +1,4 @@
+const {parser}=require('@lezer/markdown');
+const {frontmatter}=require('./metadata.cjs');
+function outline(text){text=String(text||'');const front=frontmatter(text),offset=front.end||0,body=text.slice(offset),items=[];parser.parse(body).iterate({enter(node){const match=/^(?:ATX|Setext)Heading([1-6])$/.exec(node.name);if(!match)return;const raw=body.slice(node.from,node.to),title=raw.replace(/^ {0,3}#{1,6}[ \t]+/,'').replace(/\n[ \t]*[=-]+[ \t]*$/,'').replace(/[ \t]+#+[ \t]*$/,'').replace(/!?\[([^\]]+)\]\([^)]+\)/g,'$1').replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g,(_,path,label)=>label||path).replace(/[*_`]/g,'').trim();items.push({level:Number(match[1]),title,from:node.from+offset,to:node.to+offset,line:text.slice(0,node.from+offset).split('\n').length});}});return items;}
+module.exports={outline};

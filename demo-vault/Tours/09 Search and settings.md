@@ -13,7 +13,7 @@ Try searches such as `path:Systems`, `tag:#lumen/identity`, `[type:Identity]`, `
 
 ## Settings
 
-Settings has categories for editing, files, appearance, shortcuts, AI and core plugins. Try Light, Dark or System, readable line length, font size, line numbers, spellcheck or text direction. Change property visibility or explorer sorting.
+Settings has categories for editing, files, appearance, shortcuts, AI and core plugins. Try Light, Dark or System, readable line length, font size, line numbers, spellcheck or text direction. Change property visibility or explorer sorting. For a quick appearance change, run **Toggle light / dark theme** from the command palette. Graphs and other workspace views change with the app; the toggle keeps graph filters, zoom and pause state. Choosing the toggle while following the system makes the opposite visible theme your explicit preference.
 
 Collapse either sidebar, resize it with its divider, or switch between chat and backlinks on the right. The layout and note tabs are remembered for the active workspace.
 

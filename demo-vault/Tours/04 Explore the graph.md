@@ -21,6 +21,6 @@ Try these steps:
 8. Adjust forces and link distance; drag a node or pan the background. Use Fit, zoom and the minimap.
 9. Pause/resume layout, try chronology animation and export a PNG.
 
-Global and local controls are remembered separately. Named property relationships can carry evidence; plain wiki links intentionally have no predicate name. The graph retains its own dark palette even when the editor is light.
+Global and local controls are remembered separately. Named property relationships can carry evidence; plain wiki links intentionally have no predicate name. Every graph follows the app theme. Run **Toggle light / dark theme** from the command palette and compare the canvas, labels, controls, inspector and minimap. Paused graphs repaint too; graph filters and camera positions stay in place. Settings → Appearance → Follow system keeps graphs aligned with the system theme.
 
 Open [[Tours/05 AI conversations]] next.

@@ -32,4 +32,4 @@ These automated checks enforce structure and many content invariants, not the tr
 
 Finder metadata and hidden paths are ignored when installing the bundled demo; symbolic links among visible bundled content remain rejected. An explicit open failure displays an error dialog and preserves the current vault.
 
-The panes/workspaces tour exercises two editable surfaces, focus, independent scrolling and reading, right/below splitting, divider resizing, a graph beside a note, and named save/restore/update/delete. Restoring layouts reads current file contents.
+The panes/workspaces tour exercises nested editable groups, independent scrolling and reading, movable typed views, linked and fixed outlines/backlinks/local graphs, independent graph settings and search queries, and named save/restore/update/delete. Restoring layouts reads current file contents.

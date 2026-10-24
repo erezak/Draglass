@@ -25,7 +25,7 @@ Run **Pin / unpin current tab** to keep a reference: navigating to another note 
 
 ## Graph beside notes
 
-Focus one pane and run **Open local graph**. Other groups stay visible. Return to the note with the graph close button. The graph currently uses one shared viewport.
+Focus one pane and run **Open local graph**. Other groups stay visible. Return to the note with the graph close button. Each graph tab has its own viewport and settings.
 
 ## Save the arrangement
 
@@ -37,3 +37,15 @@ Focus one pane and run **Open local graph**. Other groups stay visible. Return t
 Restoring saves drafts first and reads current files. If a draft cannot be saved, cancel the discard question to keep it. This release supports up to 16 groups, 64 distinct open files and 32 saved layouts per vault. Detached file windows remain separate.
 
 Open [[Tours/01 Writing]] for editing examples, or return to [[Welcome]].
+
+## Views beside your notes
+
+1. Open [[Systems/Beacon service]] in the left pane. Run **Open linked outline tab**, then **Split editor right**. Select the Beacon note tab in the left pane. The outline on the right keeps following the left pane.
+2. Open [[Sources/Design review]] in the left pane. The linked outline changes to that note. Add a temporary heading and see it appear before autosave; select the heading in the outline to jump there.
+3. In the outline's source selector, choose **Fixed note: Systems/Beacon service.md**. Navigating elsewhere no longer changes it. Choose **Follow pane** again to resume following. Closing that source pane leaves the view fixed to its last file.
+4. With a note selected, run **Open linked backlinks tab**. Inspect its ordinary links, named relationships and source records. Split or move that tab beside the note.
+5. Run **Open local graph**, split it, and select different filters in the two graph views. Their filters, physics, zoom, pause and control-panel state are independent. A local graph's source selector can follow a pane or stay fixed; a global graph covers the vault.
+6. Run **Open search tab**, search for `tag:#demo`, and split the search view. Change only one query to `file:Beacon`. Each view retains its own query and sorting. Results include unsaved edits; selecting a result opens its note at the matching line.
+7. Save this arrangement as `Beacon views`. Close a tool tab, then restore the saved workspace. The view types, selected tabs, queries, source bindings and graph settings return using current note files.
+
+Tools can remain open without any note tab. Missing source notes display an explanation; tool tabs are kept so you can choose another source. Hidden graphs pause their animation, and closing a tool releases its runtime.

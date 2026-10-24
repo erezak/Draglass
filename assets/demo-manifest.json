@@ -29,7 +29,7 @@
       "notes": [
         "Tours/04 Explore the graph.md"
       ],
-      "exercise": "Explore the Lumen knowledge network"
+      "exercise": "Explore the knowledge network and verify every graph follows app Light, Dark and system themes without resetting its controls"
     },
     {
       "id": "ai",
@@ -64,7 +64,7 @@
       "notes": [
         "Tours/09 Search and settings.md"
       ],
-      "exercise": "Find information and shape the workspace"
+      "exercise": "Find information and switch Light/Dark through the command palette or follow the system theme"
     },
     {
       "id": "onboarding",
@@ -78,7 +78,7 @@
       "notes": [
         "Tours/11 Panes and workspaces.md"
       ],
-      "exercise": "Open references with the context menu; nest and resize groups, move and pin tabs, navigate back/forward, and save/restore the layout"
+      "exercise": "Arrange typed note, graph, search, backlinks and outline tabs; compare independent graph filters and search queries; bind local views to panes or fixed notes, and restore the layout"
     }
   ],
   "entityTypes": [

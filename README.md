@@ -1,4 +1,4 @@
-# Draglass Editor · 0.21.1
+# Draglass Editor · 0.22.1
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -66,3 +66,21 @@ Use **Split editor right** or **Split editor below** to divide the focused group
 Back and Forward navigate within the selected tab. **Pin / unpin current tab** keeps a reference available while links open another tab. Reading mode and scroll positions belong to each view. Views of the same file share its buffer, undo history and autosave. Closing one view keeps the other views and the file intact. A graph can occupy one group while notes remain visible elsewhere.
 
 **Save workspace…** records the tree of groups, their tabs, active views, pinning, navigation history, sidebar layout and graph settings. **Open saved workspaces…** restores, updates or deletes layouts for the current vault. Restoring saves pending edits first and rereads current file contents. Up to 16 tab groups, 64 distinct open files and 32 saved layouts per vault are supported. Detached file windows keep their separate workflow.
+
+## Independent tool tabs
+
+Use **Open global graph**, **Open local graph**, **Open search tab**, **Open linked backlinks tab**, or **Open linked outline tab** in the command palette. Each invocation creates a separate view. Tool tabs move, split and close just like note tabs, and take part in named workspaces.
+
+Every graph owns its filters, forces, display settings, camera, pause state and controls. Open two graphs to compare different queries. Hidden graphs stop their animation; closing a graph releases its runtime.
+
+Local graphs, backlinks and outlines have a source selector. **Follow pane** tracks the most recently selected note in that particular pane, even while another pane has focus. **Fixed note** keeps a specific file selected. Closing a source pane fixes the linked view to its last note; a deleted note is shown as unavailable without deleting the tool tab. Global graphs cover the whole vault.
+
+Outlines update from unsaved Markdown and jump to headings. Backlinks include ordinary links, named relationships and their sources. Each search tab owns its query and sort order and includes unsaved edits. Selecting a result opens the note at its matching line. Tool-only workspaces also work without an open note.
+
+Layouts restore view types, queries, links to source panes, graph settings and active tabs. Search results, outlines and backlinks are rebuilt from current files; they are not stored copies of note contents.
+
+## App theme
+
+Run **Toggle light / dark theme** from the command palette (Cmd/Ctrl+Shift+P) to switch immediately. The choice is remembered for the current vault. Settings → Appearance also offers **Follow system**. The palette toggle chooses the opposite of the currently displayed theme and makes that an explicit Light or Dark choice.
+
+All graph tabs follow the app theme, including their canvases, labels, controls, inspector and minimap. Theme changes repaint paused and visible graphs and apply when hidden graphs reopen. Filters, camera positions, pause state and workspace layout are kept. Graph views have no separate theme setting.

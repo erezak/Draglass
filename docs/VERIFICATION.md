@@ -1,4 +1,4 @@
-# Verification · 0.21.1
+# Verification · 0.22.1
 
 Additional regression checks passed for Finder metadata, visible demo failure without losing the active vault, explicit About version/icon options, and Mac development bundle icon/version installation before signing and launching. The development launcher check uses simulated macOS process/filesystem calls; native macOS execution remains unverified.
 
@@ -14,7 +14,7 @@ Backend checks use real temporary vaults and worker threads. They cover unchange
 
 Conversation checks cover legacy single-thread migration without message loss, separate conversation creation and selection, persistence after restart, history isolation, concurrent writes, note rename, invalid conversation IDs, empty-context chat before a vault is opened, and full Markdown/YAML inclusion for explicitly mentioned notes. UI checks cover creating and switching conversations while preserving old messages, starting a workspace chat after closing the last note, and mentioning an unopened existing note.
 
-Results: **284 tests passed**, with no failures or skipped tests. A Chromium check also passed for chat before opening a vault, chat after closing the last note, existing-note mentions, new conversations and restoring an earlier conversation. A second Chromium check uses the real knowledge worker and temporary filesystem for tags, unsaved-draft search and graph construction. The renderer build completed successfully.
+Results: **297 tests passed**, with no failures or skipped tests. A Chromium check also passed for chat before opening a vault, chat after closing the last note, existing-note mentions, new conversations and restoring an earlier conversation. A second Chromium check uses the real knowledge worker and temporary filesystem for tags, unsaved-draft search and graph construction. The renderer build completed successfully.
 
 Local profiling smoke check: 1,000 synthetic notes of approximately 2 KiB each. Cold indexing/search took 257 ms; a warm query took 65 ms and reread zero unchanged note bodies. Editing one note caused one body reread. A fresh worker search took 331 ms while the main-thread timer continued firing. These are single-run Linux development observations, not cross-platform benchmarks or large-vault latency guarantees.
 
@@ -30,3 +30,7 @@ Provider transports are simulated in automated tests. Live authentication, keych
 Dependency declaration checks verify Excalidraw is pinned to 0.18.1 independently of the application version and agrees with the lockfile and built engine. A frozen offline installation check could not complete because the local pnpm package metadata cache was missing entries; it did not modify the lockfile. Build and regression checks use the installed dependency tree.
 
 Workspace-tree verification covers nested split creation and collapse, metadata normalization, independent tab membership, navigation, pinning, view movement, shared-buffer close semantics, external deletion of every view, and note context-menu placement. A real Chromium run with the filesystem and knowledge worker passed right/below placement, pointer-driven tab movement, autosave, saved-layout restoration, independent reading/scroll, pinning and restart. The demo and static-site checks pass. Native packaged desktop drag/drop and menus still require target-platform checks.
+
+Typed-view regression coverage includes isolated graph filters and movement, linked outlines with live drafts and heading navigation, backlink provenance, independent search scopes and stale results, tool-only layouts, mixed layout restoration, source-pane closure and missing notes, and closing a pending search. Core checks bound persisted tool state and parse real Markdown headings without YAML or fenced-code false positives. The desktop IPC fixture verifies simultaneous searches and graphs do not cancel unrelated view requests. Native packaged-app checks remain required on the target platforms.
+
+Theme checks cover the palette command, preference persistence, unchanged note text/selection, and independent paused graph state. Chromium checks verify actual canvas pixels in Light and Dark, matching graph chrome, repaint of multiple paused graphs, system-theme emulation and explicit override. Native OS appearance events in a packaged app remain a target-platform check.

@@ -43,4 +43,12 @@ Two editable panes, right/below arrangement, pointer and keyboard resizing, focu
 
 The workspace is a tree of nested splits, tab groups and note/drawing views. Each group owns its tabs, toolbar and selection. Note context menus support current-tab, new-tab, right and below placement. Tabs support drag reorder/move, edge splitting, pinning and navigation history. Closing a view preserves other views of the same shared file buffer. Named layouts restore the tree, selected views, modes, pins and navigation metadata.
 
-Remaining workspace extensions: stacked-tab presentation, independent graph leaves, linked outline/backlink views, configurable opening preferences, recently closed tabs, moving groups between native windows and multi-window layout restoration. These should extend container/view models rather than reintroducing a global tab bar.
+Remaining workspace extensions: stacked-tab presentation, configurable opening preferences, recently closed tabs, moving groups between native windows and multi-window layout restoration. These should extend container/view models rather than reintroducing a global tab bar.
+
+## Delivered in 0.22.0
+
+Graphs, search results, backlinks and outlines are first-class workspace leaves. Each graph owns its simulation, filters, camera, pause state and controls. Searches own independent queries and sort orders. Backlinks preserve relationship provenance; outlines parse current Markdown and navigate to headings. Local views can follow a chosen pane or remain fixed to a file. Closing source panes fixes their bindings; missing notes leave a usable tool view. Typed views move/split/close and restore through saved layouts. Runtime cleanup and stale-response guards keep hidden/closed views from taking focus or applying old results.
+
+## Delivered in 0.22.1
+
+The command palette exposes **Toggle light / dark theme**. Graphs use the app's resolved appearance for canvas, controls, inspector, labels and minimap. Light, Dark and system changes share one update path; graph camera, filter and pause state are preserved.

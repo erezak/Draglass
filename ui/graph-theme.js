@@ -1,0 +1,4 @@
+// Canvas and DOM chrome resolve the application's single theme; views own no theme.
+const dark={inner:'#202031',outer:'#13151e',grid:'#666c9226',edge:'#a5a4cc',relation:'#ddd9ef',labelBg:'#141520cf',label:'#d1d1e3',labelFocus:'#ffffff',miniBg:'#11141cbb',miniBorder:'#61648244',miniViewport:'#aaa3e880',nodeOutline:'#4d4261'};
+const light={inner:'#faf9fc',outer:'#f1eef8',grid:'#6f5c9824',edge:'#78698f',relation:'#504460',labelBg:'#ffffffeb',label:'#443b50',labelFocus:'#20172c',miniBg:'#ffffffdd',miniBorder:'#82729566',miniViewport:'#71549caa',nodeOutline:'#6e5e83'};
+export function graphTheme(host){const isLight=document.documentElement.dataset.theme!=='dark',base=isLight?light:dark,style=getComputedStyle(host),colors={light:isLight};for(const [name,fallback]of Object.entries(base)){const key=name.replace(/[A-Z]/g,c=>'-'+c.toLowerCase());colors[name]=style.getPropertyValue('--graph-'+key).trim()||fallback;}return colors;}

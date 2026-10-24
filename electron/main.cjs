@@ -92,8 +92,8 @@ const handlers={
   remove:(p,mode)=>organization.remove(vault,p,mode,file=>shell.trashItem(file)),
   trash:()=>organization.trash(vault),restoreTrash:id=>organization.restore(vault,id),
   reveal:async p=>shell.showItemInFolder(p?await vault.checked(p,false,true):vault.root),
-  scan:()=>knowledgeService.request('scan'),graph:()=>knowledgeService.request('graph'),graphModel:drafts=>knowledgeService.latest('graph','graphModel',{drafts}),tags:drafts=>knowledgeService.latest('tags','tags',{drafts}),read:p=>vault.read(p),write:(p,t)=>vault.write(p,t),create:(p,text)=>vault.create(p,text),
-  search:(query,options={})=>knowledgeService.latest('search','search',{query,sort:options.sort,drafts:options.drafts}),backlinks:(p,drafts)=>knowledgeService.request('backlinks',{path:p,drafts})
+  scan:()=>knowledgeService.request('scan'),graph:()=>knowledgeService.request('graph'),graphModel:drafts=>knowledgeService.request('graphModel',{drafts}),tags:drafts=>knowledgeService.latest('tags','tags',{drafts}),read:p=>vault.read(p),write:(p,t)=>vault.write(p,t),create:(p,text)=>vault.create(p,text),
+  search:(query,options={})=>knowledgeService.latest(typeof options.scope==='string'&&/^[\w-]{1,80}$/.test(options.scope)?'search:'+options.scope:'search','search',{query,sort:options.sort,drafts:options.drafts}),backlinks:(p,drafts)=>knowledgeService.request('backlinks',{path:p,drafts})
 };
 const knowledgeReads=new Set(['scan','folders','resources','graph','graphModel','search','tags','backlinks']);
 let vaultQueue=Promise.resolve();
