@@ -12,6 +12,8 @@ const {importFiles,assetResponse,MAX}=require('../core/attachments.cjs');
 protocol.registerSchemesAsPrivileged([{scheme:'draglass-asset',privileges:{standard:true,secure:true,stream:true}}]);
 app.setName('Draglass Editor');
 app.setAboutPanelOptions?.({applicationName:'Draglass Editor',applicationVersion:require('../package.json').version,version:require('../package.json').version,iconPath:path.join(__dirname,'../assets/icon.png'),copyright:'Copyright © 2026 Erez Korn'});
+const {SavedWorkspaceStore}=require('../core/saved-workspaces.cjs');
+let savedWorkspaces;
 let window, vault, workspace,watcher,watchTimer,ai,detached,knowledgeService,demoVault;
 async function prepareVault(root){const candidate=new Vault(root),service=new KnowledgeService(root);try{const notes=await service.request('scan');return {candidate,service,notes};}catch(e){await service.close();throw e;}}
 function useVault(candidate,service){knowledgeService?.close().catch(()=>{});vault=candidate;knowledgeService=service;watchVault();}
@@ -48,7 +50,7 @@ function start(){
   if(process.platform==='darwin')app.dock?.setIcon(nativeImage.createFromPath(appIconPath));
   protocol.handle('draglass-asset',request=>assetResponse(detached?.asset(request)||vault,request));
   workspace=new WorkspaceStore(path.join(app.getPath('userData'),'draglass'));
-  demoVault=new DemoVault(path.join(app.getPath('userData'),'draglass'));
+  savedWorkspaces=new SavedWorkspaceStore(path.join(app.getPath('userData'),'draglass'));demoVault=new DemoVault(path.join(app.getPath('userData'),'draglass'));
   ai=new AIService(path.join(app.getPath('userData'),'draglass'),safeStorage,event=>{if(window&&!window.isDestroyed())window.webContents.send('ai:chunk',event);});
   detached=require('./file-windows.cjs').detachedWindows({app,BrowserWindow,ipcMain,shell,icon:appIconPath,workspace:()=>workspace,onOpen:openUserFile,onVault:()=>{window.show();window.focus();window.webContents.send('command','open');},onPick:pickDocuments,onEmpty:()=>{if(window&&!window.isDestroyed()&&!window.isVisible()){window.forceClose=true;window.close();}}});
   window=new BrowserWindow({show:!fileQueue.pending.length,icon:appIconPath,width:1320,height:880,minWidth:900,minHeight:600,backgroundColor:'#111318',webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
@@ -71,6 +73,9 @@ const handlers={
   demo:async()=>{let prepared;try{const selected=await demoVault.open();prepared=await prepareVault(selected.root);await workspace.write(selected.root,selected);ai.cancel();useVault(prepared.candidate,prepared.service);return {root:vault.root,name:'Demo Vault',notes:prepared.notes,workspace:selected};}catch(error){if(prepared&&prepared.service!==knowledgeService)await prepared.service.close();dialog.showErrorBox('Could not open demo vault',error.message);throw error;}},
   restore:async()=>{const saved=await demoVault.startup(await workspace.read(),workspace.file);if(!saved)return null;try{const {candidate,service,notes}=await prepareVault(saved.root);useVault(candidate,service);await workspace.write(vault.root,saved);return {root:vault.root,name:demoVault.isDemo(vault.root)?'Demo Vault':path.basename(vault.root),notes,workspace:saved};}catch{return {error:'Previous vault is unavailable. Open a vault to continue.'};}},
   workspace:value=>workspace.write(vault.root,value),
+  listWorkspaces:()=>savedWorkspaces.list(vault.root),
+  saveWorkspace:(name,value,id)=>savedWorkspaces.save(vault.root,name,value,id),
+  removeWorkspace:id=>savedWorkspaces.remove(vault.root,id),
   resources:async()=>{const target=vault,service=knowledgeService;return {...await service.request('resources'),base:'draglass-asset://'+target.assetId+'/'};},
   importFiles:(files,from,config)=>importFiles(vault,files,from,config),
   pickAttachments:async(from,config)=>{const target=vault;const chosen=await dialog.showOpenDialog(window,{properties:['openFile','multiSelections'],title:'Attach files'});if(chosen.canceled)return [];const files=[];if(chosen.filePaths.length>20)throw new Error('Import up to 20 files at a time.');let total=0;for(const file of chosen.filePaths){const size=(await require('node:fs/promises').stat(file)).size;total+=size;if(size>MAX||total>128*1024*1024)throw new Error('Import up to 64 MiB per file and 128 MiB per batch.');}for(const file of chosen.filePaths){files.push({name:path.basename(file),bytes:await require('node:fs/promises').readFile(file)});}return importFiles(target,files,from,config);},

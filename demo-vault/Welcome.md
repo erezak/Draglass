@@ -23,6 +23,7 @@ This is an editable vault. Try things, follow links and change text. Your change
 | 08 Organize and recover | [[Tours/08 Organize and recover]] |
 | 09 Search and settings | [[Tours/09 Search and settings]] |
 | 10 Your next steps | [[Tours/10 Your next steps]] |
+| 11 Panes and workspaces | [[Tours/11 Panes and workspaces]] |
 
 ## A connected story
 
@@ -31,3 +32,5 @@ This is an editable vault. Try things, follow links and change text. Your change
 The graph combines named relationships in YAML properties and ordinary wiki links in the text. Open **Open global graph** from the command palette to explore the full network. Try the local graph on Beacon for a smaller neighborhood.
 
 Open [[Tours/01 Writing]] to begin. Use **Open vault** to choose your own notes, and **Open demo vault** in the command palette whenever you want to return.
+
+Keep a reference beside your writing with [[Tours/11 Panes and workspaces]].

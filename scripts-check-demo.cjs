@@ -1,7 +1,7 @@
 const fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict');
 const {Vault}=require('./core/vault.cjs'),{readMetadata}=require('./core/metadata.cjs'),{buildGraph}=require('./core/graph.cjs'),{parseDrawing}=require('./core/drawings.cjs');
 const {canonical}=require('./core/plugins/ontology.cjs'),{resolveLink}=require('./core/links.cjs');
-const REQUIRED=['writing','links-embeds','properties-ontology','graph','ai','diagrams','attachments','organization','search-settings','onboarding'];
+const REQUIRED=['writing','links-embeds','properties-ontology','graph','ai','diagrams','attachments','organization','search-settings','onboarding','workspaces'];
 async function checkDemo(root=path.join(__dirname,'demo-vault'),manifestFile=path.join(__dirname,'assets/demo-manifest.json')){
  const manifest=JSON.parse(await fs.readFile(manifestFile,'utf8')),vault=new Vault(root);await vault.scan();const notes=vault.notes.filter(n=>n.path.endsWith('.md')),paths=notes.map(n=>n.path);assert.ok(notes.length>=manifest.minimumNotes,'The demo needs a substantial note network.');assert.ok(paths.includes(manifest.entry));
  assert.deepEqual([...manifest.features.map(f=>f.id)].sort(),[...REQUIRED].sort(),'Update the feature coverage inventory when capabilities change.');

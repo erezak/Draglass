@@ -18,7 +18,7 @@ Installed editions are ordinary editable vaults. Reopening the same edition pres
 
 ## Scenario and coverage
 
-Lumen field station is fictional. The content has 56 Markdown notes, 41 ontology entities and ten guided tours. Its graph includes 80 nodes, 110 named relationships and 145 ordinary wiki-link edges; seventy declarations carry quotes that appear in the retained fictional design-review note. Every ontology class appears. People demonstrate silhouette and local-image graph nodes. Two explicitly listed missing targets demonstrate hollow nodes and entity creation.
+Lumen field station is fictional. The content has 57 Markdown notes, 41 ontology entities and eleven guided tours. Its graph includes 81 nodes, 110 named relationships and 150 ordinary wiki-link edges; seventy declarations carry quotes that appear in the retained fictional design-review note. Every ontology class appears. People demonstrate silhouette and local-image graph nodes. Two explicitly listed missing targets demonstrate hollow nodes and entity creation.
 
 The tours cover writing/reading/source, tables and tasks, autosave/external refresh, properties and evidence, search/tags, graphs and controls, AI/conversations/actions/provider/proxy configuration, native and Markdown Excalidraw scenes, Mermaid, note/section/block embeds, images/PDF/audio/video/data attachments, file organization/trash, detached editing, Settings, core plugins/templates and workspace navigation.
 
@@ -31,3 +31,5 @@ Every feature change must update its tour, examples and coverage manifest. Addin
 These automated checks enforce structure and many content invariants, not the truth of arbitrary prose. Review and exercise the affected tours as part of feature acceptance. Startup, editable-edition preservation and the upgrade policy have dedicated tests.
 
 Finder metadata and hidden paths are ignored when installing the bundled demo; symbolic links among visible bundled content remain rejected. An explicit open failure displays an error dialog and preserves the current vault.
+
+The panes/workspaces tour exercises two editable surfaces, focus, independent scrolling and reading, right/below splitting, divider resizing, a graph beside a note, and named save/restore/update/delete. Restoring layouts reads current file contents.

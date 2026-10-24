@@ -1,4 +1,4 @@
-# Draglass Editor · 0.20.2
+# Draglass Editor · 0.21.1
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -56,3 +56,13 @@ Knowledge indexing, search, tags, backlinks and graph construction run in a loca
 See [docs/VERIFICATION.md](docs/VERIFICATION.md) for checks and platform limits.
 
 Third-party notices remain in `docs/licenses` and are bundled with the application.
+
+## Tab groups and saved workspaces
+
+Each pane owns its tab bar, note toolbar and selected view. Open a note in the focused pane, or right-click it for **Open**, **Open in new tab**, **Open to the right** or **Open below**. Cmd/Ctrl-click opens another tab; adding Alt opens a group to the right. In Live Preview, ordinary inline links reveal their editable source; Cmd/Ctrl-click follows them. Table and reading-view links navigate normally.
+
+Use **Split editor right** or **Split editor below** to divide the focused group. Splits can nest, so a column can contain two rows beside another column. Drag dividers, or focus a divider and use arrow keys; Home resets its ratio. Drag tabs between groups, onto another tab to reorder, or to the right/bottom edge of a pane to split. **Move current tab to next group**, **Focus next tab group**, and **Close tab group** are also available in the command palette.
+
+Back and Forward navigate within the selected tab. **Pin / unpin current tab** keeps a reference available while links open another tab. Reading mode and scroll positions belong to each view. Views of the same file share its buffer, undo history and autosave. Closing one view keeps the other views and the file intact. A graph can occupy one group while notes remain visible elsewhere.
+
+**Save workspace…** records the tree of groups, their tabs, active views, pinning, navigation history, sidebar layout and graph settings. **Open saved workspaces…** restores, updates or deletes layouts for the current vault. Restoring saves pending edits first and rereads current file contents. Up to 16 tab groups, 64 distinct open files and 32 saved layouts per vault are supported. Detached file windows keep their separate workflow.

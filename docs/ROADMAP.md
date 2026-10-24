@@ -34,3 +34,13 @@ Keep the new AI and ontology workflows. Retain the existing command-palette shor
 ## Architecture follow-up
 
 Move graph filtering and force simulation off the renderer; return compact models instead of raw-note snapshots where callers permit. Add filesystem-event-driven dirty-path refresh with periodic reconciliation, cancellation inside long-running work, persistent derived indexes if measurements justify them, and separate AI orchestration/mutation planning from the desktop main process. Profile realistic vaults before choosing new storage engines or languages.
+
+## Delivered in 0.21.0
+
+Two editable panes, right/below arrangement, pointer and keyboard resizing, focus routing, independent reading views, a graph beside a note, and named workspace save/update/restore/delete. Workspaces are vault scoped and restore current files rather than content snapshots. 
+
+## Delivered in 0.21.1
+
+The workspace is a tree of nested splits, tab groups and note/drawing views. Each group owns its tabs, toolbar and selection. Note context menus support current-tab, new-tab, right and below placement. Tabs support drag reorder/move, edge splitting, pinning and navigation history. Closing a view preserves other views of the same shared file buffer. Named layouts restore the tree, selected views, modes, pins and navigation metadata.
+
+Remaining workspace extensions: stacked-tab presentation, independent graph leaves, linked outline/backlink views, configurable opening preferences, recently closed tabs, moving groups between native windows and multi-window layout restoration. These should extend container/view models rather than reintroducing a global tab bar.

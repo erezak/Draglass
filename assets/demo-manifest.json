@@ -72,6 +72,13 @@
         "Tours/10 Your next steps.md"
       ],
       "exercise": "Make the workspace yours"
+    },
+    {
+      "id": "workspaces",
+      "notes": [
+        "Tours/11 Panes and workspaces.md"
+      ],
+      "exercise": "Open references with the context menu; nest and resize groups, move and pin tabs, navigate back/forward, and save/restore the layout"
     }
   ],
   "entityTypes": [

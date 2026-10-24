@@ -1,4 +1,5 @@
 const paths={
+ split:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16m3-8h4m-2-2 2 2-2 2"/>',workspaces:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M10 9v11"/>',
  command:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="m7 9 3 3-3 3m6 0h4"/>',
  graph:'<circle cx="6" cy="6" r="3"/><circle cx="18" cy="8" r="3"/><circle cx="10" cy="19" r="3"/><path d="m9 6 6 1m1 3-4 6M7 9l2 7"/>',fit:'<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><circle cx="12" cy="12" r="3"/>',minus:'<path d="M5 12h14"/>',pause:'<path d="M8 5v14M16 5v14"/>',play:'<path d="m8 4 12 8-12 8V4Z"/>',download:'<path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/>',reset:'<path d="M4 10a8 8 0 1 1 1 7M4 3v7h7"/>',expand:'<path d="M8 3H3v5m0-5 6 6m7-6h5v5m0-5-6 6M3 16v5h5m-5 0 6-6m12 1v5h-5m5 0-6-6"/>',
  left:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>',right:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>',
