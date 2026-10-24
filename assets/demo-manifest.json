@@ -8,7 +8,7 @@
       "notes": [
         "Tours/01 Writing.md"
       ],
-      "exercise": "Write and edit, follow table links, or click the surrounding cell space to edit"
+      "exercise": "Write and edit, verify automatic created_at/updated_at with stable caret and autosave, follow table links, or edit surrounding cell space"
     },
     {
       "id": "links-embeds",

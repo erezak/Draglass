@@ -4,7 +4,7 @@ const {createHash, randomUUID} = require('node:crypto');
 const {wikiLinks, resolveLink} = require('./links.cjs');
 const hash = text => createHash('sha256').update(text).digest('hex');
 class Vault {
-  constructor(root) { this.root=path.resolve(root);this.assetId=randomUUID(); this.notes=[]; this.busy=false; this.scanCache=new Map(); this.scanReads=0; this.scanQueue=Promise.resolve(); }
+  constructor(root,{manageTimestamps=false}={}) { this.manageTimestamps=manageTimestamps;this.root=path.resolve(root);this.assetId=randomUUID(); this.notes=[]; this.busy=false; this.scanCache=new Map(); this.scanReads=0; this.scanQueue=Promise.resolve(); }
   async checked(relative, creating=false, attachment=false) {
     if (typeof relative !== 'string' || !relative || relative.includes('\\') || relative.includes('\0') || path.isAbsolute(relative) || relative.split('/').some(p => !p || p === '..' || p === '.' || p.startsWith('.') || /[<>:"|?*]/.test(p) || /[. ]$/.test(p) || /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\.|$)/i.test(p)) || (!attachment&&!require('./file-open.cjs').supported(relative))) throw new Error('Use a portable Markdown path inside the vault.');
     const full=path.join(this.root,...relative.split('/'));
@@ -43,6 +43,7 @@ class Vault {
   }
   async graph(){await this.scan();return {notes:this.notes,attachments:this.attachments};}
   async read(relative) { const file=await this.checked(relative); const text=await fs.readFile(file,'utf8'); return {path:relative,text,version:hash(text)}; }
+  async prepareText(relative,text,{creating=false}={}) {if(!this.manageTimestamps)return {text};if(creating)return require('./note-timestamps.cjs').stampNote(relative,text,{creating:true});const old=await this.read(relative),stat=await fs.stat(await this.checked(relative));return require('./note-timestamps.cjs').stampNote(relative,text,{old:old.text,createdAt:stat.birthtimeMs||stat.mtimeMs});}
   async write(relative,text,options={}) {
     const expectedText=options&&typeof options==='object'?options.expectedText:undefined;
     if(typeof text!=='string' || Buffer.byteLength(text)>8*1024*1024) throw new Error('Note is too large.');
@@ -53,6 +54,7 @@ class Vault {
       const file=await this.checked(relative);
       const old=await fs.readFile(file,'utf8');if(expectedText!==undefined&&old!==expectedText)throw new Error('The note changed on disk. Regenerate the proposal.');
       const stat=await fs.stat(file);
+      const stamp=this.manageTimestamps&&!options.timestamped?require('./note-timestamps.cjs').stampNote(relative,text,{old,createdAt:stat.birthtimeMs||stat.mtimeMs}):{text};text=stamp.text;if(Buffer.byteLength(text)>8*1024*1024)throw new Error('Note is too large.');if(this.manageTimestamps&&text===old)return {path:relative,text,version:hash(text),...(stamp.timestampWarning?{timestampWarning:stamp.timestampWarning}:{})};
       // Keep recovery snapshots outside the vault's visible note tree.
       const recovery=path.join(this.root,'.draglass-editor','recovery');
       for (const folder of [path.join(this.root,'.draglass-editor'), recovery]) {
@@ -68,10 +70,10 @@ class Vault {
       // Autosave retains the latest 20 pre-save versions per note.
       const snapshots=(await fs.readdir(recovery).catch(()=>[])).filter(name=>name.startsWith(recoveryPrefix)&&name.endsWith('.md')).sort();
       await Promise.all(snapshots.slice(0,-20).map(name=>fs.unlink(path.join(recovery,name)).catch(()=>{})));
-      return {path:relative,text,version:hash(text)};
+      return {path:relative,text,version:hash(text),...(stamp.timestampWarning?{timestampWarning:stamp.timestampWarning}:{})};
     } finally {if(temp) await fs.unlink(temp).catch(()=>{}); this.busy=false;}
   }
-  async create(relative,text='') { if(typeof text!=='string'||Buffer.byteLength(text)>8*1024*1024)throw new Error('Note is too large.'); if(/[\[\]#%]/.test(relative))throw new Error('Use names without [ ] # or % so links remain unambiguous.');const file=await this.checked(relative,true); await fs.writeFile(file,text,{flag:'wx'}); return this.read(relative); }
+  async create(relative,text='',options={}) { if(typeof text!=='string'||Buffer.byteLength(text)>8*1024*1024)throw new Error('Note is too large.'); if(/[\[\]#%]/.test(relative))throw new Error('Use names without [ ] # or % so links remain unambiguous.');const stamp=this.manageTimestamps&&!options.timestamped?require('./note-timestamps.cjs').stampNote(relative,text,{creating:true}):{text};text=stamp.text;if(Buffer.byteLength(text)>8*1024*1024)throw new Error('Note is too large.');const file=await this.checked(relative,true); await fs.writeFile(file,text,{flag:'wx'}); return {...await this.read(relative),...(stamp.timestampWarning?{timestampWarning:stamp.timestampWarning}:{})}; }
   backlinks(target) {
     return require('./plugins/local-knowledge.cjs').backlinks(this.notes,target);
   }

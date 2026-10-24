@@ -30,7 +30,7 @@ function detachedWindows({app,BrowserWindow,ipcMain,shell,icon,workspace,onOpen,
  async function open(file,fragment=''){
   const existing=[...sessions.values()].find(s=>s.document.file===file);
   if(existing){existing.fragment=fragment;existing.window.show();existing.window.focus();existing.window.webContents.send('detached:fragment',fragment);return;}
-  const document=new DetachedDocument(file,path.join(app.getPath('userData'),'draglass','detached-recovery'));await document.read();
+  const document=new DetachedDocument(file,path.join(app.getPath('userData'),'draglass','detached-recovery'),{manageTimestamps:true});await document.read();
   const win=new BrowserWindow({icon,width:1120,height:820,minWidth:700,minHeight:500,title:path.basename(file)+' · Detached · Draglass Editor',backgroundColor:'#faf9fc',webPreferences:{preload:path.join(__dirname,'detached-preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
   const windowId=win.webContents.id,s={window:win,document,fragment};sessions.set(windowId,s);
   win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',e=>e.preventDefault());

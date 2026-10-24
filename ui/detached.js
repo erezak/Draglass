@@ -1,5 +1,7 @@
 import {initElementScrolling} from './element-scroll.js';
-import {EditorState} from '@codemirror/state';
+import {mergeSavedTimestamps} from '../core/note-timestamps.cjs';
+import {minimalChange} from '../core/diff.cjs';
+import {EditorState,Transaction,Annotation} from '@codemirror/state';
 import {EditorView,keymap,drawSelection} from '@codemirror/view';
 import {defaultKeymap,history,historyKeymap} from '@codemirror/commands';
 import {markdown} from '@codemirror/lang-markdown';
@@ -10,6 +12,7 @@ import {createDiagrams,diagramRuntime} from './diagrams.js';
 import {isDrawing} from '../core/drawings.cjs';
 import {mermaidBlocks} from '../core/mermaid.cjs';
 import {frontmatter} from '../core/metadata.cjs';
+const timestampSync=Annotation.define();
 const api=window.detachedAPI,$=id=>document.getElementById(id);
 let current,editor,tabs=[],live=true,reading=false,queue=Promise.resolve(),reconciling=false,ready=false,closing=false;
 const status=(text,error=false)=>{$('status').textContent=text;$('status').classList.toggle('error',error);};
@@ -17,14 +20,14 @@ const run=async fn=>{try{return await fn();}catch(e){status(e.message.replace(/^
 const dirty=tab=>tab.state.doc.toString()!==tab.text;
 const diagrams=createDiagrams({api,getCurrent:()=>current,getTabs:()=>tabs,getEpoch:()=>0,ensureTab:ensureDrawing,onEdit:edit,onFollow:(raw,from)=>run(()=>follow(raw,from)),onError:e=>status(e.message,true),isLocked:()=>closing,onRefresh:()=>run(refresh)});
 const embeds=createEmbeds({api:{...api,revealAttachment:p=>api.follow(p)},getCurrent:()=>current,getTabs:()=>tabs,getNotes:()=>tabs,diagrams,onFollow:p=>run(()=>follow(p)),onLink:(raw,from)=>run(()=>follow(raw,from)),onMermaidEdit:(path,source,index)=>run(async()=>{const tab=tabs.find(t=>t.path===path);if(!tab)throw new Error('Open this note before editing its diagram.');const block=mermaidBlocks(tab.state.doc.toString())[index];if(!block||block.source!==source)throw new Error('Diagram changed. Reopen its editor.');diagrams.openMermaid(tab,block);})});
-function stateFor(text,tab){if(/^\s*(?:`{3,}|~{3,})\s*mermaid\s*$/mi.test(text))diagramRuntime().catch(()=>{});return EditorState.create({doc:text,extensions:[history(),markdown({extensions:[GFM]}),drawSelection(),EditorView.lineWrapping,EditorView.contentAttributes.of({spellcheck:'true'}),keymap.of([...defaultKeymap,...historyKeymap]),EditorView.domEventHandlers({mousedown:event=>{const link=event.target.closest?.('[data-markdown-link]');if(link&&(event.ctrlKey||event.metaKey)){event.preventDefault();run(()=>follow(link.dataset.markdownLink));return true;}return false;}}),livePreview({enabled:live,onFollow:raw=>run(()=>follow(raw)),onEmbed:(root,raw)=>embeds.mount(root,raw,tab.path,[],0,{readOnly:closing}),onDiagram:(root,source,range)=>diagrams.mermaid(root,source,{from:tab.path,edit:()=>diagrams.openMermaid(tab,range)}),embedRevision:()=>embeds.revision()}),EditorView.updateListener.of(update=>{if(tab!==current)return;tab.state=update.state;if(update.docChanged)changed(tab);})]});}
+function stateFor(text,tab){if(/^\s*(?:`{3,}|~{3,})\s*mermaid\s*$/mi.test(text))diagramRuntime().catch(()=>{});return EditorState.create({doc:text,extensions:[history(),markdown({extensions:[GFM]}),drawSelection(),EditorView.lineWrapping,EditorView.contentAttributes.of({spellcheck:'true'}),keymap.of([...defaultKeymap,...historyKeymap]),EditorView.domEventHandlers({mousedown:event=>{const link=event.target.closest?.('[data-markdown-link]');if(link&&(event.ctrlKey||event.metaKey)){event.preventDefault();run(()=>follow(link.dataset.markdownLink));return true;}return false;}}),livePreview({enabled:live,onFollow:raw=>run(()=>follow(raw)),onEmbed:(root,raw)=>embeds.mount(root,raw,tab.path,[],0,{readOnly:closing}),onDiagram:(root,source,range)=>diagrams.mermaid(root,source,{from:tab.path,edit:()=>diagrams.openMermaid(tab,range)}),embedRevision:()=>embeds.revision()}),EditorView.updateListener.of(update=>{if(tab!==current)return;tab.state=update.state;if(update.docChanged&&!update.transactions.some(t=>t.annotation(timestampSync)))changed(tab);})]});}
 function makeTab(note){const tab={...note};tab.state=stateFor(note.text,tab);return tab;}
 function changed(tab){tab.error=null;clearTimeout(tab.timer);tab.timer=setTimeout(()=>run(()=>save(tab)),600);status('Waiting to save…');$('dirty').textContent='Unsaved edits';document.title=current.path+' · Detached · Draglass Editor';}
 function edit(tab,changes){if(closing)return;if(tab===current)editor.dispatch({changes});else{tab.state=tab.state.update({changes}).state;changed(tab);}diagrams.refresh().catch(e=>status(e.message,true));}
 async function ensureDrawing(path){let tab=tabs.find(t=>t.path===path);if(!tab){tab=makeTab(await api.editDrawing(path));tabs.push(tab);}return tab;}
 async function save(tab){
  clearTimeout(tab.timer);if(tab.pending)await tab.pending;if(!dirty(tab))return;
- const job=queue.catch(()=>{}).then(async()=>{if(!dirty(tab))return;const text=tab.state.doc.toString();status('Saving…');try{const result=await api.write(tab.path,text);tab.text=result.text;tab.version=result.version;tab.error=null;$('dirty').textContent=tabs.some(dirty)?'Unsaved edits':'Saved automatically';status('Saved automatically');}catch(e){tab.error=e.message;throw e;}});
+ const job=queue.catch(()=>{}).then(async()=>{if(!dirty(tab))return;const text=tab.state.doc.toString();status('Saving…');try{const result=await api.write(tab.path,text);tab.text=result.text;tab.version=result.version;tab.error=null;const live=tab.state.doc.toString(),merged=result.text===text?live:mergeSavedTimestamps(live,result.text);if(merged!==live){const change={changes:minimalChange(live,merged),annotations:[Transaction.addToHistory.of(false),timestampSync.of(true)]};if(tab===current)editor.dispatch(change);else tab.state=tab.state.update(change).state;}clearTimeout(tab.timer);$('dirty').textContent=tabs.some(dirty)?'Unsaved edits':'Saved automatically';status(result.timestampWarning||'Saved automatically');}catch(e){tab.error=e.message;throw e;}});
  queue=job;tab.pending=job;try{await job;}finally{tab.pending=null;}if(dirty(tab))await save(tab);
 }
 async function follow(raw,from=current.path){

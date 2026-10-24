@@ -49,3 +49,9 @@ Click a link label to open its note. Click the blank space beside the label, ins
 | Link label with room to edit | [[Tours/02 Linking and embeds\|Linking tour]] |
 | Markdown note link | [Writing tour](01%20Writing.md) |
 | Literal code stays text | `[[Not a link]]` |
+
+## Automatic timestamps
+
+Create a new Markdown note and inspect its properties: created_at and updated_at are set together to UTC ISO timestamps. Add a sentence and wait for autosave. updated_at advances while created_at stays fixed; the caret and current text remain in place. The managed properties are read-only and display their full UTC values.
+
+Opening or reading a note does not change timestamps. An older note gets missing timestamps when first edited, using its known filesystem creation time as a fallback. Detached Markdown and accepted AI changes follow the same policy. Malformed YAML is saved without destructive repairs; fix it to resume timestamp updates. Drawings retain their own format.

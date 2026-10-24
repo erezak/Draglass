@@ -15,7 +15,7 @@ app.setAboutPanelOptions?.({applicationName:'Draglass Editor',applicationVersion
 const {SavedWorkspaceStore}=require('../core/saved-workspaces.cjs');
 let savedWorkspaces;
 let window, vault, workspace,watcher,watchTimer,ai,detached,knowledgeService,demoVault;
-async function prepareVault(root){const candidate=new Vault(root),service=new KnowledgeService(root);try{const notes=await service.request('scan');return {candidate,service,notes};}catch(e){await service.close();throw e;}}
+async function prepareVault(root){const candidate=new Vault(root,{manageTimestamps:true}),service=new KnowledgeService(root);try{const notes=await service.request('scan');return {candidate,service,notes};}catch(e){await service.close();throw e;}}
 function useVault(candidate,service){knowledgeService?.close().catch(()=>{});vault=candidate;knowledgeService=service;watchVault();}
 const {classifyFile,filesFromArgs,FileOpenQueue}=require('../core/file-open.cjs');
 const initialFiles=filesFromArgs(process.argv.slice(app.isPackaged?1:2));

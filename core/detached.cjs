@@ -5,7 +5,7 @@ const {supported}=require('./file-open.cjs');
 const {wikiLinks}=require('./links.cjs');
 const hash=text=>createHash('sha256').update(text).digest('hex');
 class DetachedDocument{
- constructor(file,recovery){this.file=file;this.root=path.dirname(file);this.path=path.basename(file);this.recovery=path.join(recovery,hash(file));this.assetId=randomUUID();this.editable=new Set([this.path]);this.queue=Promise.resolve();}
+ constructor(file,recovery,{manageTimestamps=false}={}){this.manageTimestamps=manageTimestamps;this.file=file;this.root=path.dirname(file);this.path=path.basename(file);this.recovery=path.join(recovery,hash(file));this.assetId=randomUUID();this.editable=new Set([this.path]);this.queue=Promise.resolve();}
  async checked(relative){
   if(typeof relative!=='string'||!relative||relative.includes('\0')||path.isAbsolute(relative)||relative.includes('\\')||relative.split('/').some(p=>!p||p==='.'||p==='..'))throw new Error('Embeds must be inside the detached file’s folder. Open parent-folder links explicitly.');
   const full=path.resolve(this.root,relative);let cursor=this.root;
@@ -19,12 +19,13 @@ class DetachedDocument{
    if(!this.editable.has(relative))throw new Error('Open this file before editing it.');
    if(typeof text!=='string'||Buffer.byteLength(text)>8*1024*1024)throw new Error('Files can contain up to 8 MiB.');
    const file=await this.checked(relative),old=await fs.readFile(file,'utf8'),stat=await fs.stat(file);
+   const stamp=this.manageTimestamps?require('./note-timestamps.cjs').stampNote(relative,text,{old,createdAt:stat.birthtimeMs||stat.mtimeMs}):{text};text=stamp.text;if(Buffer.byteLength(text)>8*1024*1024)throw new Error('Files can contain up to 8 MiB.');if(this.manageTimestamps&&text===old)return {path:relative,text,version:hash(text)};
    const recovery=path.join(this.recovery,hash(relative));await fs.mkdir(recovery,{recursive:true,mode:0o700});
    await fs.writeFile(path.join(recovery,Date.now()+'-'+randomUUID()),old,{flag:'wx',mode:0o600});
    const temp=path.join(path.dirname(file),'.draglass-'+randomUUID()+'.tmp');
    try{const handle=await fs.open(temp,'wx',stat.mode);try{await handle.writeFile(text,'utf8');await handle.sync();}finally{await handle.close();}await this.checked(relative);await fs.rename(temp,file);}finally{await fs.unlink(temp).catch(()=>{});}
    const copies=(await fs.readdir(recovery)).sort();await Promise.all(copies.slice(0,-20).map(p=>fs.unlink(path.join(recovery,p))));
-   return {path:relative,text,version:hash(text)};
+   return {path:relative,text,version:hash(text),...(stamp.timestampWarning?{timestampWarning:stamp.timestampWarning}:{})};
   });this.queue=job;return job;
  }
  async resources(){

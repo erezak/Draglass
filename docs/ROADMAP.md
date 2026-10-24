@@ -64,3 +64,7 @@ AI can discover ontology classifications, template properties, relationship dire
 ## Delivered in 0.23.2
 
 Models can ask Draglass for current UTC/local time and timezone information before resolving relative dates. Fresh clock reads work without a vault and share existing bounded native/CLI tool execution. Timezone-aware date search boundaries remain separate future work; current note-date queries retain explicit UTC days.
+
+## Delivered in 0.23.3
+
+Automatic created_at/updated_at properties cover Markdown creation and content saves in vaults and detached windows, including entity/AI creation, Markdown imports and link rewrites. Creation time is preserved, returned metadata is reconciled without moving the caret or resaving, and AI receipt/Undo checks retain their conflict protection. Reads and existing vaults are not bulk rewritten.

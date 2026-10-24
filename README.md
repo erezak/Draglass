@@ -1,4 +1,4 @@
-# Draglass Editor · 0.23.2
+# Draglass Editor · 0.23.3
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -13,7 +13,7 @@ pnpm install --frozen-lockfile
 pnpm start
 ```
 
-On first launch, Draglass opens an editable demo vault. Use **Open demo vault** in the command palette to return to it, or **Open vault** to choose your own Markdown folder. The last active vault reopens on launch. Files remain ordinary Markdown. Editing autosaves continuously; external changes and internal saves use the last completed action.
+On first launch, Draglass opens an editable demo vault. Use **Open demo vault** in the command palette to return to it, or **Open vault** to choose your own Markdown folder. The last active vault reopens on launch. Files remain ordinary Markdown. Editing autosaves continuously; external changes and internal saves use the last completed action. New Markdown notes receive `created_at` and `updated_at` in UTC ISO format. Content saves refresh `updated_at` while preserving the saved creation time, including detached editing and AI changes. The properties pane displays these managed values as read-only.
 
 ## Build
 
