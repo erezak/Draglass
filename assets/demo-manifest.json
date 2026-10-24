@@ -36,7 +36,7 @@
       "notes": [
         "Tours/05 AI conversations.md"
       ],
-      "exercise": "Ask questions about your knowledge"
+      "exercise": "Explore bounded vault tools, ask for current local/UTC time before relative dates, inspect canonical ontology and provenance examples, find dated notes, follow citations, and review guarded edits with undo"
     },
     {
       "id": "diagrams",

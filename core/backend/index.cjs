@@ -26,6 +26,12 @@ class KnowledgeIndex{
   if(method==='resources')return {paths:[...metadata.map(n=>n.path),...this.vault.attachments.map(a=>a.path)],version:String(this.revision)};
   if(method==='graph')return {notes:this.vault.notes,attachments:this.vault.attachments};
   const notes=this.effective(args.drafts);
+  if(method==='aiDateSearch'){const dates=require('../ai/date-tool.cjs');return {...dates.dateInfo(args),...require('../ai/vault-agent.cjs').page(dates.findNotesByDate(notes,args),args.offset)};}
+  if(method==='aiSearch'){
+   let hits=searchNotes(notes,args.query,{prepared:this.prepared});if(args.relation){const g=this.cached('knowledge',notes,()=>knowledge.graph(notes)),set=new Set(g.edges.filter(e=>e.named&&e.kind.toLowerCase()===args.relation.toLowerCase()).flatMap(e=>[e.from,e.to]));hits=hits.filter(n=>set.has(n.path));}
+   return require('../ai/vault-agent.cjs').page(hits.map(n=>({path:n.path,title:n.title,snippet:n.snippet,line:n.line})),args.offset);
+  }
+  if(method==='aiConnections'){const g=this.cached('knowledge',notes,()=>knowledge.graph(notes));return {path:args.path,...require('../ai/vault-agent.cjs').page(g.edges.filter(e=>e.from===args.path||e.to===args.path),args.offset)};}
   if(method==='search')return searchNotes(notes,args.query,{sort:args.sort,prepared:this.prepared});
   if(method==='tags'){
    const roots=new Map();for(const note of notes)for(const tag of this.prepared.get(note.path).tags){let level=roots,path='';for(const part of tag.split('/')){path+=(path?'/':'')+part;const id=part.toLowerCase();if(!level.has(id))level.set(id,{name:part,tag:path,paths:new Set(),children:new Map()});const n=level.get(id);n.paths.add(note.path);level=n.children;}}

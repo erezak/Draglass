@@ -1,4 +1,4 @@
-# Draglass Editor · 0.22.1
+# Draglass Editor · 0.23.2
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -25,15 +25,17 @@ Copy `release/mac-arm64/Draglass Editor.app` to `/Applications`. For a DMG, use 
 
 ## Explore the demo
 
-The fictional Lumen field station connects people, goals, capabilities, systems, decisions and evidence. Ten tours introduce editing, AI, graphs, properties, drawings, attachments and organization. The demo is editable; updated examples open as a fresh edition while earlier editions and edits are retained.
+The fictional Lumen field station connects people, goals, capabilities, systems, decisions and evidence. Eleven tours introduce editing, AI, graphs, properties, drawings, attachments and organization. The demo is editable; updated examples open as a fresh edition while earlier editions and edits are retained.
 
 ## AI conversations
 
 The right sidebar works with or without an open note, and general chat also works before opening a vault. Use **New conversation** to start fresh while preserving earlier conversations; the Conversation selector reopens them. Workspace and individual-note conversations are stored separately and restored after restart.
 
-An open note is included automatically. Type `@` to mention existing notes from the current vault. Full Markdown, including YAML metadata, is provided for the selected notes; open editor drafts take precedence over disk text. Context chips show the notes supplied to the model. New conversations begin with empty history.
+Ask about the vault or type `@` to mention notes. The opening request includes reference paths, not note bodies or a vault-wide title list. The model can search text and properties, inspect headings, read selected lines, and follow links and named relationships with their provenance. Referenced open drafts take precedence over disk text when read. The model can request the current device time in UTC and local time, including date, weekday, timezone and UTC offset, before resolving “today” or other relative dates. It can inspect the canonical ontology on demand, including subtypes, template properties, relationship directions and provenance examples. Date lookup finds notes by created/modified time, a YAML date property, or a date in the filename; date ranges use inclusive UTC days and return references before content. Progress appears as short status messages; verified note citations open their source lines. New conversations begin with empty history.
 
-Settings supports Copilot, Codex, OpenCode, OpenAI-compatible/LiteLLM gateways and Anthropic connections, custom HTTP headers, Chat Completions or Responses, and shared proxy settings. **Propose changes** creates reviewable note edits and additions. Files change when you accept a proposal; Undo remains available from the review.
+Settings supports Copilot, Codex, OpenCode, OpenAI-compatible/LiteLLM gateways and Anthropic connections, custom HTTP headers, Chat Completions or Responses, and shared proxy settings. **Propose changes** creates reviewable note edits and additions. Line edits require a read revision and preserve unrelated content. Files change when you accept a proposal; Undo remains available from the review. Discussion mode has no write tools.
+
+Each connection has a **Context window (tokens)** setting. Draglass reserves response space and caps the whole request, including instructions, tool definitions, conversation history and results. Its conservative UTF-8 byte allowance avoids assuming a model tokenizer. Older context is compacted or retired with an explicit notice, tool results are paginated, and essential oversized requests stop before sending. Set the window to the model’s supported limit or lower.
 
 ## Editing and knowledge
 

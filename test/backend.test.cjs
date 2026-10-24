@@ -20,3 +20,8 @@ test('real worker queries are asynchronous, latest requests cancel, worker crash
  const stopped=new Promise(resolve=>service.worker.once('exit',resolve));await service.worker.terminate();await stopped;assert.equal((await service.request('scan')).length,2);
  await service.close();await assert.rejects(service.request('scan'),/closed/);assert.equal(service.pending.size,0);
 });
+
+test('AI worker queries return bounded pages with draft overlays and named provenance without full bodies',async t=>{
+ const root=await fixture(t),service=new KnowledgeService(root);t.after(()=>service.close());const drafts=[{path:'A.md',text:'---\ntype: Identity\nsubtype: PERSON\nrelationships:\n - relation: member_of\n   target: "[[B]]"\n   sources: [{ref: https://example.org/meeting, quote: Confirmed}]\n---\nUNSAVED term\n[[B]]'}];
+ const search=await service.request('aiSearch',{query:'term',drafts});assert.equal(search.items[0].path,'A.md');assert.equal(search.items[0].text,undefined);const connections=await service.request('aiConnections',{path:'B.md',drafts});assert.ok(connections.items.some(e=>e.named&&e.sources.some(s=>s.quote==='Confirmed')));assert.doesNotMatch(JSON.stringify(connections),/UNSAVED/);assert.ok(Buffer.byteLength(JSON.stringify(connections))<=6000);assert.match(await fs.readFile(path.join(root,'A.md'),'utf8'),/Original/);
+});

@@ -16,18 +16,18 @@ test('concurrent conversation creation keeps every conversation and isolates the
  await Promise.all(items.map((c,i)=>store.writeThread('/vault','',[{role:'user',content:'Conversation '+i}],c.id)));
  assert.equal((await store.listConversations('/vault','')).conversations.length,7);for(const [i,c]of items.entries())assert.equal((await store.thread('/vault','',c.id))[0].content,'Conversation '+i);
 });
-test('workspace chat needs no open note; mentions send full YAML and content, and new conversations send no earlier history',async t=>{
- const captured=[],service=new AIService(await temp(t),null,()=>{},{requestAPI:async(_provider,_key,messages)=>{captured.push(structuredClone(messages));return 'Answer '+captured.length;}});await service.save(config);
+test('workspace chat needs no open note; mentions supply references then tool reads, and fresh conversations exclude earlier history',async t=>{
+ const captured=[],service=new AIService(await temp(t),null,()=>{},{requestAPI:async(_provider,_key,messages)=>{captured.push(structuredClone(messages));if(captured.length===2)return {calls:[{id:'read-ari',name:'read_note',arguments:{path:'Ari.md'}}]};return 'Answer '+captured.length;}});await service.save(config);
  const text='---\ntype: Identity\nsubtype: PERSON\nname: Ari\nrelationships:\n  - relation: member_of\n    target: "[[Team]]"\n---\n# Ari\nThe complete note body.';
  const vault={root:'/vault',read:async note=>{assert.equal(note,'Ari.md');return {path:note,text};}};
  await service.chat(vault,{id:'workspace-first',provider:'api',scope:'',context:[],prompt:'Hello',history:[]});
  const fresh=await service.store.newConversation('/vault','');const result=await service.chat(vault,{id:'workspace-next',provider:'api',scope:'',conversation:fresh.id,context:[{path:'Ari.md'}],prompt:'Tell me about Ari',history:[{role:'user',content:'INJECTED OLD CONVERSATION'}]});
- assert.doesNotMatch(JSON.stringify(captured[1]),/INJECTED OLD CONVERSATION|Answer 1|Hello/);assert.match(captured[1][0].content,/type: Identity/);assert.match(captured[1][0].content,/member_of/);assert.match(captured[1][0].content,/complete note body/);assert.equal(result.thread.length,2);
+ assert.doesNotMatch(JSON.stringify(captured[1]),/INJECTED OLD CONVERSATION|Answer 1|Hello/);assert.doesNotMatch(captured[1][0].content,/type: Identity|member_of|complete note body/);assert.match(captured[2].at(-1).content,/type: Identity/);assert.match(captured[2].at(-1).content,/member_of/);assert.match(captured[2].at(-1).content,/complete note body/);assert.equal(result.thread.length,2);
  assert.equal((await service.store.listConversations('/vault','')).conversations.length,2);assert.equal((await service.store.thread('/vault','Ari.md')).length,0);
- await assert.rejects(service.chat(vault,{id:'bad-conversation',scope:'',conversation:'missing',context:[],prompt:'Hello'}),/unavailable/);assert.equal(captured.length,2);
+ await assert.rejects(service.chat(vault,{id:'bad-conversation',scope:'',conversation:'missing',context:[],prompt:'Hello'}),/unavailable/);assert.equal(captured.length,3);
 });
 test('general chat works before a vault is opened and note actions still require a vault',async t=>{
  const captured=[],service=new AIService(await temp(t),null,()=>{},{requestAPI:async(_p,_k,m)=>{captured.push(m);return 'General reply';}});await service.save(config);
- const result=await service.chat(null,{id:'no-vault',context:[],scope:'',prompt:'Explain Markdown'});assert.equal(result.content,'General reply');assert.match(captured[0][0].content,/No notes were provided/);assert.equal((await service.store.thread('@global','')).length,2);
+ const result=await service.chat(null,{id:'no-vault',context:[],scope:'',prompt:'Explain Markdown'});assert.equal(result.content,'General reply');assert.match(captured[0][0].content,/No vault is open/);assert.equal((await service.store.thread('@global','')).length,2);
  await assert.rejects(service.chat(null,{id:'no-vault-actions',mode:'actions',context:[],scope:'',prompt:'Create a note'}),/Open a vault/);
 });

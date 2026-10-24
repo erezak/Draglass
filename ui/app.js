@@ -41,7 +41,7 @@ let notes=[],tabs=[],current=null,reading=false,loading=false,saving=false,edito
 let adopting=false;
 let persistQueue=Promise.resolve(),saveQueue=Promise.resolve(),reconciling=false,reconcileAgain=false,vaultEpoch=0;
 const layout=initLayout({onChange:persistSoon});
-const ai=initAI({getCurrent:()=>current,getNotes:()=>notes,getTabs:()=>tabs,getEpoch:()=>vaultEpoch,onAction:applyAIAction,isLocked:()=>loading||saving,onPreview:renderActionPreview,onPreviewDispose:root=>diagrams.dispose(root)});
+const ai=initAI({getCurrent:()=>current,getNotes:()=>notes,getTabs:()=>tabs,getEpoch:()=>vaultEpoch,onOpenCitation:(path,line)=>openToolNote(path,{line}).catch(e=>status(e.message,true)),onAction:applyAIAction,isLocked:()=>loading||saving,onPreview:renderActionPreview,onPreviewDispose:root=>diagrams.dispose(root)});
 const tools=createWorkspaceTools({api,getPanes:()=>panes,getBuffers:()=>tabs,getNotes:()=>notes,getEpoch:()=>vaultEpoch,isLocked:()=>loading||saving,onChange:()=>{renderTabs();persistSoon();},onError:error=>status(error.message,true),onOpenNote:openToolNote,onJump:jumpToHeading,onMissing:offerMissingNote,onAttachment:path=>embeds.openAsset(path),onClose:id=>run(()=>closeView(id))});
 const graph=tools.graph;
 const diagrams=createDiagrams({api,getCurrent:()=>current,getTabs:()=>tabs,getEpoch:()=>vaultEpoch,ensureTab:ensureDrawingTab,onEdit:editDiagramTab,onFollow:(target,from)=>run(()=>followDiagram(target,from)),onError:error=>status(error.message,true),isLocked:()=>loading||saving,onRefresh:()=>run(refreshEmbeddedContent)});

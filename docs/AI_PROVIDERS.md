@@ -1,6 +1,6 @@
 # AI provider interfaces · researched 2026-10-06
 
-The adapter boundary is `core/ai/providers.cjs`; orchestration and local persistence are separate in `service.cjs` and `store.cjs`. Reviewed note actions now live in `core/ai/actions.cjs`; provider adapters still expose no direct note tools. The renderer receives no API keys and has no network access under its CSP. All provider I/O runs in Electron's main process.
+The adapter boundary is `core/ai/providers.cjs`; orchestration and local persistence are separate in `service.cjs` and `store.cjs`. Reviewed note actions now live in `core/ai/actions.cjs`; provider adapters carry application tool calls while file mutations remain behind review. The renderer receives no API keys and has no network access under its CSP. All provider I/O runs in Electron's main process.
 
 ## Primary sources and implementation choices
 
@@ -11,7 +11,7 @@ The adapter boundary is `core/ai/providers.cjs`; orchestration and local persist
 - [LiteLLM proxy client examples](https://docs.litellm.ai/docs/proxy/user_keys): gateway base URL, gateway model alias and bearer key work through the compatible adapter.
 - [Anthropic API overview](https://platform.claude.com/docs/en/api/overview) and [streaming](https://platform.claude.com/docs/en/build-with-claude/streaming): Messages protocol with system separate from messages, version/key headers, max_tokens and text deltas.
 
-Requests send a JSON note snapshot and conversation history. Supplied note text is framed as data; no executable model tools are registered. In Propose changes mode, a strict JSON proposal is validated and retained for separate user review. CLI permissions add restrictions beyond the prompt. This is not an OS security boundary for arbitrary manually configured executables or administrator-modified CLI configuration. Use trusted installed CLIs.
+Normal conversations start with note reference paths and bounded history. Application tools retrieve sections on demand; the host validates arguments, caps results and enforces a total per-request context budget. Propose changes tools stage revisions for separate user review. See ARCHITECTURE.md for the tool, revision and budget contracts. The entity-template draft flow remains an explicitly selected-context proposal, constrained by the same total input guard. CLI permissions add restrictions beyond the prompt. This is not an OS security boundary for arbitrary manually configured executables or administrator-modified CLI configuration. Use trusted installed CLIs.
 
 - [Electron safeStorage](https://www.electronjs.org/docs/latest/api/safe-storage): OS encryption for persisted keys; Linux basic_text is rejected in favor of session-only keys. Native Keychain/DPAPI/keyring validation remains required.
 
@@ -21,9 +21,9 @@ The automated tests use fake transports and CLIs; they do not verify subscriptio
 
 1. Open Settings and check CLI detection, including launching the app from the dock/menu rather than a terminal. Use the executable override if necessary.
 2. Sign in in your terminal with each CLI; chat with a simple note and confirm response/model errors are actionable. Check recent CLI versions accept every flag.
-3. Try a gateway API connection, keyless local server, direct OpenAI and Anthropic. Confirm streaming, authentication errors, Stop, timeout and proxy certificate configuration in your environment.
-4. Mention a second note. Edit the first note then send immediately. Confirm the response uses the current draft. Switch tabs during generation and check the conversation stays on the original note.
-5. In Discuss note mode, ask for a write/delete or external tool and verify files remain unchanged. In Propose changes mode, verify generation leaves files unchanged, then review an edit/create proposal and accept one note. Verify stale snapshots are blocked. Check any enterprise-managed OpenCode configuration.
+3. Try a gateway API connection, keyless local server, direct OpenAI and Anthropic. Confirm tool calls, authentication errors, Stop, timeout and proxy certificate configuration in your environment.
+4. Mention a second note. Edit the first note then send immediately and ask the model to read it. Confirm the response uses the current draft. Switch tabs during generation and check the conversation stays on the original note.
+5. In Discuss mode, ask for a write/delete or external tool and verify files remain unchanged. In Propose changes mode, verify generation leaves files unchanged, then review an edit/create proposal and accept one note. Verify stale snapshots are blocked. Check any enterprise-managed OpenCode configuration.
 6. Restart and verify settings, keys and conversations. On Linux with no secure key backend, verify session-only key behavior.
 7. On Windows, test native .exe CLIs and npm .cmd launchers. Standard npm Node shims are resolved to their JS entrypoint without a shell; other .cmd wrappers require an executable override.
 
@@ -39,7 +39,7 @@ macOS branding follows [Electron application packaging](https://www.electronjs.o
 
 ## Protocols and custom HTTP headers · 0.12.1
 
-OpenAI-compatible/LiteLLM connections choose Chat Completions (`/v1/chat/completions`) or Responses (`/v1/responses`). Existing connections default to Chat Completions. Recognized full endpoint paths are preserved or adapted to the selected protocol; custom base paths retain their prefix. Responses sends instructions separately, includes conversation history and current prompt as input, sets `store: false`, and handles typed text delta/completion events plus JSON message output. Reasoning and tool-call events are not executed or shown as answer text. Failed, incomplete and truncated responses fail without persisting an answer or proposal. The existing proposal validation/diff/acceptance workflow is shared by both protocols.
+OpenAI-compatible/LiteLLM connections choose Chat Completions (`/v1/chat/completions`) or Responses (`/v1/responses`). Existing connections default to Chat Completions. Recognized full endpoint paths are preserved or adapted to the selected protocol; custom base paths retain their prefix. Responses sends instructions separately, includes conversation history and current prompt as input, sets `store: false`, and handles typed text delta/completion events plus JSON message output. Reasoning is not shown as answer text. The tool adapter executes only validated Draglass application tool requests; built-in CLI tools remain disabled. Failed, incomplete and truncated responses fail without persisting an answer or proposal. The existing proposal validation/diff/acceptance workflow is shared by both protocols.
 
 API connections accept up to 50 custom headers. Names are case-insensitively unique, HTTP-token validated and cannot replace transport-controlled headers such as Host, Content-Length or Connection. Values reject CR/LF/control injection, with 8 KB per value and 64 KB total limits. Values are masked in Settings; ordinary Settings responses contain only names and a saved-value indicator. All header values are encrypted with OS safeStorage, with session-only fallback when unavailable. Existing values can be retained, renamed, replaced or removed. A value is required for a new header; blank saved values retain the previous value. Request headers override matching auth/protocol defaults, including Authorization and x-api-key, case-insensitively. HTTP errors never include a provider's response body. Redirects remain disabled.
 
@@ -49,3 +49,11 @@ Primary Responses sources checked 2026-10-07:
 - https://developers.openai.com/api/reference/resources/responses/streaming-events
 
 Native gateway/provider access remains unverified; a server must implement the selected protocol.
+
+## Ontology and date tools · 0.23.1
+
+All existing native API tool adapters and CLI envelopes expose `inspect_ontology`; it works without a vault. With a vault, `find_notes_by_date` adds paginated date-filtered references. Tool descriptions are compact, and definitions/results count toward every request’s context budget. Schema lookup is not note evidence and cannot grant write access. Date-only ranges use inclusive UTC days; filesystem time, named YAML properties and filename dates are separate choices.
+
+## Device clock tool · 0.23.2
+
+`get_current_time` works through the same native API and CLI envelopes as other application tools. It needs no vault, credentials or additional network connection. The device supplies time; Intl supplies local timezone and daylight-saving offsets. Optional time_zone selects another IANA zone or UTC. Instructions request a fresh read for relative/current dates on each user turn, and clock results remain under the request context cap.

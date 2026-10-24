@@ -51,7 +51,7 @@ function start(){
   protocol.handle('draglass-asset',request=>assetResponse(detached?.asset(request)||vault,request));
   workspace=new WorkspaceStore(path.join(app.getPath('userData'),'draglass'));
   savedWorkspaces=new SavedWorkspaceStore(path.join(app.getPath('userData'),'draglass'));demoVault=new DemoVault(path.join(app.getPath('userData'),'draglass'));
-  ai=new AIService(path.join(app.getPath('userData'),'draglass'),safeStorage,event=>{if(window&&!window.isDestroyed())window.webContents.send('ai:chunk',event);});
+  ai=new AIService(path.join(app.getPath('userData'),'draglass'),safeStorage,event=>{if(window&&!window.isDestroyed())window.webContents.send('ai:chunk',event);},{knowledge:(target,method,args,signal)=>{if(target!==vault)throw new Error('The vault changed.');return knowledgeService.request(method,args,{signal});}});
   detached=require('./file-windows.cjs').detachedWindows({app,BrowserWindow,ipcMain,shell,icon:appIconPath,workspace:()=>workspace,onOpen:openUserFile,onVault:()=>{window.show();window.focus();window.webContents.send('command','open');},onPick:pickDocuments,onEmpty:()=>{if(window&&!window.isDestroyed()&&!window.isVisible()){window.forceClose=true;window.close();}}});
   window=new BrowserWindow({show:!fileQueue.pending.length,icon:appIconPath,width:1320,height:880,minWidth:900,minHeight:600,backgroundColor:'#111318',webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
   window.webContents.setWindowOpenHandler(()=>({action:'deny'}));

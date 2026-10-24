@@ -52,3 +52,15 @@ Graphs, search results, backlinks and outlines are first-class workspace leaves.
 ## Delivered in 0.22.1
 
 The command palette exposes **Toggle light / dark theme**. Graphs use the app's resolved appearance for canvas, controls, inspector, labels and minimap. Light, Dark and system changes share one update path; graph camera, filter and pause state are preserved.
+
+## Delivered in 0.23.0
+
+Vault AI exploration uses on-demand search, metadata, line reads and sourced graph connections. Discussion remains read-only. Proposed creations and revision-checked line changes use the existing acceptance and undo workflow. Every request receives a configurable total context budget with output reservation, bounded pagination, history compaction and a transport guard. Verified citations navigate to local note lines. Future work: measured tokenizer-specific budgets, semantic compaction with provenance validation, persistent retrieval indexes and isolated AI orchestration.
+
+## Delivered in 0.23.1
+
+AI can discover ontology classifications, template properties, relationship directions/inverses, endpoint suggestions and sourced YAML examples on demand. Date-based retrieval returns bounded references by filesystem dates, YAML date properties or dated filenames. Both tools use existing context budgets and read-only execution; date queries run in the knowledge worker. Future options include explicit user-timezone calendar boundaries and schema-aware validation of proposed relationships.
+
+## Delivered in 0.23.2
+
+Models can ask Draglass for current UTC/local time and timezone information before resolving relative dates. Fresh clock reads work without a vault and share existing bounded native/CLI tool execution. Timezone-aware date search boundaries remain separate future work; current note-date queries retain explicit UTC days.

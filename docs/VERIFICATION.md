@@ -1,4 +1,4 @@
-# Verification · 0.22.1
+# Verification · 0.23.2
 
 Additional regression checks passed for Finder metadata, visible demo failure without losing the active vault, explicit About version/icon options, and Mac development bundle icon/version installation before signing and launching. The development launcher check uses simulated macOS process/filesystem calls; native macOS execution remains unverified.
 
@@ -12,9 +12,9 @@ Demo checks cover first-launch selection, last-demo restoration, normal/unavaila
 
 Backend checks use real temporary vaults and worker threads. They cover unchanged-file cache reuse, external edits, rename/delete invalidation, request-scoped drafts, shared tag/backlink/graph semantics, cancellation, worker failure/restart and shutdown. The desktop IPC test deliberately stalls a search and verifies an atomic save completes before that search is released. A renderer test verifies an older asynchronous search cannot replace newer results.
 
-Conversation checks cover legacy single-thread migration without message loss, separate conversation creation and selection, persistence after restart, history isolation, concurrent writes, note rename, invalid conversation IDs, empty-context chat before a vault is opened, and full Markdown/YAML inclusion for explicitly mentioned notes. UI checks cover creating and switching conversations while preserving old messages, starting a workspace chat after closing the last note, and mentioning an unopened existing note.
+Conversation checks cover legacy single-thread migration without message loss, separate conversation creation and selection, persistence after restart, history isolation, concurrent writes, note rename, invalid conversation IDs, empty-context chat before a vault is opened, and reference-only opening prompts followed by on-demand Markdown/YAML reads for explicitly mentioned notes. UI checks cover creating and switching conversations while preserving old messages, starting a workspace chat after closing the last note, and mentioning an unopened existing note.
 
-Results: **297 tests passed**, with no failures or skipped tests. A Chromium check also passed for chat before opening a vault, chat after closing the last note, existing-note mentions, new conversations and restoring an earlier conversation. A second Chromium check uses the real knowledge worker and temporary filesystem for tags, unsaved-draft search and graph construction. The renderer build completed successfully.
+Results: **338 tests passed**, with no failures or skipped tests. A Chromium check also passed for chat before opening a vault, chat after closing the last note, existing-note mentions, new conversations and restoring an earlier conversation. A second Chromium check uses the real knowledge worker and temporary filesystem for tags, unsaved-draft search and graph construction. The renderer build completed successfully.
 
 Local profiling smoke check: 1,000 synthetic notes of approximately 2 KiB each. Cold indexing/search took 257 ms; a warm query took 65 ms and reread zero unchanged note bodies. Editing one note caused one body reread. A fresh worker search took 331 ms while the main-thread timer continued firing. These are single-run Linux development observations, not cross-platform benchmarks or large-vault latency guarantees.
 
@@ -34,3 +34,23 @@ Workspace-tree verification covers nested split creation and collapse, metadata 
 Typed-view regression coverage includes isolated graph filters and movement, linked outlines with live drafts and heading navigation, backlink provenance, independent search scopes and stale results, tool-only layouts, mixed layout restoration, source-pane closure and missing notes, and closing a pending search. Core checks bound persisted tool state and parse real Markdown headings without YAML or fenced-code false positives. The desktop IPC fixture verifies simultaneous searches and graphs do not cancel unrelated view requests. Native packaged-app checks remain required on the target platforms.
 
 Theme checks cover the palette command, preference persistence, unchanged note text/selection, and independent paused graph state. Chromium checks verify actual canvas pixels in Light and Dark, matching graph chrome, repaint of multiple paused graphs, system-theme emulation and explicit override. Native OS appearance events in a packaged app remain a target-platform check.
+
+## Bounded vault AI
+
+The full suite passed 338 tests, including 15 focused vault-agent checks. Coverage includes metadata/property search, backlinks and named provenance, draft-aware reads, line pagination for long Unicode content, unavailable write tools in discussion, portable paths, read coverage and revision validation, lazy unopened references, external conflicts, staging without writes, append-at-EOF, apply/undo, context-window persistence/validation, initial overflow rejected before transport, repeated-turn compaction, local retention of large staged content and retained call/result pairs. Settings and verified/invented citation navigation pass renderer integration checks. Worker queries return bounded metadata rather than whole vault bodies.
+
+A real Chromium run uses the built renderer, AIService, Vault, ActionStore and knowledge worker with a local HTTP fixture implementing native Chat Completions tool calls. It passed workspace chat without an open note, initial prompt without unrelated titles or bodies, search/metadata/relationship/section retrieval, one-sentence progress, verified citation navigation, inactive invented citations, one-line proposal, acceptance and receipt undo. No page errors were recorded. Existing protocol tests cover native Chat Completions, Responses and Anthropic call IDs/results; CLI envelopes run the same host-owned tool loop. No authenticated external provider or native desktop account was used.
+
+The context guard uses conservative serialized UTF-8 accounting rather than a model tokenizer. Unknown provider windows must be configured by the user. Native CLI compatibility, enterprise gateways, account authentication and packaged desktop behavior remain target-environment checks.
+
+## Ontology and date tools
+
+Ten ontology checks cover complete paginated classification coverage, canonical/template alignment, conditional properties, relationship inverses and subtype endpoints, symmetric edges, YAML examples, custom predicates, invalid-query recovery, live canonical changes and native/CLI tool envelopes without a vault. Six date checks cover whole-day boundaries, created versus modified timestamps, timezone-aware properties, invalid/missing dates, unambiguous dated basenames, paging before content reads and a real knowledge worker with unsaved property overlays. All results remain within their individual tool bounds and the existing per-request context guard. The expanded full suite passes 338 tests with no failures or skips.
+
+The demo coverage check verifies both tool exercises and the actual observed_at fixture used by date lookup. Build and static-site checks pass. External authenticated model behavior and native desktop packaging remain target-platform checks; no provider responses were fabricated as evidence of live access.
+
+## Current-time tool
+
+Seven clock checks cover a single consistent instant across UTC/local midnight, weekday, timezone overrides, daylight-saving changes, negative and fractional-hour offsets, fresh calls across a date boundary, malformed arguments and zones, invalid clock values, native/CLI envelopes without a vault, correction of a bad timezone followed by today’s date lookup, and a usable clock response with all editing tools enabled in a 16,384-token window. Clock queries read no notes and write no files. The full suite passes 338 tests with no failures or skips. The demo explicitly exercises get_current_time and distinguishes local dates from UTC search days.
+
+Time and timezone values come from the device clock and Intl, not a network time service. Tests use injected instants/zones for deterministic boundary checks and the real clock for tool-loop integration. Native device timezone settings in packaged desktop builds remain a target-platform check.
