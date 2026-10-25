@@ -57,3 +57,7 @@ All existing native API tool adapters and CLI envelopes expose `inspect_ontology
 ## Device clock tool · 0.23.2
 
 `get_current_time` works through the same native API and CLI envelopes as other application tools. It needs no vault, credentials or additional network connection. The device supplies time; Intl supplies local timezone and daylight-saving offsets. Optional time_zone selects another IANA zone or UTC. Instructions request a fresh read for relative/current dates on each user turn, and clock results remain under the request context cap.
+
+## Component boundary · 0.23.4
+
+`core/ai/tools/` owns application schemas, validation, capability gating, per-result bounds and execution. `vault-agent.cjs` manages model turns/context budgets through its session API. `providers.cjs` and `tool-provider.cjs` only adapt the model transport. Both native function calls and CLI JSON envelopes execute through the same active tool session. Tool sessions receive no provider credentials or direct file-write capability.

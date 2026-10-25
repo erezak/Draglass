@@ -1,5 +1,5 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
-const {getCurrentTime}=require('../core/ai/time-tool.cjs');
+const {getCurrentTime}=require('../core/ai/tools/time.cjs');
 const {runVaultAgent}=require('../core/ai/vault-agent.cjs');
 const {cost,limits}=require('../core/ai/context-budget.cjs');
 const runtime=(instant,zone)=>({now:()=>new Date(instant),systemZone:()=>zone});

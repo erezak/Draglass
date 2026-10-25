@@ -1,5 +1,5 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),os=require('node:os'),path=require('node:path');
-const {findNotesByDate,clean,dateInfo}=require('../core/ai/date-tool.cjs');
+const {findNotesByDate,clean,dateInfo}=require('../core/ai/tools/date.cjs');
 const {runVaultAgent}=require('../core/ai/vault-agent.cjs');
 const {KnowledgeService}=require('../core/backend/client.cjs');
 const notes=[{path:'Old.md',title:'Old',createdAt:Date.parse('2026-10-01T00:00:00Z'),modifiedAt:Date.parse('2026-10-24T23:59:59.999Z'),text:'---\ndate: 2026-10-20\nupdated_at: 2026-10-24T00:30:00+03:00\n---\nPRIVATE_BODY'},{path:'2026-10-24 journal.md',title:'Journal',createdAt:Date.parse('2026-10-24T09:00:00Z'),modifiedAt:Date.parse('2026-10-25T00:00:00Z'),text:'---\ndate: 2026-10-24\n---\nPRIVATE_BODY'},{path:'Invalid.md',modifiedAt:NaN,text:'---\ndate: 2026-02-30\n---'},{path:'Other.md',text:'---\ndate: tomorrow\n---'}];

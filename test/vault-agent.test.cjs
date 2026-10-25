@@ -1,5 +1,5 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),os=require('node:os'),path=require('node:path');
-const {Vault}=require('../core/vault.cjs'),{AIService}=require('../core/ai/service.cjs'),{runVaultAgent,readTools,writeTools}=require('../core/ai/vault-agent.cjs');
+const {Vault}=require('../core/vault.cjs'),{AIService}=require('../core/ai/service.cjs'),{runVaultAgent}=require('../core/ai/vault-agent.cjs'),{readTools,writeTools}=require('../core/ai/tools/index.cjs');
 const {fitContext,cost,limits,assertContext}=require('../core/ai/context-budget.cjs');
 const call=(id,name,args)=>({content:'',calls:[{id,name,arguments:args}]});
 async function setup(t){const root=await fs.mkdtemp(path.join(os.tmpdir(),'draglass-explore-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));const vault=new Vault(root);await vault.create('A.md','---\ntype: System\nsubtype: SERVICE\nrelationships:\n - relation: depends_on\n   target: "[[B]]"\n   sources: [{ref: "https://example.org/design", quote: "Verified dependency"}]\n---\n# A\n\nAlpha\nBeta\nKeep me');await vault.create('B.md','# B\n[[A]]\nPRIVATE_B');return vault;}

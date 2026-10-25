@@ -68,3 +68,7 @@ Models can ask Draglass for current UTC/local time and timezone information befo
 ## Delivered in 0.23.3
 
 Automatic created_at/updated_at properties cover Markdown creation and content saves in vaults and detached windows, including entity/AI creation, Markdown imports and link rewrites. Creation time is preserved, returned metadata is reconciled without moving the caret or resaving, and AI receipt/Undo checks retain their conflict protection. Reads and existing vaults are not bulk rewritten.
+
+## Delivered in 0.23.4
+
+AI application tools now have a dedicated component with a capability registry, schema validation, bounded execution and per-request session lifetime. Provider transports and conversation orchestration remain separate; proposal writes still require the action service. Knowledge workers reuse domain helpers without importing model orchestration. Future tools should register their definition, scope/access requirement and handler here, using explicit host capabilities and tests for permission, result size and cancellation.

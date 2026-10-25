@@ -61,7 +61,7 @@ Graph HTML uses app semantic CSS tokens. `ui/graph-theme.js` reads the resolved 
 
 ## Bounded vault AI · 0.23.0
 
-`core/ai/vault-agent.cjs` orchestrates app-owned tools. Normal chat starts with reference paths only; no note bodies or vault-wide title list are inserted automatically. Search and graph traversal use bounded `aiSearch`/`aiConnections` operations in the existing knowledge worker. Note reads and metadata use validated vault paths; explicit reference drafts remain request-scoped local overlays. Tool results are untrusted data. Discussion exposes read tools only; Propose changes adds create and line-range update tools that stage reviewed actions. Revisions, coverage of replaced lines, disk conflict checks, acceptance checks and undo protect unrelated or later edits. Per-request staging does not mutate notes.
+`core/ai/vault-agent.cjs` orchestrates the model loop through the separate `core/ai/tools/` component. Normal chat starts with reference paths only; no note bodies or vault-wide title list are inserted automatically. Search and graph traversal use bounded `aiSearch`/`aiConnections` operations in the existing knowledge worker. Note reads and metadata use validated vault paths; explicit reference drafts remain request-scoped local overlays. Tool results are untrusted data. Discussion exposes read tools only; Propose changes adds create and line-range update tools that stage reviewed actions. Revisions, coverage of replaced lines, disk conflict checks, acceptance checks and undo protect unrelated or later edits. Per-request staging does not mutate notes.
 
 `context-budget.cjs` limits every model request, including tool follow-ups and the existing entity-draft flow. A connection defaults to a 65,536-token window, configurable from 8,192 to 1,048,576. Output space (up to 4,096 chat / 8,192 tool-action tokens) and 1,024 safety tokens are reserved. A conservative charge of twice serialized UTF-8 input bytes plus 1,024 covers tokenizer differences and protocol/CLI wrapping, including tool definitions. This intentionally underuses many models’ practical capacity; it is not a claim of exact token counting for arbitrary vendor tokenizers. Users must set the actual model window or lower. Transport adapters independently reject inputs over the budget. No automatic increase occurs after provider errors.
 
@@ -69,13 +69,13 @@ Old large tool results are replaced by explicit retired-result records; older hi
 
 ## Ontology and date discovery · 0.23.1
 
-`inspect_ontology` is a read-only application tool available even without a vault. `core/ai/ontology-tool.cjs` reads classifications and descriptions from `core/plugins/ontology.cjs`, properties and example templates from `entity-templates.cjs`, and endpoint/subtype suggestions from that module’s relationship rules. There is no second AI schema catalog. Overview, entity, relationships and examples queries support offset pagination, at most six items and 4,800 serialized UTF-8 bytes per result. Entity pages label generated values as examples; they are not factual defaults. Inverse rules swap endpoints and subtype suggestions, while associated_with is explicitly symmetric. Custom predicates are permitted without an invented canonical meaning. Missing definitions produce correctable tool errors. No schema catalog is preloaded into the prompt.
+`inspect_ontology` is a read-only application tool available even without a vault. `core/ai/tools/ontology.cjs` reads classifications and descriptions from `core/plugins/ontology.cjs`, properties and example templates from `entity-templates.cjs`, and endpoint/subtype suggestions from that module’s relationship rules. There is no second AI schema catalog. Overview, entity, relationships and examples queries support offset pagination, at most six items and 4,800 serialized UTF-8 bytes per result. Entity pages label generated values as examples; they are not factual defaults. Inverse rules swap endpoints and subtype suggestions, while associated_with is explicitly symmetric. Custom predicates are permitted without an invented canonical meaning. Missing definitions produce correctable tool errors. No schema catalog is preloaded into the prompt.
 
-`find_notes_by_date` uses `core/ai/date-tool.cjs` and the knowledge worker’s `aiDateSearch` operation. It searches filesystem created/modified milliseconds, a named YAML date property, or exactly one YYYY-MM-DD date in a basename. At least one bound is required; from/to are validated YYYY-MM-DD calendar dates and include both entire UTC days. Date-only properties use UTC midnight; ISO timestamps require an explicit timezone and normalize to UTC. Missing, malformed or ambiguous dates are excluded. Created timestamps follow Vault’s birthtime-or-mtime fallback; modified timestamps describe disk state, including when unsaved property overlays are supplied. Results are sorted by matching timestamp descending, then path, and return paginated paths/titles/dates, not bodies. The normal 6,000-byte tool-result and whole-request context guards still apply. Notes are read separately when requested.
+`find_notes_by_date` uses `core/ai/tools/date.cjs` and the knowledge worker’s `aiDateSearch` operation. It searches filesystem created/modified milliseconds, a named YAML date property, or exactly one YYYY-MM-DD date in a basename. At least one bound is required; from/to are validated YYYY-MM-DD calendar dates and include both entire UTC days. Date-only properties use UTC midnight; ISO timestamps require an explicit timezone and normalize to UTC. Missing, malformed or ambiguous dates are excluded. Created timestamps follow Vault’s birthtime-or-mtime fallback; modified timestamps describe disk state, including when unsaved property overlays are supplied. Results are sorted by matching timestamp descending, then path, and return paginated paths/titles/dates, not bodies. The normal 6,000-byte tool-result and whole-request context guards still apply. Notes are read separately when requested.
 
 ## Current-time discovery · 0.23.2
 
-`get_current_time` is a read-only tool available with or without a vault. `core/ai/time-tool.cjs` captures the device clock once per invocation, returning the same instant as UTC and an ISO local timestamp with offset, plus local date, weekday, resolved timezone, UTC offset in minutes and the system timezone. It defaults to the device timezone, with an optional IANA timezone or UTC override. Intl supplies timezone and daylight-saving rules; invalid zones produce correctable tool errors. No network time source, vault read, file write or cached clock result is used.
+`get_current_time` is a read-only tool available with or without a vault. `core/ai/tools/time.cjs` captures the device clock once per invocation, returning the same instant as UTC and an ISO local timestamp with offset, plus local date, weekday, resolved timezone, UTC offset in minutes and the system timezone. It defaults to the device timezone, with an optional IANA timezone or UTC override. Intl supplies timezone and daylight-saving rules; invalid zones produce correctable tool errors. No network time source, vault read, file write or cached clock result is used.
 
 The short system instruction tells the model to call the clock fresh for current/relative dates each user turn. The date-query tool continues to use inclusive UTC days, so local and UTC dates are explicitly distinguished. Clock results and its compact schema count toward the existing whole-request budget. Tool guidance was shortened to preserve small-window headroom without changing those limits or access restrictions.
 
@@ -86,3 +86,34 @@ Desktop mutation sessions enable manageTimestamps on Vault and DetachedDocument.
 Renderers merge returned managed fields into the latest editor state with a non-history transaction. Concurrent typing stays in place and remains dirty for its next save; metadata-only synchronization does not schedule another save. The properties pane shows full UTC values as managed read-only fields.
 
 AI acceptance permits only timestamp-field differences when aligning a just-flushed draft with its stored proposal. All other content remains subject to stale-editor/disk checks. Prepared timestamped after/undo text is persisted before application and passed through conditional writes, so receipt recovery and guarded Undo compare the actual bytes written. Import and link-rewrite operations use the same managed mutation sessions. Recovery copies and trash restoration preserve their original snapshots.
+
+## AI tool component · 0.23.4
+
+Application tools are a separate component under `core/ai/tools/`. `index.cjs` owns the private catalog of schemas, capability requirements and handlers. Its public API is `toolDefinitions({hasVault, actionMode})` and `createToolSession(...)`. A session exposes `definitions()`, `execute(call)`, `result()` and `close()`. Native API and CLI adapters receive schemas/call results; they do not own application tool behavior. The model loop no longer imports Markdown parsers, vault queries, proposal validators or tool handlers.
+
+| Owner | Responsibility |
+| --- | --- |
+| AI service | Provider selection, credentials, cancellation, conversation persistence and proposal receipts |
+| Agent loop | Prompt policy, model turns, call IDs, turn/call limits and whole-request context budgeting |
+| Tool registry | Enabled schemas, read/stage capabilities, argument validation and per-result size checks |
+| Tool session | Request-local snapshots, draft overlays, read coverage, citations and staged proposals; cancellation/close checks around asynchronous reads |
+| Tool handlers | Time, dates, ontology, vault reads and proposal staging using explicit read/query ports |
+| Action service | User acceptance, conditional file writes, timestamp policy, receipts and Undo |
+
+```mermaid
+flowchart TD
+  S["AI service"] --> A["Agent loop"]
+  A <--> P["Provider adapters"]
+  A <--> T["Tool registry and session"]
+  T --> R["Vault and knowledge reads"]
+  T --> D["Staged proposals"]
+  D --> W["Reviewed action service"]
+```
+
+Global tools (time and ontology) work without a vault. Vault reads require a vault; proposal tools additionally require action mode. Selection is fixed when creating the session and cannot be changed by model arguments or mutated schema copies. Providers, messages, credentials, UI objects and write/create capabilities do not enter the handler context. The caller supplies only a bounded read-size allowance rather than passing model/provider configuration into the tools. Proposal validation is isolated in `core/ai/proposal.cjs`; the tool component does not import the action store.
+
+Every run uses a fresh session, and the agent closes it in finally on success, failure or cancellation. Closing clears retained snapshots, drafts, coverage, citations and proposals. Late reads cannot return data into a cancelled/closed session. `result()` transfers a detached snapshot so callers cannot mutate retained proposals.
+
+The knowledge worker imports result pagination and date-domain helpers directly from the tool component, without importing an agent or its conversation policy. Existing internal character-offset tool compatibility remains isolated in `tools/legacy-notes.cjs`; it is not registered in the active model catalog. Its compatibility loop retains its existing behavior.
+
+This is an internal module boundary, not a separate process or third-party plugin API. Search/graph queries still use the knowledge worker, while tool dispatch and AI orchestration retain their current Node process ownership. Tool names, schemas, context budgets, read-only discussion and reviewed writes are preserved.

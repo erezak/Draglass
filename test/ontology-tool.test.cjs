@@ -1,6 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),YAML=require('yaml');
 const ontology=require('../core/plugins/ontology.cjs'),templates=require('../core/plugins/entity-templates.cjs');
-const {inspectOntology,definition}=require('../core/ai/ontology-tool.cjs');
+const {inspectOntology,definition}=require('../core/ai/tools/ontology.cjs');
 const {runVaultAgent}=require('../core/ai/vault-agent.cjs');
 const {cost,limits}=require('../core/ai/context-budget.cjs');
 function all(args){const result=[];let offset=0;for(let i=0;i<100;i++){const page=inspectOntology({...args,offset});assert.ok(Buffer.byteLength(JSON.stringify(page))<=4800);result.push(...page.items);if(page.next_offset===null)return result;assert.ok(page.next_offset>offset);offset=page.next_offset;}throw new Error('Pagination did not finish');}

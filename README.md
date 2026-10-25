@@ -1,4 +1,4 @@
-# Draglass Editor · 0.23.3
+# Draglass Editor · 0.23.4
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
