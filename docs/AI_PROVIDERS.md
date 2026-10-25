@@ -61,3 +61,5 @@ All existing native API tool adapters and CLI envelopes expose `inspect_ontology
 ## Component boundary · 0.23.4
 
 `core/ai/tools/` owns application schemas, validation, capability gating, per-result bounds and execution. `vault-agent.cjs` manages model turns/context budgets through its session API. `providers.cjs` and `tool-provider.cjs` only adapt the model transport. Both native function calls and CLI JSON envelopes execute through the same active tool session. Tool sessions receive no provider credentials or direct file-write capability.
+
+When the Tasks core plugin is enabled, `query_tasks` searches inline tasks and Task notes through the knowledge worker in small pages. It is absent when Tasks is disabled or no vault is open. Relative task dates use the device-local day; call the time tool before reasoning about dates. Existing reviewed note tools can propose task text changes; dedicated task mutation tools are not yet exposed.

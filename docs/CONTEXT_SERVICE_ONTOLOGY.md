@@ -1251,3 +1251,9 @@ relationships: []
 ```
 
 These are illustrative platform anchors, not verified organizational facts. The template fills common identity and lifecycle fields when a user creates a note.
+
+## Draglass workflow extension: Task
+
+Task is an additional actionable entity alongside the knowledge ontology. Suggested subtypes are ACTION and MILESTONE. It uses the common identity and timestamp fields, plus name, status, priority, due, scheduled, start and optional completed. Dates are calendar dates. `context_note` is an optional wikilink to the note active at creation; context is not evidence.
+
+Tasks can use the existing relationship collection with optional source evidence, including owned_by Identity, sourced_from Source and supports Objective. Task endpoints are also suggested for depends_on. The first Tasks slice stores these relationships using the common properties/graph model; task dependency scheduling is planned separately. The eleven existing knowledge entity definitions remain unchanged.

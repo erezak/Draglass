@@ -34,3 +34,5 @@ The graph combines named relationships in YAML properties and ordinary wiki link
 Open [[Tours/01 Writing]] to begin. Use **Open vault** to choose your own notes, and **Open demo vault** in the command palette whenever you want to return.
 
 Keep a reference beside your writing with [[Tours/11 Panes and workspaces]].
+
+- [[Tours/12 Tasks|Tasks: capture, promote and query]]

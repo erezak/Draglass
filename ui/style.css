@@ -109,3 +109,11 @@ dialog{width:410px;max-width:90vw;background:#24242c;color:#eee;border:1px solid
 :is(#graph-view,[data-graph-id="graph-view"]){color:var(--text);color-scheme:inherit}
 :is(#graph-view,[data-graph-id="graph-view"]) .graph-mode button{background:transparent;color:var(--muted)}
 :is(#graph-view,[data-graph-id="graph-view"]) .graph-mode button.selected{background:var(--hover);color:var(--accent)}
+
+/* Tasks use the same theme and surface tokens as other tool views. */
+.task-query-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:12px;border-bottom:1px solid var(--border)}
+.task-query-bar textarea{flex:1 1 100%;min-height:76px;font-family:ui-monospace,monospace;resize:vertical}
+.task-result{display:flex;align-items:flex-start;gap:10px;padding:12px 8px;border-bottom:1px solid var(--border)}
+.task-result>input{flex:0 0 auto;margin-top:5px;width:18px;height:18px;accent-color:var(--accent)}
+.task-result-content{flex:1;min-width:0}.task-title{display:block;text-align:start;background:transparent;border:0;padding:0;font-weight:600;overflow-wrap:anywhere;color:inherit}.task-meta{display:block;margin-top:5px;font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.task-reference{display:block;font-size:12px;margin-top:5px}.task-group-title{font-size:13px;margin:18px 8px 0;text-transform:capitalize}.tasks-embed{padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--panel);font-size:14px;max-height:520px;overflow:auto;overscroll-behavior:contain;white-space:normal}.tasks-embed pre{white-space:pre-wrap}.tasks-embed .task-result{flex-wrap:wrap}.task-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}#task-dialog{width:min(620px,90vw)}#task-dialog .dialog-actions{margin-top:16px}#task-error{color:var(--danger,#c33)}

@@ -1,4 +1,4 @@
-# Draglass Editor · 0.23.4
+# Draglass Editor · 0.24.0
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -86,3 +86,7 @@ Layouts restore view types, queries, links to source panes, graph settings and a
 Run **Toggle light / dark theme** from the command palette (Cmd/Ctrl+Shift+P) to switch immediately. The choice is remembered for the current vault. Settings → Appearance also offers **Follow system**. The palette toggle chooses the opposite of the currently displayed theme and makes that an explicit Light or Dark choice.
 
 All graph tabs follow the app theme, including their canvases, labels, controls, inspector and minimap. Theme changes repaint paused and visible graphs and apply when hidden graphs reopen. Filters, camera positions, pause state and workspace layout are kept. Graph views have no separate theme setting.
+
+## Tasks
+
+Use ordinary Markdown checkboxes, promote an action into a Task note, or run **New Task** from the command palette. Open **Tasks** from the left ribbon to edit dates and priorities across the vault. Fenced `tasks` blocks show live query results. Enable or disable the bundled feature in Settings → Core plugins. See [Tasks](docs/TASKS.md) for the supported query instructions and current scope.

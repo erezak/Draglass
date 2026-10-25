@@ -10,8 +10,8 @@ Move read indexing and knowledge queries behind an Electron-independent Node ser
 
 | ID | Feature and scope | Acceptance criteria and integration notes |
 | --- | --- | --- |
-| F01 | Vault-wide task browser | Aggregate Markdown tasks with note path and exact source range; filter by state, tag and path; navigate to the task; include drafts and external edits through the knowledge service. Toggle through safe editor/file operations with undo and stale-version checks. A task panel must coexist with chat and backlinks. No separate task database as the source of truth. |
-| F02 | Task states and completion dates | Support `[ ]`, `[x]` and `[-]` with explicit accessible state selection. Completion-date insertion is optional and idempotent; define reopening/cancellation date policy before implementing. Preserve unrelated source and metadata. Test repeated toggles, dates already present, undo and external edits. |
+| F01 | Vault-wide task browser (foundation delivered in 0.24.0) | Aggregate Markdown tasks with note path and exact source range; filter by state, tag and path; navigate to the task; include drafts and external edits through the knowledge service. Toggle through safe editor/file operations with undo and stale-version checks. A task panel must coexist with chat and backlinks. No separate task database as the source of truth. |
+| F02 | Task states and completion dates (partially delivered in 0.24.0) | Support `[ ]`, `[x]` and `[-]` with explicit accessible state selection. Completion-date insertion is optional and idempotent; define reopening/cancellation date policy before implementing. Preserve unrelated source and metadata. Test repeated toggles, dates already present, undo and external edits. |
 | F03 | Outgoing connections panel | Show outgoing wiki/Markdown links and named ontology relationships with provenance. Distinguish missing and ambiguous targets; creating a missing target uses existing entity creation. Include drafts, navigate without losing chat, and preserve the separate incoming/backlink view. |
 | F04 | Callouts | Render `> [!note]`, tip, warning, info, abstract, question, success and failure with accessible labels and light/dark contrast. Keep ordinary Markdown authoritative, reveal source for editing, support multiline content and nesting without executing HTML. Cover Live Preview, reading view, embeds and detached Markdown. |
 | F05 | Image viewer | Click a local image preview to open fit/zoom/pan controls, caption, Escape and keyboard navigation. Respect asset validation, detached-file scope and vault changes. No remote-image fetching by default. Clicking must not unintentionally edit Markdown. |
@@ -72,3 +72,19 @@ Automatic created_at/updated_at properties cover Markdown creation and content s
 ## Delivered in 0.23.4
 
 AI application tools now have a dedicated component with a capability registry, schema validation, bounded execution and per-request session lifetime. Provider transports and conversation orchestration remain separate; proposal writes still require the action service. Knowledge workers reuse domain helpers without importing model orchestration. Future tools should register their definition, scope/access requirement and handler here, using explicit host capabilities and tests for permission, result size and cancellation.
+
+## Tasks · agreed direction
+
+0.24.0 delivers the Tasks core plugin: checkbox collection, Task notes, identity-preserving promotion, optional contextual links and inserted references, a draft-aware typed Tasks pane, declarative fenced results, dates/priorities/status editing, query explanations and a gated AI query tool. See [TASKS.md](TASKS.md) for exact syntax and limits.
+
+Continue in reviewable slices:
+
+1. Add durable task operation Undo and semantic staged AI create/update/complete/promote tools. Preserve identity across promotion, rename and external edits; handle ambiguous or duplicated IDs explicitly.
+2. Add dependency-aware blocked/blocking queries, missing targets, cycle diagnostics and provenance-aware links. Dependencies must be actionable relationships, not merely stored IDs.
+3. Add per-task fixed versus completion-relative recurrence, preserve relative planning-date offsets and assign distinct occurrence IDs with defined dependency behavior. Test month ends, late completion, reopening and time zones.
+4. Add separately editable importance, explainable calculated urgency and an Eisenhower matrix. Keep blocked tasks distinguishable from tasks that can be acted on now.
+5. Add board, calendar, tree and timeline views over the same query service; distinguish what is selected from how it is displayed.
+6. Extend declarative queries with visual construction, context-aware expressions, reusable presets, Boolean combinations and saved date-relative perspectives. Do not execute JavaScript. Unsupported instructions must never be silently ignored.
+7. Build an independent optional Daily Loop core plugin over task/note services and bounded AI tools. Plan, import updates, reconcile commitments with provenance, review and generate readable daily summaries without duplicating task state or preloading vault contents into prompts.
+
+Disabling a plugin removes its capabilities and UI while preserving plain files. Keep each new slice represented by real demo examples or honest guided exercises.

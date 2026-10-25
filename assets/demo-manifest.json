@@ -79,6 +79,13 @@
         "Tours/11 Panes and workspaces.md"
       ],
       "exercise": "Arrange typed note, graph, search, backlinks and outline tabs; compare independent graph filters and search queries; bind local views to panes or fixed notes, and restore the layout"
+    },
+    {
+      "id": "tasks",
+      "notes": [
+        "Tours/12 Tasks.md"
+      ],
+      "exercise": "Collect inline tasks and task notes, edit dates, promote with identity preserved, run embedded queries, and disable the Tasks core plugin"
     }
   ],
   "entityTypes": [

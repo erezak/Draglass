@@ -117,3 +117,15 @@ Every run uses a fresh session, and the agent closes it in finally on success, f
 The knowledge worker imports result pagination and date-domain helpers directly from the tool component, without importing an agent or its conversation policy. Existing internal character-offset tool compatibility remains isolated in `tools/legacy-notes.cjs`; it is not registered in the active model catalog. Its compatibility loop retains its existing behavior.
 
 This is an internal module boundary, not a separate process or third-party plugin API. Search/graph queries still use the knowledge worker, while tool dispatch and AI orchestration retain their current Node process ownership. Tool names, schemas, context budgets, read-only discussion and reviewed writes are preserved.
+
+## Tasks core plugin · 0.24.0
+
+`core/tasks/model.cjs` parses real Markdown task nodes and canonical Task notes. It resolves pure checkbox wikilinks to task notes and deduplicates references. `core/tasks/query.cjs` is a pure declarative query engine with date resolution, paging and explanations; no JavaScript evaluation is permitted. Both modules can be used without Electron.
+
+The knowledge worker caches the task model alongside existing draft-aware knowledge views. Tasks panes, fenced results and AI queries share this engine. Task notes remain ordinary YAML/Markdown; the cache is derived and disposable. Reads are isolated from the ordered write queue.
+
+`core/tasks/service.cjs` owns semantic create/update/promotion operations. It validates portable paths, task fields and stale references, preserves stable IDs and uses the existing Vault atomic writes, timestamp policy and recovery. Multi-file failures attempt guarded rollback, reporting paths that changed again rather than overwriting them. This is not a filesystem-wide atomic transaction or a persisted task Undo log.
+
+`ui/plugins/tasks.js` has explicit mount/destroy behavior through the core-plugin registry. It owns task dialogs and the ribbon action. The typed `tasks` workspace leaf uses the normal tab-host architecture and bounded query state. Fenced renderers call the active plugin; disabling it preserves source text and task files. Hidden retained editors must not receive lock transactions while their pane displays an auxiliary view, because their old document could overwrite a shared buffer.
+
+The AI component conditionally exposes `query_tasks` only for an enabled Tasks plugin in an open vault. Worker responses project small reference summaries, not note bodies or task write capabilities. Existing reviewed note proposals remain the mutation boundary for AI. See [TASKS.md](TASKS.md) for supported behavior and planned extensions.

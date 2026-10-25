@@ -39,7 +39,7 @@ class AIService{
   if(history.length>98)throw new Error('Chat has reached its limit. Start a new chat.');
   const configured={...provider,headers:await this.store.headers(provider.id,config),network:config.network};
   const progress=summary=>this.emit({id:request.id,summary});
-  const result=await runVaultAgent({vault,context,history,prompt:request.prompt,actionMode,provider,signal:controller.signal,progress,knowledgeQuery:this.adapters.knowledge?(method,args)=>this.adapters.knowledge(vault,method,args,controller.signal):undefined,
+  const result=await runVaultAgent({tasksEnabled:!!(vault&&await this.adapters.tasksEnabled?.(vault)),vault,context,history,prompt:request.prompt,actionMode,provider,signal:controller.signal,progress,knowledgeQuery:this.adapters.knowledge?(method,args)=>this.adapters.knowledge(vault,method,args,controller.signal):undefined,
    turn:(messages,options)=>['openai','anthropic'].includes(provider.type)?this.adapters.requestAPI(configured,apiKey,messages,{...options,signal:controller.signal,onText:()=>{},onRetry:e=>progress(e.summary)}):this.adapters.requestCLI(configured,messages,{...options,signal:controller.signal,onText:()=>{},onRetry:e=>progress(e.summary)})});
   if(controller.signal.aborted)throw new Error('Response stopped.');
   let proposal=null;if(actionMode&&result.changes.length)proposal=await this.actions.add(vault,{summary:result.answer.slice(0,4000),changes:result.changes,origin,conversation:request.conversation,prompt:request.prompt,provider:provider.name,context:result.context.filter(n=>result.changes.some(c=>c.action==='edit'&&c.path===n.path)).map(({path,text})=>({path,text}))});

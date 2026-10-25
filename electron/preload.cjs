@@ -1,5 +1,7 @@
 const {contextBridge,ipcRenderer}=require('electron');
 contextBridge.exposeInMainWorld('vaultAPI', {
+  tasks:args=>ipcRenderer.invoke('vault:tasks',args),
+  taskAction:(action,args)=>ipcRenderer.invoke('vault:taskAction',action,args),
   restore:()=>ipcRenderer.invoke('vault:restore'),
   listWorkspaces:()=>ipcRenderer.invoke('vault:listWorkspaces'),
   saveWorkspace:(name,value,id)=>ipcRenderer.invoke('vault:saveWorkspace',name,value,id),

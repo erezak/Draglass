@@ -26,6 +26,7 @@ class KnowledgeIndex{
   if(method==='resources')return {paths:[...metadata.map(n=>n.path),...this.vault.attachments.map(a=>a.path)],version:String(this.revision)};
   if(method==='graph')return {notes:this.vault.notes,attachments:this.vault.attachments};
   const notes=this.effective(args.drafts);
+  if(method==='tasks'||method==='aiTasks'){const data=this.cached('tasks',notes,()=>require('../tasks/model.cjs').collect(notes));const result={...require('../tasks/query.cjs').queryTasks(data.tasks,args.query||'',{offset:args.offset,pageSize:method==='aiTasks'?5:args.pageSize}),issues:data.issues.slice(0,20)};return method==='aiTasks'?require('../ai/tools/tasks.cjs').summaries(result):result;}
   if(method==='aiDateSearch'){const dates=require('../ai/tools/date.cjs');return {...dates.dateInfo(args),...require('../ai/tools/results.cjs').page(dates.findNotesByDate(notes,args),args.offset)};}
   if(method==='aiSearch'){
    let hits=searchNotes(notes,args.query,{prepared:this.prepared});if(args.relation){const g=this.cached('knowledge',notes,()=>knowledge.graph(notes)),set=new Set(g.edges.filter(e=>e.named&&e.kind.toLowerCase()===args.relation.toLowerCase()).flatMap(e=>[e.from,e.to]));hits=hits.filter(n=>set.has(n.path));}

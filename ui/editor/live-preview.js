@@ -46,9 +46,9 @@ class SymbolWidget extends WidgetType {
   ignoreEvent(){return true;}
 }
 class TaskWidget extends WidgetType {
-  constructor(from,checked){super();this.from=from;this.checked=checked;}
+  constructor(from,checked,toggle){super();this.from=from;this.checked=checked;this.toggle=toggle;}
   eq(other){return this.from===other.from&&this.checked===other.checked;}
-  toDOM(view){const input=document.createElement('input');input.type='checkbox';input.className='cm-live-checkbox';input.checked=this.checked;input.setAttribute('aria-label',this.checked?'Mark task incomplete':'Mark task complete');input.addEventListener('mousedown',event=>event.stopPropagation());input.addEventListener('change',()=>{view.dispatch({changes:{from:this.from+1,to:this.from+2,insert:input.checked?'x':' '}});});return input;}
+  toDOM(view){const input=document.createElement('input');input.type='checkbox';input.className='cm-live-checkbox';input.checked=this.checked;input.setAttribute('aria-label',this.checked?'Mark task incomplete':'Mark task complete');input.addEventListener('mousedown',event=>event.stopPropagation());input.addEventListener('change',()=>{if(view.state.readOnly){input.checked=this.checked;return;}if(this.toggle?.(view.state.doc.lineAt(this.from).number,input.checked)!==false&&this.toggle){input.checked=this.checked;return;}view.dispatch({changes:{from:this.from+1,to:this.from+2,insert:input.checked?'x':' '}});});return input;}
   ignoreEvent(){return true;}
 }
 class WikiWidget extends WidgetType {
@@ -92,8 +92,10 @@ function tableRows(node,state){
   return rows;
 }
 
-export function livePreview({enabled=true,onFollow=()=>{},onEmbed=()=>{},onDiagram=()=>{},embedRevision=()=>0}={}){
+export function livePreview({enabled=true,onTasks,tasksEnabled=()=>false,onTaskToggle,onFollow=()=>{},onEmbed=()=>{},onDiagram=()=>{},embedRevision=()=>0}={}){
   const mermaidCache=new Map();
+  class TasksWidget extends WidgetType {constructor(source,revision){super();this.source=source;this.revision=revision;}eq(other){return this.source===other.source&&this.revision===other.revision;}get estimatedHeight(){return 220;}toDOM(view){const root=document.createElement('div');root.className='tasks-embed';Promise.resolve(onTasks(root,this.source)).then(()=>view.requestMeasure(),()=>view.requestMeasure());return root;}ignoreEvent(){return true;}}
+
   function build(state){
     if(!state.field(enabledField))return Decoration.none;
     const ranges=[],blocked=[],wiki=[],lineClasses=new Map();const front=frontmatter(state.doc.toString()),frontEnd=front.present&&!front.error?front.end:0;if(frontEnd)blocked.push([0,frontEnd]);
@@ -113,6 +115,7 @@ export function livePreview({enabled=true,onFollow=()=>{},onEmbed=()=>{},onDiagr
       if(name==='FencedCode'||name==='CodeBlock'){
         blocked.push([node.from,node.to]);
         const info=parts.find(c=>c.name==='CodeInfo'),body=parts.find(c=>c.name==='CodeText'),marks=parts.filter(c=>c.name==='CodeMark');
+        if(info&&state.sliceDoc(info.from,info.to).trim().toLowerCase()==='tasks'&&tasksEnabled()&&marks.length===2){const widget=new TasksWidget(body?state.sliceDoc(body.from,body.to):'',embedRevision());if(!active){ranges.push(Decoration.replace({widget,block:true}).range(node.from,node.to));return false;}ranges.push(Decoration.widget({widget,block:true,side:1}).range(node.to));}
         if(info&&state.sliceDoc(info.from,info.to).trim().toLowerCase()==='mermaid'&&marks.length===2){const from=body?.from??Math.min(state.doc.lineAt(node.from).to+1,marks[1].from),to=body?.to??from,widget=new MermaidWidget(state.sliceDoc(from,to),from,to,onDiagram,embedRevision(),mermaidCache);
           if(!active){ranges.push(Decoration.replace({widget,block:true}).range(node.from,node.to));return false;}
           ranges.push(Decoration.widget({widget,block:true,side:1}).range(node.to));
@@ -130,7 +133,7 @@ export function livePreview({enabled=true,onFollow=()=>{},onEmbed=()=>{},onDiagr
       if(name==='Blockquote')eachLine(node.from,node.to,l=>line(l.from,'cm-live-quote'));
       if(name==='QuoteMark'&&!intersects(state,node.parent.from,node.parent.to)){let end=node.to;if(state.sliceDoc(end,end+1)===' ')end++;hide(node.from,end);}
       if(name==='ListMark'&&state.sliceDoc(node.from,node.to).match(/^[-+*]$/)&&!intersects(state,node.parent.from,node.parent.to))hide(node.from,node.to,new SymbolWidget('•','cm-live-bullet',node.from));
-      if(name==='TaskMarker'&&!intersects(state,node.parent.from,node.parent.to))hide(node.from,node.to,new TaskWidget(node.from,/x/i.test(state.sliceDoc(node.from,node.to))));
+      if(name==='TaskMarker'&&!intersects(state,node.parent.from,node.parent.to))hide(node.from,node.to,new TaskWidget(node.from,/x/i.test(state.sliceDoc(node.from,node.to)),onTaskToggle));
       if(name==='HorizontalRule'&&!active){hide(node.from,node.to,new SymbolWidget('','cm-live-rule',node.from));return false;}
       if(name==='Link'){
         // CommonMark treats the inner [label] of a wiki link as a reference link.

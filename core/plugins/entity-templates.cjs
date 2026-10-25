@@ -1,10 +1,10 @@
 const YAML=require('yaml');
 const ontology=require('./ontology.cjs');
 function portable(value){return typeof value==='string'&&value.length<4096&&value.split('/').every(p=>p&&!p.startsWith('.')&&!/[\\<>:"|?*\0]/.test(p)&&!/[. ]$/.test(p)&&!/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\.|$)/i.test(p));}
-const folders={System:'Systems',Component:'Components',Source:'Sources',Concept:'Concepts',Identity:'People',Behavior:'Behaviors',DecisionRecord:'Decisions',Playbook:'Playbooks',Policy:'Policies',Objective:'Objectives',Capability:'Capabilities'};
+const folders={Task:'Tasks',System:'Systems',Component:'Components',Source:'Sources',Concept:'Concepts',Identity:'People',Behavior:'Behaviors',DecisionRecord:'Decisions',Playbook:'Playbooks',Policy:'Policies',Objective:'Objectives',Capability:'Capabilities'};
 // Fields and sections derive from docs/CONTEXT_SERVICE_ONTOLOGY.md. References use relationships.
-const fields={System:{description:'',tech_stack:[],business_domain:''},Component:{description:'',tech_stack:[],data_ownership:[]},Source:{url:'',format:''},Concept:{description:''},Identity:{email:''},Behavior:{feature:'',scenario:'',given:[],when:[],then:[],status:'DRAFT'},DecisionRecord:{status:'PROPOSED',context:'',options_considered:[],outcome:'',consequences:''},Playbook:{description:'',version:'',status:'DRAFT',domain:[],steps:''},Policy:{description:'',enforcement_level:'',effective_date:null,review_date:null,scope:[],compliance_framework:[],governing_body:''},Objective:{description:'',target_metric:'',target_value:'',deadline:null},Capability:{description:'',maturity:'PLANNED',domain:[]}};
-const sections={System:['Purpose','Architecture','Dependencies','Notes'],Component:['Responsibilities','Interfaces and data','Notes'],Source:['Original evidence','Provenance and coverage','Extracted knowledge'],Concept:['Knowledge','Context','Evidence'],Identity:['Context','Responsibilities','Notes'],Behavior:['Given','When','Then','Acceptance evidence'],DecisionRecord:['Context','Options considered','Decision','Consequences'],Playbook:['Purpose','Steps','Validation'],Policy:['Requirement','Scope','Enforcement','Review'],Objective:['Outcome','Success measures','Progress'],Capability:['Scope','Delivery','Maturity and gaps']};
+const fields={Task:{status:'todo',priority:'normal',due:null,scheduled:null,start:null},System:{description:'',tech_stack:[],business_domain:''},Component:{description:'',tech_stack:[],data_ownership:[]},Source:{url:'',format:''},Concept:{description:''},Identity:{email:''},Behavior:{feature:'',scenario:'',given:[],when:[],then:[],status:'DRAFT'},DecisionRecord:{status:'PROPOSED',context:'',options_considered:[],outcome:'',consequences:''},Playbook:{description:'',version:'',status:'DRAFT',domain:[],steps:''},Policy:{description:'',enforcement_level:'',effective_date:null,review_date:null,scope:[],compliance_framework:[],governing_body:''},Objective:{description:'',target_metric:'',target_value:'',deadline:null},Capability:{description:'',maturity:'PLANNED',domain:[]}};
+const sections={Task:['Details','Progress'],System:['Purpose','Architecture','Dependencies','Notes'],Component:['Responsibilities','Interfaces and data','Notes'],Source:['Original evidence','Provenance and coverage','Extracted knowledge'],Concept:['Knowledge','Context','Evidence'],Identity:['Context','Responsibilities','Notes'],Behavior:['Given','When','Then','Acceptance evidence'],DecisionRecord:['Context','Options considered','Decision','Consequences'],Playbook:['Purpose','Steps','Validation'],Policy:['Requirement','Scope','Enforcement','Review'],Objective:['Outcome','Success measures','Progress'],Capability:['Scope','Delivery','Maturity and gaps']};
 const rules=[
  {relation:'employed_by',from:'Identity',to:'Identity',fromKinds:['PERSON'],toKinds:['COMPANY']},
  {relation:'member_of',from:'Identity',to:'Identity',fromKinds:['PERSON'],toKinds:['TEAM']},
@@ -14,7 +14,7 @@ const rules=[
  {relation:'owned_by',from:'*',to:'Identity',toKinds:['PERSON','TEAM']},
  {relation:'composed_of',from:['System','Component'],to:'Component'},
  {relation:'implemented_by',from:'System',to:'Source',toKinds:['GITHUB','GIT','GITLAB','AZURE_DEVOPS']},
- {relation:'depends_on',from:['System','Component'],to:['System','Component']},
+ {relation:'depends_on',from:['System','Component','Task'],to:['System','Component','Task']},
  {relation:'calls',from:'System',to:'System'},
  {relation:'associated_with',from:'Concept',to:['System','Component']},
  {relation:'sourced_from',from:'*',to:'Source'},
