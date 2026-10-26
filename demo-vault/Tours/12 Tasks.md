@@ -6,7 +6,7 @@ tags:
 ---
 # Tasks: capture first, add detail when needed
 
-Open **Tasks** using the checkbox icon in the left ribbon or **Open Tasks** in the command palette (Cmd/Ctrl+Shift+P). It opens in the right sidebar and collects ordinary checkboxes and notes whose YAML `type` is `Task`.
+Open **Tasks** using the checkbox icon in the right ribbon or **Open Tasks** in the command palette (Cmd/Ctrl+Shift+P). It opens in the right sidebar and collects ordinary checkboxes and notes whose YAML `type` is `Task`.
 
 ## Try an inline action
 
@@ -67,3 +67,34 @@ Promote the practice checkbox above. The floating **Undo** notice stays availabl
 In AI **Discuss (read-only)** mode, ask about a task. To request an edit, use **Enable changes for this request**, then send the filled request in **Propose changes** mode. Review and accept the grouped operation before it changes files.
 
 Task references use the same vault-wide wikilinks as every other note. Plain-click a rendered reference to open its note; Alt-click to edit it. A unique task can be linked as `[[Review field readiness]]`; folder-qualified links still display the note name. Explicit aliases override the display text.
+
+## Dependencies and actionable work
+
+- [ ] Pack the spare sensor ⛔ demo-field-kit 🆔 demo-pack-sensor
+- [ ] Dispatch the kit ⛔ demo-pack-sensor 🆔 demo-dispatch-kit
+
+Open Tasks and choose **Blocked**. Packing waits for the field-kit check; dispatch waits for packing. Complete each prerequisite to see its successor become **Actionable**. Undo completion to restore the blocker. Click a prerequisite in a task result to visit its source.
+
+Use **Edit → Depends on** to search task titles/IDs, add prerequisites and remove them. Inline prerequisites without IDs can be given one using **Edit → Task ID**. Existing IDs are read-only because references rely on them. Promote packing and verify dispatch still points to the same task ID. Rename the promoted note and verify its dependency still resolves.
+
+```tasks
+actionable
+sort by priority
+```
+
+```tasks
+not done
+blocked
+```
+
+Task notes store `depends_on` as a YAML list of task IDs; checkboxes use `⛔ id1,id2`. Completed prerequisites satisfy dependencies; cancelled ones do not. Tasks on hold, completed/cancelled tasks, and tasks with future start dates are not actionable. Scheduled and due dates do not prevent actionability.
+
+For a diagnostic exercise, temporarily type `⛔ missing-demo-id` on an inline task. It remains visible as a missing blocker. The task editor rejects new missing targets, self-dependencies and cycles; direct Markdown imports retain them with diagnostics so you can repair them. Remove the temporary marker afterward.
+
+With a configured AI connection, ask for actionable tasks and their blockers. In Propose changes mode, ask it to add an existing prerequisite. Task tools return bounded dependency summaries and stage changes for review, never write automatically.
+
+## See prerequisites in the graph
+
+Open the local graph of [[Tasks/Review field readiness]]. A named **Depends on** edge connects it to this tour, which contains its dispatch prerequisite. Open this tour’s local graph: a labeled loop represents its inline tasks depending on other inline tasks in the same note. Pin the note’s graph details and expand Recorded declarations to see the exact task IDs, titles, source lines and prerequisite states. Complete a prerequisite, promote it, or rename its note and check that the relationship still resolves. Graphs show note-level relationships; several task dependencies between the same notes share an edge with multiple declarations.
+
+The Tasks pane displays a Dependencies section for every result. You can also add a `depends_on` relationship from a Task note to another Task note using Properties: the pane will show the same prerequisite and blocked state. Keep any supporting sources on that relationship; retaining it through task editing preserves those sources. Tasks is available from the right ribbon, without a duplicate left-ribbon button.

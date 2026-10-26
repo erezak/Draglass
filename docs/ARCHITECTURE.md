@@ -149,3 +149,7 @@ The shared links component resolves unique note-path suffixes and formats shorte
 The dedicated `core/note-links/` component owns reference parsing, YAML aliases, cached heading/block indexes, section extraction and bounded completion descriptors. The knowledge worker indexes on demand and includes editor drafts; the renderer receives suggestions rather than vault-wide bodies. CodeMirror completion and reading/editor navigation remain separate adapters. Detached completion uses the same model over its current and explicitly referenced files, without turning a folder into a vault.
 
 The editor adapter supplies its own language tree to completion formatting, avoiding mixed module instances of CodeMirror language state. Table alias escaping and code-block exclusion therefore use the same syntax tree as the active editor.
+
+Task dependency analysis lives in the pure `core/tasks/dependencies.cjs` component. Indexing, declarative queries, planners and AI tools share it. Iterative strongly connected components diagnose cycles; actionability uses the local query date. The journal revalidates dependency edits against fresh vault state inside its transaction before writing.
+
+`core/tasks/graph.cjs` projects the shared task model into note-level dependency edges and hollow unresolved task references. Local knowledge, backlinks and the visual graph consume that projection. Intra-note task dependencies retain self-edges and render as loops rather than disappearing.

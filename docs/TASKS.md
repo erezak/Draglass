@@ -16,7 +16,7 @@ Open Tasks from the ribbon or the command palette (Cmd/Ctrl+Shift+P); it opens t
 
 New Task creates a note directly. When a Markdown note is active, Link to current note adds a `Context: [[Note]]` wikilink to the Task note body, which produces a normal backlink. Also insert a task reference adds a linked checkbox to that source note. Neither option is required. Context links do not assert evidence or ownership.
 
-Task note properties include `type: Task`, `subtype: ACTION`, stable `id`, `fqn`, `name`, `status`, `priority`, `due`, `scheduled`, `start` and optional `completed`. Supported note statuses are `todo`, `in-progress`, `on-hold`, `done` and `cancelled`. Existing graph/property/relationship editing supports the Task type with ACTION and MILESTONE suggestions. Named relationships retain optional evidence sources. Task-to-task dependency execution is not implemented yet.
+Task note properties include `type: Task`, `subtype: ACTION`, stable `id`, `fqn`, `name`, `status`, `priority`, `due`, `scheduled`, `start` and optional `completed`. Supported note statuses are `todo`, `in-progress`, `on-hold`, `done` and `cancelled`. Existing graph/property/relationship editing supports the Task type with ACTION and MILESTONE suggestions. Named relationships retain optional evidence sources. Task dependencies use stable IDs and are evaluated across inline tasks and Task notes.
 
 A pure checkbox wikilink to a Task note (including an alias or relative path) is a reference, not another task. Tasks results display the canonical note once and list its source references. Completion or reopening through Tasks updates the canonical status and linked checkbox markers. Arbitrary prose containing a link remains an independent inline task.
 
@@ -74,6 +74,20 @@ Disabling Tasks removes its commands, ribbon action, AI query tool and enhanced 
 
 ## Next slices
 
-The agreed direction combines richer task views and workflows with task notes and inline capture. Planned capabilities include dependency-aware actionability, robust per-task recurrence and date-offset preservation, calculated urgency, an Eisenhower matrix, boards/calendar/tree views, reusable/context-aware queries and an optional daily workflow plugin. JavaScript execution is excluded.
+The agreed direction combines richer task views and workflows with task notes and inline capture. Dependency-aware actionability is available. Planned capabilities include robust per-task recurrence and date-offset preservation, calculated urgency, an Eisenhower matrix, boards/calendar/tree views, reusable/context-aware queries and an optional daily workflow plugin. JavaScript execution is excluded.
 
 Generated Task/context references use the same shortest unique wikilinks as ordinary notes. The renderer hides folder prefixes on unaliased internal labels, while the source and tooltip retain the target. Duplicate names retain a qualifying path with a display alias. Plain click opens a rendered link; Alt-click reveals its source.
+
+## Dependencies · 0.26.0
+
+Task notes use `depends_on: [task-id, another-id]`. Inline tasks use `⛔ task-id,another-id`; `🆔 task-id` assigns an inline identity. The visual task editor searches existing IDs by task title, adds/removes prerequisites, and can assign an ID to an inline task. Existing IDs are immutable in semantic editing. Promotion and note renaming preserve dependency identity. Maximum 50 distinct dependencies per edited task. The visual chooser offers up to 500 tasks; entering an exact ID also works.
+
+A dependency is satisfied only by `done`. Missing/duplicate targets, self-links and cycles are visible blockers in imported Markdown/YAML. Semantic edits reject newly introduced invalid dependencies and cycles. Read-only analysis uses iterative strongly connected components and does not rewrite files. Accepted AI task operations revalidate against the current vault inside the journal transaction.
+
+Query instructions: `actionable`, `blocked`, `not blocked`, `has dependencies`, `no dependencies`. Combine with existing filters, for example `not done` plus `blocked`. Actionable means todo/in-progress, no unsatisfied dependencies or cycle, and no future start date, using the device-local day. On-hold, done and cancelled tasks are excluded. Due/scheduled dates do not gate actionability. These are computed states, not stored YAML statuses; blockers are shown as navigable task references.
+
+AI read/query results expose bounded summaries, dependency counts and limited prerequisite details. Read note ranges for additional dependencies when summaries are truncated. `create_task` and `update_task` accept `depends_on`; an empty list clears dependencies. Tools remain in the AI tools component and use the shared Tasks planner and review/Undo boundary.
+
+Global and local graphs project task dependencies onto their owning notes as named `depends_on` edges. Backlinks include the inverse relationship. Same-note inline dependencies appear as a labeled loop. Recorded declarations identify each task ID/title, source line, target and completion state; several task dependencies can share an edge. Missing/ambiguous IDs produce hollow task-reference nodes with diagnostics, without offering to create an unrelated note. Dependencies remain visible after completion. No evidence sources are invented; independent provenance, recurrence and cascading scheduling are future slices.
+
+The task pane always shows a Dependencies section, including “none” when empty. Outgoing `depends_on` declarations in a Task note’s YAML `relationships` collection participate in the same task analysis as the ID list. The task editor can remove these prerequisites and retains their source records when kept. The right ribbon is the single Tasks entry; the command palette also provides Open Tasks.

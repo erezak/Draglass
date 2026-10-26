@@ -9,6 +9,7 @@ priority: high
 due: 2026-11-01
 scheduled: 2026-10-30
 start: 2026-10-29
+depends_on: [demo-dispatch-kit]
 relationships: []
 ---
 # Review field readiness

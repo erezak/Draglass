@@ -80,7 +80,7 @@ AI application tools now have a dedicated component with a capability registry, 
 Continue in reviewable slices:
 
 1. Delivered in 0.24.1: durable grouped task Undo and semantic staged AI create/update/complete/promote tools. IDs survive promotion and can resolve renamed tasks; stale Undo preserves renamed/later-edited files. Duplicate IDs are diagnosed. Continue improving history and identity reconciliation as future workflows require.
-2. Add dependency-aware blocked/blocking queries, missing targets, cycle diagnostics and provenance-aware links. Dependencies must be actionable relationships, not merely stored IDs.
+2. Delivered in 0.26.0: actionable/blocked queries, stable-ID prerequisites, visual editing, missing/ambiguous targets, cycle diagnostics and reviewed AI changes. Future extensions: reverse blocking queries and provenance-aware dependency edges.
 3. Add per-task fixed versus completion-relative recurrence, preserve relative planning-date offsets and assign distinct occurrence IDs with defined dependency behavior. Test month ends, late completion, reopening and time zones.
 4. Add separately editable importance, explainable calculated urgency and an Eisenhower matrix. Keep blocked tasks distinguishable from tasks that can be acted on now.
 5. Add board, calendar, tree and timeline views over the same query service; distinguish what is selected from how it is displayed.
@@ -91,4 +91,4 @@ Disabling a plugin removes its capabilities and UI while preserving plain files.
 
 ## Task operations · 0.24.1 delivered
 
-Manual and accepted AI operations share a read-only planner and a durable per-vault journal. Undo is grouped across affected files, time-limited, available after restart and guarded against later edits. AI task operations remain proposals until accepted, expose bounded structured reads and request-local handles, and preview every affected file. The next task capability slice is dependency-aware actionability and diagnostics, followed by recurrence and planning views.
+Manual and accepted AI operations share a read-only planner and a durable per-vault journal. Undo is grouped across affected files, time-limited, available after restart and guarded against later edits. AI task operations remain proposals until accepted, expose bounded structured reads and request-local handles, and preview every affected file. Dependency-aware actionability and diagnostics are delivered in 0.26.0. Next: recurrence, followed by planning views.

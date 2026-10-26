@@ -8,7 +8,7 @@ function graph(notes){
  for(const n of nodes)for(const key of [...new Set([n.id,n.props.fqn,n.title,...n.aliases].filter(k=>typeof k==='string'&&k))])byId.set(key,byId.has(key)?null:n.path);
  const edges=new Map(),issues=[],missing=new Map();
  function resolve(ref,from,allowMissing=true){if(typeof ref!=='string')return null;const raw=ref.trim(),resolved=byId.has(raw)?byId.get(raw):resolveLink(raw.replace(/^\[\[|\]\]$/g,'').split('|')[0],from,paths).path;if(resolved)return resolved;if(!allowMissing)return null;const path=byId.has(raw)&&byId.get(raw)===null?'missing-reference:'+raw:missingLink(ref,from);if(path&&!byPath.has(path))missing.set(path,{path,title:raw.replace(/^\[\[|\]\]$/g,'').split('|')[0],type:'Note',kind:'',exists:false,tags:[],aliases:[],props:{},text:''});return path;}
- function add(from,to,kind,details={}){if(!to||from===to)return;const key=from+'\0'+to+'\0'+kind+(details.role==='evidence'?'\0evidence':'');let e=edges.get(key);if(!e){e={from,to,kind,...(kind==='link'?{}:{named:true}),...details,sources:[],declarations:[]};edges.set(key,e);}for(const field of ['sources','declarations'])for(const item of details[field]||[])if(!e[field].some(v=>JSON.stringify(v)===JSON.stringify(item)))e[field].push(item);}
+ function add(from,to,kind,details={}){if(!to||from===to&&!details.taskDependency)return;const key=from+'\0'+to+'\0'+kind+(details.role==='evidence'?'\0evidence':'');let e=edges.get(key);if(!e){e={from,to,kind,...(kind==='link'?{}:{named:true}),...details,sources:[],declarations:[]};edges.set(key,e);}if(details.taskDependency)e.taskDependency=true;for(const field of ['sources','declarations'])for(const item of details[field]||[])if(!e[field].some(v=>JSON.stringify(v)===JSON.stringify(item)))e[field].push(item);}
  function wikirefs(value,from,details={}){if(typeof value==='string'){for(const l of wikiLinks(value))add(from,resolve(l.target,from,false),'link',details);}else if(Array.isArray(value)){for(const v of value)wikirefs(v,from,details);}else if(value&&typeof value==='object'){for(const v of Object.values(value))wikirefs(v,from,details);}}
  for(const n of nodes){
   if(n.metadataError)issues.push({path:n.path,message:n.metadataError});
@@ -25,7 +25,7 @@ function graph(notes){
    for(const source of sources){const ref=typeof source==='string'?source:source.ref;if(typeof ref==='string'&&!/^[a-z][\w+.-]*:\/\//i.test(ref))add(n.path,resolve(ref,n.path),'link',{role:'evidence',sources:[source],declarations:[{note:n.path,relation:r.relation,target:r.target,source}]});}
   }
   // Legacy fields remain readable, without rewriting notes or inventing evidence.
-  for(const kind of legacyFields)for(const ref of [].concat(n.props[kind]||[])){
+  for(const kind of legacyFields.filter(key=>!(key==='depends_on'&&String(n.props.type).toLowerCase()==='task')))for(const ref of [].concat(n.props[kind]||[])){
    if(typeof ref!=='string')continue;const target=resolve(ref,n.path);let from=n.path,to=target,predicate=kind;
    if(n.type==='Identity'&&byPath.get(target)?.type==='Identity'&&['members','contains','member_of','belongs_to'].includes(kind)){
     if(['members','contains'].includes(kind))[from,to]=[target,n.path];predicate='belongs_to';
@@ -33,7 +33,7 @@ function graph(notes){
    add(from,to,predicate,{legacy:true,declarations:[{note:n.path,relation:kind,target:ref,legacy:true}]});
   }
  }
- return {nodes:[...nodes,...missing.values()],edges:[...edges.values()],issues};
+ const tasks=require('../tasks/graph.cjs').taskGraph(notes);for(const node of tasks.nodes)missing.set(node.path,node);for(const e of tasks.edges)add(e.from,e.to,e.kind,e);issues.push(...tasks.issues);return {nodes:[...nodes,...missing.values()],edges:[...edges.values()],issues};
 }
 function backlinks(notes,target){return backlinksFromGraph(graph(notes),target);}
 function backlinksFromGraph(g,target){return g.nodes.filter(n=>n.path!==target).flatMap(n=>{const matches=g.edges.filter(e=>(e.to===target&&e.from===n.path)||(e.named&&e.from===target&&e.to===n.path));if(!matches.length)return [];const links=matches.map(e=>({relation:e.named?(e.to===target?e.kind:ontology.inverses[e.kind]||'inverse of '+e.kind):null,direction:e.to===target?'incoming':'inverse',sources:e.sources,declarations:e.declarations,role:e.role||null,legacy:!!e.legacy}));return [{path:n.path,title:n.title,exists:n.exists!==false,links}];});}

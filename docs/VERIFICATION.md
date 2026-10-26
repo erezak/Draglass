@@ -1,4 +1,4 @@
-# Verification · 0.25.1
+# Verification · 0.26.1
 
 Additional regression checks passed for Finder metadata, visible demo failure without losing the active vault, explicit About version/icon options, and Mac development bundle icon/version installation before signing and launching. The development launcher check uses simulated macOS process/filesystem calls; native macOS execution remains unverified.
 
@@ -110,3 +110,13 @@ The build and extended demo check pass: 61 Markdown notes, 42 typed entities, 87
 ## Autocomplete theme contrast · 0.25.1
 
 Real Chromium checks with the actual CodeMirror autocomplete popup passed in Light and Dark, including switching the theme while the popup remains open and moving selection with the keyboard. Selected and unselected labels and path/alias details meet a 4.5:1 contrast threshold against their rendered backgrounds. Shared CSS covers vault and detached editors. The 26 focused reference/link regression tests and the build with demo validation passed. Native packaged-app testing was not performed for this styling change.
+
+## Task dependencies · 0.26.0
+
+451 tests passed in the full suite. After the final local-date default and chooser guidance adjustment, all 41 focused task/model/operation tests passed again. New coverage includes inline parsing and serialization, YAML dependency lists, actionability/date/status semantics, missing and duplicate targets, self/circular dependencies, promotion identity, rejected semantic edits, accepted AI proposals, acceptance-time dependency validation, completion/Undo, visual add/remove controls and clickable blockers.
+
+A real Chromium check used the Tasks plugin with a temporary filesystem vault and TasksService. It added a prerequisite through the visual chooser, verified persistence, filtered blocked/actionable tasks, completed the prerequisite and undid completion. The build and demo checks passed with a real dependency chain and no accidental missing graph targets. Native packaging and live AI provider execution were not tested in this slice.
+
+## Task dependency graph and visibility · 0.26.1
+
+457 tests passed. Added coverage verifies named task edges in global and depth-one local graphs, inverse backlinks, same-note loops with multiple declarations, hollow missing/ambiguous task references, stable identity after renaming, and dependency relationships from the visual properties collection. Task editor tests verify retained relationship sources and removal of prerequisites. UI coverage verifies explicit dependencies in the Tasks pane and a single Tasks entry on the right ribbon. Build and demo validation passed. Native packaging and a separate Chromium canvas rendering check were not performed for this change.
