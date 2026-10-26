@@ -10,6 +10,7 @@ function detachedWindows({app,BrowserWindow,ipcMain,shell,icon,workspace,onOpen,
   write:(s,p,text)=>s.document.write(p,text),
   editDrawing:(s,p)=>s.document.editDrawing(p),
   resources:s=>s.document.resources(),
+  linkSuggestions:(s,args)=>s.document.linkSuggestions(args),
   follow:async(s,raw,from=s.document.path)=>{
    const origin=await s.document.checked(from),resolved=await resolveLocalLink(origin,raw);
    if(resolved.external){await shell.openExternal(resolved.external);return {};}

@@ -28,6 +28,12 @@ class DetachedDocument{
    return {path:relative,text,version:hash(text),...(stamp.timestampWarning?{timestampWarning:stamp.timestampWarning}:{})};
   });this.queue=job;return job;
  }
+ async linkSuggestions(args={}){
+  const input=args.input??'';if(typeof input!=='string'||input.length>4096)throw new Error('Invalid note link query.');const refs=require('./note-links/index.cjs'),resources=await this.resources(),allowed=new Set(resources.paths),drafts=args.drafts||[];const explicit=input.includes('#')?input.split('#')[0].trim():'';if(explicit)for(const candidate of explicit.endsWith('.md')?[explicit]:[explicit+'.md'])try{await this.checked(candidate);if(!allowed.has(candidate)){allowed.add(candidate);resources.paths.push(candidate);}}catch{};
+  if(!Array.isArray(drafts)||drafts.length>64)throw new Error('Invalid editor drafts.');const edits=new Map();let bytes=0;for(const d of drafts){if(!d||!allowed.has(d.path)||typeof d.text!=='string')throw new Error('Draft is outside this detached file context.');bytes+=Buffer.byteLength(d.text);if(bytes>32*1024*1024)throw new Error('Too many unsaved note bytes.');edits.set(d.path,d.text);}
+  const notes=[];bytes=0;for(const p of resources.paths.filter(p=>p.endsWith('.md')).slice(0,200)){const text=edits.get(p)??(await this.read(p)).text;bytes+=Buffer.byteLength(text);if(bytes>32*1024*1024)break;notes.push({path:p,text});}
+  return refs.suggestLinks({input:args.input,from:this.path,notes});
+ }
  async resources(){
   // Inspect explicitly referenced paths only.
   // No folder becomes a vault, and no unrelated note bodies are read.

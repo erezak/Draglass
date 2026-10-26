@@ -1,3 +1,6 @@
+import {revealNoteFragment} from './note-link-navigation.js';
+import {autocompletion,completionKeymap} from '@codemirror/autocomplete';
+import {wikiCompletion} from './note-link-completion.js';
 import {initElementScrolling} from './element-scroll.js';
 import {mergeSavedTimestamps} from '../core/note-timestamps.cjs';
 import {minimalChange} from '../core/diff.cjs';
@@ -20,7 +23,7 @@ const run=async fn=>{try{return await fn();}catch(e){status(e.message.replace(/^
 const dirty=tab=>tab.state.doc.toString()!==tab.text;
 const diagrams=createDiagrams({api,getCurrent:()=>current,getTabs:()=>tabs,getEpoch:()=>0,ensureTab:ensureDrawing,onEdit:edit,onFollow:(raw,from)=>run(()=>follow(raw,from)),onError:e=>status(e.message,true),isLocked:()=>closing,onRefresh:()=>run(refresh)});
 const embeds=createEmbeds({api:{...api,revealAttachment:p=>api.follow(p)},getCurrent:()=>current,getTabs:()=>tabs,getNotes:()=>tabs,diagrams,onFollow:p=>run(()=>follow(p)),onLink:(raw,from)=>run(()=>follow(raw,from)),onMermaidEdit:(path,source,index)=>run(async()=>{const tab=tabs.find(t=>t.path===path);if(!tab)throw new Error('Open this note before editing its diagram.');const block=mermaidBlocks(tab.state.doc.toString())[index];if(!block||block.source!==source)throw new Error('Diagram changed. Reopen its editor.');diagrams.openMermaid(tab,block);})});
-function stateFor(text,tab){if(/^\s*(?:`{3,}|~{3,})\s*mermaid\s*$/mi.test(text))diagramRuntime().catch(()=>{});return EditorState.create({doc:text,extensions:[history(),markdown({extensions:[GFM]}),drawSelection(),EditorView.lineWrapping,EditorView.contentAttributes.of({spellcheck:'true'}),keymap.of([...defaultKeymap,...historyKeymap]),livePreview({enabled:live,onFollow:raw=>run(()=>follow(raw)),onExternal:raw=>run(()=>follow(raw)),onEmbed:(root,raw)=>embeds.mount(root,raw,tab.path,[],0,{readOnly:closing}),onDiagram:(root,source,range)=>diagrams.mermaid(root,source,{from:tab.path,edit:()=>diagrams.openMermaid(tab,range)}),embedRevision:()=>embeds.revision()}),EditorView.updateListener.of(update=>{if(tab!==current)return;tab.state=update.state;if(update.docChanged&&!update.transactions.some(t=>t.annotation(timestampSync)))changed(tab);})]});}
+function stateFor(text,tab){if(/^\s*(?:`{3,}|~{3,})\s*mermaid\s*$/mi.test(text))diagramRuntime().catch(()=>{});return EditorState.create({doc:text,extensions:[history(),markdown({extensions:[GFM]}),drawSelection(),EditorView.lineWrapping,EditorView.contentAttributes.of({spellcheck:'true'}),keymap.of([...completionKeymap,...defaultKeymap,...historyKeymap]),autocompletion({override:[context=>wikiCompletion(context,tabs.map(t=>({path:t.path,text:t.state.doc.toString()})),{from:tab.path,suggest:api.linkSuggestions?input=>api.linkSuggestions({input,drafts:tabs.filter(dirty).map(t=>({path:t.path,text:t.state.doc.toString()}))}):undefined})]}),livePreview({enabled:live,onFollow:raw=>run(()=>follow(raw)),onExternal:raw=>run(()=>follow(raw)),onEmbed:(root,raw)=>embeds.mount(root,raw,tab.path,[],0,{readOnly:closing}),onDiagram:(root,source,range)=>diagrams.mermaid(root,source,{from:tab.path,edit:()=>diagrams.openMermaid(tab,range)}),embedRevision:()=>embeds.revision()}),EditorView.updateListener.of(update=>{if(tab!==current)return;tab.state=update.state;if(update.docChanged&&!update.transactions.some(t=>t.annotation(timestampSync)))changed(tab);})]});}
 function makeTab(note){const tab={...note};tab.state=stateFor(note.text,tab);return tab;}
 function changed(tab){tab.error=null;clearTimeout(tab.timer);tab.timer=setTimeout(()=>run(()=>save(tab)),600);status('Waiting to save…');$('dirty').textContent='Unsaved edits';document.title=current.path+' · Detached · Draglass Editor';}
 function edit(tab,changes){if(closing)return;if(tab===current)editor.dispatch({changes});else{tab.state=tab.state.update({changes}).state;changed(tab);}diagrams.refresh().catch(e=>status(e.message,true));}
@@ -33,13 +36,8 @@ async function save(tab){
 async function follow(raw,from=current.path){
  const result=await api.follow(raw,from);if(result.same)jump(result.fragment);
 }
-function jump(fragment){
- if(!fragment)return;let wanted;try{wanted=decodeURIComponent(fragment).trim().toLowerCase();}catch{wanted=fragment.toLowerCase();}
- const slug=s=>s.replace(/[^\p{L}\p{N}\s_-]/gu,'').replace(/\s+/g,'-');const lines=current.state.doc.toString().split('\n');let offset=0,found=false;
- for(const line of lines){if((/^#{1,6}\s/.test(line)&&[line.replace(/^#{1,6}\s+/,'').replace(/\s+#+$/,'').trim().toLowerCase()].some(h=>h===wanted||slug(h)===wanted))||(wanted.startsWith('^')&&line.trimEnd().endsWith(wanted))){editor.dispatch({selection:{anchor:offset},scrollIntoView:true});found=true;break;}offset+=line.length+1;}
- if(reading){const headings=[...$('reading').querySelectorAll('h1,h2,h3,h4,h5,h6')],heading=headings.find(h=>h.textContent.trim().toLowerCase()===wanted||slug(h.textContent.trim().toLowerCase())===wanted);heading?.scrollIntoView?.();if(heading)found=true;}
- if(!found)status('This file has no heading or block named '+fragment+'.',true);
-}
+function jump(fragment){if(!fragment)return;try{revealNoteFragment({text:current.state.doc.toString(),fragment,editor,root:$('reading'),reading});}catch(e){status(e.message,true);}}
+
 async function render(){
  if(!current)return;const drawing=isDrawing(current.path,current.state.doc.toString());
  $('preview-button').disabled=drawing;$('source-mode').disabled=drawing;

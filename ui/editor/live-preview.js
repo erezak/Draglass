@@ -1,3 +1,4 @@
+import {blockMarkers} from '../../core/note-links/syntax.cjs';
 import {linkLabel} from '../../core/links.cjs';
 import {frontmatter} from '../../core/metadata.cjs';
 import {StateField,StateEffect} from '@codemirror/state';
@@ -153,6 +154,7 @@ export function livePreview({enabled=true,onTasks,tasksEnabled=()=>false,onTaskT
     for(let number=1;number<=state.doc.lines;number++){const text=state.doc.line(number);for(const match of text.text.matchAll(/!\[\[([^\]\n]+)\]\]/g)){const from=text.from+match.index,to=from+match[0].length;if(blocked.some(([a,b])=>from<b&&to>a))continue;if(!intersects(state,from,to)){const alone=text.text.trim()===match[0];ranges.push(Decoration.replace({widget:new EmbedWidget(match[1],from,onEmbed,embedRevision()),block:alone}).range(from,to));}else mark(from,to,'cm-live-link-source');}}
     // Wiki links extend Markdown and are not CommonMark syntax nodes.
     for(let number=1;number<=state.doc.lines;number++){const text=state.doc.line(number);for(const match of text.text.matchAll(/(?<!!)\[\[([^\]\n]+)\]\]/g)){const from=text.from+match.index,to=from+match[0].length;if(blocked.some(([a,b])=>from<b&&to>a))continue;const [target,...alias]=match[1].split('|'),label=linkLabel(target,alias.join('|'));if(!intersects(state,from,to)){hide(from,to,new WikiWidget(from,target.trim(),label,onFollow));wiki.push([from,to]);}else mark(from,to,'cm-live-link-source');}}
+    for(const marker of front.error?[]:blockMarkers(state.doc.toString()))if(!blocked.some(([a,b])=>marker.from<b&&marker.to>a)&&!intersects(state,marker.lineFrom,marker.lineTo))hide(marker.from,marker.to);
     for(const [from,css]of lineClasses)ranges.push(Decoration.line({class:css.trim()}).range(from));
     return Decoration.set(ranges,true);
   }

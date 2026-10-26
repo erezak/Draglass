@@ -1,4 +1,4 @@
-# Verification · 0.24.4
+# Verification · 0.25.0
 
 Additional regression checks passed for Finder metadata, visible demo failure without losing the active vault, explicit About version/icon options, and Mac development bundle icon/version installation before signing and launching. The development launcher check uses simulated macOS process/filesystem calls; native macOS execution remains unverified.
 
@@ -8,13 +8,13 @@ Split/workspace verification covers shared buffers and autosave, active-pane rou
 
 Verification environment: Linux and Node.js 24. Native macOS, Windows and Linux packaging is not produced in this environment.
 
-Demo checks cover first-launch selection, last-demo restoration, normal/unavailable prior vault preservation, editable edition persistence, content upgrades, concurrent installation and directory safety. Structural coverage checks verify the 59-note fictional scenario, all ontology types, sourced relationships, intentional missing targets, scene parsing and media assets. UI tests cover the palette command, saving before switching and keeping a failed-save draft. A Chromium check uses the real demo installer and knowledge worker to exercise first launch, welcome, graph/person inspection, the palette command and restoration after reload.
+Demo checks cover first-launch selection, last-demo restoration, normal/unavailable prior vault preservation, editable edition persistence, content upgrades, concurrent installation and directory safety. Structural coverage checks verify the 61-note fictional scenario, all ontology types, sourced relationships, intentional missing targets, scene parsing and media assets. UI tests cover the palette command, saving before switching and keeping a failed-save draft. A Chromium check uses the real demo installer and knowledge worker to exercise first launch, welcome, graph/person inspection, the palette command and restoration after reload.
 
 Backend checks use real temporary vaults and worker threads. They cover unchanged-file cache reuse, external edits, rename/delete invalidation, request-scoped drafts, shared tag/backlink/graph semantics, cancellation, worker failure/restart and shutdown. The desktop IPC test deliberately stalls a search and verifies an atomic save completes before that search is released. A renderer test verifies an older asynchronous search cannot replace newer results.
 
 Conversation checks cover legacy single-thread migration without message loss, separate conversation creation and selection, persistence after restart, history isolation, concurrent writes, note rename, invalid conversation IDs, empty-context chat before a vault is opened, and reference-only opening prompts followed by on-demand Markdown/YAML reads for explicitly mentioned notes. UI checks cover creating and switching conversations while preserving old messages, starting a workspace chat after closing the last note, and mentioning an unopened existing note.
 
-Results: **417 tests passed**, with no failures or skipped tests. A Chromium check also passed for chat before opening a vault, chat after closing the last note, existing-note mentions, new conversations and restoring an earlier conversation. A second Chromium check uses the real knowledge worker and temporary filesystem for tags, unsaved-draft search and graph construction. The renderer build completed successfully.
+Results: **441 tests passed**, with no failures or skipped tests. A Chromium check also passed for chat before opening a vault, chat after closing the last note, existing-note mentions, new conversations and restoring an earlier conversation. A second Chromium check uses the real knowledge worker and temporary filesystem for tags, unsaved-draft search and graph construction. The renderer build completed successfully.
 
 Local profiling smoke check: 1,000 synthetic notes of approximately 2 KiB each. Cold indexing/search took 257 ms; a warm query took 65 ms and reread zero unchanged note bodies. Editing one note caused one body reread. A fresh worker search took 331 ms while the main-thread timer continued firing. These are single-run Linux development observations, not cross-platform benchmarks or large-vault latency guarantees.
 
@@ -98,3 +98,11 @@ The complete 417-test regression suite passed. Eleven focused shared-link checks
 The final 48-test focused run passed after preserving native drawing extensions and distinguishing Markdown drawing twins during short-link generation.
 
 The focused link and organization checks also pass for preserving explicitly root-qualified links during renames.
+
+## Shared note references · 0.25.0
+
+The complete 441-test suite passes with no failures or skipped tests. New coverage includes YAML alias validation and canonical autocomplete insertion; heading, nested-heading and block suggestions; paragraph/list/quote/table ranges; code/YAML exclusions; duplicate block diagnostics; CRLF offsets; draft and external metadata changes in the real knowledge worker; detached scope; and ordinary editor/reading-view navigation. The autosave test fixture now updates its simulated disk state after successful writes, so background polling does not mistake its own writes for an external rollback.
+
+A Chromium check uses the actual knowledge worker and temporary files. It passes alias/heading/block completion, table-safe alias insertion through the editor adapter, editor offsets, reading anchors, section/list embeds, image dimensions and PDF page/height URLs. The reading and embed layouts were visually inspected. PDF viewer internals, native desktop packaging and OS-specific PDF page handling were not exercised by that renderer check.
+
+The build and extended demo check pass: 61 Markdown notes, 42 typed entities, 87 graph nodes, 110 named edges, 161 wiki edges and 70 sourced relationships. The Note links tour includes real aliases, named ranges and existing image/PDF assets.

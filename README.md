@@ -1,4 +1,4 @@
-# Draglass Editor · 0.24.4
+# Draglass Editor · 0.25.0
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -96,3 +96,5 @@ Use ordinary Markdown checkboxes, promote an action into a Task note, or run **N
 Task operations can be undone for 10 minutes through **Task history / Undo**, including after restarting the app. AI can read tasks and propose semantic task operations for review; grouped changes are accepted together.
 
 Internal note links display the filename without folder prefixes unless an explicit alias supplies the text. Their full target remains in the tooltip and source. Autocomplete and generated task/context references use the shortest unique target, with a clean alias when folders are needed. Ambiguous hand-written links offer a folder chooser; qualified missing paths never fall back to a different note with the same name.
+
+YAML aliases appear in wikilink autocomplete and insert canonical targets with display aliases. Type `[[Note#` for headings or `[[Note#^` for block IDs. Heading/block links work in Live Preview and reading view; `![[Note#Heading]]` and `![[Note#^id]]` embed the same indexed ranges. Note bodies, structured lists/quotes/tables, image dimensions and PDF page fragments are supported. See [Note links](docs/NOTE_LINKS.md) and the bundled Note links tour for syntax and scope.

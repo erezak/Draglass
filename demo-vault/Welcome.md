@@ -36,3 +36,5 @@ Open [[Tours/01 Writing]] to begin. Use **Open vault** to choose your own notes,
 Keep a reference beside your writing with [[Tours/11 Panes and workspaces]].
 
 - [[Tours/12 Tasks|Tasks: capture, promote and query]]
+
+Explore aliases, heading/block references and reusable content in [[Tours/13 Note links]].

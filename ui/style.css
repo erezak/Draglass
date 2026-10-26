@@ -143,3 +143,5 @@ dialog{width:410px;max-width:90vw;background:#24242c;color:#eee;border:1px solid
 :root[data-theme=light] .right-ribbon button[aria-selected=true]{background:var(--hover);color:var(--accent)}
 
 #link-choice-dialog{width:min(560px,90vw)}.link-choice-list{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow:auto;margin:14px 0}.link-choice-list button{text-align:left;overflow-wrap:anywhere}
+
+.note-block-anchor{display:inline-block;width:0;height:0;overflow:hidden}.note-link-highlight{outline:2px solid var(--accent);outline-offset:5px;border-radius:3px}
