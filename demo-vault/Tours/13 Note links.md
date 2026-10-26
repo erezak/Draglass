@@ -21,7 +21,7 @@ Plain click opens a rendered link; Alt-click reveals its source. Cmd/Ctrl-click 
 
 Open the example note and expand Properties: `aliases` is a list with Navigation demo and ND. Add another alias on its own line, then return here and type `[[` followed by the alias. Select the suggestion: it inserts the real file target and the chosen display alias, preserving graph and backlink identity.
 
-Type `[[Navigation example#` to suggest headings; `[[Navigation example#^` suggests block IDs with a short excerpt. Type `[[#` for headings in the current note. Folder names in suggestions distinguish notes with duplicate filenames.
+Type `[[Navigation example#` to suggest headings; `[[Navigation example#^` suggests block IDs with a short excerpt. Type `[[#` for headings in the current note. Folder names in suggestions distinguish notes with duplicate filenames. Switch between Light and Dark using the theme command while suggestions are open: both selected and unselected labels, aliases and paths should remain readable. Use the arrow keys to change the selection.
 
 ## Embed a note
 

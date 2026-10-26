@@ -17,7 +17,7 @@
         "Tours/13 Note links.md",
         "Reference/Navigation example.md"
       ],
-      "exercise": "Follow and embed connected notes Follow ordinary rendered wikilinks with a plain click, Alt-click to edit, inspect shortened folder-qualified labels and try the duplicate-name chooser. Use YAML alias autocomplete and navigate/embed heading, paragraph, list, quote and table references; try image dimensions and a PDF page."
+      "exercise": "Follow and embed connected notes Follow ordinary rendered wikilinks with a plain click, Alt-click to edit, inspect shortened folder-qualified labels and try the duplicate-name chooser. Use YAML alias autocomplete and navigate/embed heading, paragraph, list, quote and table references; try image dimensions and a PDF page.; check selected and unselected autocomplete suggestions in Light and Dark themes"
     },
     {
       "id": "properties-ontology",

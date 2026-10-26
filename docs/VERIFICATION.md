@@ -1,4 +1,4 @@
-# Verification · 0.25.0
+# Verification · 0.25.1
 
 Additional regression checks passed for Finder metadata, visible demo failure without losing the active vault, explicit About version/icon options, and Mac development bundle icon/version installation before signing and launching. The development launcher check uses simulated macOS process/filesystem calls; native macOS execution remains unverified.
 
@@ -106,3 +106,7 @@ The complete 441-test suite passes with no failures or skipped tests. New covera
 A Chromium check uses the actual knowledge worker and temporary files. It passes alias/heading/block completion, table-safe alias insertion through the editor adapter, editor offsets, reading anchors, section/list embeds, image dimensions and PDF page/height URLs. The reading and embed layouts were visually inspected. PDF viewer internals, native desktop packaging and OS-specific PDF page handling were not exercised by that renderer check.
 
 The build and extended demo check pass: 61 Markdown notes, 42 typed entities, 87 graph nodes, 110 named edges, 161 wiki edges and 70 sourced relationships. The Note links tour includes real aliases, named ranges and existing image/PDF assets.
+
+## Autocomplete theme contrast · 0.25.1
+
+Real Chromium checks with the actual CodeMirror autocomplete popup passed in Light and Dark, including switching the theme while the popup remains open and moving selection with the keyboard. Selected and unselected labels and path/alias details meet a 4.5:1 contrast threshold against their rendered backgrounds. Shared CSS covers vault and detached editors. The 26 focused reference/link regression tests and the build with demo validation passed. Native packaged-app testing was not performed for this styling change.
