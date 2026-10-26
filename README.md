@@ -1,4 +1,4 @@
-# Draglass Editor · 0.26.1
+# Draglass Editor · 0.27.1
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -100,3 +100,5 @@ Internal note links display the filename without folder prefixes unless an expli
 YAML aliases appear in wikilink autocomplete and insert canonical targets with display aliases. Type `[[Note#` for headings or `[[Note#^` for block IDs. Heading/block links work in Live Preview and reading view; `![[Note#Heading]]` and `![[Note#^id]]` embed the same indexed ranges. Note bodies, structured lists/quotes/tables, image dimensions and PDF page fragments are supported. See [Note links](docs/NOTE_LINKS.md) and the bundled Note links tour for syntax and scope.
 
 Task prerequisites use stable IDs across checkbox tasks and Task notes. Use the Tasks sidebar’s Actionable and Blocked filters, edit prerequisites visually, and follow blockers to their source. See [Tasks](docs/TASKS.md) for syntax and behavior.
+
+Tasks support fixed and completion-relative recurrence for checkboxes and Task notes. Edit Repeat to configure a schedule and choose prerequisite carryover. Completing an occurrence creates its successor with preserved planning-date offsets; grouped Undo restores both together.

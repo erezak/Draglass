@@ -1,4 +1,4 @@
-# Verification · 0.26.1
+# Verification · 0.27.1
 
 Additional regression checks passed for Finder metadata, visible demo failure without losing the active vault, explicit About version/icon options, and Mac development bundle icon/version installation before signing and launching. The development launcher check uses simulated macOS process/filesystem calls; native macOS execution remains unverified.
 
@@ -120,3 +120,11 @@ A real Chromium check used the Tasks plugin with a temporary filesystem vault an
 ## Task dependency graph and visibility · 0.26.1
 
 457 tests passed. Added coverage verifies named task edges in global and depth-one local graphs, inverse backlinks, same-note loops with multiple declarations, hollow missing/ambiguous task references, stable identity after renaming, and dependency relationships from the visual properties collection. Task editor tests verify retained relationship sources and removal of prerequisites. UI coverage verifies explicit dependencies in the Tasks pane and a single Tasks entry on the right ribbon. Build and demo validation passed. Native packaging and a separate Chromium canvas rendering check were not performed for this change.
+
+## Recurrence · 0.27.0
+
+The full suite passed 461 tests. Five focused recurrence checks and one editor interaction check also passed, including the added nested-item/carry-policy regression. Coverage includes month-end anchors, late schedules, completion-relative and weekday rules, distinct successor IDs, atomic inline/note completion and Undo, guarded reopening, and visual recurrence fields. Build and demo validation passed. Native packaging and live provider execution were not tested.
+
+## Repeat input correction · 0.27.1
+
+41 focused task/recurrence/operation tests and two editor interaction tests passed. The regression covers 2 days after completion, mixed case/spacing, and zero intervals. Build and demo validation passed. Task dialog CSS separates recurrence policy and task identity controls and bounds dialog height. Native visual verification was not performed.

@@ -153,3 +153,5 @@ The editor adapter supplies its own language tree to completion formatting, avoi
 Task dependency analysis lives in the pure `core/tasks/dependencies.cjs` component. Indexing, declarative queries, planners and AI tools share it. Iterative strongly connected components diagnose cycles; actionability uses the local query date. The journal revalidates dependency edits against fresh vault state inside its transaction before writing.
 
 `core/tasks/graph.cjs` projects the shared task model into note-level dependency edges and hollow unresolved task references. Local knowledge, backlinks and the visual graph consume that projection. Intra-note task dependencies retain self-edges and render as loops rather than disappearing.
+
+Task recurrence date calculation and successor planning live in `core/tasks/recurrence.cjs`. TaskPlanner extends semantic completion into a single validated journal plan, shared by manual and reviewed AI operations.

@@ -159,3 +159,5 @@ dialog{width:410px;max-width:90vw;background:#24242c;color:#eee;border:1px solid
 :root .cm-tooltip-autocomplete li[aria-selected=true] .cm-completionDetail{color:inherit;opacity:1}
 :root .cm-tooltip-autocomplete .cm-completionMatchedText{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px}
 :root .cm-tooltip-autocomplete .cm-completionIcon{color:inherit;opacity:.8}
+
+#task-dialog{max-height:90vh;overflow:auto}#task-dialog form>label:not(.check-setting){display:block;margin-block:12px}#task-dialog form>label:not(.check-setting)>input,#task-dialog form>label:not(.check-setting)>select{display:block;width:100%;margin-top:6px}#task-dialog fieldset{min-width:0;margin-block:16px;border:1px solid var(--border);border-radius:6px;padding:12px}#task-dialog .task-field-grid label{min-width:0}#task-dialog .task-field-grid select{width:100%}

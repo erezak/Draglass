@@ -98,3 +98,16 @@ With a configured AI connection, ask for actionable tasks and their blockers. In
 Open the local graph of [[Tasks/Review field readiness]]. A named **Depends on** edge connects it to this tour, which contains its dispatch prerequisite. Open this tour’s local graph: a labeled loop represents its inline tasks depending on other inline tasks in the same note. Pin the note’s graph details and expand Recorded declarations to see the exact task IDs, titles, source lines and prerequisite states. Complete a prerequisite, promote it, or rename its note and check that the relationship still resolves. Graphs show note-level relationships; several task dependencies between the same notes share an edge with multiple declarations.
 
 The Tasks pane displays a Dependencies section for every result. You can also add a `depends_on` relationship from a Task note to another Task note using Properties: the pane will show the same prerequisite and blocked state. Keep any supporting sources on that relationship; retaining it through task editing preserves those sources. Tasks is available from the right ribbon, without a duplicate left-ribbon button.
+
+## Recurring tasks
+
+- [ ] Inspect the spare kit 📅 2026-11-01 🔁 every 1 month; 🆔 demo-recurring-kit
+
+Use Edit → Repeat to enter `every 1 week`, `every monday`, or `2 days after completion`. Choose whether new occurrences clear or carry prerequisite IDs. Complete this example: the completed occurrence remains and a new occurrence receives its own ID and dates. Use Undo to restore both together. A future start date controls actionability, not the recurrence rule.
+
+```tasks
+is recurring
+not done
+```
+
+Fixed schedules skip missed dates and create one future occurrence. Planning dates retain their spacing. Month-end schedules retain their original day where possible (January 31 → February 28 → March 31). To reopen a completed occurrence that already has a successor, use grouped Undo within its ten-minute window.
