@@ -65,3 +65,5 @@ Run **Open Tasks**: the Tasks tab opens on the right while this note stays open.
 Promote the practice checkbox above. The floating **Undo** notice stays available for ten minutes; it also returns after restarting within that window. You can always find eligible operations with **Task history / Undo…** in the command palette. In light mode, the dialog’s primary action uses a filled accent color.
 
 In AI **Discuss (read-only)** mode, ask about a task. To request an edit, use **Enable changes for this request**, then send the filled request in **Propose changes** mode. Review and accept the grouped operation before it changes files.
+
+Task references use the same vault-wide wikilinks as every other note. Plain-click a rendered reference to open its note; Alt-click to edit it. A unique task can be linked as `[[Review field readiness]]`; folder-qualified links still display the note name. Explicit aliases override the display text.

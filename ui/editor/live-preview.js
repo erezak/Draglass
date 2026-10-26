@@ -1,3 +1,4 @@
+import {linkLabel} from '../../core/links.cjs';
 import {frontmatter} from '../../core/metadata.cjs';
 import {StateField,StateEffect} from '@codemirror/state';
 import {EditorView,Decoration,WidgetType} from '@codemirror/view';
@@ -12,7 +13,7 @@ const enabledField=StateField.define({create:()=>true,update:(value,tr)=>{for(co
 export const isLiveMode=state=>state.field(enabledField,false)===true;
 const intersects=(state,from,to)=>state.selection.ranges.some(range=>range.empty?range.head>=from&&range.head<=to:range.from<to&&range.to>from);
 // Use an isolated inline parser so table support does not change other renderers.
-const tableMarkdown=new Marked({extensions:[{name:'tableWikiLink',level:'inline',start:source=>source.indexOf('[['),tokenizer(source){const match=/^\[\[([^\]\n]+)\]\]/.exec(source);if(match)return {type:'tableWikiLink',raw:match[0],body:match[1]};},renderer(token){const [target,...alias]=token.body.replace(/\\\|/g,'|').split('|'),anchor=document.createElement('a');anchor.href='#';anchor.className='cm-live-link';anchor.dataset.wikiTarget=target.trim();anchor.textContent=alias.join('|').trim()||target.trim();anchor.title='Open '+target.trim();return anchor.outerHTML;}}]});
+const tableMarkdown=new Marked({extensions:[{name:'tableWikiLink',level:'inline',start:source=>source.indexOf('[['),tokenizer(source){const match=/^\[\[([^\]\n]+)\]\]/.exec(source);if(match)return {type:'tableWikiLink',raw:match[0],body:match[1]};},renderer(token){const [target,...alias]=token.body.replace(/\\\|/g,'|').split('|'),anchor=document.createElement('a');anchor.href='#';anchor.className='cm-live-link';anchor.dataset.wikiTarget=target.trim();anchor.textContent=linkLabel(target,alias.join('|'));anchor.title='Open '+target.trim();return anchor.outerHTML;}}]});
 const plainInline=text=>DOMPurify.sanitize(tableMarkdown.parseInline(text),{FORBID_TAGS:['img','iframe','form','input','style','button'],ALLOW_DATA_ATTR:false,ADD_ATTR:['data-wiki-target']});
 
 class EmbedWidget extends WidgetType {
@@ -54,7 +55,11 @@ class TaskWidget extends WidgetType {
 class WikiWidget extends WidgetType {
   constructor(from,target,label,follow){super();this.from=from;this.target=target;this.label=label;this.follow=follow;}
   eq(other){return this.from===other.from&&this.target===other.target&&this.label===other.label;}
-  toDOM(view){const span=document.createElement('span');span.className='cm-live-link';span.textContent=this.label;span.setAttribute('role','link');span.title='Click to edit · Cmd/Ctrl-click to follow';span.addEventListener('mousedown',event=>{event.preventDefault();if(event.metaKey||event.ctrlKey)this.follow(this.target,event);else{view.dispatch({selection:{anchor:this.from+2}});view.focus();}});return span;}
+  toDOM(view){const span=document.createElement('span');span.className='cm-live-link';span.textContent=this.label;span.setAttribute('role','link');span.tabIndex=0;span.title=this.target+' · Click to open · Alt-click to edit';let down;
+  const edit=()=>{view.dispatch({selection:{anchor:this.from+2}});view.focus();};
+  span.addEventListener('mousedown',event=>{if(event.button!==0)return;event.preventDefault();down={x:event.clientX,y:event.clientY};});
+  span.addEventListener('click',event=>{if(event.button!==0||event.shiftKey)return;event.preventDefault();if(down&&Math.hypot(event.clientX-down.x,event.clientY-down.y)>4){down=null;return;}down=null;if(event.altKey&&!event.metaKey&&!event.ctrlKey)edit();else this.follow(this.target,event);});
+  span.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();event.stopPropagation();if(event.altKey)edit();else this.follow(this.target,event);}});return span;}
   ignoreEvent(){return true;}
 }
 
@@ -92,8 +97,8 @@ function tableRows(node,state){
   return rows;
 }
 
-export function livePreview({enabled=true,onTasks,tasksEnabled=()=>false,onTaskToggle,onFollow=()=>{},onEmbed=()=>{},onDiagram=()=>{},embedRevision=()=>0}={}){
-  const mermaidCache=new Map();
+export function livePreview({enabled=true,onTasks,tasksEnabled=()=>false,onTaskToggle,onFollow=()=>{},onExternal,onEmbed=()=>{},onDiagram=()=>{},embedRevision=()=>0}={}){
+  const mermaidCache=new Map();let linkDown;
   class TasksWidget extends WidgetType {constructor(source,revision){super();this.source=source;this.revision=revision;}eq(other){return this.source===other.source&&this.revision===other.revision;}get estimatedHeight(){return 220;}toDOM(view){const root=document.createElement('div');root.className='tasks-embed';Promise.resolve(onTasks(root,this.source)).then(()=>view.requestMeasure(),()=>view.requestMeasure());return root;}ignoreEvent(){return true;}}
 
   function build(state){
@@ -139,7 +144,7 @@ export function livePreview({enabled=true,onTasks,tasksEnabled=()=>false,onTaskT
         // CommonMark treats the inner [label] of a wiki link as a reference link.
         if(state.sliceDoc(Math.max(0,node.from-1),node.from)==='['&&state.sliceDoc(node.to,node.to+1)===']')return false;
         blocked.push([node.from,node.to]);const marks=parts.filter(c=>c.name==='LinkMark'),url=parts.find(c=>c.name==='URL');
-        if(marks.length>=2){mark(marks[0].to,marks[1].from,'cm-live-link',url?{'data-markdown-link':state.sliceDoc(url.from,url.to)}:undefined);if(!active){hide(node.from,marks[0].to);hide(marks[1].from,node.to);}}return false;
+        if(marks.length>=2){mark(marks[0].to,marks[1].from,'cm-live-link',url?{'data-markdown-link':state.sliceDoc(url.from,url.to),'data-link-editing':active?'true':'false'}:undefined);if(!active){hide(node.from,marks[0].to);hide(marks[1].from,node.to);}}return false;
       }
       if(name==='Image'&&state.sliceDoc(node.from,node.to).startsWith('![['))return false;
       if(name==='Image'){blocked.push([node.from,node.to]);const raw=state.sliceDoc(node.from,node.to),url=parts.find(p=>p.name==='URL'),alt=/^!\[([^\]]*)\]/.exec(raw)?.[1]||'';if(!active&&url){const target=state.sliceDoc(url.from,url.to).replace(/^<|>$/g,'')+(alt?'|'+alt:'');const alone=state.doc.lineAt(node.from).text.trim()===raw;ranges.push(Decoration.replace({widget:new EmbedWidget(target,node.from,onEmbed,embedRevision()),block:alone}).range(node.from,node.to));}return false;}
@@ -147,10 +152,10 @@ export function livePreview({enabled=true,onTasks,tasksEnabled=()=>false,onTaskT
     }});
     for(let number=1;number<=state.doc.lines;number++){const text=state.doc.line(number);for(const match of text.text.matchAll(/!\[\[([^\]\n]+)\]\]/g)){const from=text.from+match.index,to=from+match[0].length;if(blocked.some(([a,b])=>from<b&&to>a))continue;if(!intersects(state,from,to)){const alone=text.text.trim()===match[0];ranges.push(Decoration.replace({widget:new EmbedWidget(match[1],from,onEmbed,embedRevision()),block:alone}).range(from,to));}else mark(from,to,'cm-live-link-source');}}
     // Wiki links extend Markdown and are not CommonMark syntax nodes.
-    for(let number=1;number<=state.doc.lines;number++){const text=state.doc.line(number);for(const match of text.text.matchAll(/(?<!!)\[\[([^\]\n]+)\]\]/g)){const from=text.from+match.index,to=from+match[0].length;if(blocked.some(([a,b])=>from<b&&to>a))continue;const [target,label]=match[1].split('|');if(!intersects(state,from,to)){hide(from,to,new WikiWidget(from,target.trim(),label||target,onFollow));wiki.push([from,to]);}else mark(from,to,'cm-live-link-source');}}
+    for(let number=1;number<=state.doc.lines;number++){const text=state.doc.line(number);for(const match of text.text.matchAll(/(?<!!)\[\[([^\]\n]+)\]\]/g)){const from=text.from+match.index,to=from+match[0].length;if(blocked.some(([a,b])=>from<b&&to>a))continue;const [target,...alias]=match[1].split('|'),label=linkLabel(target,alias.join('|'));if(!intersects(state,from,to)){hide(from,to,new WikiWidget(from,target.trim(),label,onFollow));wiki.push([from,to]);}else mark(from,to,'cm-live-link-source');}}
     for(const [from,css]of lineClasses)ranges.push(Decoration.line({class:css.trim()}).range(from));
     return Decoration.set(ranges,true);
   }
   const decorations=StateField.define({create:build,update:(value,tr)=>tr.docChanged||tr.selection||tr.effects.some(effect=>effect.is(setLiveMode)||effect.is(refreshEmbeds))||syntaxTree(tr.startState)!==syntaxTree(tr.state)?build(tr.state):value,provide:field=>EditorView.decorations.from(field)});
-  return [enabledField.init(()=>enabled),decorations,EditorView.editorAttributes.from(enabledField,value=>({class:value?'cm-live-preview':'cm-source-mode'})),EditorView.domEventHandlers({mousedown:(event,view)=>{const link=event.target.closest?.('[data-markdown-link]');if(link&&(event.ctrlKey||event.metaKey)){event.preventDefault();const target=link.dataset.markdownLink;if(!/^(\w+:|\/\/)/.test(target)){try{onFollow(decodeURIComponent(target),event);}catch{}}return true;}return false;}})];
+  return [enabledField.init(()=>enabled),decorations,EditorView.editorAttributes.from(enabledField,value=>({class:value?'cm-live-preview':'cm-source-mode'})),EditorView.domEventHandlers({mousedown:(event,view)=>{const link=event.target.closest?.('[data-markdown-link]');if(!link||event.button!==0||event.shiftKey||event.altKey&&!event.ctrlKey&&!event.metaKey||link.dataset.linkEditing==='true'&&!event.ctrlKey&&!event.metaKey)return false;linkDown={x:event.clientX,y:event.clientY};event.preventDefault();return true;},click:(event,view)=>{const link=event.target.closest?.('[data-markdown-link]');if(!link||event.button!==0||event.shiftKey||event.altKey&&!event.ctrlKey&&!event.metaKey||link.dataset.linkEditing==='true'&&!event.ctrlKey&&!event.metaKey)return false;if(linkDown&&Math.hypot(event.clientX-linkDown.x,event.clientY-linkDown.y)>4){linkDown=null;event.preventDefault();return true;}linkDown=null;const target=link.dataset.markdownLink;if(!/^(\w+:|\/\/)/.test(target)){event.preventDefault();try{onFollow(decodeURIComponent(target),event);}catch{}return true;}if(onExternal&&/^(https?:|mailto:)/i.test(target)){event.preventDefault();onExternal(target,event);return true;}return false;}})];
 }

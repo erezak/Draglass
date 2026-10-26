@@ -15,7 +15,7 @@
       "notes": [
         "Tours/02 Linking and embeds.md"
       ],
-      "exercise": "Follow and embed connected notes"
+      "exercise": "Follow and embed connected notes Follow ordinary rendered wikilinks with a plain click, Alt-click to edit, inspect shortened folder-qualified labels and try the duplicate-name chooser."
     },
     {
       "id": "properties-ontology",

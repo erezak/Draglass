@@ -75,3 +75,5 @@ Disabling Tasks removes its commands, ribbon action, AI query tool and enhanced 
 ## Next slices
 
 The agreed direction combines richer task views and workflows with task notes and inline capture. Planned capabilities include dependency-aware actionability, robust per-task recurrence and date-offset preservation, calculated urgency, an Eisenhower matrix, boards/calendar/tree views, reusable/context-aware queries and an optional daily workflow plugin. JavaScript execution is excluded.
+
+Generated Task/context references use the same shortest unique wikilinks as ordinary notes. The renderer hides folder prefixes on unaliased internal labels, while the source and tooltip retain the target. Duplicate names retain a qualifying path with a display alias. Plain click opens a rendered link; Alt-click reveals its source.

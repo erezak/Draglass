@@ -1,4 +1,4 @@
-# Draglass Editor · 0.24.3
+# Draglass Editor · 0.24.4
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -63,7 +63,7 @@ Third-party notices remain in `docs/licenses` and are bundled with the applicati
 
 ## Tab groups and saved workspaces
 
-Each pane owns its tab bar, note toolbar and selected view. Open a note in the focused pane, or right-click it for **Open**, **Open in new tab**, **Open to the right** or **Open below**. Cmd/Ctrl-click opens another tab; adding Alt opens a group to the right. In Live Preview, ordinary inline links reveal their editable source; Cmd/Ctrl-click follows them. Table and reading-view links navigate normally.
+Each pane owns its tab bar, note toolbar and selected view. Open a note in the focused pane, or right-click it for **Open**, **Open in new tab**, **Open to the right** or **Open below**. Cmd/Ctrl-click opens another tab; adding Alt opens a group to the right. In Live Preview, plain-click rendered internal links to open them; Alt-click reveals their editable source. Cmd/Ctrl-click opens another tab. Table and reading-view links navigate normally.
 
 Use **Split editor right** or **Split editor below** to divide the focused group. Splits can nest, so a column can contain two rows beside another column. Drag dividers, or focus a divider and use arrow keys; Home resets its ratio. Drag tabs between groups, onto another tab to reorder, or to the right/bottom edge of a pane to split. **Move current tab to next group**, **Focus next tab group**, and **Close tab group** are also available in the command palette.
 
@@ -94,3 +94,5 @@ All graph tabs follow the app theme, including their canvases, labels, controls,
 Use ordinary Markdown checkboxes, promote an action into a Task note, or run **New Task** from the command palette. Open **Tasks** from the left ribbon to edit dates and priorities across the vault. Fenced `tasks` blocks show live query results. Enable or disable the bundled feature in Settings → Core plugins. See [Tasks](docs/TASKS.md) for the supported query instructions and current scope.
 
 Task operations can be undone for 10 minutes through **Task history / Undo**, including after restarting the app. AI can read tasks and propose semantic task operations for review; grouped changes are accepted together.
+
+Internal note links display the filename without folder prefixes unless an explicit alias supplies the text. Their full target remains in the tooltip and source. Autocomplete and generated task/context references use the shortest unique target, with a clean alias when folders are needed. Ambiguous hand-written links offer a folder chooser; qualified missing paths never fall back to a different note with the same name.

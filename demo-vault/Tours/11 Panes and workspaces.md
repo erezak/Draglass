@@ -19,7 +19,7 @@ Keep [[Systems/Beacon service]] beside [[Sources/Design review]] while you write
 
 ## Navigate, pin and move
 
-Ordinary explorer and reading/table link clicks navigate within the current tab. Use Back and Forward above the note to retrace that tab's history. Cmd/Ctrl-click opens another tab; add Alt to open to the right. Inline links in Live Preview still use a normal click to reveal editable source and Cmd/Ctrl-click to follow.
+Ordinary explorer and reading/table link clicks navigate within the current tab. Use Back and Forward above the note to retrace that tab's history. Cmd/Ctrl-click opens another tab; add Alt to open to the right. Inline links in Live Preview also open with a plain click. Alt-click reveals their source for editing; Cmd/Ctrl-click opens a new tab.
 
 Run **Pin / unpin current tab** to keep a reference: navigating to another note opens a separate tab. Drag tabs between groups, drop onto another tab to reorder, or drop at a pane's right/bottom edge to make a split. You can also use **Move current tab to next group**. Closing one view does not close another view of the same file or delete its note.
 
