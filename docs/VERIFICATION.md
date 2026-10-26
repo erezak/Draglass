@@ -1,4 +1,4 @@
-# Verification · 0.23.4
+# Verification · 0.24.3
 
 Additional regression checks passed for Finder metadata, visible demo failure without losing the active vault, explicit About version/icon options, and Mac development bundle icon/version installation before signing and launching. The development launcher check uses simulated macOS process/filesystem calls; native macOS execution remains unverified.
 
@@ -14,7 +14,7 @@ Backend checks use real temporary vaults and worker threads. They cover unchange
 
 Conversation checks cover legacy single-thread migration without message loss, separate conversation creation and selection, persistence after restart, history isolation, concurrent writes, note rename, invalid conversation IDs, empty-context chat before a vault is opened, and reference-only opening prompts followed by on-demand Markdown/YAML reads for explicitly mentioned notes. UI checks cover creating and switching conversations while preserving old messages, starting a workspace chat after closing the last note, and mentioning an unopened existing note.
 
-Results: **372 tests passed**, with no failures or skipped tests. A Chromium check also passed for chat before opening a vault, chat after closing the last note, existing-note mentions, new conversations and restoring an earlier conversation. A second Chromium check uses the real knowledge worker and temporary filesystem for tags, unsaved-draft search and graph construction. The renderer build completed successfully.
+Results: **401 tests passed**, with no failures or skipped tests. A Chromium check also passed for chat before opening a vault, chat after closing the last note, existing-note mentions, new conversations and restoring an earlier conversation. A second Chromium check uses the real knowledge worker and temporary filesystem for tags, unsaved-draft search and graph construction. The renderer build completed successfully.
 
 Local profiling smoke check: 1,000 synthetic notes of approximately 2 KiB each. Cold indexing/search took 257 ms; a warm query took 65 ms and reread zero unchanged note bodies. Editing one note caused one body reread. A fresh worker search took 331 ms while the main-thread timer continued firing. These are single-run Linux development observations, not cross-platform benchmarks or large-vault latency guarantees.
 
@@ -72,3 +72,19 @@ A one-off comparison against the delivered 0.23.3 source confirms provider-facin
 Fourteen task tests cover real Markdown parsing and exclusions, canonical references and aliases, declarative filters/date resolution/sort/group/pagination/explanations, invalid queries and JavaScript rejection, standalone/contextual creation, identity-preserving promotion and CRLF/nested-item preservation, completion/reopening across references, stale/ambiguous rejection, failed-promotion rollback, draft-aware worker queries and gated/bounded AI tools, autosave line shifts, self references and bounded workspace state. Existing ontology/property tests include Task.
 
 A Chromium check uses a real managed Vault and knowledge worker. It passes inline query rendering, Tasks-pane queries, promotion, deduplication after promotion, completion and source-reference synchronization, standalone creation, contextual creation with inserted reference, theme rendering and plugin disablement. Light/dark screenshots were visually inspected. The demo has a real task note/reference and a guided promotion/query exercise. The regular build and site checks pass. Native packaging and installed desktop integration were not tested in this environment.
+
+## Semantic task operations and Undo · 0.24.1
+
+Eighteen operation tests cover durable contextual creation and promotion Undo, whole-operation conflict checks, time limits and sequential Undo with managed timestamps, interrupted apply and Undo reconciliation, unknown-edit conflict preservation, history path safety, duplicate IDs, plugin/action-mode gating, request-local handles, grouped AI staging/acceptance/Undo, external edits before staging and acceptance, field-only updates and response bounds, identity lookup after rename, real AI service orchestration with reference-only prompts, larger manual reference sets versus AI limits, stale cached reads and mixed note/task overlap rejection. The original task, action, provider and UI suites remain covered.
+
+A real Chromium check uses managed Vault, knowledge worker, TasksService and AIService with a deterministic provider fixture. It passes contextual creation Undo, promotion Undo, grouped AI file previews and acceptance, grouped review Undo, and reopening task history after reload. It also verifies removed task files disappear from open views and a restored source can reopen. The history dialog was visually inspected in light mode. No live provider or native packaged app was used. Build, demo and site validation pass.
+
+## Task interaction corrections
+
+Regression checks cover right-sidebar placement, unsaved-draft refresh, persisted query docking from earlier workspace tabs, restored actionable Undo, promotion dialog/notice lifecycle, body context wikilinks, and explicitly preparing a Discuss request in proposal mode with its note references retained. A Chromium component check confirms light-theme primary-button contrast, top-layer Undo visibility and click targeting after dialog close, and right-sidebar position. Provider responses in renderer tests are fixtures; live gateway and native desktop behavior were not verified here.
+
+## Session access and right icon rail
+
+Renderer regressions cover explicit session labels, enabling changes without a new request or lost conversation/draft, request reuse without replacing a newer draft, reopening collapsed panels through the icon rail, vertical keyboard navigation, and skipping disabled Tasks. The existing vault-agent tests continue to enforce read-only tool gating. A Chromium component check passes both themes, icon placement, mode switching without sending, panel reopening and keyboard switching. It uses a provider fixture rather than a live gateway.
+
+The complete 401-test regression run passed. Seven focused renderer checks passed after the final sidebar-selection adjustment, including preserving a collapsed sidebar when Tasks is disabled. The build and bundled-demo validation passed.

@@ -36,7 +36,7 @@
       "notes": [
         "Tours/05 AI conversations.md"
       ],
-      "exercise": "Explore bounded vault tools, ask for current local/UTC time before relative dates, inspect canonical ontology and provenance examples, find dated notes, follow citations, and review guarded edits with undo"
+      "exercise": "Explore bounded vault tools, ask for current local/UTC time before relative dates, inspect canonical ontology and provenance examples, find dated notes, follow citations, and review guarded edits with undo Inspect the read-only session label, explicitly enable reviewed changes, and switch Chat, Backlinks and Tasks using the right icon rail."
     },
     {
       "id": "diagrams",
@@ -85,7 +85,7 @@
       "notes": [
         "Tours/12 Tasks.md"
       ],
-      "exercise": "Collect inline tasks and task notes, edit dates, promote with identity preserved, run embedded queries, and disable the Tasks core plugin"
+      "exercise": "Collect inline and note tasks, promote with identity preserved, query, use durable grouped Undo, and review semantic AI task proposals. Open Tasks in the right sidebar, inspect body context wikilinks, and restore the visible Undo notice after restart."
     }
   ],
   "entityTypes": [

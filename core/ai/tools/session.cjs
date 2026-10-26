@@ -6,7 +6,7 @@ const hash=text=>createHash('sha256').update(text).digest('hex');
 // No provider, credentials, UI objects or mutation service enter this context.
 function createSessionContext({vault,context=[],signal,progress=()=>{},knowledgeQuery,readLimit=4000,clock,ontology}){
  let closed=false,indexed=null;
- const snapshots=new Map(),ranges=new Map(),staged=new Map(),references=new Map();
+ const taskReads=new Map(),snapshots=new Map(),ranges=new Map(),staged=new Map(),references=new Map();
  const inputs=structuredClone(context),drafts=new Map(inputs.map(n=>[n.path,n.text]));
  function assertActive(){if(closed)throw new Error('Tool session is closed.');if(signal?.aborted)throw new Error('Response stopped.');}
  async function readDisk(path){assertActive();if(!vault)throw new Error('Open a vault to read notes.');const result=await vault.read(path);assertActive();return result;}
@@ -29,10 +29,10 @@ function createSessionContext({vault,context=[],signal,progress=()=>{},knowledge
  }
  const query=knowledgeQuery?async(method,args)=>{assertActive();const value=await knowledgeQuery(method,args);assertActive();return value;}:undefined;
  return {
-  context:inputs,snapshots,ranges,staged,references,notes,snapshot,readDisk,assertActive,
+  context:inputs,taskReads,snapshots,ranges,staged,references,notes,snapshot,readDisk,assertActive,
   knowledgeQuery:query,readLimit,clock,ontology,progress:summary=>{assertActive();progress(summary);},
   result(){assertActive();return structuredClone({changes:[...staged.values()],context:[...snapshots.values()],citations:[...references.values()]});},
-  close(){closed=true;indexed=null;for(const map of [snapshots,ranges,staged,references,drafts])map.clear();inputs.length=0;}
+  close(){closed=true;indexed=null;for(const map of [taskReads,snapshots,ranges,staged,references,drafts])map.clear();inputs.length=0;}
  };
 }
 module.exports={createSessionContext};

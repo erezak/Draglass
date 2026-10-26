@@ -1,4 +1,4 @@
-# Draglass Editor · 0.24.0
+# Draglass Editor · 0.24.3
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -28,6 +28,8 @@ Copy `release/mac-arm64/Draglass Editor.app` to `/Applications`. For a DMG, use 
 The fictional Lumen field station connects people, goals, capabilities, systems, decisions and evidence. Eleven tours introduce editing, AI, graphs, properties, drawings, attachments and organization. The demo is editable; updated examples open as a fresh edition while earlier editions and edits are retained.
 
 ## AI conversations
+
+The right icon rail opens Chat, Backlinks and Tasks, and remains available when the sidebar is collapsed. Chat shows **Read-only session** in Discuss mode. **Enable changes** switches the same conversation to read-write proposal mode; files change only after you accept a review. After a reply, **Enable changes for this request** can reuse the request without overwriting a newer draft.
 
 The right sidebar works with or without an open note, and general chat also works before opening a vault. Use **New conversation** to start fresh while preserving earlier conversations; the Conversation selector reopens them. Workspace and individual-note conversations are stored separately and restored after restart.
 
@@ -90,3 +92,5 @@ All graph tabs follow the app theme, including their canvases, labels, controls,
 ## Tasks
 
 Use ordinary Markdown checkboxes, promote an action into a Task note, or run **New Task** from the command palette. Open **Tasks** from the left ribbon to edit dates and priorities across the vault. Fenced `tasks` blocks show live query results. Enable or disable the bundled feature in Settings → Core plugins. See [Tasks](docs/TASKS.md) for the supported query instructions and current scope.
+
+Task operations can be undone for 10 minutes through **Task history / Undo**, including after restarting the app. AI can read tasks and propose semantic task operations for review; grouped changes are accepted together.

@@ -1,4 +1,4 @@
-# Local application architecture · 0.19.0
+# Local application architecture
 
 ## Ownership and execution
 
@@ -129,3 +129,17 @@ The knowledge worker caches the task model alongside existing draft-aware knowle
 `ui/plugins/tasks.js` has explicit mount/destroy behavior through the core-plugin registry. It owns task dialogs and the ribbon action. The typed `tasks` workspace leaf uses the normal tab-host architecture and bounded query state. Fenced renderers call the active plugin; disabling it preserves source text and task files. Hidden retained editors must not receive lock transactions while their pane displays an auxiliary view, because their old document could overwrite a shared buffer.
 
 The AI component conditionally exposes `query_tasks` only for an enabled Tasks plugin in an open vault. Worker responses project small reference summaries, not note bodies or task write capabilities. Existing reviewed note proposals remain the mutation boundary for AI. See [TASKS.md](TASKS.md) for supported behavior and planned extensions.
+
+## Semantic task operations and durable Undo · 0.24.2
+
+`TaskPlanner` in `core/tasks/planner.cjs` receives only read capabilities. It produces a file plan for creation, field updates, completion/reopening or promotion. It never creates folders or writes files. Both the Tasks service and AI tool handlers use it; task semantics are not duplicated in provider adapters.
+
+`TaskJournal` in `core/tasks/journal.cjs` executes accepted plans through the managed Vault and journals planned, timestamped bytes before the first mutation. Each receipt has a stable ID, before/after text, state and 10-minute expiry. It serializes per vault, validates portable paths and duplicate files, retains recent history, and rejects later-edit conflicts before Undo. It reconciles interrupted apply/Undo records: known partial changes roll back, complete changes recover status, and unknown edits remain untouched with a conflict record. It does not claim filesystem-wide atomicity.
+
+AI task handles and staged operations live in the dedicated tool session. `task-operations.cjs` exposes read_task plus action-mode semantic proposal tools only while Tasks is enabled. Provider results contain fields, handles and affected paths; full proposed file text remains local. The shared proposal validator counts every nested file against the existing 12-file and content budget and rejects overlapping operations.
+
+`ActionStore` retains a grouped task entry and delegates execution/Undo to TasksService using the preassigned receipt ID. Its crash recovery consults the durable task receipt. The review UI previews individual nested files but accepts/rejects/undoes the operation as one unit. All resulting files are merged into shared editor buffers; removing the active task note clears its views and can reopen the restored source note.
+
+Tasks opens in the right sidebar; its bounded query is stored in layout state. Persisted Tasks leaves are docked there on restore without changing note leaves or pane topology. The plugin owns its query rendering, top-layer Undo notice and startup receipt recovery. Discuss stays read-only; preparing a prior request as a proposal switches the composer mode explicitly before another send.
+
+A persistent right-side icon rail selects the Chat, Backlinks and Tasks panels and reopens a collapsed sidebar. Its tab controls have accessible labels, tooltips and vertical arrow-key navigation. AI mode remains an explicit renderer selection: Discuss exposes read tools; enabling changes selects proposal tools on the next request. The session access indicator and review requirement remain visible independently of response text.

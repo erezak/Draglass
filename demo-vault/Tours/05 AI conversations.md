@@ -48,3 +48,15 @@ Try: “Use `find_notes_by_date` to find notes whose observed_at YAML date is Oc
 You can also ask for filesystem creation/modification dates, another YAML date property such as created_at, or a YYYY-MM-DD date in a filename. The model receives paginated references and dates first, and reads content separately. Ranges include both UTC calendar days. Filesystem modification dates do not identify event dates, and creation time can fall back to modification time on filesystems without it. Tell the model which basis you mean; for local-day boundaries, account for your timezone explicitly.
 
 Open [[Tours/06 Diagrams and drawings]] next.
+
+## Semantic task proposals
+
+With Tasks enabled, ask the assistant to query open tasks and use `read_task` for one action. In Propose changes mode it can use `create_task`, `update_task`, `complete_task` or `promote_task`. These tools prepare changes for review and do not write files. Accepting a task operation applies all its affected files together; Undo uses the same durable history as manual task operations. See [[Tours/12 Tasks]].
+
+**Discuss (read-only)** searches and explains without proposing edits. After a reply, **Enable changes for this request** selects Propose changes and fills the same request for you to send. Files change only after you accept a proposal.
+
+## Session access and right-side tools
+
+Use the Chat icon on the far-right rail. The session starts with **Read-only session** visible above the conversation. Ask for a suggested improvement, then choose **Enable changes for this request**. The same conversation now shows **Read-write · changes require review**. Send the request and inspect the proposal before accepting it. **Enable changes** also switches modes without filling or sending a request. Return to Discuss in the Mode selector to restore read-only tools.
+
+Use the Backlinks icon to inspect incoming links, then the Tasks icon to view actions. Collapse the right sidebar and click any of these icons to reopen its panel. Focus an icon and use Up/Down, Home or End to switch panels. Disabling Tasks hides its icon.

@@ -79,7 +79,7 @@ AI application tools now have a dedicated component with a capability registry, 
 
 Continue in reviewable slices:
 
-1. Add durable task operation Undo and semantic staged AI create/update/complete/promote tools. Preserve identity across promotion, rename and external edits; handle ambiguous or duplicated IDs explicitly.
+1. Delivered in 0.24.1: durable grouped task Undo and semantic staged AI create/update/complete/promote tools. IDs survive promotion and can resolve renamed tasks; stale Undo preserves renamed/later-edited files. Duplicate IDs are diagnosed. Continue improving history and identity reconciliation as future workflows require.
 2. Add dependency-aware blocked/blocking queries, missing targets, cycle diagnostics and provenance-aware links. Dependencies must be actionable relationships, not merely stored IDs.
 3. Add per-task fixed versus completion-relative recurrence, preserve relative planning-date offsets and assign distinct occurrence IDs with defined dependency behavior. Test month ends, late completion, reopening and time zones.
 4. Add separately editable importance, explainable calculated urgency and an Eisenhower matrix. Keep blocked tasks distinguishable from tasks that can be acted on now.
@@ -88,3 +88,7 @@ Continue in reviewable slices:
 7. Build an independent optional Daily Loop core plugin over task/note services and bounded AI tools. Plan, import updates, reconcile commitments with provenance, review and generate readable daily summaries without duplicating task state or preloading vault contents into prompts.
 
 Disabling a plugin removes its capabilities and UI while preserving plain files. Keep each new slice represented by real demo examples or honest guided exercises.
+
+## Task operations · 0.24.1 delivered
+
+Manual and accepted AI operations share a read-only planner and a durable per-vault journal. Undo is grouped across affected files, time-limited, available after restart and guarded against later edits. AI task operations remain proposals until accepted, expose bounded structured reads and request-local handles, and preview every affected file. The next task capability slice is dependency-aware actionability and diagnostics, followed by recurrence and planning views.
