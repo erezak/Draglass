@@ -17,7 +17,9 @@ const patterns={
  importance:/^(?:important|not important)$/i,
  dependencies:/^(?:actionable|blocked|not blocked|has dependencies|no dependencies)$/i,
  sort:/^sort by .+$/i,
- layout:/^view (?:list|matrix)$/i,
+ calendarMonth:/^calendar month .+$/i,
+ calendarField:/^calendar by .+$/i,
+ layout:/^view (?:list|matrix|calendar)$/i,
  due:/^(?:due (?:(?:before|after|on) .+|this week)|(?:has|no) due date)$/i,
  scheduled:/^(?:scheduled (?:(?:before|after|on) .+|this week)|(?:has|no) scheduled date)$/i,
  start:/^(?:start (?:(?:before|after|on) .+|this week)|(?:has|no) start date)$/i
@@ -25,4 +27,5 @@ const patterns={
 function clauses(query,field){return query.split(/\r?\n/).map(l=>l.trim()).filter(l=>patterns[field]?.test(l));}
 function replaceClauses(query,field,lines=[]){if(!patterns[field])throw new Error('Unknown task filter.');const kept=query.split(/\r?\n/).filter(l=>!patterns[field].test(l.trim()));const next=[...kept,...lines].filter(l=>l.trim()).join('\n');if(next.length>4096)throw new Error('Task queries are limited to 4,096 characters.');return next;}
 function dateLines(field,value,from='',through=''){if(!['due','scheduled','start'].includes(field))throw new Error('Invalid date field.');if(value==='range'){const {validDate}=require('./model.cjs');if(from&&!validDate(from)||through&&!validDate(through)||from&&through&&from>through)throw new Error('Choose valid dates with From no later than Through.');return [...(from?[field+' on or after '+from]:[]),...(through?[field+' on or before '+through]:[])];}return value==='this-week'?[field+' this week']:value==='today'?[field+' on today']:value==='overdue'?[field+' before today']:value==='week'?[field+' on or after today',field+' on or before in 6 days']:value==='none'?['no '+field+' date']:value==='has'?['has '+field+' date']:[];}
-module.exports={DEFAULT_QUERY,presets,cleanState,cleanViews,saveView,clauses,replaceClauses,dateLines};
+function calendarQuery(query,patch){let next=query;if(patch.month!==undefined)next=replaceClauses(next,'calendarMonth',patch.month?['calendar month '+patch.month]:[]);if(patch.field!==undefined)next=replaceClauses(next,'calendarField',['calendar by '+patch.field]);return next;}
+module.exports={calendarQuery,DEFAULT_QUERY,presets,cleanState,cleanViews,saveView,clauses,replaceClauses,dateLines};

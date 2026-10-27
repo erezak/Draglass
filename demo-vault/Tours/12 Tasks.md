@@ -153,3 +153,23 @@ sort by urgency
 ```
 
 Use Advanced query to add `tag includes demo` or `group by path`, then change Layout: the additional clauses remain in the query.
+
+## Plan with the task calendar
+
+Run **Open Calendar**. Set Month to **2026-11** to see the fictional station deadlines, then try Calendar by Due, Scheduled and Start. Click a day to inspect its tasks and use Edit to move a date. New Task on the selected day prefills only the active date field. Complete a task and use the normal Undo notice to restore it.
+
+Switch List → Calendar → Matrix: your filters and sorting remain intact. Save a calendar view under “November station schedule”, restart with it open, and check its month and date basis return. Use **This month** to return to your real local date; this scenario may have no deadlines in that month.
+
+Expand Undated / invalid dates to find tasks awaiting planning. On a narrow pane, hover the month grid and scroll horizontally; only the grid moves and temporary scrollbars appear.
+
+```tasks
+not done
+view calendar
+calendar by due
+calendar month 2026-11
+sort by urgency
+```
+
+Embedded Previous/Next month controls navigate without changing this Markdown. Task edits still use the ordinary editor and Undo.
+
+Calendar opens directly in the right pane. Grey dots show writing and red dots mark due tasks. Change Calendar by to Scheduled or Start: due-date red dots remain on their deadline days, with Also due details when needed.

@@ -1,4 +1,4 @@
-# Draglass Editor · 0.30.0
+# Draglass Editor · 0.32.1
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -108,3 +108,5 @@ Choose Folio, Basalt, Tide or Prism under Settings → Appearance. Folio is the 
 Tasks distinguish user-set importance from calculated urgency. Open the task matrix from the command palette or Tasks pane, and inspect score explanations while keeping blockers visible.
 
 Tasks can open in a main workspace as well as the right sidebar. Save named vault views, combine visual filters with advanced queries, and switch between list and matrix layouts without losing the selection.
+
+Calendar is an independent core plugin in the right sidebar for navigating dated notes and viewing word-count dots. Its button and Open Calendar command reveal the grid immediately, sized to the pane. Days with matching tasks due display a red dot when Tasks integration is enabled. Configure writing statistics and the first weekday in Settings → Calendar. Tasks can optionally appear on Calendar through Settings → Tasks.

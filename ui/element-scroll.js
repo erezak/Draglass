@@ -1,4 +1,4 @@
-const ports='.table-scrollport,.cm-live-table,.mermaid-viewport,.drawing-preview,.diagram-preview,#reading pre,.embedded-note pre';
+const ports='.calendar-scroll,.table-scrollport,.cm-live-table,.mermaid-viewport,.drawing-preview,.diagram-preview,#reading pre,.embedded-note pre';
 export function initElementScrolling(doc=document){
  const win=doc.defaultView;let current,timer,drag,sequence=0;
  const bars=['horizontal','vertical'].map(orientation=>{const bar=doc.createElement('div'),thumb=doc.createElement('div');bar.className='element-scrollbar '+orientation;thumb.className='element-scroll-thumb';bar.hidden=true;bar.tabIndex=0;bar.setAttribute('role','scrollbar');bar.setAttribute('aria-orientation',orientation);bar.setAttribute('aria-label',orientation==='horizontal'?'Scroll element horizontally':'Scroll element vertically');bar.append(thumb);doc.body.append(bar);return {bar,thumb,orientation};});

@@ -1,4 +1,4 @@
-# Verification · 0.30.0
+# Verification · 0.32.1
 
 Additional regression checks passed for Finder metadata, visible demo failure without losing the active vault, explicit About version/icon options, and Mac development bundle icon/version installation before signing and launching. The development launcher check uses simulated macOS process/filesystem calls; native macOS execution remains unverified.
 
@@ -152,3 +152,21 @@ The full suite passed 481 tests. After final pagination/explanation refinements,
 The full regression suite passed 496 tests with no failures or skipped tests. After the final initial-state retention refinement, five focused task-workspace UI tests passed, including opening from a sidebar view, closing without edits and reopening with the same selection. The renderer build and demo checks passed.
 
 New coverage includes bounded/unique saved definitions; create/update/rename/delete; query-clause preservation; inclusive date endpoints and calendar weeks; independent split panes; main/sidebar and restart restoration; vault-switch isolation; corrupt metadata preservation; and keeping legitimate Tasks leaves in main panes during restore. A real Chromium run used a temporary filesystem vault, knowledge worker, TasksService and WorkspaceStore to validate visual filters, matrix layout, named views, semantic completion and durable Undo, reload restoration and pagination. Light, dark and narrow main/sidebar layouts were visually inspected and checked for horizontal overflow. No native packages or live provider calls were produced for this slice.
+
+## Task calendar · 0.31.0
+
+507 tests passed with no failures or skipped tests. Build and demo validation passed. New coverage includes Gregorian/leap month grids, year boundaries, due/scheduled/start projection before pagination, undated/invalid-date retention, query limits and hidden-day counts, bounded multi-page calendar loading and stale-request cancellation, read-only write restrictions, date editing and creation defaults, embedded navigation without source mutation, and saved month/date-basis persistence.
+
+A real Chromium check used a temporary filesystem vault, knowledge worker, TasksService and WorkspaceStore. It verified complete bounded month loading beyond the first page; recurring completion with successor creation and grouped Undo; date editing; saved calendar restoration after reload; and compact sidebar horizontal wheel isolation with temporary scrollbars. Light/dark layouts were visually inspected. Native packages and live provider calls were not exercised.
+
+## Independent Calendar core plugin · 0.32.0
+
+The full regression suite passed 513 tests with no failures or skipped tests. After the final provider-state rebinding refinement, three focused UI tests passed for independent Calendar operation, integration disablement and opening sidebar state in an existing main Calendar view. Build and demo coverage passed with 63 notes and 13 feature categories.
+
+Coverage includes defaults; all seven first weekdays; explicit-date precedence; word-count dots and cap; drawing/frontmatter/code/comment exclusion; draft-aware worker reads and external updates; standalone Calendar with Tasks disabled; statistics and integration toggles; disabled Calendar capabilities; note navigation; metadata preservation across vault switches; and main/sidebar state. A real Chromium run with a temporary vault, knowledge worker and workspace store passed optional Tasks removal, Calendar without Tasks, writing dots, Sunday alignment, statistics disablement, note navigation and restart restoration. Light and dark layouts were visually inspected. No native package or live provider calls were exercised.
+
+## Compact right-sidebar Calendar · 0.32.1
+
+518 tests passed with no failures or skipped tests. Build and demo validation passed. Regression coverage verifies immediate grid availability while statistics are stalled, no added middle Calendar tab, preservation of the note/tabs, migration of former Calendar leaves to sidebar state, a single opening action, note-creation confirmation, and red due indicators independent of scheduled/start placement and removed with the optional Tasks integration.
+
+A real Chromium run used a temporary vault, knowledge worker and workspace store. It checked the visible grid before releasing stalled statistics, preserved editor content and tab count, resized the right pane from 280 to 520 pixels without grid overflow, verified grey writing dots and red due dots across task date bases, and restored Calendar only in the sidebar after reload. Light/dark layouts were visually inspected. Native packaging and live providers were not exercised.

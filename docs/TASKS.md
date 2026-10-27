@@ -133,3 +133,23 @@ Under **Save / manage views**, enter a name and choose **Save as new view**. Nam
 View definitions are shared between this vault’s sidebar and main panes and survive switching to another vault and back. Each pane independently retains its selected view and query (including filters, sort and layout) on restart. Paging resets to the first page on reopening. No task results are stored in preferences, and creating/editing/deleting views does not edit task notes. Disabling the Tasks core plugin preserves its saved views and files.
 
 New date-query instruction: `due this week`, also supported for `scheduled` and `start`. Inclusive forms `on or before` and `on or after` can be combined for ranges.
+
+## Tasks on Calendar
+
+Run **Open Calendar**, or choose Calendar in the task workspace’s Layout selector. Calendar owns its right-sidebar tab and settings. Tasks provides an optional overlay, enabled by default under Settings → Tasks when Calendar is enabled. Fenced task queries can delegate calendar rendering to the Calendar plugin. Select **Calendar by** Due, Scheduled or Start; each task appears once using that date field. Change Month, Previous month or Next month to inspect another month. **This month**, or an empty Month control, returns to following the device-local current month. Weeks follow Settings → Calendar → First day of week (Monday by default). Fixed selected months are retained in saved queries; a blank month remains relative.
+
+Click a day to see its complete loaded task list below the grid. Click a compact task title to open the existing task editor, or use its checkbox to complete/reopen it. **New Task on YYYY-MM-DD** prefills the selected date field, while leaving other dates unset. Dates are never inferred from tags or unrelated properties. Normal completion, recurrence, dependency checks, review boundaries and ten-minute grouped Undo remain unchanged. Read-only previews allow opening the note but disable editing/completion/creation.
+
+The grid shows three compact tasks per day; +N more opens that day’s loaded list. Blocked and important tasks retain badges. Expand **Undated / invalid dates** for tasks without a valid selected date field, initially showing 20 with Show more. Invalid dates remain visible with diagnostics, rather than disappearing. Tasks in other months are counted separately.
+
+The calendar collects all result pages up to the query’s existing maximum of 500 tasks, including its undated tray. A smaller explicit `limit` also applies. Counts identify omitted work, including per-day hidden counts, and a visible warning asks you to refine the query when capped. Use Has date to exclude the undated tray from results if it consumes the limit. Calendar filtering happens before pagination. Work due in the selected month is also included when scheduled/start placement is in another month, so deadline indicators and details remain available. Sorting and other filters are retained when switching layouts; grouping clauses remain in the query but calendar day grouping determines the visual arrangement.
+
+```tasks
+not done
+view calendar
+calendar by scheduled
+calendar month 2026-11
+sort by urgency
+```
+
+Omit `calendar month` to follow the current local month; `calendar by` defaults to due. Month navigation inside an embedded query changes only that rendered instance and never rewrites its Markdown. Selecting a new date in the task editor is the explicit file-changing action. Calendar month and date basis are query instructions, and sidebar restoration retains them. Days with matching tasks due have red dots independently of the date basis. Calendar owns dates, rendering and writing indicators. Tasks contributes its query controls, task chips and semantic actions through an optional provider. The month projection and bounded page loading remain in the Tasks component.

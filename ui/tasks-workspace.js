@@ -3,7 +3,7 @@ import taskModel from '../core/tasks/model.cjs';
 
 // Shared query controls for main task panes and the compact right sidebar.
 // Query text is authoritative; visual controls replace only their own clauses.
-export function createTaskWorkspaceControls(root,{state,getSavedViews,saveSavedViews,onChange,onNew,onHistory,onWorkspace,isLocked=()=>false}){
+export function createTaskWorkspaceControls(root,{state,getSavedViews,saveSavedViews,onChange,onNew,onHistory,onWorkspace,onCalendar,calendarAvailable=()=>true,isLocked=()=>false}){
  Object.assign(state,taskViews.cleanState(state));let disposed=false,busy=false,nameView=null;
  root.classList.add('task-workspace-controls');
  const make=(tag,className,text)=>{const el=document.createElement(tag);if(className)el.className=className;if(text)el.textContent=text;return el;};
@@ -16,12 +16,13 @@ export function createTaskWorkspaceControls(root,{state,getSavedViews,saveSavedV
  function update(field,lines){try{state.query=taskViews.replaceClauses(state.query,field,lines);changed();}catch(e){error(e);}}
  const row=make('div','task-view-selector');
  const saved=select('Saved task view',[]);row.append(label('View',saved));
- const layout=select('Task layout',[['list','List'],['matrix','Matrix']]);layout.onchange=()=>update('layout',['view '+layout.value]);row.append(label('Layout',layout));
+ const layout=select('Task layout',[['list','List'],['matrix','Matrix'],['calendar','Calendar']]);layout.onchange=()=>{if(layout.value==='calendar'&&!calendarAvailable()){sync();return;}if(layout.value==='calendar'&&onCalendar){onCalendar();sync();return;}update('layout',['view '+layout.value]);};row.append(label('Layout',layout));
  const sort=select('Sort tasks',[['due','Due date'],['urgency','Urgency'],['priority','Priority'],['importance','Importance'],['scheduled','Scheduled date'],['start','Start date'],['description','Title'],['path','Note'],['status','Status'],['custom','Advanced sorting']]);
  const direction=select('Task sort direction',[['','Default order'],[' reverse','Reverse order']]);
  const sortChanged=()=>{if(sort.value!=='custom')update('sort',['sort by '+sort.value+direction.value]);};sort.onchange=direction.onchange=sortChanged;row.append(label('Sort',sort),label('Order',direction));
  row.append(button('New Task',onNew),button('History / Undo',onHistory));if(onWorkspace)row.append(button('Open workspace',()=>onWorkspace({...state})));
- root.append(row);
+ const calendarControls=make('div','task-calendar-controls');const calendarField=select('Calendar date field',[['due','Due date'],['scheduled','Scheduled date'],['start','Start date']]);const calendarMonth=make('input');calendarMonth.type='month';calendarMonth.min='0001-01';calendarMonth.max='9999-12';calendarMonth.setAttribute('aria-label','Calendar month');calendarField.onchange=()=>{state.query=taskViews.calendarQuery(state.query,{field:calendarField.value});changed();};calendarMonth.onchange=()=>{try{state.query=taskViews.calendarQuery(state.query,{month:calendarMonth.value||null});changed();}catch(e){error(e);}};calendarControls.append(label('Calendar by',calendarField),label('Month (blank follows today)',calendarMonth));
+ root.append(row,calendarControls);
  const filters=make('details','task-visual-filters'),filterSummary=make('summary','','Filters');filters.append(filterSummary);const grid=make('div','task-filter-grid');filters.append(grid);root.append(filters);
  const fields={};
  function filter(field,title,entries,lines){const el=select('Filter '+title,[['','Any'],...entries,['custom','Advanced filter']]);fields[field]=el;el.onchange=()=>{if(el.value!=='custom')update(field,lines(el.value));};grid.append(label(title[0].toUpperCase()+title.slice(1),el));return el;}
@@ -49,9 +50,9 @@ export function createTaskWorkspaceControls(root,{state,getSavedViews,saveSavedV
  saved.onchange=()=>{const v=[...taskViews.presets,...getSavedViews()].find(v=>v.id===saved.value);if(v){state.query=v.query;state.selectedView=v.id;name.value=v.id.startsWith('builtin-')?'':v.name;}else state.selectedView='';changed();};
  function syncButtons(){for(const b of [saveAs,overwrite,rename,remove])b.disabled=busy||isLocked()||(b!==saveAs&&!current());}
  function sync(force=false){
-  if(disposed)return;const entries=[...taskViews.presets,...getSavedViews()];saved.replaceChildren();for(const v of [{id:'',name:'Custom query'},...entries]){const o=make('option','',v.name);o.value=v.id;saved.append(o);}saved.value=entries.some(v=>v.id===state.selectedView)?state.selectedView:'';
+  if(disposed)return;layout.querySelector('option[value=calendar]').hidden=!calendarAvailable();const entries=[...taskViews.presets,...getSavedViews()];saved.replaceChildren();for(const v of [{id:'',name:'Custom query'},...entries]){const o=make('option','',v.name);o.value=v.id;saved.append(o);}saved.value=entries.some(v=>v.id===state.selectedView)?state.selectedView:'';
   if(nameView!==state.selectedView){name.value=current()?.name||'';nameView=state.selectedView;}const chosen=entries.find(v=>v.id===state.selectedView);if(force||!message.classList.contains('view-error')){message.classList.remove('view-error');message.textContent=chosen?(chosen.query===state.query?'':'Modified view · save as new or update your selected view.'):(state.selectedView?'The saved view is unavailable; its query is retained.':'');}
-  if(force||!query.dataset.dirty){query.value=state.query;delete query.dataset.dirty;}const layoutLines=taskViews.clauses(state.query,'layout');layout.value=layoutLines.at(-1)?.toLowerCase()==='view matrix'?'matrix':'list';
+  if(force||!query.dataset.dirty){query.value=state.query;delete query.dataset.dirty;}const layoutLines=taskViews.clauses(state.query,'layout');layout.value=layoutLines.at(-1)?.toLowerCase().slice(5)||'list';calendarControls.hidden=layout.value!=='calendar';calendarField.value=taskViews.clauses(state.query,'calendarField').at(-1)?.toLowerCase().slice(12)||'due';calendarMonth.value=taskViews.clauses(state.query,'calendarMonth').at(-1)?.slice(15)||'';
   const sorts=taskViews.clauses(state.query,'sort'),match=sorts.length===1?/^sort by (\w+)( reverse)?$/i.exec(sorts[0]):null;sort.value=match?match[1].toLowerCase():'custom';direction.value=match?.[2]?.toLowerCase()||'';direction.disabled=sort.value==='custom';
   for(const [field,el]of Object.entries(fields)){const lines=taskViews.clauses(state.query,field);let value=lines.length===0?'':lines.length===1?lines[0].toLowerCase():'custom';if(field==='status'&&value==='done')value='status is done';el.value=[...el.options].some(o=>o.value===value)?value:'custom';}
   for(const [field,d]of Object.entries(dates)){const lines=taskViews.clauses(state.query,field).map(l=>l.toLowerCase());let value=lines.length?'custom':'';for(const v of ['overdue','today','week','this-week','none','has'])if(JSON.stringify(lines)===JSON.stringify(taskViews.dateLines(field,v)))value=v;

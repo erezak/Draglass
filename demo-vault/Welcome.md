@@ -38,3 +38,5 @@ Keep a reference beside your writing with [[Tours/11 Panes and workspaces]].
 - [[Tours/12 Tasks|Tasks: capture, promote and query]]
 
 Explore aliases, heading/block references and reusable content in [[Tours/13 Note links]].
+
+Explore [[Tours/14 Calendar|Calendar]] for dated-note writing dots, configurable week start and optional Tasks integration.

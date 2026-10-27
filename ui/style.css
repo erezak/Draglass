@@ -267,3 +267,69 @@ dialog{width:410px;max-width:90vw;background:var(--panel);color:var(--text);bord
 .task-workspace-controls{align-items:stretch}
 .task-workspace-controls>details{width:100%;min-width:0}
 .task-view-selector{justify-content:flex-start}
+
+.calendar-controls{display:flex;flex-wrap:wrap;gap:10px}
+.calendar-controls[hidden]{display:none}
+.calendar-navigation{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.calendar-navigation h3{margin:0 10px;font-size:1.15em}
+.calendar-scroll{max-width:100%;overflow:auto;overscroll-behavior-x:contain;border:1px solid var(--border);border-radius:var(--radius)}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(100px,1fr));min-width:740px;gap:1px;background:var(--border)}
+.calendar-weekday{padding:8px;background:var(--panel);font-weight:600;color:var(--muted)}
+.calendar-day{min-height:135px;min-width:0;padding:6px;background:var(--bg)}
+.calendar-day.outside-month{background:var(--panel);opacity:.65}
+.calendar-day.is-selected{box-shadow:inset 0 0 0 2px var(--accent)}
+.calendar-day.is-today>.calendar-date{color:var(--accent);font-weight:700}
+.calendar-date{border:0;background:transparent!important;width:100%;text-align:left;padding:3px;font-size:calc(var(--ui-font-size)*.92)}
+.calendar-chip{display:flex;align-items:center;flex-wrap:wrap;gap:4px;min-width:0;margin:5px 0;padding:4px;border-left:2px solid var(--accent);background:var(--hover);border-radius:var(--radius)}
+.calendar-chip input{margin:0;flex:none}
+.calendar-chip .calendar-title{flex:1;min-width:0;padding:0;border:0;background:transparent;text-align:left;overflow-wrap:anywhere;font-size:calc(var(--ui-font-size)*.92)}
+.calendar-chip.is-done .calendar-title{text-decoration:line-through;color:var(--muted)}
+.calendar-badge{font-size:calc(var(--ui-font-size)*.8);color:var(--muted)}
+.calendar-selection{margin-block:18px;padding-top:10px;border-top:1px solid var(--border)}
+.calendar-undated{margin-top:14px;border-top:1px solid var(--border);padding-top:12px}
+.calendar-undated>summary{cursor:pointer;padding:6px 0;font-weight:600}
+.task-view-message.view-error{color:var(--danger)}
+.calendar-controls{display:flex;align-items:end;gap:10px;padding:12px 0;flex-wrap:wrap}
+.calendar-controls label{display:flex;flex-direction:column;gap:5px;color:var(--muted)}
+.calendar-controls input{padding:6px;background:var(--panel);color:var(--text);border:1px solid var(--border)}
+.calendar-writing-dots{display:flex;gap:3px;padding:5px 3px;align-items:center;min-height:14px}
+.calendar-writing-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block}
+.calendar-note-count{display:block;padding:2px 3px;color:var(--muted)}
+.calendar-note{margin:4px 6px 4px 0}
+#calendar-panel{min-height:0;flex:1;overflow:auto;padding:10px}
+.editor-pane[data-view=calendar]>.note-bar{display:none!important}
+.tool-view[data-kind=calendar]>.tool-view-body{flex:1 0 auto;overflow:visible}
+#calendar-panel .calendar-grid{min-width:0;grid-template-columns:repeat(7,minmax(0,1fr))}
+#calendar-panel .calendar-day{min-height:58px;padding:2px}
+#calendar-panel .calendar-weekday{padding:5px 2px;font-size:calc(var(--ui-font-size)*.85)}
+#calendar-panel .calendar-date{font-size:calc(var(--ui-font-size)*.8);padding:2px;overflow-wrap:anywhere}
+#calendar-panel .calendar-chip,#calendar-panel .calendar-day>button:not(.calendar-date){display:none}
+#calendar-panel .calendar-writing-dots{gap:2px;padding:3px 1px}
+#calendar-panel .calendar-writing-dot{width:4px;height:4px}
+#calendar-panel .calendar-note-count{font-size:calc(var(--ui-font-size)*.75);padding:1px}
+#calendar-panel .calendar-source-controls{border-block:1px solid var(--border);margin-block:8px}
+/* Calendar is a compact sidebar widget whose dimensions follow its pane. */
+#calendar-panel{width:100%;max-width:100%;box-sizing:border-box;overflow-x:hidden}
+#calendar-panel .calendar-navigation{display:flex;flex-wrap:nowrap;gap:4px;justify-content:space-between;margin:0 0 8px}
+#calendar-panel .calendar-navigation h3{flex:1;min-width:0;margin:0;font-size:calc(var(--ui-font-size)*1.05);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#calendar-panel .calendar-navigation button{flex:none;padding:3px 7px;min-height:28px;font-size:calc(var(--ui-font-size)*.92)}
+#calendar-panel .calendar-navigation button[aria-label="Previous month"],#calendar-panel .calendar-navigation button[aria-label="Next month"]{font-size:20px;padding:0 8px}
+#calendar-panel .calendar-scroll{width:100%;max-width:100%;border:0;border-radius:0;overflow:hidden}
+#calendar-panel .calendar-grid{width:100%;min-width:0;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:transparent}
+#calendar-panel .calendar-weekday{text-align:center;background:transparent}
+#calendar-panel .calendar-day{aspect-ratio:1.1;min-height:40px;min-width:0;padding:2px;display:flex;flex-direction:column;align-items:center;background:transparent;position:relative}
+#calendar-panel .calendar-day.outside-month{background:transparent}
+#calendar-panel .calendar-date{text-align:center;min-height:22px;padding:0;font-size:calc(var(--ui-font-size)*.92)}
+#calendar-panel .calendar-day.is-selected{box-shadow:inset 0 0 0 1px var(--accent);border-radius:var(--radius)}
+#calendar-panel .calendar-note-count{display:none}
+#calendar-panel .calendar-writing-dots{padding:1px;min-height:7px;justify-content:center}
+#calendar-panel .calendar-task-indicator{position:absolute;right:4px;top:4px;width:5px;height:5px;border:1px solid var(--accent);border-radius:50%}
+.calendar-day-details,.calendar-view-options{margin-top:12px;border-top:1px solid var(--border);padding-top:8px;min-width:0}
+.calendar-day-details>summary,.calendar-view-options>summary{cursor:pointer;color:var(--muted);font-size:var(--ui-font-size);padding:4px 0}
+#calendar-panel .calendar-selection{margin-top:0;padding-top:0;border-top:0}
+.calendar-writing-dot{background:var(--muted)}
+.calendar-day-indicator[data-kind="task-due"]{display:inline-block;width:6px;height:6px;border-radius:50%;background:#d64545;flex:none}
+#calendar-panel .calendar-day-indicator[data-kind="task-due"]{position:absolute;right:5px;top:5px}
+:root[data-theme=dark] .calendar-day-indicator[data-kind="task-due"]{background:#ff7878}
+#calendar-panel .calendar-day{width:100%;max-width:100%;box-sizing:border-box}
+#calendar-panel .calendar-day-indicator[data-kind="task-due"]{right:2px;top:2px}
