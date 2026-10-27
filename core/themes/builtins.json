@@ -1,0 +1,178 @@
+[
+  {
+    "schema": 1,
+    "id": "folio",
+    "name": "Folio",
+    "description": "Editorial warmth. Ivory, ink and wine.",
+    "modes": [
+      "light",
+      "dark"
+    ],
+    "tokens": {
+      "uiFont": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "documentFont": "Georgia, 'Times New Roman', serif",
+      "headingFont": "Georgia, 'Times New Roman', serif",
+      "radius": 4,
+      "lineHeight": 1.85,
+      "documentWidth": 820
+    },
+    "light": {
+      "bg": "#fcfaf5",
+      "panel": "#f1ede5",
+      "text": "#302724",
+      "muted": "#73665f",
+      "border": "#dcd3c8",
+      "accent": "#843748",
+      "accentText": "#ffffff",
+      "hover": "#eae0d9",
+      "code": "#f1ede5",
+      "danger": "#b3383e",
+      "success": "#267450"
+    },
+    "dark": {
+      "bg": "#1c1716",
+      "panel": "#25201e",
+      "text": "#eee3d6",
+      "muted": "#bdaca0",
+      "border": "#443832",
+      "accent": "#d49a9f",
+      "accentText": "#241719",
+      "hover": "#382b2b",
+      "code": "#25201e",
+      "danger": "#f4a8a8",
+      "success": "#91c7a7"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "basalt",
+    "name": "Basalt",
+    "description": "Mineral precision. Chalk, graphite and copper.",
+    "modes": [
+      "light",
+      "dark"
+    ],
+    "tokens": {
+      "uiFont": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "documentFont": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "headingFont": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "radius": 4,
+      "lineHeight": 1.8,
+      "documentWidth": 820
+    },
+    "light": {
+      "bg": "#fcfcfa",
+      "panel": "#eeefec",
+      "text": "#272c2b",
+      "muted": "#646d68",
+      "border": "#d6dbd5",
+      "accent": "#98600f",
+      "accentText": "#ffffff",
+      "hover": "#e9e5db",
+      "code": "#eeefec",
+      "danger": "#b3383e",
+      "success": "#267450"
+    },
+    "dark": {
+      "bg": "#191d1d",
+      "panel": "#222727",
+      "text": "#e5e8e2",
+      "muted": "#a4aea7",
+      "border": "#39423d",
+      "accent": "#e5b36a",
+      "accentText": "#251d11",
+      "hover": "#343c37",
+      "code": "#222727",
+      "danger": "#f4a8a8",
+      "success": "#91c7a7"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "tide",
+    "name": "Tide",
+    "description": "Calm systems. Porcelain, petrol and seafoam.",
+    "modes": [
+      "light",
+      "dark"
+    ],
+    "tokens": {
+      "uiFont": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "documentFont": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "headingFont": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "radius": 9,
+      "lineHeight": 1.8,
+      "documentWidth": 820
+    },
+    "light": {
+      "bg": "#f9fcfc",
+      "panel": "#ecf3f4",
+      "text": "#183841",
+      "muted": "#506a73",
+      "border": "#ccdfe1",
+      "accent": "#076b78",
+      "accentText": "#ffffff",
+      "hover": "#dceef0",
+      "code": "#ecf3f4",
+      "danger": "#b3383e",
+      "success": "#267450"
+    },
+    "dark": {
+      "bg": "#101f29",
+      "panel": "#172b36",
+      "text": "#deeff0",
+      "muted": "#9cb7c0",
+      "border": "#304b58",
+      "accent": "#71d0ce",
+      "accentText": "#10292c",
+      "hover": "#244551",
+      "code": "#172b36",
+      "danger": "#f4a8a8",
+      "success": "#91c7a7"
+    }
+  },
+  {
+    "schema": 1,
+    "id": "prism",
+    "name": "Prism",
+    "description": "Creative focus. Aubergine, iris and lavender.",
+    "modes": [
+      "light",
+      "dark"
+    ],
+    "tokens": {
+      "uiFont": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "documentFont": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "headingFont": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "radius": 8,
+      "lineHeight": 1.8,
+      "documentWidth": 820
+    },
+    "light": {
+      "bg": "#fdfcff",
+      "panel": "#f0edf8",
+      "text": "#302343",
+      "muted": "#756585",
+      "border": "#ddd5ec",
+      "accent": "#7048ab",
+      "accentText": "#ffffff",
+      "hover": "#e7def4",
+      "code": "#f0edf8",
+      "danger": "#b3383e",
+      "success": "#267450"
+    },
+    "dark": {
+      "bg": "#1b1827",
+      "panel": "#252034",
+      "text": "#eee5fb",
+      "muted": "#b6a6c9",
+      "border": "#423651",
+      "accent": "#bca0f2",
+      "accentText": "#241b35",
+      "hover": "#3a2d4c",
+      "code": "#252034",
+      "danger": "#f4a8a8",
+      "success": "#91c7a7"
+    }
+  }
+]

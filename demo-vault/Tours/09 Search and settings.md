@@ -24,3 +24,11 @@ Open Settings → Core plugins → Entity templates. Disable it and its commands
 Open [[Tours/10 Your next steps]] next.
 
 The About panel identifies the installed Draglass version and uses the Draglass icon.
+
+## Four appearance identities
+
+Open **Settings → Appearance** and compare Folio, Basalt, Tide and Prism. Folio is the default with a warm editorial document; its UI controls keep a sans-serif font. Switch between Light and Dark and check this note’s headings, properties, links, tables, completion popup, graph and right sidebar. The theme’s fonts and spacing stay consistent when switching modes.
+
+Choose Folio and **Duplicate**, expand **Theme definition**, change its name and accent values, then **Save theme** and **Apply**. Custom definitions inherit omitted values from their parent. Try setting `"modes": ["dark"]`: switch Color mode to Light: the dark-only theme should disappear from the theme list, with Folio selected if needed. Switch back to Dark to select it again. Keep a readable accent/accentText pair.
+
+Use **Export** and **Import** to move a JSON theme between machines. Importing an existing ID creates a separate theme. The source distribution includes `examples/themes/folio-night.json` and `examples/themes/tide-day.json` for dark-only and light-only practice. Theme changes should not edit any note or reset graph layout. Detached files opened afterward should use the last workspace's theme and respect compatibility.

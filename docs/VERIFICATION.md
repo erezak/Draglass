@@ -1,4 +1,4 @@
-# Verification · 0.27.1
+# Verification · 0.28.0
 
 Additional regression checks passed for Finder metadata, visible demo failure without losing the active vault, explicit About version/icon options, and Mac development bundle icon/version installation before signing and launching. The development launcher check uses simulated macOS process/filesystem calls; native macOS execution remains unverified.
 
@@ -128,3 +128,9 @@ The full suite passed 461 tests. Five focused recurrence checks and one editor i
 ## Repeat input correction · 0.27.1
 
 41 focused task/recurrence/operation tests and two editor interaction tests passed. The regression covers 2 days after completion, mixed case/spacing, and zero intervals. Build and demo validation passed. Task dialog CSS separates recurrence policy and task identity controls and bounds dialog height. Native visual verification was not performed.
+
+## Appearance themes · 0.28.0
+
+The full suite passed 472 tests. Focused checks also passed for core theme resolution/store/IPC, built-in contrast, appearance editing, mode filtering and task row actions after final UI refinements. Browser checks use real Chromium with a filesystem vault and KnowledgeService: all four themes render in both modes with actual background/font assertions; graph and Tasks render; duplicating a theme, editing/saving JSON, and filtering a dark-only theme on mode changes work. Built-in text/secondary-label and selected-control color pairs meet a 4.5:1 contrast threshold. Native packaging, native dialogs on macOS/Windows and live provider execution were not tested. Native import/export adapter tests use simulated dialog selections and real JSON files.
+
+The build and demo validation passed: 61 notes, 42 typed entities, 87 graph nodes, 112 named edges, 161 wiki edges, and 70 sourced relationships. Theme changes preserve note contents and graph settings. Detached UI tests still pass using the shared resolver.

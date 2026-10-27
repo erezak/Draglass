@@ -1,4 +1,4 @@
-# Draglass Editor · 0.27.1
+# Draglass Editor · 0.28.0
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -102,3 +102,5 @@ YAML aliases appear in wikilink autocomplete and insert canonical targets with d
 Task prerequisites use stable IDs across checkbox tasks and Task notes. Use the Tasks sidebar’s Actionable and Blocked filters, edit prerequisites visually, and follow blockers to their source. See [Tasks](docs/TASKS.md) for syntax and behavior.
 
 Tasks support fixed and completion-relative recurrence for checkboxes and Task notes. Edit Repeat to configure a schedule and choose prerequisite carryover. Completing an occurrence creates its successor with preserved planning-date offsets; grouped Undo restores both together.
+
+Choose Folio, Basalt, Tide or Prism under Settings → Appearance. Folio is the first-launch default. Themes declare light/dark compatibility and may be duplicated, extended and imported/exported as JSON. See [Appearance themes](docs/THEMES.md).
