@@ -90,7 +90,7 @@ AI read/query results expose bounded summaries, dependency counts and limited pr
 
 Global and local graphs project task dependencies onto their owning notes as named `depends_on` edges. Backlinks include the inverse relationship. Same-note inline dependencies appear as a labeled loop. Recorded declarations identify each task ID/title, source line, target and completion state; several task dependencies can share an edge. Missing/ambiguous IDs produce hollow task-reference nodes with diagnostics, without offering to create an unrelated note. Dependencies remain visible after completion. No evidence sources are invented; independent provenance, recurrence and cascading scheduling are future slices.
 
-The task pane always shows a Dependencies section, including “none” when empty. Outgoing `depends_on` declarations in a Task note’s YAML `relationships` collection participate in the same task analysis as the ID list. The task editor can remove these prerequisites and retains their source records when kept. The right ribbon is the single Tasks entry; the command palette also provides Open Tasks.
+The task pane always shows a Dependencies section, including “none” when empty. Outgoing `depends_on` declarations in a Task note’s YAML `relationships` collection participate in the same task analysis as the ID list. The task editor can remove these prerequisites and retains their source records when kept. The right ribbon opens the compact Tasks sidebar. The command palette provides Open Tasks and Open task workspace.
 
 ## Recurrence · 0.27.0
 
@@ -117,3 +117,19 @@ The Eisenhower matrix is independent of score thresholds. Urgent means a valid d
 Queries: `important`, `not important`, `urgent`, `not urgent`, `quadrant is do|plan|delegate|consider|closed`, `sort by urgency` (descending by default), `sort by urgency reverse`, `sort by importance`, and `group by quadrant`/`group by importance`. Combine `actionable` with any of these to exclude blocked, held or future-start tasks. AI query/read tools return bounded derived fields; `read_task` includes score explanations. `create_task` and `update_task` can propose importance changes. Scores and quadrants cannot be set by the model.
 
 Score explanations retain their expanded or collapsed state during refreshes within each open view. Inline task saves omit the default `🔗 clear;` recurrence policy, including removing older explicit default markers; `🔗 carry;` remains meaningful and is preserved.
+
+## Saved views and task workspace · 0.30.0
+
+Run **Open task workspace** from Cmd/Ctrl+Shift+P, or choose **Open workspace** in the right Tasks sidebar. The workspace is an ordinary main tab: split, move or pin it alongside notes. **Open Tasks** continues to open the right sidebar. Reissuing Open task workspace focuses the existing Tasks tab in the active group. Closing and reopening the workspace uses its last edited state.
+
+Choose **View** for built-in Open tasks, Ready to work, Blocked and This week perspectives, or one of your named views. Expand **Filters** to combine status, priority, importance, prerequisite/actionability and due/scheduled/start dates. Each date supports before today, today, the next seven calendar days including today, this calendar week, no date, has date or an inclusive From/Through range. An empty endpoint is unbounded. This week is Monday through Sunday using the device-local day; it is not a rolling seven-day window. Dates remain relative in saved queries.
+
+**Layout** switches List/Matrix while preserving the other query clauses. **Sort** offers due, urgency, priority, importance, scheduled, start, title, note and status, with default/reverse order. Urgency and importance default to descending; priority uses highest first; dates use earliest first. Advanced sorting indicates multiple sort clauses, which remain unchanged until you choose a replacement. The matrix displays the current bounded result page, with per-quadrant counts for that page and Next tasks for later pages.
+
+**Advanced query** exposes the same text used by visual controls. Run query applies it. Controls marked Advanced filter preserve more complex clauses until you explicitly replace that dimension; changing layout never drops tags, grouping, limit, comments or other filters. Unsupported instructions show errors rather than being ignored. Queries are bounded to 4,096 characters.
+
+Under **Save / manage views**, enter a name and choose **Save as new view**. Names are trimmed, case-insensitively unique and limited to 80 characters; a vault supports 50 custom views. **Update selected** saves the current query to your selected custom view. **Rename selected** changes its name; **Delete selected** removes its definition while retaining the open query. Built-in definitions cannot be changed or deleted; save your variation under a new name. A Modified view message distinguishes unsaved query changes from the saved definition.
+
+View definitions are shared between this vault’s sidebar and main panes and survive switching to another vault and back. Each pane independently retains its selected view and query (including filters, sort and layout) on restart. Paging resets to the first page on reopening. No task results are stored in preferences, and creating/editing/deleting views does not edit task notes. Disabling the Tasks core plugin preserves its saved views and files.
+
+New date-query instruction: `due this week`, also supported for `scheduled` and `start`. Inclusive forms `on or before` and `on or after` can be combined for ranges.

@@ -1,4 +1,4 @@
-# Draglass Editor · 0.29.1
+# Draglass Editor · 0.30.0
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -106,3 +106,5 @@ Tasks support fixed and completion-relative recurrence for checkboxes and Task n
 Choose Folio, Basalt, Tide or Prism under Settings → Appearance. Folio is the first-launch default. Themes declare light/dark compatibility and may be duplicated, extended and imported/exported as JSON. See [Appearance themes](docs/THEMES.md).
 
 Tasks distinguish user-set importance from calculated urgency. Open the task matrix from the command palette or Tasks pane, and inspect score explanations while keeping blockers visible.
+
+Tasks can open in a main workspace as well as the right sidebar. Save named vault views, combine visual filters with advanced queries, and switch between list and matrix layouts without losing the selection.

@@ -232,3 +232,38 @@ dialog{width:410px;max-width:90vw;background:var(--panel);color:var(--text);bord
 :root[data-appearance] :is(#mermaid-source,#theme-json){font-size:var(--code-font-size)}
 .task-urgency{font-size:calc(var(--ui-font-size,13px) * .9);margin-block:6px;color:var(--muted)}.task-urgency summary{cursor:pointer;color:var(--accent)}.task-urgency p{line-height:1.6;margin:6px 0}.task-matrix{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;container-type:inline-size}.task-matrix>section{min-width:0;border:1px solid var(--border);border-radius:var(--radius,6px);padding:10px;background:var(--bg)}.task-matrix h3{font:600 1em/1.5 var(--ui-font);margin:0 0 10px;color:var(--text)}#tasks-panel .task-matrix{grid-template-columns:1fr}.tasks-embed .task-matrix{grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr))}
 #task-matrix-dialog{width:min(1100px,95vw);max-height:90vh;overflow:auto}#task-matrix-dialog .task-matrix{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:700px){#task-matrix-dialog .task-matrix{grid-template-columns:1fr}}
+
+/* Task workspace: query controls stay beside the results they govern. */
+.task-workspace-controls{display:flex;flex-direction:column;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--panel);min-width:0;flex-shrink:0}
+.task-view-selector{display:flex;align-items:end;flex-wrap:wrap;gap:8px}
+.task-workspace-controls label{display:flex;flex-direction:column;gap:4px;font-size:calc(var(--ui-font-size)*.92);color:var(--muted);min-width:0;text-transform:none}
+.task-workspace-controls select,.task-workspace-controls input{min-height:32px;max-width:100%;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:5px 8px;font:inherit}
+.task-workspace-controls button{min-height:32px}
+.task-workspace-controls summary{cursor:pointer;color:var(--text);padding:4px 0;font-weight:600}
+.task-filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;padding:10px 0}
+.task-date-filter{display:flex;flex-direction:column;gap:8px}
+.task-date-range{display:flex;gap:6px;flex-wrap:wrap}
+.task-date-range[hidden]{display:none}
+.task-date-range input{width:140px}
+.task-query-source textarea{display:block;width:100%;box-sizing:border-box;margin:8px 0;font-family:ui-monospace,'SFMono-Regular',Consolas,monospace;font-size:var(--code-font-size);resize:vertical}
+.task-saved-view-editor input{width:min(100%,300px);box-sizing:border-box}
+.task-saved-view-editor button{margin:8px 6px 0 0}
+.task-view-message{margin:0;min-height:0;font-size:calc(var(--ui-font-size)*.92);color:var(--muted)}
+.task-view-message:empty{display:none}
+.tool-view[data-kind="tasks"]{overflow:auto}
+.tool-view[data-kind="tasks"]>.tool-view-body{flex:1 0 auto;overflow:visible}
+.tool-view[data-kind="tasks"] .task-matrix{grid-template-columns:repeat(2,minmax(240px,1fr));align-items:start}
+.tool-view[data-kind="tasks"] .task-matrix>section{min-width:0}
+#tasks-panel .task-workspace-controls{padding:10px;gap:8px}
+#tasks-panel .task-view-selector{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+#tasks-panel .task-view-selector>label:first-child{grid-column:1/-1}
+#tasks-panel .task-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#tasks-panel .task-workspace-controls select{width:100%}
+@container (max-width:620px){.tool-view[data-kind="tasks"] .task-matrix{grid-template-columns:minmax(0,1fr)}}
+.tool-view[data-kind="tasks"]{container-type:inline-size}
+#tasks-panel{overflow:auto;overscroll-behavior:contain}
+#tasks-panel .task-sidebar-results{overflow:visible;flex:none}
+.editor-pane[data-view=tasks]>.note-bar{display:none!important}
+.task-workspace-controls{align-items:stretch}
+.task-workspace-controls>details{width:100%;min-width:0}
+.task-view-selector{justify-content:flex-start}

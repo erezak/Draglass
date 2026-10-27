@@ -1,4 +1,4 @@
-# Verification · 0.29.1
+# Verification · 0.30.0
 
 Additional regression checks passed for Finder metadata, visible demo failure without losing the active vault, explicit About version/icon options, and Mac development bundle icon/version installation before signing and launching. The development launcher check uses simulated macOS process/filesystem calls; native macOS execution remains unverified.
 
@@ -146,3 +146,9 @@ The full suite passed 481 tests. After final pagination/explanation refinements,
 ## Task refresh and inline metadata · 0.29.1
 
 485 tests passed, with no failures or skipped tests. The renderer build and bundled demo checks passed. New regression cases cover per-task expanded and collapsed score details across list refresh, reordering and pagination; matrix quadrant moves; independent view state; default recurrence-policy omission and cleanup; and preservation of explicit carry policies. A Chromium check clicked the score summaries and verified both expanded and collapsed choices survived repeated list and matrix refreshes. Native packaging and live provider calls were not exercised for this change.
+
+## Task workspace and saved views · 0.30.0
+
+The full regression suite passed 496 tests with no failures or skipped tests. After the final initial-state retention refinement, five focused task-workspace UI tests passed, including opening from a sidebar view, closing without edits and reopening with the same selection. The renderer build and demo checks passed.
+
+New coverage includes bounded/unique saved definitions; create/update/rename/delete; query-clause preservation; inclusive date endpoints and calendar weeks; independent split panes; main/sidebar and restart restoration; vault-switch isolation; corrupt metadata preservation; and keeping legitimate Tasks leaves in main panes during restore. A real Chromium run used a temporary filesystem vault, knowledge worker, TasksService and WorkspaceStore to validate visual filters, matrix layout, named views, semantic completion and durable Undo, reload restoration and pagination. Light, dark and narrow main/sidebar layouts were visually inspected and checked for horizontal overflow. No native packages or live provider calls were produced for this slice.

@@ -134,3 +134,22 @@ Use **Why this score?** to inspect the calculated urgency factors. Try `importan
 Expand **Why this score?** on a task, then wait at least 15 seconds for the periodic refresh. The explanation stays expanded in Tasks, the matrix, and embedded query results. Collapse it yourself and it stays collapsed on refresh.
 
 Edit “Ask the research team about transport” and mark it Important. Its line gains `⭐`; the default clear-dependencies recurrence policy does not add a `🔗 clear;` marker. Saving an older task with that default marker removes it. Explicit carry policies remain intact.
+
+## Build a task workspace
+
+1. Run **Open task workspace**. Keep this tour next to it using Split editor right if helpful. The right Tasks sidebar remains available independently.
+2. Select **Ready to work** in View. Expand **Filters** and choose Important, then choose Matrix under Layout. Inspect the remaining blockers and explanations.
+3. Expand **Save / manage views**, enter “Station focus”, and select **Save as new view**. Return to the sidebar and choose Station focus there too; changing one pane’s filter does not change the other pane.
+4. Change the sort to Urgency and toggle List/Matrix. The filters survive. Use **Update selected** to replace your custom definition; try renaming it to “Field priorities”.
+5. Try Due → Date range, with inclusive From/Through dates. Try the built-in **This week** view: its calendar range is Monday–Sunday and changes with the local date, so it can be empty for this fictional scenario.
+6. Restart Draglass with the task workspace open. Its selected view, filters, sort and layout should return. Deleting a saved view retains the current query; it does not remove any tasks.
+
+An embedded calendar-relative query uses the same service:
+
+```tasks
+not done
+due this week
+sort by urgency
+```
+
+Use Advanced query to add `tag includes demo` or `group by path`, then change Layout: the additional clauses remain in the query.
