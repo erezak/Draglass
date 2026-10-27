@@ -128,3 +128,9 @@ view matrix
 ```
 
 Use **Why this score?** to inspect the calculated urgency factors. Try `important`, `not important`, `urgent`, `not urgent`, `quadrant is plan`, `group by quadrant`, and `sort by urgency reverse`. Highest urgency sorts first by default. With a configured AI connection, ask for important actionable tasks and request a reviewed importance change. No note bodies are preloaded for this view.
+
+## Keep score explanations open
+
+Expand **Why this score?** on a task, then wait at least 15 seconds for the periodic refresh. The explanation stays expanded in Tasks, the matrix, and embedded query results. Collapse it yourself and it stays collapsed on refresh.
+
+Edit “Ask the research team about transport” and mark it Important. Its line gains `⭐`; the default clear-dependencies recurrence policy does not add a `🔗 clear;` marker. Saving an older task with that default marker removes it. Explicit carry policies remain intact.
