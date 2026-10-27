@@ -230,3 +230,5 @@ dialog{width:410px;max-width:90vw;background:var(--panel);color:var(--text);bord
 :root[data-appearance] .document-heading h1{font-size:calc(var(--note-font-size) * 1.89)}
 
 :root[data-appearance] :is(#mermaid-source,#theme-json){font-size:var(--code-font-size)}
+.task-urgency{font-size:calc(var(--ui-font-size,13px) * .9);margin-block:6px;color:var(--muted)}.task-urgency summary{cursor:pointer;color:var(--accent)}.task-urgency p{line-height:1.6;margin:6px 0}.task-matrix{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;container-type:inline-size}.task-matrix>section{min-width:0;border:1px solid var(--border);border-radius:var(--radius,6px);padding:10px;background:var(--bg)}.task-matrix h3{font:600 1em/1.5 var(--ui-font);margin:0 0 10px;color:var(--text)}#tasks-panel .task-matrix{grid-template-columns:1fr}.tasks-embed .task-matrix{grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr))}
+#task-matrix-dialog{width:min(1100px,95vw);max-height:90vh;overflow:auto}#task-matrix-dialog .task-matrix{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:700px){#task-matrix-dialog .task-matrix{grid-template-columns:1fr}}

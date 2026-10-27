@@ -157,3 +157,5 @@ Task dependency analysis lives in the pure `core/tasks/dependencies.cjs` compone
 Task recurrence date calculation and successor planning live in `core/tasks/recurrence.cjs`. TaskPlanner extends semantic completion into a single validated journal plan, shared by manual and reviewed AI operations.
 
 Appearance is a dedicated component: pure theme definitions/validation/resolution in `core/themes`, atomic application-level user-theme storage, a trusted Electron IPC adapter and DOM/settings adapters in `ui/themes`. Shared font/metric tokens are independent of mode-specific color palettes. Vault preferences store selection and mode only, while theme definitions remain independent of vault indexing and notes. See [Themes](THEMES.md).
+
+`core/tasks/prioritization.cjs` is the pure importance/urgency/matrix projection. Declarative queries and structured AI reads share it; it owns no writes, UI or provider state. The Tasks view renders the same bounded query results as a list or responsive matrix, and planners persist only explicit importance.

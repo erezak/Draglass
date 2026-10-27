@@ -111,3 +111,20 @@ not done
 ```
 
 Fixed schedules skip missed dates and create one future occurrence. Planning dates retain their spacing. Month-end schedules retain their original day where possible (January 31 → February 28 → March 31). To reopen a completed occurrence that already has a successor, use grouped Undo within its ten-minute window.
+
+## Importance, urgency and the matrix
+
+- [ ] Protect the long-term research direction ⭐ 🆔 demo-important-plan
+- [ ] Review the next release window 📅 2026-10-29 🆔 demo-urgent-window
+
+Choose **Edit → Importance → Important**, or add `⭐` to an inline checkbox. Importance is separate from priority and survives promotion and repeating occurrences. Task notes store `importance: high` or `normal`.
+
+Run **Open task matrix** from the palette, or use Matrix in the right Tasks pane. It opens a wide four-quadrant view; the sidebar remains available for list queries. Urgent means overdue or due within two calendar days of today. Blocked and future-start tasks remain labeled; an urgent task is not necessarily actionable. The view does not assign or delegate work. Dates in this demo are fixed examples; adjust a due date to today to explore the urgent quadrants.
+
+```tasks
+not done
+sort by urgency
+view matrix
+```
+
+Use **Why this score?** to inspect the calculated urgency factors. Try `important`, `not important`, `urgent`, `not urgent`, `quadrant is plan`, `group by quadrant`, and `sort by urgency reverse`. Highest urgency sorts first by default. With a configured AI connection, ask for important actionable tasks and request a reviewed importance change. No note bodies are preloaded for this view.

@@ -1,4 +1,4 @@
-# Verification · 0.28.1
+# Verification · 0.29.0
 
 Additional regression checks passed for Finder metadata, visible demo failure without losing the active vault, explicit About version/icon options, and Mac development bundle icon/version installation before signing and launching. The development launcher check uses simulated macOS process/filesystem calls; native macOS execution remains unverified.
 
@@ -138,3 +138,7 @@ The build and demo validation passed: 61 notes, 42 typed entities, 87 graph node
 ## Theme font sizes · 0.28.1
 
 37 targeted tests passed across theme/store validation, preference persistence/organization, font and settings UI, and detached windows. Chromium verified 18px documents for all eight built-in theme/mode combinations and 21px document/14px UI sizes from an inherited custom theme. Core/UI regressions cover override precedence, null reset, preserved legacy numeric settings, and mode switching without changing sizes or note text. Build and demo validation passed. Native packaging was not performed.
+
+## Task prioritization · 0.29.0
+
+The full suite passed 481 tests. After final pagination/explanation refinements, 27 core task/operation tests and eight focused UI tests passed, including third-page matrix navigation. New coverage verifies importance parsing, independent priority semantics, numeric urgency ordering and day boundaries, quadrant classification with blocked work, promotion/recurrence/Undo preservation, and reviewed AI importance proposals. Chromium with a real temporary vault passed matrix rendering, four quadrants, blocked labels, factor explanations and semantic completion. Build and demo validation passed. Native packaging and live provider calls were not tested.
