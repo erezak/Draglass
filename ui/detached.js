@@ -1,5 +1,5 @@
 import {createAppearance} from './themes/appearance.js';
-const appearance=createAppearance();let appearanceId='folio';
+const appearance=createAppearance();let appearanceId='folio',typography={};
 import {revealNoteFragment} from './note-link-navigation.js';
 import {autocompletion,completionKeymap} from '@codemirror/autocomplete';
 import {wikiCompletion} from './note-link-completion.js';
@@ -57,14 +57,14 @@ function mode(){if(!current||isDrawing(current.path,current.state.doc.toString()
 function preview(){reading=!reading;$('preview-button').textContent=reading?'Edit':'Reading view';run(render);}
 $('source-mode').onclick=mode;$('preview-button').onclick=preview;
 $('open-file').onclick=()=>run(()=>api.pick());$('open-vault').onclick=()=>run(()=>api.vault());$('reveal-file').onclick=()=>run(()=>api.reveal());
-$('theme').onchange=()=>{appearance.apply(appearanceId,$('theme').value);run(()=>diagrams.appearance());};
+$('theme').onchange=()=>{appearance.apply(appearanceId,$('theme').value,typography);run(()=>diagrams.appearance());};
 $('image-close').onclick=()=>$('image-dialog').close();$('asset-close').onclick=()=>$('asset-dialog').close();
 api.onChanged(()=>run(reconcile));window.addEventListener('focus',()=>run(reconcile));setInterval(()=>run(reconcile),1500);
 let pendingFragment;api.onFragment(fragment=>{if(ready)jump(fragment);else pendingFragment=fragment;});
 api.onCommand(command=>run(async()=>{if(command==='quit'||command==='close-tab')await close();else if(command==='preview')preview();else if(command==='source-mode')mode();else if(command==='open-file')await api.pick();else if(command==='open')await api.vault();else if(command==='reveal')await api.reveal();else status('This is a detached file. Open a vault for workspace commands.');}));
 run(async()=>{
  const note=await api.restore();live=true;current=makeTab(note);tabs=[current];document.title=note.path+' · Detached · Draglass Editor';
- await appearance.load();appearanceId=note.preferences.appearanceTheme||'folio';const preference=note.preferences.theme||'light';document.documentElement.dataset.theme=preference==='system'?(window.matchMedia?.('(prefers-color-scheme: dark)').matches?'dark':'light'):preference;const applied=appearance.apply(appearanceId,preference);$('theme').value=applied.mode;for(const option of $('theme').options)option.disabled=!applied.theme.modes.includes(option.value);
+ await appearance.load();typography=note.preferences||{};appearanceId=note.preferences.appearanceTheme||'folio';const preference=note.preferences.theme||'light';document.documentElement.dataset.theme=preference==='system'?(window.matchMedia?.('(prefers-color-scheme: dark)').matches?'dark':'light'):preference;const applied=appearance.apply(appearanceId,preference,typography);$('theme').value=applied.mode;for(const option of $('theme').options)option.disabled=!applied.theme.modes.includes(option.value);
  $('file-name').textContent=note.path;$('file-path').textContent=note.absolute;$('file-path').title=note.absolute;
  editor=new EditorView({state:current.state,parent:$('editor')});await refresh();ready=true;status('Detached file · Autosave on');jump(pendingFragment||note.fragment);
 });

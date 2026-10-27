@@ -14,7 +14,10 @@
       "headingFont": "Georgia, 'Times New Roman', serif",
       "radius": 4,
       "lineHeight": 1.85,
-      "documentWidth": 820
+      "documentWidth": 820,
+      "documentFontSize": 18,
+      "uiFontSize": 13,
+      "codeFontSize": 14
     },
     "light": {
       "bg": "#fcfaf5",
@@ -58,7 +61,10 @@
       "headingFont": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       "radius": 4,
       "lineHeight": 1.8,
-      "documentWidth": 820
+      "documentWidth": 820,
+      "documentFontSize": 18,
+      "uiFontSize": 13,
+      "codeFontSize": 14
     },
     "light": {
       "bg": "#fcfcfa",
@@ -102,7 +108,10 @@
       "headingFont": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       "radius": 9,
       "lineHeight": 1.8,
-      "documentWidth": 820
+      "documentWidth": 820,
+      "documentFontSize": 18,
+      "uiFontSize": 13,
+      "codeFontSize": 14
     },
     "light": {
       "bg": "#f9fcfc",
@@ -146,7 +155,10 @@
       "headingFont": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       "radius": 8,
       "lineHeight": 1.8,
-      "documentWidth": 820
+      "documentWidth": 820,
+      "documentFontSize": 18,
+      "uiFontSize": 13,
+      "codeFontSize": 14
     },
     "light": {
       "bg": "#fdfcff",

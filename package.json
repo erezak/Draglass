@@ -1,6 +1,6 @@
 {
   "name": "draglass-editor",
-  "version": "0.28.0",
+  "version": "0.28.1",
   "private": true,
   "description": "Local Markdown workspace with tabs and connected notes",
   "main": "electron/main.cjs",

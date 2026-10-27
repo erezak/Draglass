@@ -37,6 +37,9 @@ Required: `schema: 1`, portable lowercase `id` (letters, digits and hyphens, sta
 Shared `tokens`:
 
 - `uiFont`, `documentFont`, `headingFont`: installed font-family lists. Source and code retain a monospace stack. Font URLs, scripts and arbitrary CSS are not supported. Fonts themselves are not bundled by import/export; install named fonts separately or include fallback families.
+- `documentFontSize`: 12–28 px, default 18.
+- `uiFontSize`: 10–20 px, default 13; UI hierarchy scales proportionally.
+- `codeFontSize`: 10–28 px, default 14.
 - `radius`: 0–16 pixels.
 - `lineHeight`: 1.3–2.2 for documents.
 - `documentWidth`: 600–1200 pixels; turning off readable line length still expands the document.
@@ -48,3 +51,11 @@ The resolver supplies semantic CSS variables to the editor, properties, sidebars
 ## Architecture
 
 `core/themes/index.cjs` and `builtins.json` contain pure validation, inheritance, compatibility and token resolution. `core/themes/store.cjs` owns bounded atomic persistence and export. `electron/themes.cjs` owns trusted IPC and native file pickers. `ui/themes/appearance.js` adapts resolved tokens to the DOM; `ui/themes/settings.js` owns theme editing controls. Components consume semantic variables instead of maintaining separate theme definitions. No note/index/AI service needs a theme dependency.
+
+## Font-size overrides
+
+Document, Interface and Code size controls live alongside the theme in Appearance. Empty controls follow the active theme, with its resolved default shown as the placeholder. Entering a number creates a per-vault override; **Reset to theme default** clears that override when Apply is pressed. Cancelling Settings preserves the existing values. Overrides survive theme and color-mode changes; resetting follows future parent/theme changes too.
+
+Existing saved numeric document sizes, including 16px, remain explicit overrides because old files do not record whether a value was chosen by the user. Reset Document size once to adopt the new theme default. New workspaces follow the default 18px document, 13px UI, and 14px code sizes. Detached windows use the same effective font sizes on opening.
+
+Font-size defaults are shared theme tokens, inherited and exported just like font families. They cannot differ between light and dark palettes. For example, add `"tokens": {"documentFontSize": 20, "uiFontSize": 14, "codeFontSize": 15}` to a custom theme. The pure theme resolver combines those defaults with nullable user overrides before the DOM adapter applies CSS variables. Engine-owned drawing labels retain their own sizing.
