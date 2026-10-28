@@ -2,9 +2,9 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 const {AIStore}=require('../core/ai/store.cjs'),{AIService}=require('../core/ai/service.cjs');
 async function temp(t){const dir=await fs.mkdtemp(path.join(os.tmpdir(),'draglass-conversations-'));t.after(()=>fs.rm(dir,{recursive:true,force:true}));return dir;}
 const config={active:'api',providers:[{id:'api',type:'openai',name:'Gateway',url:'https://gateway.example',model:'test'}]};
-test('new conversations preserve the legacy chat, survive restart and move with their note',async t=>{
+test('current conversations survive restart and move with their note',async t=>{
  const dir=await temp(t),store=new AIStore(dir),old=[{role:'user',content:'Original question'},{role:'assistant',content:'Original answer'}];
- const file=store.threadFile('/vault','A.md');await fs.mkdir(path.dirname(file),{recursive:true});await fs.writeFile(file,JSON.stringify(old));
+ const file=store.threadFile('/vault','A.md');await fs.mkdir(path.dirname(file),{recursive:true});await store.writeThread('/vault','A.md',old);
  const initial=await store.listConversations('/vault','A.md');assert.equal(initial.conversations.length,1);assert.equal(initial.conversations[0].title,'Original question');
  const created=await store.newConversation('/vault','A.md');assert.deepEqual(await store.thread('/vault','A.md',created.id),[]);assert.equal((await store.thread('/vault','A.md','initial'))[1].content,'Original answer');
  await store.writeThread('/vault','A.md',[{role:'user',content:'Another question'}],created.id);await store.moveThread('/vault','A.md','Renamed.md');
@@ -31,3 +31,4 @@ test('general chat works before a vault is opened and note actions still require
  const result=await service.chat(null,{id:'no-vault',context:[],scope:'',prompt:'Explain Markdown'});assert.equal(result.content,'General reply');assert.match(captured[0][0].content,/No vault is open/);assert.equal((await service.store.thread('@global','')).length,2);
  await assert.rejects(service.chat(null,{id:'no-vault-actions',mode:'actions',context:[],scope:'',prompt:'Create a note'}),/Open a vault/);
 });
+test('unsupported single-thread arrays are rejected without converting or rewriting them',async t=>{const dir=await temp(t),store=new AIStore(dir),file=store.threadFile('/vault','A.md'),text=JSON.stringify([{role:'user',content:'Old message'}]);await fs.mkdir(path.dirname(file),{recursive:true});await fs.writeFile(file,text);await assert.rejects(store.listConversations('/vault','A.md'),/Invalid conversation history/);assert.equal(await fs.readFile(file,'utf8'),text);});

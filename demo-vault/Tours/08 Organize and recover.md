@@ -23,3 +23,5 @@ The default trash stays inside the vault; system trash is available in Settings.
 Use Open file to select a Markdown or Excalidraw file outside the demo. It opens in a detached window with an explicit label and distinct appearance. Detached Markdown starts in Live Preview. Its relative links resolve beside that file. This exercise needs a file outside the vault; it does not pretend that a bundled example is detached.
 
 Open [[Tours/09 Search and settings]] next.
+
+Recovery snapshots, trash and operation history live under `.draglass/` inside this vault, alongside plugin data. After editing or deleting a practice note, show hidden files in your file manager and inspect that folder. Restore the deleted note through Draglass trash.

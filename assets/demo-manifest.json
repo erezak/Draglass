@@ -59,7 +59,7 @@
       "notes": [
         "Tours/08 Organize and recover.md"
       ],
-      "exercise": "Organize ordinary files"
+      "exercise": "Organize ordinary files; inspect .draglass/recovery and .draglass/trash after a practice edit/delete, restore the note, and confirm vault-private data shares one folder"
     },
     {
       "id": "search-settings",
@@ -87,7 +87,7 @@
       "notes": [
         "Tours/12 Tasks.md"
       ],
-      "exercise": "Collect inline and note tasks, promote with identity preserved, query, use durable grouped Undo, and review semantic AI task proposals. Open Tasks in the right sidebar, inspect body context wikilinks, and restore the visible Undo notice after restart.; add prerequisites, complete and Undo blockers, promote with stable IDs, query actionable and blocked tasks, inspect missing/circular diagnostics; inspect named prerequisite edges and same-note loops in local graphs; complete recurring inline and note tasks, inspect successor dates and Undo both occurrences; try the shorthand 2 days after completion in Repeat; edit importance, inspect urgency explanations, open the Eisenhower matrix and filter actionable work; keep score explanations expanded across refresh and edit importance without default recurrence markers; open the main task workspace, combine visual date/status/importance/dependency filters, save/rename/update/delete a named view, switch list/matrix, and restore independent pane state; open the task calendar, switch due/scheduled/start basis, navigate November 2026 and local current month, inspect undated work, edit/create on a day and verify Undo and calendar saved-view restoration"
+      "exercise": "Collect inline and note tasks, promote with identity preserved, query, use durable grouped Undo, and review semantic AI task proposals. Open Tasks in the right sidebar, inspect body context wikilinks, and restore the visible Undo notice after restart.; add prerequisites, complete and Undo blockers, promote with stable IDs, query actionable and blocked tasks, inspect missing/circular diagnostics; inspect named prerequisite edges and same-note loops in local graphs; complete recurring inline and note tasks, inspect successor dates and Undo both occurrences; try the shorthand 2 days after completion in Repeat; edit importance, inspect urgency explanations, open the Eisenhower matrix and filter actionable work; keep score explanations expanded across refresh and edit importance without default recurrence markers; open the main task workspace, combine visual date/status/importance/dependency filters, save/rename/update/delete a named view, switch list/matrix, and restore independent pane state; open the task calendar, switch due/scheduled/start basis, navigate November 2026 and local current month, inspect undated work, edit/create on a day and verify Undo and calendar saved-view restoration; complete an inline task and a Task note with optional details, cancel once, skip once, inspect the dated body entry, Undo, and confirm recurring successors do not inherit outcomes"
     },
     {
       "id": "calendar",
@@ -96,6 +96,13 @@
         "Journal/2026-11-01.md"
       ],
       "exercise": "Open independent Calendar, inspect dated-note word dots, toggle writing statistics, change first weekday, disable Tasks and toggle its optional calendar integration, then restore month state.; verify immediate right-pane opening, resize to fit, use collapsed options/day details, inspect red due dots separately from writing dots and cancel a missing-day note creation"
+    },
+    {
+      "id": "briefing",
+      "notes": [
+        "Tours/15 Daily Briefing.md"
+      ],
+      "exercise": "Open Daily Briefing; Start today copies a bounded prompt and creates a live note without narrative. Import sourced clipboard batches, inspect person ambiguity/conflicts, and Undo. Configure workdays and specific AI connection or Use chat selection. No live external results are bundled. Check asynchronous clipboard completion, formatted JSON budgets, and explicit undated identity provenance gaps. Verify short title versus detailed text, friendly numeric filename collisions, and vault-owned .draglass/briefing settings/state with a fresh board after backing-note deletion."
     }
   ],
   "entityTypes": [

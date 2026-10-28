@@ -110,3 +110,11 @@ Tasks distinguish user-set importance from calculated urgency. Open the task mat
 Tasks can open in a main workspace as well as the right sidebar. Save named vault views, combine visual filters with advanced queries, and switch between list and matrix layouts without losing the selection.
 
 Calendar is an independent core plugin in the right sidebar for navigating dated notes and viewing word-count dots. Its button and Open Calendar command reveal the grid immediately, sized to the pane. Days with matching tasks due display a red dot when Tasks integration is enabled. Configure writing statistics and the first weekday in Settings → Calendar. Tasks can optionally appear on Calendar through Settings → Tasks.
+
+Daily Briefing is an optional core plugin for a compact clipboard exchange with an external knowledge assistant. Its board combines all open tasks with a daily note, sourced decisions, person relationships, conflict flags and Undo. See [Daily Briefing](docs/DAILY_BRIEFING.md) for setup.
+
+Daily Briefing uses short note titles with full context in the body. Its state, settings and Undo records are stored inside each vault under `.draglass/briefing/`.
+
+Vault-private recovery snapshots, trash, operation history and plugin data live in `.draglass/`.
+
+Task completion offers optional outcome details for inline tasks and Task notes. Details remain in Markdown, share the completion operation’s Undo, and stay off recurring successors.

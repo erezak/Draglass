@@ -85,10 +85,12 @@ Continue in reviewable slices:
 4. Delivered in 0.29.0: separately editable importance, explainable calculated urgency and an Eisenhower matrix. Saved matrix perspectives are delivered in 0.30.0; future extension: customizable weights. Keep blocked tasks distinguishable from tasks that can be acted on now.
 5. Calendar delivered as an independent core plugin in 0.32.0, with writing dots, configurable week start and an optional Tasks provider with date-basis selection, month navigation, undated work, bounded complete-month loading and existing semantic actions. Add board, tree and timeline views over the same query service; distinguish what is selected from how it is displayed.
 6. Delivered in 0.30.0: full task workspace, shared visual filters, named saved queries, list/matrix switching and per-pane restoration. Continue with context-aware expressions and Boolean combinations. Do not execute JavaScript. Unsupported instructions must never be silently ignored.
-7. Build an independent optional Daily Loop core plugin over task/note services and bounded AI tools. Plan, import updates, reconcile commitments with provenance, review and generate readable daily summaries without duplicating task state or preloading vault contents into prompts.
+7. Daily Briefing is available as an independent optional core plugin: compact clipboard batches, automatic sourced task/decision notes, person matching, live task views, conflict flags, Undo and optional bounded AI reconciliation. Future direct connectors can reuse its protocol without changing the note model.
 
 Disabling a plugin removes its capabilities and UI while preserving plain files. Keep each new slice represented by real demo examples or honest guided exercises.
 
 ## Task operations · 0.24.1 delivered
 
 Manual and accepted AI operations share a read-only planner and a durable per-vault journal. Undo is grouped across affected files, time-limited, available after restart and guarded against later edits. AI task operations remain proposals until accepted, expose bounded structured reads and request-local handles, and preview every affected file. Dependency-aware actionability and diagnostics are delivered in 0.26.0. Recurrence is delivered in 0.27.0. Importance, urgency, saved views and the main task workspace are delivered. Next: additional planning layouts.
+
+Daily Briefing: compact clipboard collection, sourced ontology notes, a live board, optional bounded AI reconciliation, conflicts and Undo are available. Future direct connectors can implement the same versioned protocol; external record writes require a separate deliberate integration.

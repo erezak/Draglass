@@ -1,4 +1,4 @@
-const {app,BrowserWindow,dialog,ipcMain,Menu,safeStorage,protocol,shell,nativeImage}=require('electron');
+const {app,BrowserWindow,dialog,ipcMain,Menu,safeStorage,protocol,shell,nativeImage,clipboard}=require('electron');
 const path=require('node:path');
 const fs=require('node:fs');
 const {pathToFileURL}=require('node:url');
@@ -74,9 +74,20 @@ const handlers={
   demo:async()=>{let prepared;try{let selected=await demoVault.open();const profile=await workspace.forVault(selected.root);if(profile)selected={...selected,preferences:{...selected.preferences,...profile.preferences},layout:{...selected.layout,...profile.layout}};prepared=await prepareVault(selected.root);await workspace.write(selected.root,selected);ai.cancel();useVault(prepared.candidate,prepared.service);return {root:vault.root,name:'Demo Vault',notes:prepared.notes,workspace:selected};}catch(error){if(prepared&&prepared.service!==knowledgeService)await prepared.service.close();dialog.showErrorBox('Could not open demo vault',error.message);throw error;}},
   restore:async()=>{const saved=await demoVault.startup(await workspace.read(),workspace.file);if(!saved)return null;try{const {candidate,service,notes}=await prepareVault(saved.root);useVault(candidate,service);await workspace.write(vault.root,saved);return {root:vault.root,name:demoVault.isDemo(vault.root)?'Demo Vault':path.basename(vault.root),notes,workspace:saved};}catch{return {error:'Previous vault is unavailable. Open a vault to continue.'};}},
   workspace:value=>workspace.write(vault.root,value),
+  briefing:async(action,args={})=>{
+   const saved=await workspace.read();if(saved?.root===vault.root&&saved.preferences?.corePlugins?.briefing===false)throw new Error('Enable Daily Briefing in Settings → Core plugins.');
+   const config=require('../core/briefing/protocol.cjs').cleanConfig(saved?.root===vault.root?saved.preferences?.briefing:{}),service=new(require('../core/briefing/service.cjs').BriefingService)(vault,{config,reconcile:r=>ai.reconcileBriefing(r),progress:summary=>window?.webContents.send('briefing:progress',summary)});
+   if(action==='board')return service.board();
+   if(action==='start'||action==='copy'){const result=await service[action]();await clipboard.writeText(result.prompt);delete result.prompt;return {...result,copied:true};}
+   if(action==='import'){await tasksEnabled();let provider=config.provider==='chat'?args.provider:config.provider;if(!config.ai)provider=null;return service.import(await clipboard.readText(),{provider});}
+   if(action==='resolve'){await tasksEnabled();return service.resolve(args.key,args.path);}
+   if(action==='undo')return service.undo(args.id);
+   if(action==='dismiss'){await service.dismiss(args.id);return {notes:[],removed:[]};}
+   throw new Error('Unknown briefing action.');
+  },
   calendar:async args=>{const saved=await workspace.read();if(saved?.root===vault.root&&saved.preferences?.corePlugins?.calendar===false)throw new Error('Enable Calendar in Settings → Core plugins.');return knowledgeService.request('calendar',args);},
   tasks:async args=>{await tasksEnabled();return knowledgeService.request('tasks',args);},
-  taskAction:async (action,args)=>{await tasksEnabled();const service=new (require('../core/tasks/service.cjs').TasksService)(vault);if(action==='history')return service.history();if(action==='undo')return service.undo(args.id);if(action==='create')return service.create(args);if(action==='update')return service.update(args.ref,args.fields);if(action==='promote')return service.promote(args.ref,args);throw new Error('Unknown task action.');},
+  taskAction:async (action,args)=>{await tasksEnabled();const service=new (require('../core/tasks/service.cjs').TasksService)(vault);if(action==='history')return service.history();if(action==='undo'){const briefing=new(require('../core/briefing/service.cjs').BriefingService)(vault);if((await briefing.load()).undo?.id===args.id)return briefing.undo(args.id);const entry=await service.entry(args.id);if(['Import daily briefing','Start daily briefing'].includes(entry.label))throw new Error('Only the latest briefing operation can be undone. Open Daily Briefing to inspect its state.');return service.undo(args.id);}if(action==='create')return service.create(args);if(action==='update')return service.update(args.ref,args.fields);if(action==='promote')return service.promote(args.ref,args);throw new Error('Unknown task action.');},
   listWorkspaces:()=>savedWorkspaces.list(vault.root),
   saveWorkspace:(name,value,id)=>savedWorkspaces.save(vault.root,name,value,id),
   removeWorkspace:id=>savedWorkspaces.remove(vault.root,id),

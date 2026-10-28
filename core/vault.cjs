@@ -22,7 +22,7 @@ class Vault {
   }
   scan() { const job=this.scanQueue.catch(()=>{}).then(()=>this.scanNow());this.scanQueue=job;return job; }
   async scanNow() {
-    const notes=[],attachments=[],folders=[],cache=new Map();
+        const notes=[],attachments=[],folders=[],cache=new Map();
     const walk=async (dir, prefix='') => {
       for(const entry of await fs.readdir(dir,{withFileTypes:true})) {
         if(entry.name.startsWith('.') || entry.isSymbolicLink()) continue;
@@ -45,7 +45,7 @@ class Vault {
   async read(relative) { const file=await this.checked(relative); const text=await fs.readFile(file,'utf8'); return {path:relative,text,version:hash(text)}; }
   async prepareText(relative,text,{creating=false}={}) {if(!this.manageTimestamps)return {text};if(creating)return require('./note-timestamps.cjs').stampNote(relative,text,{creating:true});const old=await this.read(relative),stat=await fs.stat(await this.checked(relative));return require('./note-timestamps.cjs').stampNote(relative,text,{old:old.text,createdAt:stat.birthtimeMs||stat.mtimeMs});}
   async write(relative,text,options={}) {
-    const expectedText=options&&typeof options==='object'?options.expectedText:undefined;
+        const expectedText=options&&typeof options==='object'?options.expectedText:undefined;
     if(typeof text!=='string' || Buffer.byteLength(text)>8*1024*1024) throw new Error('Note is too large.');
     if(this.busy) throw new Error('Another save is running. Try again.');
     this.busy=true;
@@ -56,14 +56,14 @@ class Vault {
       const stat=await fs.stat(file);
       const stamp=this.manageTimestamps&&!options.timestamped?require('./note-timestamps.cjs').stampNote(relative,text,{old,createdAt:stat.birthtimeMs||stat.mtimeMs}):{text};text=stamp.text;if(Buffer.byteLength(text)>8*1024*1024)throw new Error('Note is too large.');if(this.manageTimestamps&&text===old)return {path:relative,text,version:hash(text),...(stamp.timestampWarning?{timestampWarning:stamp.timestampWarning}:{})};
       // Keep recovery snapshots outside the vault's visible note tree.
-      const recovery=path.join(this.root,'.draglass-editor','recovery');
-      for (const folder of [path.join(this.root,'.draglass-editor'), recovery]) {
+      const recovery=path.join(this.root,'.draglass','recovery');
+      for (const folder of [path.join(this.root,'.draglass'), recovery]) {
         try { const stat=await fs.lstat(folder); if(stat.isSymbolicLink() || !stat.isDirectory()) throw new Error('Recovery folder must be an ordinary directory.'); }
         catch(error) { if(error.code!=='ENOENT') throw error; await fs.mkdir(folder,{mode:0o700}); }
       }
       const recoveryPrefix=hash(relative).slice(0,16)+'-';
       await fs.writeFile(path.join(recovery,`${recoveryPrefix}${Date.now()}-${randomUUID()}.md`),old,{flag:'wx',mode:0o600});
-      temp=path.join(path.dirname(file),`.draglass-editor-${randomUUID()}.tmp`);
+      temp=path.join(path.dirname(file),`.draglass-${randomUUID()}.tmp`);
       const handle=await fs.open(temp,'wx',stat.mode);
       try {await handle.writeFile(text,'utf8'); await handle.sync();} finally {await handle.close();}
       if(expectedText!==undefined&&(await fs.readFile(file,'utf8'))!==expectedText)throw new Error('The note changed on disk. Regenerate the proposal.');await fs.rename(temp,file); temp=null;

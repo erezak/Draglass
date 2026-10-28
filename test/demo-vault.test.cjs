@@ -18,7 +18,7 @@ test('concurrent demo commands share an install; symlinked installation director
  const other=await setup(t);await fs.mkdir(other.directory);await fs.symlink(other.source,path.join(other.directory,'demo-vaults'));await assert.rejects(other.manager.ensure(),/ordinary folder/);
 });
 test('bundled demo covers all features and ontology classes with resolved links and sourced graph relationships',async()=>{
- const stats=await checkDemo();assert.ok(stats.notes>=50);assert.ok(stats.namedEdges>=65);assert.ok(stats.wikiEdges>=60);assert.ok(stats.sourcedRelationships>=50);assert.equal(stats.featureTours,13);
+ const stats=await checkDemo();assert.ok(stats.notes>=50);assert.ok(stats.namedEdges>=65);assert.ok(stats.wikiEdges>=60);assert.ok(stats.sourcedRelationships>=50);assert.equal(stats.featureTours,14);
 });
 
 test('Finder metadata is ignored without changing the edition; bundled symlinks remain rejected',async t=>{
@@ -26,6 +26,6 @@ test('Finder metadata is ignored without changing the edition; bundled symlinks 
  await fs.writeFile(path.join(h.source,'.DS_Store'),'Finder metadata');
  await fs.writeFile(path.join(h.source,'._Welcome.md'),'AppleDouble metadata');
  await fs.mkdir(path.join(h.source,'__MACOSX'));await fs.writeFile(path.join(h.source,'__MACOSX','metadata'),'metadata');
- const after=await h.manager.open();assert.equal(after.root,before.root);assert.deepEqual((await fs.readdir(after.root)).sort(),['.draglass-editor','Welcome.md']);
+ const after=await h.manager.open();assert.equal(after.root,before.root);assert.deepEqual((await fs.readdir(after.root)).sort(),['.draglass','Welcome.md']);
  await fs.symlink(path.join(h.source,'Welcome.md'),path.join(h.source,'Linked.md'));await assert.rejects(h.manager.open(),/Unsupported bundled demo symlink: Linked.md/);
 });

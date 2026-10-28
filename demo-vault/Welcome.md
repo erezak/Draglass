@@ -40,3 +40,5 @@ Keep a reference beside your writing with [[Tours/11 Panes and workspaces]].
 Explore aliases, heading/block references and reusable content in [[Tours/13 Note links]].
 
 Explore [[Tours/14 Calendar|Calendar]] for dated-note writing dots, configurable week start and optional Tasks integration.
+
+- [[Tours/15 Daily Briefing|Daily Briefing: sourced commitments and decisions]]

@@ -174,6 +174,22 @@ Calendar is independent of Tasks: `core/calendar/dates.cjs` owns month math and 
 
 `ui/plugins/calendar.js` owns sidebar and embedded lifecycles and discovers optional providers through the host. `ui/calendar-view.js` renders the grid, note navigation and writing dots with no Tasks imports. Tasks owns `ui/tasks-calendar.js`, a contribution adapter for task chips, per-day detail, undated work and existing semantic actions. The host supplies this provider only while Tasks and Calendar are enabled and Tasks.showOnCalendar is true. Disabling either never rewrites notes; provider controls are disposed on disappearance. Old fenced task-calendar queries delegate to Calendar instead of owning a second grid.
 
-Shared view-settings checkpoints retain Calendar preferences, month/source state and integration choice across vault switches. Calendar sidebar state persists through the workspace serializer. The pure dockCalendar migration moves former Calendar leaves into sidebar state while retaining note/tool leaves and pane topology. Dots count the current body text of notes with YAML date or an exact ISO-date filename; no historical writing activity is inferred. Frontmatter, fenced code and comments are excluded; one dot represents up to 250 lexical words, capped at five with an exact count tooltip. Dated drawings are excluded.
+Shared view-settings checkpoints retain Calendar preferences, month/source state and integration choice across vault switches. Calendar sidebar state persists through the workspace serializer. Dots count the current body text of notes with YAML date or an exact ISO-date filename; no historical writing activity is inferred. Frontmatter, fenced code and comments are excluded; one dot represents up to 250 lexical words, capped at five with an exact count tooltip. Dated drawings are excluded.
 
 Calendar button and command both reveal the same right-side instance. A synchronous grid renders before worker/provider reads complete, with request sequencing guarding asynchronous replacements. CSS uses seven flexible columns and pane-relative cell geometry; Calendar does not choose a fixed size. Provider settings and selected-day details sit below the grid. Task providers expose generic per-day indicators; due totals are computed before limits and independently of scheduled/start placement, with capped task details identified explicitly.
+
+## Briefing component
+
+`core/briefing/` owns the clipboard protocol, working-day window, compact outbound deltas, identity matching, deterministic three-way merge, state checkpoint and operation recovery. `reconcile.cjs` exposes only bounded read/match tools and uses the common provider/context-budget adapters in fresh sessions. `BriefingService` owns automatic writes through `TaskJournal`; AI chat stays reviewed and unchanged. Trusted IPC owns clipboard access; the renderer never receives provider secrets. The optional core plugin in `ui/plugins/briefing.js` owns a workspace board backed by a daily note and live Tasks views.
+
+Briefing clipboard operations await Electron’s asynchronous main-process API before hashing, validation or reporting a successful copy. Protocol input has a 64 KiB transport guard and a separate 16,000-byte compact-JSON content budget. Formatting whitespace never clips or changes string values. Identity evidence can remain undated with an explicit coverage gap; event timing still requires dated evidence.
+
+Daily Briefing titles are independent of detailed source text. Filenames, entity
+names and headings use bounded display titles; IDs continue to control matching.
+Briefing state, settings and operation records are owned by `.draglass/briefing/`
+inside the vault. The workspace store overlays vault-owned plugin settings and
+excludes them from application metadata and saved layouts. The shared operation journal accepts
+validated directory components so other features retain their own storage scope.
+
+
+Task completion details use `core/tasks/completion.cjs` for bounded text validation and body formatting. The task planner adds the record after recurrence expansion, so successor notes never copy the previous outcome. Status, references, details and successors share one operation and Undo. `ui/task-completion.js` owns the optional-details dialog used by Tasks completion controls.

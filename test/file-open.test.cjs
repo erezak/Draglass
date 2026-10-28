@@ -30,7 +30,7 @@ test('detached links are relative to their own file, detect ambiguity, and retai
 test('detached autosave is atomic, serialized, keeps recovery outside the document folder, and detects external changes',async t=>{
  const f=await fixture(t),file=path.join(f.outside,'Outside.md'),doc=new DetachedDocument(file,path.join(f.root,'app-data'));
  const before=await doc.read();await Promise.all([doc.write(doc.path,'First edit'),doc.write(doc.path,'Second edit')]);assert.equal((await doc.read()).text,'Second edit');assert.notEqual((await doc.read()).version,before.version);
- await assert.rejects(fs.stat(path.join(f.outside,'.draglass-editor')),/ENOENT/);
+ await assert.rejects(fs.stat(path.join(f.outside,'.draglass')),/ENOENT/);
  const copies=await fs.readdir(path.join(doc.recovery,require('node:crypto').createHash('sha256').update(doc.path).digest('hex')));assert.equal(copies.length,2);
  await fs.writeFile(file,'External replacement');assert.equal((await doc.read()).text,'External replacement');await doc.write(doc.path,'Last internal save');assert.equal(await fs.readFile(file,'utf8'),'Last internal save');
  await fs.writeFile(path.join(f.outside,'Other.md'),'Do not edit');await assert.rejects(doc.write('Other.md','Oops'),/Open this file/);assert.equal(await fs.readFile(path.join(f.outside,'Other.md'),'utf8'),'Do not edit');

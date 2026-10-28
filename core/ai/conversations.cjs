@@ -4,8 +4,7 @@ class Conversations{
  constructor(file,write,clean){this.file=file;this.write=write;this.clean=clean;this.queue=Promise.resolve();}
  transaction(fn){const job=this.queue.catch(()=>{}).then(fn);this.queue=job;return job;}
  async read(root,note){
-  let value;try{value=JSON.parse(await fs.readFile(this.file(root,note),'utf8'));}catch(e){if(e.code!=='ENOENT')throw e;value=[];}
-  if(Array.isArray(value)){const messages=this.clean(value);return {version:1,active:'initial',conversations:[{id:'initial',title:title(messages),createdAt:0,messages}]};}
+  let value;try{value=JSON.parse(await fs.readFile(this.file(root,note),'utf8'));}catch(e){if(e.code!=='ENOENT')throw e;return {version:1,active:'initial',conversations:[{id:'initial',title:'New conversation',createdAt:0,messages:[]}]};}
   if(!value||value.version!==1||!Array.isArray(value.conversations)||!value.conversations.length||value.conversations.length>200)throw new Error('Invalid conversation history.');
   const ids=new Set();for(const c of value.conversations){if(!c||typeof c.id!=='string'||! /^[\w-]{1,80}$/.test(c.id)||ids.has(c.id))throw new Error('Invalid conversation history.');ids.add(c.id);c.messages=this.clean(c.messages);c.title=title(c.messages);c.createdAt=Number(c.createdAt)||0;}
   if(!ids.has(value.active))throw new Error('Invalid active conversation.');return value;

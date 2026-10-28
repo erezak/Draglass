@@ -173,3 +173,9 @@ sort by urgency
 Embedded Previous/Next month controls navigate without changing this Markdown. Task edits still use the ordinary editor and Undo.
 
 Calendar opens directly in the right pane. Grey dots show writing and red dots mark due tasks. Change Calendar by to Scheduled or Start: due-date red dots remain on their deadline days, with Also due details when needed.
+
+## Record an outcome
+
+Complete one of the practice tasks below. Enter a short outcome in Completion details, or leave it blank. Cancel keeps the task open. Try the same action on a Task note and through a linked checkbox. Inspect the dated body entry, then Undo from the notification or Task history. For a repeating task, verify that its successor does not inherit the outcome.
+
+- [ ] Practice recording completion details

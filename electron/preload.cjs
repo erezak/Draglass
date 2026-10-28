@@ -1,6 +1,8 @@
 const {contextBridge,ipcRenderer}=require('electron');
 contextBridge.exposeInMainWorld('vaultAPI', {
   linkSuggestions:args=>ipcRenderer.invoke('vault:linkSuggestions',args),
+  briefing:(action,args)=>ipcRenderer.invoke('vault:briefing',action,args),
+  onBriefingProgress:callback=>{const listener=(_,summary)=>callback(summary);ipcRenderer.on('briefing:progress',listener);return ()=>ipcRenderer.removeListener('briefing:progress',listener);},
   calendar:args=>ipcRenderer.invoke('vault:calendar',args),
   tasks:args=>ipcRenderer.invoke('vault:tasks',args),
   taskAction:(action,args)=>ipcRenderer.invoke('vault:taskAction',action,args),

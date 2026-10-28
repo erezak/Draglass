@@ -1,12 +1,10 @@
 const {wikiLinks,resolveLink}=require('./links.cjs');
 const palette=['#b5a1ff','#70d6c7','#f3b982','#88bafa','#e999ba','#c9d882','#a7a6e8'];
-const defaults={query:'',tags:false,attachments:false,existingOnly:false,orphans:true,excluded:'',groups:[],arrows:false,textFade:0.35,nodeSize:3,nodeSizeScale:2,linkThickness:1,center:0.12,repel:8,linkForce:0.4,linkDistance:120,depth:1,incoming:true,outgoing:true,neighbors:true,folderColors:true,halos:true,curved:true,minimap:true};
+const defaults={query:'',tags:false,attachments:false,existingOnly:false,orphans:true,excluded:'',groups:[],arrows:false,textFade:0.35,nodeSize:3,linkThickness:1,center:0.12,repel:8,linkForce:0.4,linkDistance:120,depth:1,incoming:true,outgoing:true,neighbors:true,folderColors:true,halos:true,curved:true,minimap:true};
 function cleanSettings(value={}){
  const result={...defaults};for(const k of Object.keys(defaults)){if(typeof defaults[k]==='boolean')result[k]=typeof value[k]==='boolean'?value[k]:defaults[k];}
  for(const k of ['query','excluded'])result[k]=typeof value[k]==='string'?value[k].slice(0,4096):'';
  for(const [k,min,max]of [['textFade',0,2],['nodeSize',0.3,15],['linkThickness',0.2,4],['center',0,1],['repel',0,20],['linkForce',0,1],['linkDistance',10,500],['depth',1,10]])result[k]=Number.isFinite(value[k])?Math.max(min,Math.min(max,value[k])):defaults[k];result.depth=Math.round(result.depth);
- // Upgrade the previous default; preserve explicit sizes and new small-node choices.
- if(value.nodeSize===1&&value.nodeSizeScale!==2)result.nodeSize=3;
  result.groups=Array.isArray(value.groups)?value.groups.slice(0,32).filter(g=>g&&typeof g.query==='string').map(g=>({query:g.query.slice(0,4096),color:/^#[0-9a-f]{6}$/i.test(g.color)?g.color:palette[0]})):[];return result;
 }
 const {prose,properties,tagsFor,frontmatter}=require('./metadata.cjs');
