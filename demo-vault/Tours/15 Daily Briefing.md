@@ -68,3 +68,14 @@ is cleared because its backing briefing note is missing.
 ## Vault storage
 
 After editing a practice note, inspect the vault folder with hidden files visible. Recovery snapshots and Daily Briefing data share the `.draglass/` folder. Trash and task Undo history also stay there.
+
+## Generated content stays readable
+
+The framed example below is authored demo content, not an external AI response. In Live Preview, click the text or the Automatically generated label to enter Markdown source and edit it. Move the caret outside to restore the rendered frame; links remain usable when previewed. In Reading view, look for the subtle border and **Automatically generated** label. Switch to Source to inspect the `briefing id=...` fence. Generated entries keep stable IDs so later imports can find them; your changes are preserved and conflicting incoming edits are flagged.
+
+```briefing id=demo-format-example
+- [[Tasks/Choose briefing format|Choose briefing format]] — Use a concise daily summary with sourced atomic notes.
+  - Evidence: authored Lumen demo fixture.
+```
+
+Personal prose belongs outside the generated frame. Task controls, backlinks, tags, search and graph connections still work inside it.

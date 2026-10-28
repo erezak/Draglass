@@ -10,7 +10,7 @@ const posix = {
 };
 function wikiLinks(text) {
   // Ignore fenced code and inline code when indexing links.
-  const prose = text.replace(/(^|\n)[ \t]*(`{3,}|~{3,})[^\n]*\n[\s\S]*?\n[ \t]*\2[^\n]*(?=\n|$)/g, '\n').replace(/`[^`\n]*`/g, '');
+  const prose = require('./briefing/blocks.cjs').transparent(text).replace(/(^|\n)[ \t]*(`{3,}|~{3,})[^\n]*\n[\s\S]*?\n[ \t]*\2[^\n]*(?=\n|$)/g, '\n').replace(/`[^`\n]*`/g, '');
   return [...prose.matchAll(/!?\[\[([^\]\n]+)\]\]/g)].map(m => ({target:m[1].replace(/\\\|/g,'|').split('|')[0].trim(), label:(m[1].replace(/\\\|/g,'|').split('|')[1] || m[1].replace(/\\\|/g,'|').split('|')[0]).trim()}));
 }
 function resolveLink(target, from, paths) {

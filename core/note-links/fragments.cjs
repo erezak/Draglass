@@ -6,7 +6,7 @@ const {blockMarkers}=require('./syntax.cjs');
 const md=parser.configure(GFM),slug=s=>s.toLowerCase().replace(/[^\p{L}\p{N}\s_-]/gu,'').replace(/\s+/g,'-');
 const decode=s=>{try{return decodeURIComponent(s);}catch{return s;}};
 function indexFragments(text){
- text=String(text);const lineAt=lineMap(text);const front=frontmatter(text);if(front.error)return {headings:[],blocks:[],markers:[],error:front.error};const offset=front.end||0,tree=md.parse(text.slice(offset)),blocked=[],top=[];
+ text=String(text);const lineAt=lineMap(text);const front=frontmatter(text);if(front.error)return {headings:[],blocks:[],markers:[],error:front.error};const offset=front.end||0,tree=md.parse(require('../briefing/blocks.cjs').transparent(text.slice(offset))),blocked=[],top=[];
  for(let node=tree.topNode.firstChild;node;node=node.nextSibling)top.push({from:node.from+offset,to:node.to+offset,name:node.name});
  tree.iterate({enter:node=>{const from=node.from+offset,to=node.to+offset;if(['FencedCode','CodeBlock','InlineCode','HTMLBlock','HTMLTag','CommentBlock'].includes(node.name)){blocked.push([from,to]);return false;}}});
  const headings=outline(text),parents=[];for(const [index,h]of headings.entries()){while(parents.length&&parents.at(-1).level>=h.level)parents.pop().sectionTo=h.from;h.index=index;h.path=[...parents.map(p=>p.title),h.title].join('#');h.sectionTo=text.length;parents.push(h);}
@@ -24,6 +24,6 @@ function findFragment(text,fragment,index=indexFragments(text)){
  const parts=wanted.split('#').map(s=>s.trim().toLowerCase());const matches=index.headings.filter(h=>{const path=h.path.split('#');if(parts.length>path.length)return false;return parts.every((p,i)=>{const actual=path[path.length-parts.length+i];return p===actual.toLowerCase()||p===slug(actual);});});
  if(!matches.length)throw new Error('Heading not found: '+wanted);return {...matches[0],kind:'heading'};
 }
-function section(text,fragment){if(!fragment)return frontmatter(text).body;const index=indexFragments(text),range=findFragment(text,fragment,index);if(range.kind==='heading')return text.slice(range.from,range.sectionTo).replace(/\r?\n$/,'');const chunks=[];let cursor=range.from;for(const m of index.markers)if(m.from>=range.from&&m.to<=range.to){chunks.push(text.slice(cursor,m.from));cursor=m.to;}chunks.push(text.slice(cursor,range.to));return chunks.join('');}
+function section(text,fragment){if(!fragment)return frontmatter(text).body;const index=indexFragments(text),range=findFragment(text,fragment,index);if(range.kind==='heading')return require('../briefing/blocks.cjs').sliceContent(text,range.from,range.sectionTo).replace(/\r?\n$/,'');const chunks=[];let cursor=range.from;for(const m of index.markers)if(m.from>=range.from&&m.to<=range.to){chunks.push(text.slice(cursor,m.from));cursor=m.to;}chunks.push(text.slice(cursor,range.to));return chunks.join('');}
 function withBlockAnchors(text){if(!blockMarkers(text).length)return text;const index=indexFragments(text),chunks=[];let cursor=0;for(const marker of index.markers){chunks.push(text.slice(cursor,marker.from),'<span data-note-block="'+marker.id+'" class="note-block-anchor"></span>');cursor=marker.to;}chunks.push(text.slice(cursor));return chunks.join('');}
 module.exports={indexFragments,findFragment,section,withBlockAnchors,slug};

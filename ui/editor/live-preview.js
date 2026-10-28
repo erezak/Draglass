@@ -1,3 +1,4 @@
+import {scan as briefingBlocks,contentTree} from '../../core/briefing/blocks.cjs';
 import {blockMarkers} from '../../core/note-links/syntax.cjs';
 import {linkLabel} from '../../core/links.cjs';
 import {frontmatter} from '../../core/metadata.cjs';
@@ -16,6 +17,12 @@ const intersects=(state,from,to)=>state.selection.ranges.some(range=>range.empty
 // Use an isolated inline parser so table support does not change other renderers.
 const tableMarkdown=new Marked({extensions:[{name:'tableWikiLink',level:'inline',start:source=>source.indexOf('[['),tokenizer(source){const match=/^\[\[([^\]\n]+)\]\]/.exec(source);if(match)return {type:'tableWikiLink',raw:match[0],body:match[1]};},renderer(token){const [target,...alias]=token.body.replace(/\\\|/g,'|').split('|'),anchor=document.createElement('a');anchor.href='#';anchor.className='cm-live-link';anchor.dataset.wikiTarget=target.trim();anchor.textContent=linkLabel(target,alias.join('|'));anchor.title='Open '+target.trim();return anchor.outerHTML;}}]});
 const plainInline=text=>DOMPurify.sanitize(tableMarkdown.parseInline(text),{FORBID_TAGS:['img','iframe','form','input','style','button'],ALLOW_DATA_ATTR:false,ADD_ATTR:['data-wiki-target']});
+
+class BriefingLabel extends WidgetType {
+ constructor(from){super();this.from=from;}eq(other){return this.from===other.from;}
+ toDOM(view){const label=document.createElement('span');label.className='briefing-generated-label';label.textContent='Automatically generated';label.title='Click to edit generated Markdown';label.setAttribute('role','button');label.setAttribute('aria-label','Edit generated Markdown');label.tabIndex=0;const edit=()=>{view.dispatch({selection:{anchor:this.from},scrollIntoView:true});view.focus();};label.addEventListener('mousedown',event=>{if(event.button!==0)return;event.preventDefault();event.stopPropagation();edit();});label.addEventListener('keydown',event=>{if(!['Enter',' '].includes(event.key))return;event.preventDefault();edit();});return label;}
+ ignoreEvent(){return true;}
+}
 
 class EmbedWidget extends WidgetType {
  constructor(raw,from,render,revision){super();this.raw=raw;this.from=from;this.render=render;this.revision=revision;}
@@ -105,14 +112,16 @@ export function livePreview({enabled=true,onTasks,tasksEnabled=()=>false,onTaskT
   function build(state){
     if(!state.field(enabledField))return Decoration.none;
     const ranges=[],blocked=[],wiki=[],lineClasses=new Map();const front=frontmatter(state.doc.toString()),frontEnd=front.present&&!front.error?front.end:0;if(frontEnd)blocked.push([0,frontEnd]);
-    const hide=(from,to,widget)=>{if(to>from)ranges.push(Decoration.replace(widget?{widget}:{}).range(from,to));};
+    const hide=(from,to,widget,briefingFence=false)=>{if(to>from)ranges.push(Decoration.replace(widget?{widget,briefingFence}:{briefingFence}).range(from,to));};
     const mark=(from,to,css,attributes)=>{if(to>from)ranges.push(Decoration.mark({class:css,attributes}).range(from,to));};
     const line=(position,css)=>{const from=state.doc.lineAt(position).from;lineClasses.set(from,(lineClasses.get(from)||'')+' '+css);};
     const eachLine=(from,to,fn)=>{for(let number=state.doc.lineAt(from).number;number<=state.doc.lineAt(to).number;number++)fn(state.doc.line(number));};
     const children=node=>{const result=[];for(let child=node.firstChild;child;child=child.nextSibling)result.push(child);return result;};
-    const tree=syntaxTree(state);
+    const source=state.doc.toString(),generated=briefingBlocks(source),editingGenerated=generated.filter(block=>intersects(state,block.from,block.to));
+    for(const block of generated){const editing=editingGenerated.includes(block);eachLine(block.from,Math.max(block.from,block.closeFrom),l=>line(l.from,'cm-briefing-line'+(editing?' cm-briefing-editing cm-live-code-line':'')));line(block.from,'cm-briefing-start');line(block.closeFrom,'cm-briefing-end');if(editing){blocked.push([block.from,block.to]);continue;}hide(block.from,block.openTo,new BriefingLabel(block.bodyFrom),true);hide(block.closeFrom,block.closeTo,undefined,true);blocked.push([block.from,block.bodyFrom],[block.closeFrom,block.to]);}
+    const tree=contentTree(source)||syntaxTree(state);
     tree.iterate({enter:ref=>{
-      const node=ref.node,name=node.name;if(name!=='Document'&&node.from<frontEnd)return false;const active=intersects(state,node.from,node.to),parts=children(node);
+      const node=ref.node,name=node.name;if(name!=='Document'&&(node.from<frontEnd||editingGenerated.some(block=>node.from>=block.from&&node.from<block.to)))return false;const active=intersects(state,node.from,node.to),parts=children(node);
       if(name==='Table'){
         blocked.push([node.from,node.to]);
         if(!active){ranges.push(Decoration.replace({widget:new TableWidget(node.from,node.to,tableRows(node,state),onFollow),block:true}).range(node.from,node.to));return false;}
@@ -149,7 +158,7 @@ export function livePreview({enabled=true,onTasks,tasksEnabled=()=>false,onTaskT
       }
       if(name==='Image'&&state.sliceDoc(node.from,node.to).startsWith('![['))return false;
       if(name==='Image'){blocked.push([node.from,node.to]);const raw=state.sliceDoc(node.from,node.to),url=parts.find(p=>p.name==='URL'),alt=/^!\[([^\]]*)\]/.exec(raw)?.[1]||'';if(!active&&url){const target=state.sliceDoc(url.from,url.to).replace(/^<|>$/g,'')+(alt?'|'+alt:'');const alone=state.doc.lineAt(node.from).text.trim()===raw;ranges.push(Decoration.replace({widget:new EmbedWidget(target,node.from,onEmbed,embedRevision()),block:alone}).range(node.from,node.to));}return false;}
-      if(name==='HTMLBlock'){blocked.push([node.from,node.to]);return false;}
+      if(name==='HTMLBlock'){blocked.push([node.from,node.to]);if(!active&&/^<!--[^]*-->$/.test(state.sliceDoc(node.from,node.to).trim()))hide(node.from,node.to);return false;}
     }});
     for(let number=1;number<=state.doc.lines;number++){const text=state.doc.line(number);for(const match of text.text.matchAll(/!\[\[([^\]\n]+)\]\]/g)){const from=text.from+match.index,to=from+match[0].length;if(blocked.some(([a,b])=>from<b&&to>a))continue;if(!intersects(state,from,to)){const alone=text.text.trim()===match[0];ranges.push(Decoration.replace({widget:new EmbedWidget(match[1],from,onEmbed,embedRevision()),block:alone}).range(from,to));}else mark(from,to,'cm-live-link-source');}}
     // Wiki links extend Markdown and are not CommonMark syntax nodes.
@@ -158,6 +167,6 @@ export function livePreview({enabled=true,onTasks,tasksEnabled=()=>false,onTaskT
     for(const [from,css]of lineClasses)ranges.push(Decoration.line({class:css.trim()}).range(from));
     return Decoration.set(ranges,true);
   }
-  const decorations=StateField.define({create:build,update:(value,tr)=>tr.docChanged||tr.selection||tr.effects.some(effect=>effect.is(setLiveMode)||effect.is(refreshEmbeds))||syntaxTree(tr.startState)!==syntaxTree(tr.state)?build(tr.state):value,provide:field=>EditorView.decorations.from(field)});
+  const decorations=StateField.define({create:build,update:(value,tr)=>tr.docChanged||tr.selection||tr.effects.some(effect=>effect.is(setLiveMode)||effect.is(refreshEmbeds))||syntaxTree(tr.startState)!==syntaxTree(tr.state)?build(tr.state):value,provide:field=>[EditorView.decorations.from(field),EditorView.atomicRanges.of(view=>view.state.field(field).update({filter:(_from,_to,decoration)=>!!decoration.spec.briefingFence}))]});
   return [enabledField.init(()=>enabled),decorations,EditorView.editorAttributes.from(enabledField,value=>({class:value?'cm-live-preview':'cm-source-mode'})),EditorView.domEventHandlers({mousedown:(event,view)=>{const link=event.target.closest?.('[data-markdown-link]');if(!link||event.button!==0||event.shiftKey||event.altKey&&!event.ctrlKey&&!event.metaKey||link.dataset.linkEditing==='true'&&!event.ctrlKey&&!event.metaKey)return false;linkDown={x:event.clientX,y:event.clientY};event.preventDefault();return true;},click:(event,view)=>{const link=event.target.closest?.('[data-markdown-link]');if(!link||event.button!==0||event.shiftKey||event.altKey&&!event.ctrlKey&&!event.metaKey||link.dataset.linkEditing==='true'&&!event.ctrlKey&&!event.metaKey)return false;if(linkDown&&Math.hypot(event.clientX-linkDown.x,event.clientY-linkDown.y)>4){linkDown=null;event.preventDefault();return true;}linkDown=null;const target=link.dataset.markdownLink;if(!/^(\w+:|\/\/)/.test(target)){event.preventDefault();try{onFollow(decodeURIComponent(target),event);}catch{}return true;}if(onExternal&&/^(https?:|mailto:)/i.test(target)){event.preventDefault();onExternal(target,event);return true;}return false;}})];
 }

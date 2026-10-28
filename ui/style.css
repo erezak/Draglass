@@ -339,3 +339,14 @@ dialog{width:410px;max-width:90vw;background:var(--panel);color:var(--text);bord
 .briefing-heading{display:flex;align-items:center;justify-content:space-between;gap:18px}.briefing-heading h1{font-size:1.9em;letter-spacing:-.04em;margin:.3em 0 .7em}.briefing-day{color:var(--muted);font-variant-numeric:tabular-nums}
 .briefing-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.briefing-actions button{padding:8px 12px}.briefing-actions label{display:flex;gap:8px;margin:0 0 0 auto}.briefing-progress{min-height:1.5em;color:var(--muted)}
 .briefing-columns{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:24px}.briefing-columns>section{min-width:0}.briefing-content{line-height:1.65}.briefing-content h1{display:none}.briefing-question,.briefing-conflicts details{border:1px solid var(--border);border-radius:10px;padding:12px;margin:10px 0}.briefing-question select{max-width:100%}.briefing-conflicts summary{color:var(--accent)}.briefing-notice{position:fixed;inset:auto 24px 30px auto;max-width:min(520px,85vw);border:1px solid var(--border);border-radius:12px;padding:16px;background:var(--panel);color:var(--text);box-shadow:0 8px 30px #0003;z-index:10000}.briefing-coverage{margin:12px 0}.briefing-board .tasks-embed{border:0;padding:0}
+
+/* Generated Markdown stays readable and editable; only the container is distinct. */
+.briefing-generated{border:1px solid color-mix(in srgb,var(--border) 65%,transparent);border-radius:8px;padding:10px 14px;margin:14px 0;background:transparent;font:inherit;color:inherit}
+.briefing-generated-label{display:block;color:var(--muted);font-family:inherit;font-size:calc(var(--ui-font-size,13px) * .85);font-weight:500;line-height:1.5;letter-spacing:.025em;margin-bottom:6px;user-select:none}
+.briefing-generated-content>:first-child{margin-top:0}.briefing-generated-content>:last-child{margin-bottom:0}
+.cm-live-preview .cm-briefing-line{border-left:1px solid color-mix(in srgb,var(--border) 65%,transparent);border-right:1px solid color-mix(in srgb,var(--border) 65%,transparent);padding-left:12px!important;padding-right:12px!important}
+.cm-live-preview .cm-briefing-start{border-top:1px solid color-mix(in srgb,var(--border) 65%,transparent);border-radius:8px 8px 0 0;padding-top:8px!important;margin-top:10px}
+.cm-live-preview .cm-briefing-end{border-bottom:1px solid color-mix(in srgb,var(--border) 65%,transparent);border-radius:0 0 8px 8px;padding-bottom:4px!important;margin-bottom:10px}
+.cm-live-preview .cm-briefing-start .briefing-generated-label{margin:0}
+
+.cm-live-preview .briefing-generated-label[role=button]{cursor:text}.cm-live-preview .briefing-generated-label[role=button]:focus-visible{outline:1px solid var(--accent);outline-offset:2px}

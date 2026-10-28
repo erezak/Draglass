@@ -4,7 +4,7 @@ const {portable}=require('./attachments.cjs'),{resolveLink}=require('./links.cjs
 const md=parser.configure(GFM);
 const mapPath=(p,from,to)=>p===from?to:p.startsWith(from+'/')?to+p.slice(from.length):p;
 function rewriteLinks(text,from,paths,mapping){
- const edits=[],blocked=[],urls=[];md.parse(text).iterate({enter:n=>{if(['FencedCode','CodeBlock','InlineCode','HTMLBlock','HTMLTag','Comment','CommentBlock'].includes(n.name)){blocked.push([n.from,n.to]);return false;}if(n.name==='URL')urls.push([n.from,n.to]);}});
+ const edits=[],blocked=[],urls=[];md.parse(require('./briefing/blocks.cjs').transparent(text)).iterate({enter:n=>{if(['FencedCode','CodeBlock','InlineCode','HTMLBlock','HTMLTag','Comment','CommentBlock'].includes(n.name)){blocked.push([n.from,n.to]);return false;}if(n.name==='URL')urls.push([n.from,n.to]);}});
  const isBlocked=(a,b)=>blocked.some(([s,e])=>a<e&&b>s),nextFrom=mapping(from);
  for(const m of text.matchAll(/!?\[\[([^\]\n]+)\]\]/g)){
   if(isBlocked(m.index,m.index+m[0].length))continue;

@@ -1,4 +1,8 @@
-# Verification · 0.33.5
+# Verification · 0.33.7
+
+Live Preview editing validation: all 595 tests passed with no failures or skips; build and demo checks passed. Selection inside a generated block reveals ordinary editable fenced source, and selection outside restores the preview. Mouse and keyboard label activation are covered. A real Chromium run with the built renderer, temporary vault and filesystem bridge passed clicking rendered text, typing, autosave, clicking outside, entering through the label, restoring preview and Reading view without page errors. Native packaged-app execution was not run.
+
+Generated Markdown validation: all 593 tests passed with no failures or skips. Build and demo checks passed. New coverage includes stable fenced boundaries, nested code, duplicate/unclosed guards, offset-preserving CRLF views, graph/backlinks, task collection and completion, renames, tags, headings/blocks, Mermaid ranges, heading embeds, autocomplete, calendar word counts, decision memory, repeat-import conflicts and existing Undo checks. Renderer checks cover editable Live Preview, labeled Reading view, source-mode fences, links/task controls and HTML sanitization. No native packaging or authenticated provider calls were run.
 
 Graph query validation: all 582 tests passed with no failures or skips. Build and demo checks passed. New tests cover exact field-name lookup, type/subtype shortcuts, bracket/brace forms, nested objects and collections, wildcard/index paths, quoted keys, typed null/boolean predicates, numeric/date comparisons, regex and Boolean values, relationship/source queries, matching groups and exclusions, local graphs, shared worker search, cycles and malformed syntax. A renderer integration check exercises the screenshot’s filter/group forms and custom-field exclusions. Native packaging was not run.
 

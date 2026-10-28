@@ -103,3 +103,9 @@ with equal titles receive readable numeric filename suffixes. Responses without
 a title receive a bounded fallback, preserving their full text in the body.
 Existing filenames are not automatically renamed. Start today copies the updated
 prompt for a new external chat.
+
+## Generated Markdown blocks
+
+Imported entries and managed decision outcomes use a fenced `briefing id=...` block. Draglass renders its body as ordinary Markdown, with a subtle border and an Automatically generated label. In Live Preview, clicking inside the block reveals its editable Markdown source, including the fence and identifier. Clicking its label or activating that label with Enter/Space enters editing too. Moving the caret outside restores the rendered frame, where links and task controls remain interactive. Source mode exposes the complete file syntax. Ordinary code examples remain code.
+
+The stable ID finds the corresponding entry on later imports. Edited or removed blocks are preserved and flagged when incoming content conflicts. Undo includes the block and related atomic-note changes. Closed blocks support nested code through a longer outer fence when necessary; malformed or duplicate boundaries are never silently overwritten. Graph/backlinks, renames, tags, Tasks, headings, embeds, autocomplete and calendar word statistics see the body as Markdown.

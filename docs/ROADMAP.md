@@ -98,3 +98,7 @@ Daily Briefing: compact clipboard collection, sourced ontology notes, a live boa
 ## Shared graph and search predicates
 
 0.33.5 supports arbitrary YAML fields in graph filters, exclusions and first-match color groups. Type/subtype shortcuts, nested collection paths, relationship provenance fields, typed values and comparisons share `core/query/` with vault search. See GRAPH_QUERIES.md for the supported syntax.
+
+0.33.6 renders generated briefing entries and decision outcomes as editable Markdown frames with a subtle label, preserving link indexing, re-import conflict guards and grouped Undo.
+
+0.33.7 restores normal Live Preview block editing: entering generated content reveals fenced source; leaving it restores the labeled frame. Labels also support mouse and keyboard activation.

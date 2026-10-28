@@ -102,7 +102,7 @@
       "notes": [
         "Tours/15 Daily Briefing.md"
       ],
-      "exercise": "Open Daily Briefing; Start today copies a bounded prompt and creates a live note without narrative. Import sourced clipboard batches, inspect person ambiguity/conflicts, and Undo. Configure workdays and specific AI connection or Use chat selection. No live external results are bundled. Check asynchronous clipboard completion, formatted JSON budgets, and explicit undated identity provenance gaps. Verify short title versus detailed text, friendly numeric filename collisions, and vault-owned .draglass/briefing settings/state with a fresh board after backing-note deletion."
+      "exercise": "Open Daily Briefing; Start today copies a bounded prompt and creates a live note without narrative. Import sourced clipboard batches, inspect person ambiguity/conflicts, and Undo. Configure workdays and specific AI connection or Use chat selection. No live external results are bundled. Check asynchronous clipboard completion, formatted JSON budgets, and explicit undated identity provenance gaps. Verify short title versus detailed text, friendly numeric filename collisions, and vault-owned .draglass/briefing settings/state with a fresh board after backing-note deletion.; inspect the labeled generated Markdown frame in Live Preview and Reading view, edit its text, follow links and switch to Source to see the fence; click into a generated block to reveal editable source, activate its label with Enter, then move outside to restore the preview"
     }
   ],
   "entityTypes": [
