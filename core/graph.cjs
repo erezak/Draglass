@@ -27,26 +27,7 @@ function buildGraph({notes=[],attachments=[]}={}){
  const list=[...nodes.values()];const all=[...edges.values()];const inbound=new Map();for(const e of all)inbound.set(e.target,(inbound.get(e.target)||0)+1);for(const node of list)node.incoming=inbound.get(node.id)||0;return {nodes:list,edges:all,issues:local.issues};
 }
 // Boolean search over note metadata. Parse once, then evaluate over cached note metadata.
-function compileQuery(query){
- const source=String(query||'').trim();if(!source)return ()=>true;let i=0;
- function space(){while(/\s/.test(source[i]||'')&&i<source.length)i++;}
- function atom(){space();if(source[i]==='-'){i++;const child=atom();return n=>!child(n);}if(source[i]==='('){i++;const child=or();space();if(source[i++]!==')')throw new Error('Close the search parenthesis.');return child;}
-  if(source[i]==='['){i++;const start=i;let quoted=false;while(i<source.length&&(source[i]!==']'||quoted)){if(source[i]==='"'&&source[i-1]!=='\\')quoted=!quoted;i++;}if(i===source.length)throw new Error('Close the property bracket.');const value=source.slice(start,i++),colon=value.indexOf(':'),key=colon<0?value:value.slice(0,colon),condition=colon<0?null:value.slice(colon+1).trim().replace(/^"([<>]=?\s*-?\d+(?:\.\d+)?)"$/,'$1');if(condition==='')throw new Error('Enter a property value, or use null for an unset property.');const keyMatch=compileQuery(key);let testValue=condition?compileQuery(condition):null;return n=>Object.entries(n.properties||{}).some(([k,v])=>keyMatch({text:k})&&(condition===null||condition==='null'?condition===null||v===null:/^[<>]=?\s*-?\d/.test(condition)?compare(v,condition):testValue({text:Array.isArray(v)?v.join('\n'):typeof v==='object'?JSON.stringify(v):String(v??'')})));}
-  let operator='';const op=source.slice(i).match(/^([a-z-]+):/i);if(op){operator=op[1].toLowerCase();i+=op[0].length;if(!['file','path','content','tag','line','block','section','task','task-todo','task-done','match-case','ignore-case'].includes(operator))throw new Error('Unknown search operator: '+operator);}
-  if(source[i]==='('&&operator){i++;const child=or();space();if(source[i++]!==')')throw new Error('Close the search parenthesis.');return n=>contexts(n,operator).some(text=>child({...n,text,path:text,title:text,tags:[text.replace(/^#/,'')]}));}
-  let value='',regex=false;if(source[i]==='"'){i++;while(i<source.length&&source[i]!=='"'){if(source[i]==='\\'&&source[i+1]==='"'){value+='"';i+=2;}else value+=source[i++];}if(source[i++]!=='"')throw new Error('Close the quoted phrase.');}
-  else if(source[i]==='/'){regex=true;i++;while(i<source.length){if(source[i]==='/'&&source[i-1]!=='\\')break;value+=source[i++];}if(source[i++]!=='/')throw new Error('Close the regular expression.');}
-  else{while(i<source.length&&!/[\s()]/.test(source[i]))value+=source[i++];}
-  if(!value)throw new Error('Enter a search term.');const sensitive=operator==='match-case';let match;if(regex){let re;try{re=new RegExp(value,sensitive?'':'i');}catch{throw new Error('Invalid regular expression.');}match=text=>re.test(text);}else match=text=>sensitive?String(text).includes(value):String(text).toLowerCase().includes(value.toLowerCase());
-  if(operator==='tag')return n=>(n.tags||[]).some(tag=>regex?match(tag):tag.toLowerCase()===value.replace(/^#/,'').toLowerCase()||tag.toLowerCase().startsWith(value.replace(/^#/,'').toLowerCase()+'/'));
-  return n=>contexts(n,operator).some(match);
- }
- function and(){const children=[];space();while(i<source.length&&source[i]!==')'&&!/^OR(?:\s|\(|$)/.test(source.slice(i))){children.push(atom());space();}if(!children.length)throw new Error('Enter a term on both sides of OR.');return n=>children.every(fn=>fn(n));}
- function or(){const children=[and()];space();while(/^OR(?:\s|\(|$)/.test(source.slice(i))){i+=2;children.push(and());space();}return n=>children.some(fn=>fn(n));}
- const fn=or();space();if(i!==source.length)throw new Error('Unexpected search parenthesis.');return fn;
-}
-function compare(value,query){const m=query.match(/^([<>]=?)\s*(-?\d+(?:\.\d+)?)$/);if(!m)return false;if(value===null||value===''||typeof value==='boolean'||Array.isArray(value)||typeof value==='object')return false;const a=Number(value),b=Number(m[2]);if(!Number.isFinite(a))return false;return m[1]==='<'?a<b:m[1]==='>'?a>b:m[1]==='<='?a<=b:a>=b;}
-function contexts(n,operator){const text=String(n.text||'');switch(operator){case 'path':return [n.path||''];case 'file':return [(n.path||'').split('/').pop()];case 'tag':return n.tags||[];case 'line':return text.split('\n');case 'block':return prose(text).split(/\n\s*\n/);case 'section':return prose(text).split(/^#{1,6}\s/gm);case 'task':case 'task-todo':case 'task-done':return prose(text).split('\n').filter(l=>/^\s*[-*+]\s+\[[ xX]\]/.test(l)&&(operator==='task'||(operator==='task-todo'?/\[ \]/:/\[[xX]\]/).test(l)));default:return [text];}}
+const {compileQuery}=require('./query/index.cjs');
 function filterGraph(graph,input={},active=null,mode='global'){
  const settings=cleanSettings(input),match=compileQuery(settings.query),exclude=settings.excluded.split('\n').map(s=>s.trim()).filter(Boolean).map(compileQuery),groups=settings.groups.map(g=>({...g,match:compileQuery(g.query)}));
  let nodes=graph.nodes.filter(n=>(n.kind!=='tag'||settings.tags)&&(n.kind!=='attachment'||settings.attachments)&&(!settings.existingOnly||n.exists)&&!exclude.some(fn=>fn(n))&&(n.id===active&&mode==='local'||match(n)));

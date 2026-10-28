@@ -4,6 +4,9 @@ fqn: demo.lumen.system.beacon-service
 type: System
 subtype: SERVICE
 description: Validates readings and records their original source.
+operations:
+  tier: 1
+  readiness: green
 tags:
 - lumen/system
 relationships:

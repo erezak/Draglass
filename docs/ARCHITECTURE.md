@@ -193,3 +193,5 @@ validated directory components so other features retain their own storage scope.
 
 
 Task completion details use `core/tasks/completion.cjs` for bounded text validation and body formatting. The task planner adds the record after recurrence expansion, so successor notes never copy the previous outcome. Status, references, details and successors share one operation and Undo. `ui/task-completion.js` owns the optional-details dialog used by Tasks completion controls.
+
+`core/query/` owns the shared search/graph expression parser and YAML predicates. Field lookup uses own, case-insensitive keys, supports quoted path segments and bounded array/object traversal, and handles cycles without serializing whole objects. Graph filters, exclusions and first-match color groups reuse the same compiler as worker-backed vault search. Parser, traversal and query-length limits bound work and report invalid syntax.

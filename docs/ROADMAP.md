@@ -94,3 +94,7 @@ Disabling a plugin removes its capabilities and UI while preserving plain files.
 Manual and accepted AI operations share a read-only planner and a durable per-vault journal. Undo is grouped across affected files, time-limited, available after restart and guarded against later edits. AI task operations remain proposals until accepted, expose bounded structured reads and request-local handles, and preview every affected file. Dependency-aware actionability and diagnostics are delivered in 0.26.0. Recurrence is delivered in 0.27.0. Importance, urgency, saved views and the main task workspace are delivered. Next: additional planning layouts.
 
 Daily Briefing: compact clipboard collection, sourced ontology notes, a live board, optional bounded AI reconciliation, conflicts and Undo are available. Future direct connectors can implement the same versioned protocol; external record writes require a separate deliberate integration.
+
+## Shared graph and search predicates
+
+0.33.5 supports arbitrary YAML fields in graph filters, exclusions and first-match color groups. Type/subtype shortcuts, nested collection paths, relationship provenance fields, typed values and comparisons share `core/query/` with vault search. See GRAPH_QUERIES.md for the supported syntax.

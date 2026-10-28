@@ -6,7 +6,7 @@
 | --- | --- |
 | Global graph | Ribbon, native View menu, Cmd/Ctrl+G |
 | Local graph and depth | Local toggle, note menu, Cmd/Ctrl+Shift+G; depth 1–10 |
-| Search files | Boolean query field with file/path/content/tag, phrases, negation, OR, grouping, regex, scopes/tasks and basic properties |
+| Search files | Boolean query field with file/path/content/tag, phrases, negation, OR, grouping, regex, scopes/tasks and arbitrary nested YAML properties |
 | Tags | Toggle; Unicode/nested inline tags and basic frontmatter tag lists |
 | Attachments | Toggle; existing file metadata and local wiki/Markdown attachment edges |
 | Existing files only | Hide unresolved note/attachment targets |
@@ -43,3 +43,5 @@ Global and local settings are stored independently with workspace metadata. Excl
 The query language supports boolean operators, scoped terms and property predicates. Block and section matching uses Markdown text boundaries. Graph bookmarks, imported filesystem exclusion patterns and plugin actions are outside this implementation. Existing attachment nodes can be inspected and their paths copied. Graph exclusions use search queries.
 
 Creation-time animation falls back to modification time when the filesystem supplies no birth time. Copying files may change their apparent chronology. Tags and missing targets appear with referring files. The vault's existing 8 MiB Markdown limit remains. Force calculations use a Barnes–Hut style spatial tree, but indexing and canvas rendering remain on their current processes; very large production vaults require native profiling before performance claims. Reduced label density is deliberate at low zoom. This package contains source, not a signed installer.
+
+See GRAPH_QUERIES.md for type/subtype shortcuts, bracket/brace predicates, nested collections, typed values, comparisons and relationship provenance queries.

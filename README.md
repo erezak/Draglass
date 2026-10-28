@@ -118,3 +118,5 @@ Daily Briefing uses short note titles with full context in the body. Its state, 
 Vault-private recovery snapshots, trash, operation history and plugin data live in `.draglass/`.
 
 Task completion offers optional outcome details for inline tasks and Task notes. Details remain in Markdown, share the completion operation’s Undo, and stay off recurring successors.
+
+Graph filters, exclusions and color groups support `type:Task`, `subtype:PERSON` and any YAML field with `[field:value]` or `{field:value}`. Nested fields such as `[relationships.sources.ref:review]` use the same syntax in vault search. See [Graph queries](docs/GRAPH_QUERIES.md).

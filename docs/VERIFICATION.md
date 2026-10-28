@@ -1,4 +1,6 @@
-# Verification · 0.33.4
+# Verification · 0.33.5
+
+Graph query validation: all 582 tests passed with no failures or skips. Build and demo checks passed. New tests cover exact field-name lookup, type/subtype shortcuts, bracket/brace forms, nested objects and collections, wildcard/index paths, quoted keys, typed null/boolean predicates, numeric/date comparisons, regex and Boolean values, relationship/source queries, matching groups and exclusions, local graphs, shared worker search, cycles and malformed syntax. A renderer integration check exercises the screenshot’s filter/group forms and custom-field exclusions. Native packaging was not run.
 
 Current update validation: all 571 tests passed with no failures or skips; build and demo checks passed. Focused renderer checks also passed after removing unused graph restoration compatibility. Current-format persistence remains covered; older storage and conversation formats are not converted. Completion tests cover optional/empty/multiline text, cancellation, inline and Task note forms, ordered and quoted checkboxes, linked references, task-editor status, grouped Undo, recurrence isolation, input limits and bounded worker location lookup. Native packaging and live providers were not exercised for this update.
 

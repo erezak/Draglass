@@ -31,7 +31,7 @@
       "notes": [
         "Tours/04 Explore the graph.md"
       ],
-      "exercise": "Explore the knowledge network and verify every graph follows app Light, Dark and system themes without resetting its controls"
+      "exercise": "Explore the knowledge network and verify every graph follows app Light, Dark and system themes without resetting its controls; filter and color by type/subtype, arbitrary nested YAML, numeric comparisons and relationship sources using the same selectors for exclusions"
     },
     {
       "id": "ai",
