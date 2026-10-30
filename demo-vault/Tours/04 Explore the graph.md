@@ -32,3 +32,7 @@ Try `[operations.tier:<=1]` or `[operations.readiness:green]` to find Beacon ser
 Relationship collections can be searched with `relation:owned_by`, `[relationships.relation:owned_by]`, `[relationships.target:"Platform team"]`, and `[relationships.sources.ref:"Design review"]`. Array paths test their entries; separate predicates can match different entries. A predicate selects notes that declare matching YAML, rather than automatically including the relationship target or inverse edge.
 
 For custom names, quote a path segment: `["service.name":Beacon]` searches a literal key containing a dot; `[profile."Display Name":"Ada Lovelace"]` searches a nested key with spaces. Nested objects and arrays are supported, including numeric indexes and `*` path segments. Existing `path:`, `file:`, `tag:`, content, regex and Boolean expressions remain available.
+
+## New graphs and saved filters
+
+A newly opened Global Graph starts with all note types, including isolated notes. Try the filter `type:Task`, close the settings panel, and check the **Filtered** button in the graph footer. Click it to inspect or clear the active restrictions. Restoring that graph tab retains its own filter; opening a new Global Graph starts without the previous tab’s filters, exclusions or camera. Display and force preferences can still carry over.

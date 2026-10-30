@@ -109,7 +109,7 @@ const handlers={
   remove:(p,mode)=>organization.remove(vault,p,mode,file=>shell.trashItem(file)),
   trash:()=>organization.trash(vault),restoreTrash:id=>organization.restore(vault,id),
   reveal:async p=>shell.showItemInFolder(p?await vault.checked(p,false,true):vault.root),
-  linkSuggestions:args=>knowledgeService.request('linkSuggestions',args),scan:()=>knowledgeService.request('scan'),graph:()=>knowledgeService.request('graph'),graphModel:drafts=>knowledgeService.request('graphModel',{drafts}),tags:drafts=>knowledgeService.latest('tags','tags',{drafts}),read:p=>vault.read(p),write:(p,t)=>vault.write(p,t),create:(p,text)=>vault.create(p,text),
+  linkSuggestions:args=>knowledgeService.request('linkSuggestions',args),scan:()=>knowledgeService.request('scan'),graph:()=>knowledgeService.request('graph'),graphModel:drafts=>knowledgeService.request('graphModel',{drafts}),tags:drafts=>knowledgeService.latest('tags','tags',{drafts}),read:p=>vault.read(p),write:async(p,t)=>{const saved=await workspace.read();if(saved?.root===vault.root&&saved.preferences?.corePlugins?.tasks===false)return vault.write(p,t);return new(require('../core/tasks/service.cjs').TasksService)(vault).save(p,t);},create:(p,text)=>vault.create(p,text),
   search:(query,options={})=>knowledgeService.latest(typeof options.scope==='string'&&/^[\w-]{1,80}$/.test(options.scope)?'search:'+options.scope:'search','search',{query,sort:options.sort,drafts:options.drafts}),backlinks:(p,drafts)=>knowledgeService.request('backlinks',{path:p,drafts})
 };
 async function tasksEnabled(){const saved=await workspace.read();if(saved?.root===vault.root&&saved.preferences?.corePlugins?.tasks===false)throw new Error('Enable Tasks in Settings → Core plugins.');}

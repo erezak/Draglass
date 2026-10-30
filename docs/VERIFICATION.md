@@ -204,3 +204,15 @@ Coverage includes defaults; all seven first weekdays; explicit-date precedence; 
 
 A real Chromium run used a temporary vault, knowledge worker and workspace store. It checked the visible grid before releasing stalled statistics, preserved editor content and tab count, resized the right pane from 280 to 520 pixels without grid overflow, verified grey writing dots and red due dots across task date bases, and restored Calendar only in the sidebar after reload. Light/dark layouts were visually inspected. Native packaging and live providers were not exercised.
 
+
+## Task-note archival · 0.35.2
+
+The full regression suite passed 660 tests with no failures or skipped tests. Build and demo validation passed (67 notes, 15 feature tours). Five focused renderer tests passed after the final filesystem-refresh guard: sidebar completion keeps the archived note open, Undo restores its path, YAML status autosave redirects subsequent edits, and external loads/notifications continue to work.
+
+Filesystem tests cover completion and cancellation, creation/promotion of closed tasks, stable IDs and creation timestamps, filename collisions, body/YAML wikilinks and relative Markdown links, code-example exclusion, grouped Undo across service restarts, rollback on archive-folder failure, later-edit protection, active recurring successors, invalid input preflight, and leaving existing closed notes and inline-task containers untouched. Renderer tests use the built app with a simulated desktop bridge; native packages and live providers were not exercised.
+
+## Graph initialization and visible filters · 0.35.3
+
+Reproduced a new Global Graph inheriting a saved `type:Task` workspace query. New graph creation now clears membership restrictions and camera state while retaining display/force preferences; restoration of existing leaves keeps their own filters. A visible footer button discloses active restrictions with graph settings closed and opens the filter editor on click.
+
+663 regression tests passed with no failures or skipped tests. Build and demo checks passed (67 notes, 15 feature tours). Focused renderer tests verify all ordinary notes and Task notes appear in a fresh graph despite saved task-only defaults; filtered existing tabs restore correctly, expose the restriction, and return to all notes after reset; independent graph leaves remain independent. Unit coverage checks both scopes, exclusions, orphans, camera reset, retained appearance and non-mutation of saved state. Renderer checks use the built app with a simulated desktop bridge; native packaging was not exercised.

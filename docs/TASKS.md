@@ -159,3 +159,9 @@ Task note relationships can use `waiting_on` or `discuss_with` for people and `r
 ## Completion details
 
 Completing a task from Live Preview, a linked checkbox, Tasks lists, the matrix, Calendar, or the task editor asks for optional completion details. Complete with a blank field to skip, or Cancel to leave the task open. Inline details appear as a dated blockquote below the checkbox; Task notes receive a dated body entry. Undo restores the status and details together. Reopening keeps previous details, and recurring successors start without the previous outcome.
+
+## Closed task notes
+
+Completing or cancelling a Task note moves it to `archive/tasks` in the same operation. Creating or promoting an already closed Task archives it too. Filename collisions receive a numeric suffix; existing files are preserved. Links, embeds, YAML wikilinks and relative Markdown links are updated, stable IDs and creation dates remain unchanged, and open tabs follow the new path. Undo restores the original location, status and links together. A recurring task’s new occurrence stays in its active folder.
+
+Inline checkboxes remain in their containing notes. Existing completed or cancelled notes are not swept or migrated. Editing an already closed note does not move it. With Tasks enabled, saving a Markdown Task note whose YAML status changes to `done` or `cancelled` uses the same archive operation. Reopening an archived note keeps its location; Undo completion restores the original location.

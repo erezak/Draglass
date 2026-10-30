@@ -26,3 +26,5 @@ Property names match exactly, ignoring case. Text values use case-insensitive su
 Array paths implicitly inspect entries, so `[relationships.relation:member_of]` needs no wildcard. Separate predicates are independent and can match different entries. Relationship selectors inspect declared YAML on each note; they do not imply inverse edges or graph traversal.
 
 Existing path/file/tag/content, task scopes, negation, OR and parentheses remain available. For example: `type:Task path:Tasks -[status:done]`. First matching color group wins. In local graphs the current center note remains visible even when it does not match the filter.
+
+New Global and Local Graph views start with an empty search and exclusions, include isolated and missing notes, and fit their own camera. Shared display and force preferences may carry over. Existing graph tabs and named workspaces retain their own saved filters. Active note filters appear in a **Filtered** footer button even with settings closed; click it to inspect or clear restrictions. Color groups do not restrict membership.

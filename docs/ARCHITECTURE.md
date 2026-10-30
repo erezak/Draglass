@@ -233,3 +233,7 @@ never advance baselines or reject sourced content. `coverage.cjs` normalizes
 reported channels and identifies skipped searches; the service controls targeted
 continuation and the completed-window cutoff. The board presents persisted
 acknowledgment notices and honestly labeled source-search reports.
+
+Task archival is a pure plan transformation in `core/tasks/archive.cjs`, applied by TaskJournal before write validation and persistence. It detects only new terminal transitions in the current operation, allocates collision-safe destinations and reuses the organization link rewriter against the staged snapshot. Original and destination files plus referring-note edits share one recovery/Undo record. Journal results include forward/reverse path mappings for renderer buffers and pane history. Normal Markdown saves route terminal transitions through TasksService when the core plugin is enabled; other saves keep the ordinary vault path. No startup scan moves old tasks.
+
+Graph view creation uses `workspace-views.newGraphState` to separate shared display/force defaults from per-leaf membership filters and camera state. Restoring an existing leaf still uses `graphState` without resetting that leaf’s saved filters. The renderer exposes active membership restrictions outside the collapsible settings panel.

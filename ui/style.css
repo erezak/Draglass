@@ -365,3 +365,5 @@ dialog{width:410px;max-width:90vw;background:var(--panel);color:var(--text);bord
 
 .briefing-ack-warnings { padding: 12px; border: 1px solid var(--border); border-inline-start: 3px solid var(--accent); border-radius: 6px; }
 .briefing-source-coverage { margin: 14px 0; }
+
+.graph-filter-status{min-width:0;max-width:min(440px,100%);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:4px 8px;color:var(--accent);background:var(--hover);border:1px solid var(--border);border-radius:5px;font:inherit;text-align:left}.graph-filter-status[hidden]{display:none}

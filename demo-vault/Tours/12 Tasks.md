@@ -179,3 +179,7 @@ Calendar opens directly in the right pane. Grey dots show writing and red dots m
 Complete one of the practice tasks below. Enter a short outcome in Completion details, or leave it blank. Cancel keeps the task open. Try the same action on a Task note and through a linked checkbox. Inspect the dated body entry, then Undo from the notification or Task history. For a repeating task, verify that its successor does not inherit the outcome.
 
 - [ ] Practice recording completion details
+
+## Archive a closed task
+
+Create a scratch Task named **Practice archive**, then mark it complete and optionally record an outcome. Its note moves to `archive/tasks`; an open tab follows it. Check that links still open the note. Use **Undo** in the operation notice or Task history to restore its original folder and status. Try Cancelled as well. A repeating Task archives the finished occurrence while its next occurrence stays active. Inline checkboxes remain in their own notes. Existing closed notes are not moved automatically.

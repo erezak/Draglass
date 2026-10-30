@@ -132,3 +132,6 @@ stable during person resolution, and isolate acknowledgement warnings from conte
 import. Add per-channel reported source coverage, targeted retries for skipped
 searches and conservative completed-window cutoffs. Company-assigned IDs require
 explicit identity evidence rather than email-address inference.
+
+- Delivered: completed/cancelled Task notes archive to `archive/tasks` with link updates, collision safety, tab relocation and grouped Undo. Existing closed notes stay in place.
+- Fixed: new graph views start without inherited membership filters, exclusions or camera state; restored graph tabs retain their own settings and disclose active restrictions in the footer.
