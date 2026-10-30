@@ -1,4 +1,18 @@
-# Verification · 0.33.7
+# Verification · 0.35.0
+
+Formatted PDF export validation: the full suite passed 629 tests with no failures or skips. After the final page-grouping and detached-button adjustments, 24 focused export/detached/demo/desktop tests and the main command/context-menu interaction test passed. The build and expanded 15-tour demo checks passed.
+
+Real Chromium printed A4 portrait and Letter landscape samples through the shared rendered-note snapshot and print HTML/CSS. All 11 pages were rasterized and visually inspected. Content checks confirmed the final paragraph, hidden YAML, repeated table headers, live checkbox states, two vector diagrams (including the 12-node ontology Mermaid example), image, embedded draft and wrapped code. Print output stayed light while the source browser was dark. There were no page errors or missing-content notices. The layout was adjusted to keep media headings with their figures. The QA adapter supplied the sample vault image as identical data-URI bytes instead of Electron's custom asset protocol.
+
+The native wrapper is covered for sender rejection, sandbox/window settings, cancellation, failures preserving an existing destination, cleanup and open-after-save failures. Native macOS/Windows/Linux packaged execution and custom asset loading in those native print windows were not run here.
+
+Duplicate-item import validation: all 620 tests passed with no failures or skips; build and demo checks passed. Regression checks cover one-note creation with combined provenance, matching optional-field completion, retry idempotency, distinct kinds sharing an ID, conflicting text/dates with unchanged state and no AI call, preserved evidence beyond eight merged references, and raw input limits before consolidation.
+
+Company-neutral identity prompt: requests verified company-assigned employee/user IDs with provenance, omits unknown values and reports restricted directory access. The targeted 59-test briefing/protocol/follow-through suite, build and demo checks passed. No live external-provider ID retrieval was performed.
+
+Optional first-name import validation: all 614 tests passed with no failures or skips; build and demo checks passed. Coverage: missing, null, empty and whitespace-only names; no invented first_name metadata; ID-first and full-name matching; exclusion of unnamed identities from the first-name pass; malformed types/oversized values and unchanged state after validation errors.
+
+Briefing follow-through validation: all 607 tests passed with no failures or skips; build and demo checks passed. The extended trusted desktop routing test also passed after adding update-only clipboard copy/import assertions. Coverage includes independent update-only sessions, note/inline completion records, unchanged-note suppression, renamed task identity, explicit acknowledgments, Unicode batching, edits after copy and stale acknowledgments. The board interaction check exercises copying, import, pending/acknowledged display, command registration and expanded-summary persistence. Native clipboard and live external memory retention require manual desktop/provider validation.
 
 Live Preview editing validation: all 595 tests passed with no failures or skips; build and demo checks passed. Selection inside a generated block reveals ordinary editable fenced source, and selection outside restores the preview. Mouse and keyboard label activation are covered. A real Chromium run with the built renderer, temporary vault and filesystem bridge passed clicking rendered text, typing, autosave, clicking outside, entering through the label, restoring preview and Reading view without page errors. Native packaged-app execution was not run.
 

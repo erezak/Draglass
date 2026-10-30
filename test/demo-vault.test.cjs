@@ -18,7 +18,7 @@ test('concurrent demo commands share an install; symlinked installation director
  const other=await setup(t);await fs.mkdir(other.directory);await fs.symlink(other.source,path.join(other.directory,'demo-vaults'));await assert.rejects(other.manager.ensure(),/ordinary folder/);
 });
 test('bundled demo covers all features and ontology classes with resolved links and sourced graph relationships',async()=>{
- const stats=await checkDemo();assert.ok(stats.notes>=50);assert.ok(stats.namedEdges>=65);assert.ok(stats.wikiEdges>=60);assert.ok(stats.sourcedRelationships>=50);assert.equal(stats.featureTours,14);
+ const stats=await checkDemo();assert.ok(stats.notes>=50);assert.ok(stats.namedEdges>=65);assert.ok(stats.wikiEdges>=60);assert.ok(stats.sourcedRelationships>=50);assert.equal(stats.featureTours,15);
 });
 
 test('Finder metadata is ignored without changing the edition; bundled symlinks remain rejected',async t=>{

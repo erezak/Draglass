@@ -350,3 +350,15 @@ dialog{width:410px;max-width:90vw;background:var(--panel);color:var(--text);bord
 .cm-live-preview .cm-briefing-start .briefing-generated-label{margin:0}
 
 .cm-live-preview .briefing-generated-label[role=button]{cursor:text}.cm-live-preview .briefing-generated-label[role=button]:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
+
+.briefing-follow-through { margin: 12px 0 22px; padding: 14px; border: 1px solid var(--border); border-radius: 8px; }
+.briefing-local-updates details { padding: 8px 0; }
+.briefing-local-updates p { overflow-wrap: anywhere; }
+.briefing-acknowledged { margin-top: 12px; }
+
+.pdf-export-dialog { width: 520px; max-width: 90vw; max-height: 88vh; overflow: auto; }
+.pdf-export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+.pdf-export-grid label { display: flex; flex-direction: column; gap: 6px; }
+.pdf-export-grid select,.pdf-export-grid input { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 5px; padding: 7px; }
+.pdf-export-dialog .check-setting { margin: 12px 0; }
+.pdf-export-status { overflow-wrap: anywhere; }

@@ -1,3 +1,4 @@
+import {createPdfExport} from './pdf-export.js';
 import {createAppearance} from './themes/appearance.js';
 const appearance=createAppearance();let appearanceId='folio',typography={};
 import {revealNoteFragment} from './note-link-navigation.js';
@@ -25,6 +26,8 @@ const run=async fn=>{try{return await fn();}catch(e){status(e.message.replace(/^
 const dirty=tab=>tab.state.doc.toString()!==tab.text;
 const diagrams=createDiagrams({api,getCurrent:()=>current,getTabs:()=>tabs,getEpoch:()=>0,ensureTab:ensureDrawing,onEdit:edit,onFollow:(raw,from)=>run(()=>follow(raw,from)),onError:e=>status(e.message,true),isLocked:()=>closing,onRefresh:()=>run(refresh)});
 const embeds=createEmbeds({api:{...api,revealAttachment:p=>api.follow(p)},getCurrent:()=>current,getTabs:()=>tabs,getNotes:()=>tabs,diagrams,onFollow:p=>run(()=>follow(p)),onLink:(raw,from)=>run(()=>follow(raw,from)),onMermaidEdit:(path,source,index)=>run(async()=>{const tab=tabs.find(t=>t.path===path);if(!tab)throw new Error('Open this note before editing its diagram.');const block=mermaidBlocks(tab.state.doc.toString())[index];if(!block||block.source!==source)throw new Error('Diagram changed. Reopen its editor.');diagrams.openMermaid(tab,block);})});
+let pdfOptions={};const pdfExport=createPdfExport({api,getCurrent:()=>current,getTabs:()=>tabs,getNotes:()=>tabs,getOptions:()=>pdfOptions,saveOptions:value=>{pdfOptions=value;},getDirection:()=>document.documentElement.dir||'ltr',onStatus:text=>status(text)});$('export-pdf').onclick=()=>run(()=>pdfExport.open());
+
 function stateFor(text,tab){if(/^\s*(?:`{3,}|~{3,})\s*mermaid\s*$/mi.test(text))diagramRuntime().catch(()=>{});return EditorState.create({doc:text,extensions:[history(),markdown({extensions:[GFM]}),drawSelection(),EditorView.lineWrapping,EditorView.contentAttributes.of({spellcheck:'true'}),keymap.of([...completionKeymap,...defaultKeymap,...historyKeymap]),autocompletion({override:[context=>wikiCompletion(context,tabs.map(t=>({path:t.path,text:t.state.doc.toString()})),{from:tab.path,suggest:api.linkSuggestions?input=>api.linkSuggestions({input,drafts:tabs.filter(dirty).map(t=>({path:t.path,text:t.state.doc.toString()}))}):undefined})]}),livePreview({enabled:live,onFollow:raw=>run(()=>follow(raw)),onExternal:raw=>run(()=>follow(raw)),onEmbed:(root,raw)=>embeds.mount(root,raw,tab.path,[],0,{readOnly:closing}),onDiagram:(root,source,range)=>diagrams.mermaid(root,source,{from:tab.path,edit:()=>diagrams.openMermaid(tab,range)}),embedRevision:()=>embeds.revision()}),EditorView.updateListener.of(update=>{if(tab!==current)return;tab.state=update.state;if(update.docChanged&&!update.transactions.some(t=>t.annotation(timestampSync)))changed(tab);})]});}
 function makeTab(note){const tab={...note};tab.state=stateFor(note.text,tab);return tab;}
 function changed(tab){tab.error=null;clearTimeout(tab.timer);tab.timer=setTimeout(()=>run(()=>save(tab)),600);status('Waiting to save…');$('dirty').textContent='Unsaved edits';document.title=current.path+' · Detached · Draglass Editor';}
@@ -41,7 +44,7 @@ async function follow(raw,from=current.path){
 function jump(fragment){if(!fragment)return;try{revealNoteFragment({text:current.state.doc.toString(),fragment,editor,root:$('reading'),reading});}catch(e){status(e.message,true);}}
 
 async function render(){
- if(!current)return;const drawing=isDrawing(current.path,current.state.doc.toString());
+ if(!current)return;const drawing=isDrawing(current.path,current.state.doc.toString());$('export-pdf').hidden=drawing;
  $('preview-button').disabled=drawing;$('source-mode').disabled=drawing;
  $('drawing-editor').hidden=!drawing;$('editor').hidden=drawing||reading;$('reading').hidden=drawing||!reading;
  if(drawing){if(!$('drawing-editor').dataset.open){$('drawing-editor').dataset.open='yes';await diagrams.openDrawing($('drawing-editor'),current);}return;}
@@ -61,7 +64,7 @@ $('theme').onchange=()=>{appearance.apply(appearanceId,$('theme').value,typograp
 $('image-close').onclick=()=>$('image-dialog').close();$('asset-close').onclick=()=>$('asset-dialog').close();
 api.onChanged(()=>run(reconcile));window.addEventListener('focus',()=>run(reconcile));setInterval(()=>run(reconcile),1500);
 let pendingFragment;api.onFragment(fragment=>{if(ready)jump(fragment);else pendingFragment=fragment;});
-api.onCommand(command=>run(async()=>{if(command==='quit'||command==='close-tab')await close();else if(command==='preview')preview();else if(command==='source-mode')mode();else if(command==='open-file')await api.pick();else if(command==='open')await api.vault();else if(command==='reveal')await api.reveal();else status('This is a detached file. Open a vault for workspace commands.');}));
+api.onCommand(command=>run(async()=>{if(command==='export-pdf')await pdfExport.open();else if(command==='quit'||command==='close-tab')await close();else if(command==='preview')preview();else if(command==='source-mode')mode();else if(command==='open-file')await api.pick();else if(command==='open')await api.vault();else if(command==='reveal')await api.reveal();else status('This is a detached file. Open a vault for workspace commands.');}));
 run(async()=>{
  const note=await api.restore();live=true;current=makeTab(note);tabs=[current];document.title=note.path+' · Detached · Draglass Editor';
  await appearance.load();typography=note.preferences||{};appearanceId=note.preferences.appearanceTheme||'folio';const preference=note.preferences.theme||'light';document.documentElement.dataset.theme=preference==='system'?(window.matchMedia?.('(prefers-color-scheme: dark)').matches?'dark':'light'):preference;const applied=appearance.apply(appearanceId,preference,typography);$('theme').value=applied.mode;for(const option of $('theme').options)option.disabled=!applied.theme.modes.includes(option.value);

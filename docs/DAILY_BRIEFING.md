@@ -109,3 +109,64 @@ prompt for a new external chat.
 Imported entries and managed decision outcomes use a fenced `briefing id=...` block. Draglass renders its body as ordinary Markdown, with a subtle border and an Automatically generated label. In Live Preview, clicking inside the block reveals its editable Markdown source, including the fence and identifier. Clicking its label or activating that label with Enter/Space enters editing too. Moving the caret outside restores the rendered frame, where links and task controls remain interactive. Source mode exposes the complete file syntax. Ordinary code examples remain code.
 
 The stable ID finds the corresponding entry on later imports. Edited or removed blocks are preserved and flagged when incoming content conflicts. Undo includes the block and related atomic-note changes. Closed blocks support nested code through a longer outer fence when necessary; malformed or duplicate boundaries are never silently overwritten. Graph/backlinks, renames, tags, Tasks, headings, embeds, autocomplete and calendar word statistics see the body as Markdown.
+
+
+## Follow-through and local updates
+
+The board’s **Since last briefing** section lists local changes awaiting external
+acknowledgment: task completion, deadline changes, completion details and recorded
+decision outcomes. Expand an entry to inspect before/after values; long values
+are shortened for display only. Open note displays the complete record. The
+acknowledged list shows up to 50 recent retained updates since the prior collection.
+Older pending changes remain visible until acknowledged.
+
+**Copy local updates**, or **Copy local briefing updates** in the command palette,
+copies an update-only prompt without restarting evidence collection. Start today
+once to establish the initial baseline. Existing unchanged notes are never
+exported as new updates. Task notes export only the actual Completion details
+sections; inline tasks export their immediately attached dated completion records.
+Unrelated note prose, evidence and full note content are not included.
+
+Paste the prompt into the external assistant and use **Import response** for its
+JSON acknowledgment. No configured local AI is required for this step. Copying
+does not advance the baseline; gaps and unacknowledged updates remain pending.
+Only retained IDs from that prompt can be acknowledged. An acknowledgment means
+the assistant claimed retention, not that persistent memory has been verified.
+The prompt prohibits external record changes, including Planner.
+
+The update-only exchange has its own session and leaves an outstanding collection
+prompt valid. Copy local updates creates the current update prompt; import its
+response before copying again. Each prompt carries at most eight fragments within
+a 1,800-byte update budget and an 8,000-byte total prompt limit. Large outcomes
+are split at Unicode boundaries without truncation; a complete update becomes
+acknowledged only after all fragments are retained. Copy again for remaining
+updates. Edits made after copying remain pending after the older snapshot is
+acknowledged. A stale acknowledgment cannot overwrite a newer acknowledged
+baseline. Unique stable IDs preserve a renamed task’s baseline; an inline task
+without an ID is identified by path/title/occurrence, so renaming or moving it may
+look like a new task. Deleting a task is not exported as completion.
+
+Person `firstName` is optional. Missing, null and blank values are treated as
+unknown, without deriving them from the full name or writing empty metadata.
+Matching still prefers supplied employee ID, then an explicitly supplied first
+name, then full name. A readable `name` and supporting sources remain required.
+Invalid supplied types or overlong first names identify the offending person
+in the error. A failed validation leaves the collection ready for retry.
+
+The collection prompt explicitly requests relevant people’s unique company-assigned
+employee/user IDs from accessible directory/profile records
+or source metadata. Copilot returns verified values in `people.id` with supporting
+sources. Unknown IDs are omitted; restricted directory access is reported as a gap.
+IDs must not be inferred from names or email addresses, and company registration
+IDs are not person IDs. New person notes store supplied IDs in `employee_id`;
+the existing identity matcher gives them priority over names.
+
+Repeated entries with the same kind/ID and matching facts are consolidated before
+import; source references are combined without discarding evidence. Missing
+optional fields can be supplied by another matching entry. Conflicting values
+are not guessed or assigned invented IDs: the error identifies the ID, item
+titles and differing fields, and no writes occur. Ask the external assistant to
+consolidate the same action or give different actions distinct stable IDs. The
+collection prompt explicitly requires an action identifier after a shared
+source/message ID and one entry per kind/ID. The raw 24-item/byte limits still
+apply before consolidation.

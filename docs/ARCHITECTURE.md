@@ -197,3 +197,26 @@ Task completion details use `core/tasks/completion.cjs` for bounded text validat
 `core/query/` owns the shared search/graph expression parser and YAML predicates. Field lookup uses own, case-insensitive keys, supports quoted path segments and bounded array/object traversal, and handles cycles without serializing whole objects. Graph filters, exclusions and first-match color groups reuse the same compiler as worker-backed vault search. Parser, traversal and query-length limits bound work and report invalid syntax.
 
 `core/briefing/blocks.cjs` owns generated Markdown fence parsing, stable boundaries, collision-safe fence writing and offset-preserving content views. Indexing helpers and editor decorations share those views so content remains Markdown without shifting line/fragment positions. Reading renders the body through the existing sanitized Markdown pipeline; Live Preview decorates the inactive Markdown body and hides its boundary syntax; selection inside the block reveals ordinary editable fenced source. Label activation places the caret in the body. Active source bypasses preview widgets and boundary atomic ranges. Source mode retains the original file. No storage or note migration is performed.
+
+
+`core/briefing/follow-through.cjs` owns completion-record extraction, compact change
+summaries and explicit acknowledgment application. It parses actual Markdown
+headings for note outcomes and the task writer’s adjacent quoted-record syntax
+for inline outcomes. The Briefing service exposes live pending summaries and a
+bounded receipt list, and coordinates an independent update-only session beside
+the collection session. Both reuse the same byte-bounded packet builder and
+validated clipboard protocol; neither sends snapshots or receipt history to AI.
+Acknowledgments advance only their copied snapshot and cannot regress a newer
+baseline. Receipts and partial fragment acknowledgments stay in vault-owned state.
+
+The briefing protocol normalizes absent/null/blank first names to unknown. The
+identity matcher skips its first-name pass when unknown and preserves ID-first
+matching; note creation omits the optional metadata rather than inventing it.
+
+`core/briefing/items.cjs` consolidates validated same-kind/ID clipboard entries
+with matching facts and unions their evidence references. Conflicting supplied
+fields stop the import before reconciliation or writes; stable external IDs are
+never synthesized from mutable titles or array positions.
+
+
+PDF export is split across core/export/pdf.cjs (validated layout, print HTML/CSS), ui/pdf-export.js (options dialog and immutable rendered-note snapshot using the shared Markdown/embed renderer) and electron/pdf-export.cjs (native save destination, sandboxed static window, asset readiness, printToPDF, atomic write and cleanup). Vault and detached IPC retain their existing sender checks. Rendering uses light vector diagram exports instead of cloning editor viewports. Neither Markdown nor AI services are used for document conversion.

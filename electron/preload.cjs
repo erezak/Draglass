@@ -1,5 +1,6 @@
 const {contextBridge,ipcRenderer}=require('electron');
 contextBridge.exposeInMainWorld('vaultAPI', {
+  exportPdf:request=>ipcRenderer.invoke('vault:exportPdf',request),
   linkSuggestions:args=>ipcRenderer.invoke('vault:linkSuggestions',args),
   briefing:(action,args)=>ipcRenderer.invoke('vault:briefing',action,args),
   onBriefingProgress:callback=>{const listener=(_,summary)=>callback(summary);ipcRenderer.on('briefing:progress',listener);return ()=>ipcRenderer.removeListener('briefing:progress',listener);},

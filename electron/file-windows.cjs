@@ -2,9 +2,10 @@ const path=require('node:path'),fs=require('node:fs');
 const {pathToFileURL}=require('node:url');
 const {DetachedDocument}=require('../core/detached.cjs');
 const {resolveLocalLink,supported}=require('../core/file-open.cjs');
-function detachedWindows({app,BrowserWindow,ipcMain,shell,icon,workspace,onOpen,onVault,onPick,onEmpty=()=>{}}){
+function detachedWindows({app,BrowserWindow,ipcMain,shell,icon,workspace,onOpen,onVault,onPick,onEmpty=()=>{},onExport}){
  const sessions=new Map(),entry=pathToFileURL(path.join(__dirname,'../dist/detached.html')).href;
  const operations={
+  exportPdf:(s,request)=>onExport(s.window,request),
   restore:async s=>({...(await s.document.read()),absolute:s.document.file,fragment:s.fragment,preferences:(await workspace().read())?.preferences||{}}),
   read:(s,p)=>s.document.read(p),
   write:(s,p,text)=>s.document.write(p,text),

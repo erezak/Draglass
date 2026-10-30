@@ -102,7 +102,14 @@
       "notes": [
         "Tours/15 Daily Briefing.md"
       ],
-      "exercise": "Open Daily Briefing; Start today copies a bounded prompt and creates a live note without narrative. Import sourced clipboard batches, inspect person ambiguity/conflicts, and Undo. Configure workdays and specific AI connection or Use chat selection. No live external results are bundled. Check asynchronous clipboard completion, formatted JSON budgets, and explicit undated identity provenance gaps. Verify short title versus detailed text, friendly numeric filename collisions, and vault-owned .draglass/briefing settings/state with a fresh board after backing-note deletion.; inspect the labeled generated Markdown frame in Live Preview and Reading view, edit its text, follow links and switch to Source to see the fence; click into a generated block to reveal editable source, activate its label with Enter, then move outside to restore the preview"
+      "exercise": "Open Daily Briefing; Start today copies a bounded prompt and creates a live note without narrative. Import sourced clipboard batches, inspect person ambiguity/conflicts, and Undo. Configure workdays and specific AI connection or Use chat selection. No live external results are bundled. Check asynchronous clipboard completion, formatted JSON budgets, and explicit undated identity provenance gaps. Verify short title versus detailed text, friendly numeric filename collisions, and vault-owned .draglass/briefing settings/state with a fresh board after backing-note deletion.; inspect the labeled generated Markdown frame in Live Preview and Reading view, edit its text, follow links and switch to Source to see the fence; click into a generated block to reveal editable source, activate its label with Enter, then move outside to restore the preview; inspect Since last briefing, Copy local updates, Import response acknowledgments, and changes made after copying; verify pending/Externally acknowledged states and bounded multi-batch outcomes; omit optional firstName and verify ID/full-name matching without guessed first_name metadata; inspect the request for verified company-assigned employee/user IDs in people.id and directory-access gaps; import repeated identical item IDs with combined evidence and inspect actionable errors for conflicting ID reuse"
+    },
+    {
+      "id": "pdf-export",
+      "notes": [
+        "Tours/16 PDF export.md"
+      ],
+      "exercise": "Save as PDF from palette, File and note context menu; toggle Include filename as title (H1), page size, orientation, margins, scale and page numbers; inspect tables, code, checkboxes, Mermaid, drawings, images, long notes, dark mode, cancel and unchanged drafts; repeat in a detached Markdown file"
     }
   ],
   "entityTypes": [

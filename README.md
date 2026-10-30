@@ -122,3 +122,7 @@ Task completion offers optional outcome details for inline tasks and Task notes.
 Graph filters, exclusions and color groups support `type:Task`, `subtype:PERSON` and any YAML field with `[field:value]` or `{field:value}`. Nested fields such as `[relationships.sources.ref:review]` use the same syntax in vault search. See [Graph queries](docs/GRAPH_QUERIES.md).
 
 Generated briefing entries render as lightly framed Markdown with an Automatically generated label. Their contents remain editable in Live Preview, and their links and task controls stay usable.
+
+The Daily Briefing board also shows local follow-through: completed tasks, deadline changes and recorded outcomes. **Copy local updates** sends compact changes back to your external assistant; entries stay pending until you import its explicit acknowledgment.
+
+Use **Save as PDF…** from the File menu, command palette or a Markdown note’s context menu to export a formatted document. Choose the filename title, paper size, orientation, margins, scale and page numbers. Current drafts, embedded notes and diagrams are included without modifying the source.

@@ -42,3 +42,5 @@ Explore aliases, heading/block references and reusable content in [[Tours/13 Not
 Explore [[Tours/14 Calendar|Calendar]] for dated-note writing dots, configurable week start and optional Tasks integration.
 
 - [[Tours/15 Daily Briefing|Daily Briefing: sourced commitments and decisions]]
+
+Export a shareable document with [[Tours/16 PDF export|Save as PDF]].

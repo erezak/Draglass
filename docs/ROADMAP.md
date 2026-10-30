@@ -102,3 +102,26 @@ Daily Briefing: compact clipboard collection, sourced ontology notes, a live boa
 0.33.6 renders generated briefing entries and decision outcomes as editable Markdown frames with a subtle label, preserving link indexing, re-import conflict guards and grouped Undo.
 
 0.33.7 restores normal Live Preview block editing: entering generated content reveals fenced source; leaving it restores the labeled frame. Labels also support mouse and keyboard activation.
+
+
+## Briefing follow-through · 0.34.0
+
+Delivered: live pending task/decision changes, completion outcomes for inline and
+note tasks, update-only clipboard sessions, explicit retained-update receipts,
+rename-aware unique-ID matching and bounded Unicode-safe batching. An outstanding
+evidence collection remains independent. See DAILY_BRIEFING.md for workflow and
+limits. External system writes remain manual.
+
+0.34.1: person first names are optional in clipboard imports; unknown values are
+not inferred, blank metadata is omitted, and ID/full-name matching stays available.
+
+0.34.2: the collection prompt requests verified company-assigned employee/user IDs
+with evidence and explicit handling of unavailable/restricted directory access.
+
+0.34.3: consolidate matching duplicate item IDs with all evidence, identify
+conflicting ID reuse before writes, and request distinct stable action IDs.
+
+
+## Formatted PDF export · 0.35.0
+
+Delivered: current Markdown drafts to print-ready PDFs, filename H1 toggle, paper/orientation/margins/scale, optional page numbers, rendered embeds and vector diagrams, vault/detached entry points and a native destination dialog. Batch export, attached-PDF concatenation, custom headers and a paginated preview are future candidates.

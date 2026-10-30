@@ -79,3 +79,41 @@ The framed example below is authored demo content, not an external AI response. 
 ```
 
 Personal prose belongs outside the generated frame. Task controls, backlinks, tags, search and graph connections still work inside it.
+
+
+## Follow-through
+
+After **Start today** establishes the baseline, change a practice task deadline,
+complete it with optional details, and record a decision outcome. Open the board’s
+**Since last briefing** section. Expand a pending entry to inspect the changed
+fields, including the recorded outcome, and use Open note to inspect the source.
+
+Choose **Copy local updates** (also available as **Copy local briefing updates**
+in the command palette). The compact prompt contains changed fields only, without
+starting a new evidence collection. Paste it into your external chat and import
+the acknowledgment with **Import response**. Copying alone leaves entries pending;
+only explicitly retained updates appear under **Externally acknowledged**. This
+means the assistant reported retention, not a guarantee of durable memory.
+
+Try editing the deadline again after copying: acknowledging that prompt must leave
+the newer change pending. Long outcomes are split across bounded batches; keep
+using Copy local updates and importing acknowledgments until nothing remains.
+Planner and other external records must not be updated automatically. This is a
+guided exercise: no external acknowledgment or provider result is preloaded.
+
+Person imports accept a missing, null or blank `firstName` when the response supplies
+a readable `name`. Do not guess the first name. In a practice response omit it,
+verify the employee ID selects the existing person, and verify a full-name match
+when no ID is known. No blank `first_name` property should be created.
+
+Inspect the copied prompt: it explicitly asks for each relevant person’s verified
+company-assigned employee/user ID, in `people.id`. It requests
+directory/profile evidence, omits unavailable IDs and reports restricted access.
+Copilot must not derive an ID from a name/email or supply a company registration
+number. Imported IDs use the existing `employee_id` property and ID-first matcher.
+
+For duplicate item IDs, try repeating the same item with a second source. The
+import should create one note with both sources. Different actions must have
+different stable action IDs even when they come from one message. Conflicting
+entries using the same ID are rejected with the offending ID, item titles and
+fields; no notes are changed, so a corrected response can be retried.
