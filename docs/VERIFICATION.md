@@ -1,4 +1,6 @@
-# Verification · 0.35.0
+# Verification · 0.35.1
+
+Acknowledgment and coverage validation: the full suite passed 644 tests without failures or skips. The final build, expanded demo checks and focused briefing suite passed. Round-trip tests extract IDs from the actual copied collection/update prompts and echo them into imports; they cover the entity/update ID collision, empty/unknown/malformed/mixed acknowledgments, partial fragments, payload-group changes under concurrent baseline updates, person-resolution batch freezing, prompt budgets with maximum cursors and entity context, visible warnings, independent source coverage and cutoff rules. Unknown tokens never advance a baseline or block valid sourced facts. Session/batch mismatches remain rejected. No live external-assistant search or persistent-memory behavior is claimed.
 
 Formatted PDF export validation: the full suite passed 629 tests with no failures or skips. After the final page-grouping and detached-button adjustments, 24 focused export/detached/demo/desktop tests and the main command/context-menu interaction test passed. The build and expanded 15-tour demo checks passed.
 

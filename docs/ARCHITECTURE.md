@@ -220,3 +220,16 @@ never synthesized from mutable titles or array positions.
 
 
 PDF export is split across core/export/pdf.cjs (validated layout, print HTML/CSS), ui/pdf-export.js (options dialog and immutable rendered-note snapshot using the shared Markdown/embed renderer) and electron/pdf-export.cjs (native save destination, sandboxed static window, asset readiness, printToPDF, atomic write and cleanup). Vault and detached IPC retain their existing sender checks. Rendering uses light vector diagram exports instead of cloning editor viewports. Neither Markdown nor AI services are used for document conversion.
+
+
+`core/briefing/acknowledgments.cjs` owns the wire projection and nonblocking
+acknowledgment validation. Wire rows keep update `id` distinct from `entityId`;
+the same projection is used for both prompt modes and packet byte accounting.
+Compact labels and source IDs provide entity context. Fragment group hashes cover
+the serialized delta as well as the target snapshot, preventing mixed reassembly
+when an independent acknowledgment changes the baseline.
+The copied batch is immutable through deferred identity resolution. Unknown tokens
+never advance baselines or reject sourced content. `coverage.cjs` normalizes
+reported channels and identifies skipped searches; the service controls targeted
+continuation and the completed-window cutoff. The board presents persisted
+acknowledgment notices and honestly labeled source-search reports.

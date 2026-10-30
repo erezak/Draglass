@@ -362,3 +362,6 @@ dialog{width:410px;max-width:90vw;background:var(--panel);color:var(--text);bord
 .pdf-export-grid select,.pdf-export-grid input { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 5px; padding: 7px; }
 .pdf-export-dialog .check-setting { margin: 12px 0; }
 .pdf-export-status { overflow-wrap: anywhere; }
+
+.briefing-ack-warnings { padding: 12px; border: 1px solid var(--border); border-inline-start: 3px solid var(--accent); border-radius: 6px; }
+.briefing-source-coverage { margin: 14px 0; }

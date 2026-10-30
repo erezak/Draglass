@@ -117,3 +117,26 @@ import should create one note with both sources. Different actions must have
 different stable action IDs even when they come from one message. Conflicting
 entries using the same ID are rejected with the offending ID, item titles and
 fields; no notes are changed, so a corrected response can be retried.
+
+
+## Acknowledgments and source coverage
+
+Inspect a copied prompt after changing a practice task. Each MEMORY row has an
+`id` that acknowledges that exact update, plus an `entityId` identifying the local
+note. A response acknowledges the row’s `id`, not `entityId`, source IDs or item
+IDs. **Copy local updates** uses the same rule for LOCAL_UPDATES. When there are
+no outgoing updates, the response should use `ack: []`.
+
+In a temporary practice collection, include an unrelated acknowledgment alongside
+valid sourced content. The content should import, a visible notice should report
+the ignored value, and the local update should remain pending. A valid response
+on the next prompt can acknowledge it. This is a guided exercise, not a bundled
+external memory-retention claim.
+
+Inspect **Source coverage** on the board. The external assistant must separately
+search accessible email, chats, calendar, meeting transcripts and linked files;
+recaps do not replace transcript or file searches. Reports distinguish searched,
+partial, unavailable, not searched and unknown. A not-searched report triggers a
+targeted continuation. Missing coverage does not establish that a search happened
+or advance the completed-window cutoff. Directory IDs must be explicitly evidenced,
+not derived from an email address.

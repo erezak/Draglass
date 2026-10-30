@@ -170,3 +170,44 @@ consolidate the same action or give different actions distinct stable IDs. The
 collection prompt explicitly requires an action identifier after a shared
 source/message ID and one entry per kind/ID. The raw 24-item/byte limits still
 apply before consolidation.
+
+
+## Acknowledgment tokens and source coverage
+
+Acknowledgments are needed only to track the local updates the external assistant
+says it retained. They do not validate incoming facts or prove durable remote
+memory. Each MEMORY or LOCAL_UPDATES row exposes an `id` for that exact update and
+an `entityId` identifying the local note/task. Compact `label` and optional
+`sourceId` context identify the task and its original external item without
+sending the whole note. `ack` must contain the copied row
+IDs, never entity, source, person or incoming-item IDs. Empty outgoing lists use
+`ack: []`. The byte budget counts the complete wire row, and the packet builder
+checks the final prompt budget before offering the batch.
+
+Unknown/malformed acknowledgement metadata no longer rejects a valid briefing.
+Only exact recognized update tokens are applied, duplicates are harmless, and
+ignored values appear in a persistent board notice and import notification.
+Their updates remain pending and can be acknowledged with the next prompt.
+Session, batch, source-evidence and content bounds remain validated. The copied
+batch remains frozen while deferred person matches are resolved.
+
+The collection prompt asks for independent searches of accessible email, chats,
+calendar, meeting transcripts and relevant linked files. Recaps alone do not
+satisfy transcript/file searches. The cumulative `coverage` object uses keys
+`email`, `chats`, `calendar`, `transcripts`, `linkedFiles`, with states `searched`,
+`partial`, `unavailable` or `not-searched`; explain access restrictions in `gaps`.
+Missing or invalid states are displayed as `unknown`, without inventing search
+attempts. These are external-assistant reports, not independently verified searches.
+
+Any `not-searched` channel forces continuation with a targeted cursor, even if the
+response says `more:false`. The completed-window cutoff advances only when the
+collection finishes and every channel has reported searched/partial/unavailable.
+Unknown reports or skipped channels leave it unchanged. Partial/unavailable access
+remains visible alongside coverage gaps. Employee/user IDs must be explicitly
+stated in supplied identity/profile/directory evidence; email local-parts are not
+ID verification. No external task records are changed by these prompts.
+
+Fragmented updates carry an explicit `updateGroup`; reassembly and partial
+acknowledgments are scoped to the exact serialized change payload. If another
+exchange changes the baseline, the changed delta receives a new group instead
+of mixing pieces of two payloads.

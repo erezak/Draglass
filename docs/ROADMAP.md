@@ -125,3 +125,10 @@ conflicting ID reuse before writes, and request distinct stable action IDs.
 ## Formatted PDF export · 0.35.0
 
 Delivered: current Markdown drafts to print-ready PDFs, filename H1 toggle, paper/orientation/margins/scale, optional page numbers, rendered embeds and vector diagrams, vault/detached entry points and a native destination dialog. Batch export, attached-PDF concatenation, custom headers and a paginated preview are future candidates.
+
+
+0.35.1: correct acknowledgment wire IDs, separate entity IDs, keep copied batches
+stable during person resolution, and isolate acknowledgement warnings from content
+import. Add per-channel reported source coverage, targeted retries for skipped
+searches and conservative completed-window cutoffs. Company-assigned IDs require
+explicit identity evidence rather than email-address inference.
