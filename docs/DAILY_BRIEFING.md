@@ -226,3 +226,10 @@ A meeting item may omit `date` when the evidence does not establish the meeting 
 ### Reviewing conflicts
 
 Conflict rows keep their disclosure state and mounted action buttons while the board refreshes. Open a row to read the local and reported values with their source evidence. **Open note** opens its current target; **Keep local and dismiss** removes only that conflict. Other expanded rows remain open.
+
+
+### Accepting reported content
+
+**Use reported content** applies the selected conflict through the briefing operation journal. Property conflicts change their YAML field; generated-text conflicts replace their identified block or restore it when removed. Person relationships add or merge the reported edge with its sources while retaining unrelated relationships. The board shows the current local value; a review token rejects an action if that comparison has changed. Ambiguous or missing targets cannot be applied automatically.
+
+**Undo last change** is available for ten minutes and restores the prior content, conflict and briefing baseline. Later edits block unsafe Undo. Choosing a terminal Task status uses normal archival and link rewriting. Accepted reported fields update their remote baseline without acknowledging unrelated local changes.

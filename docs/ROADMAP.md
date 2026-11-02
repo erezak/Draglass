@@ -161,3 +161,8 @@ Ordinary Markdown supports Excalidraw fences and colon containers, plus plain/co
 ## Document find and replace · 0.39.0
 
 Find and replace works in Source, Live Preview and detached Markdown. Reading view offers rendered-text find only. Each pane retains independent queries/options and highlights, including panes sharing a buffer. Match counts, wrapping navigation, case/word/regex modes, one-step replace-all Undo and external-edit refreshes share the document-search component. This is separate from F08 vault search result navigation.
+
+
+## Reported-content conflict resolution · 0.39.1
+
+Briefing conflicts offer Use reported content alongside Keep local and dismiss. Scoped property, generated-block and relationship plans retain provenance and unrelated edits; current-value review tokens reject stale comparisons. Ten-minute journal Undo restores both content and conflict state, including task archival and link changes.

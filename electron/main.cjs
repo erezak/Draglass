@@ -84,12 +84,13 @@ const handlers={
    if(action==='import'){await tasksEnabled();let provider=config.provider==='chat'?args.provider:config.provider;if(!config.ai)provider=null;return service.import(await clipboard.readText(),{provider});}
    if(action==='resolve'){await tasksEnabled();return service.resolve(args.key,args.path);}
    if(action==='undo')return service.undo(args.id);
+   if(action==='accept-reported')return service.acceptReported(args.id,args.token);
    if(action==='dismiss'){await service.dismiss(args.id);return {notes:[],removed:[]};}
    throw new Error('Unknown briefing action.');
   },
   calendar:async args=>{const saved=await workspace.read();if(saved?.root===vault.root&&saved.preferences?.corePlugins?.calendar===false)throw new Error('Enable Calendar in Settings → Core plugins.');return knowledgeService.request('calendar',args);},
   tasks:async args=>{await tasksEnabled();return knowledgeService.request('tasks',args);},
-  taskAction:async (action,args)=>{await tasksEnabled();const service=new (require('../core/tasks/service.cjs').TasksService)(vault);if(action==='history')return service.history();if(action==='undo'){const briefing=new(require('../core/briefing/service.cjs').BriefingService)(vault);if((await briefing.load()).undo?.id===args.id)return briefing.undo(args.id);const entry=await service.entry(args.id);if(['Import daily briefing','Start daily briefing'].includes(entry.label))throw new Error('Only the latest briefing operation can be undone. Open Daily Briefing to inspect its state.');return service.undo(args.id);}if(action==='create')return service.create(args);if(action==='update')return service.update(args.ref,args.fields);if(action==='promote')return service.promote(args.ref,args);throw new Error('Unknown task action.');},
+  taskAction:async (action,args)=>{await tasksEnabled();const service=new (require('../core/tasks/service.cjs').TasksService)(vault);if(action==='history')return service.history();if(action==='undo'){const briefing=new(require('../core/briefing/service.cjs').BriefingService)(vault);if((await briefing.load()).undo?.id===args.id)return briefing.undo(args.id);const entry=await service.entry(args.id);if(['Import daily briefing','Start daily briefing','Use reported briefing content'].includes(entry.label))throw new Error('Only the latest briefing operation can be undone. Open Daily Briefing to inspect its state.');return service.undo(args.id);}if(action==='create')return service.create(args);if(action==='update')return service.update(args.ref,args.fields);if(action==='promote')return service.promote(args.ref,args);throw new Error('Unknown task action.');},
   listWorkspaces:()=>savedWorkspaces.list(vault.root),
   saveWorkspace:(name,value,id)=>savedWorkspaces.save(vault.root,name,value,id),
   removeWorkspace:id=>savedWorkspaces.remove(vault.root,id),

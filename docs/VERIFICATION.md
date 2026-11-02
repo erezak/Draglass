@@ -282,3 +282,12 @@ The complete suite passed 752 tests without failures or skips with the existing 
 Coverage includes literal/case/Unicode whole-word/multiline regex matching, invalid patterns, zero-width matches, explicit result limits, literal and captured replacements, forward/backward wrap, Escape/focus, replace-all Undo and autosave, rendered text across formatting, unchanged clickable links, Reading find-only controls, detached Markdown, external reloads, Source/Live Preview and independent split-pane queries during shared edits and pane closure.
 
 The new demo tour provides authored text and a guided exercise without provider output. Dependencies, pnpm lockfile, icons and third-party notices are unchanged. Native macOS/Windows/Linux packaging was not executed for this renderer slice.
+
+
+## 0.39.1: Accept reported conflict content
+
+All 762 automated tests passed without failures or skips with the existing 4 GiB Node heap. The 84 focused briefing, conflict UI and follow-through tests passed; the production build, demo validation and public-site checks passed. Demo coverage remains 71 notes, 44 entities, 98 graph nodes, 115 named edges, 199 wiki edges and 73 sourced relationships across 17 feature categories.
+
+Coverage includes accepting a YAML property, replacing or restoring a generated briefing block, accepting decision text, adding a sourced person relationship without dropping unrelated edges, rejecting stale review tokens, retaining unrelated prose and local-memory deltas, resolving previously recorded conflicts, restoring content/conflicts through journal Undo, blocking Undo after later edits, and normal archival/link restoration for done and cancelled Task statuses. UI coverage retains expanded rows, submits the displayed token, refreshes stale comparisons, exposes Undo and keeps unsupported targets disabled after other actions.
+
+The conflict planner is separate from I/O and uses the existing recoverable briefing journal. No settings/data migration or dependency changes were introduced. Icons, lockfile and third-party notices are unchanged. Native packaging was not exercised for this slice.

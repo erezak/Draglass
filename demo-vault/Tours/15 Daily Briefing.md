@@ -164,3 +164,16 @@ Keep the dated source evidence separate from the unknown meeting day.
 ### Review conflicts without losing your place
 
 When an import conflicts with a local edit, expand its Conflict row on the board. Leave it open while the board refreshes: its details and action buttons stay available. Use **Open note** to inspect the note or **Keep local and dismiss** to clear that conflict. Opening or dismissing one row leaves the other rows in their current state.
+
+### Choose reported content
+
+Expand a Conflict row to compare the current local value with the reported value
+and its source evidence. Choose **Use reported content** to apply that specific
+property, generated text block or sourced relationship. Other note content stays
+in place; accepting a relationship retains unrelated edges. The board offers
+**Undo last change** for ten minutes, restoring the local content and the conflict.
+Later edits can block Undo so they are preserved.
+
+If the value changes after you review it, the comparison refreshes and asks you to
+review again. **Keep local and dismiss** remains available. A reported done or
+cancelled Task status uses normal task archival, including link updates and Undo.

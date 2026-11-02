@@ -254,3 +254,8 @@ Callouts use the pure `core/callouts` syntax/index/config component, shared by M
 `core/document-search.cjs` owns literal/Unicode-word/regular-expression matching and replacement plans, independently of vault search and persistence. Queries are bounded to 512 characters, results to 10,000 matches, and replacement output to 8 MiB; truncated searches cannot replace all.
 
 `ui/document-find.js` owns group-local search bars, keyboard navigation and result highlighting for both workspace and detached Markdown. Queries and decoration ownership stay outside shared buffer state. A CodeMirror ViewPlugin draws per-editor matches; replacements use ordinary editor transactions, isolated undo groups and existing autosave. Reading view walks rendered text, marks matches without rewriting links, observes content refreshes and never offers replacements. Closing views removes their observers and marks. Find state is presentation-only and is not stored in note files.
+
+
+## Briefing conflict resolution
+
+`core/briefing/conflicts.cjs` identifies a conflict target, inspects its current value, computes a review token and plans a field/block/relationship edit. It performs no I/O. The briefing service validates the token, updates only accepted baselines, and commits through its existing recoverable operation journal. Archive moves update tracked paths after the journal returns; Undo restores pre-resolution state. The board owns stable controls for keeping local or accepting reported content and retains unrelated disclosure state during refreshes.
