@@ -42,3 +42,20 @@
 @media(pointer:coarse){#properties.properties-panel .property-remove{opacity:.65}}
 
 #properties.properties-panel #property-collapse::after{content:attr(data-count);font-size:11px;font-weight:400;color:var(--muted);padding:0 5px;border-radius:4px;background:var(--hover);line-height:18px}
+
+#properties.properties-panel .property-sources{min-width:0;padding:4px 7px 2px;font:inherit;line-height:1.5}
+#properties.properties-panel .property-source-lines{list-style:none;padding:0;margin:0;min-width:0}
+#properties.properties-panel .property-source-entry{padding:2px 0 9px;margin:0 0 8px;border-bottom:1px solid var(--border);min-width:0}
+#properties.properties-panel .property-source-entry:last-child{border-bottom:0;margin-bottom:0;padding-bottom:3px}
+#properties.properties-panel .property-source-field{display:grid;grid-template-columns:70px minmax(0,1fr);gap:8px;padding:2px 0;min-width:0}
+#properties.properties-panel .property-source-label{color:var(--muted);font-size:12px;line-height:1.65}
+#properties.properties-panel .property-source-value{display:block;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;color:var(--text);user-select:text}
+#properties.properties-panel .property-source-quote{border-inline-start:2px solid var(--border);padding-inline-start:8px}
+#properties.properties-panel .property-source-value :is(ul,dl){margin:0;padding:0;white-space:normal}
+#properties.properties-panel .property-source-value ul{padding-inline-start:16px}
+#properties.properties-panel .property-source-value dl>div{display:grid;grid-template-columns:minmax(65px,100px) minmax(0,1fr);gap:6px;margin-bottom:2px}
+#properties.properties-panel .property-source-value dt{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+#properties.properties-panel .property-source-value dd{margin:0;min-width:0}
+#properties.properties-panel .property-sources-edit{color:var(--accent);padding:3px 0;margin-top:2px;font:inherit;font-size:12px;border:0;background:transparent}
+#properties.properties-panel .property-sources-empty{color:var(--muted);display:block}
+@media(max-width:600px){#properties.properties-panel .property-source-field{grid-template-columns:1fr;gap:0}}

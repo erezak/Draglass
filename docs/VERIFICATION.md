@@ -300,3 +300,12 @@ All 765 automated tests passed without failures or skips using the existing 4 Gi
 A real Chromium run with the application bundle and synthetic desktop data verified initial collapse, compact expanded rows, Light and Dark appearance, and a narrow viewport without property-panel horizontal overflow or page errors. Fourteen sample scalar/structured rows measured 34 pixels each, with 28-pixel type controls. QA images are not bundled.
 
 Regression coverage includes restored expanded preferences being ignored, note reactivation and same-note reopen, split-pane focus changes, routine autosave and external edits retaining manual expansion, accessible type controls, inspectable read-only nested values, list expansion on focus, and existing metadata/type/subtype/relationship editing and Undo. Disclosure state is transient; no note edits or persisted expanded-state preference are made by toggling it. Dependencies, lockfile, icon assets and third-party notices are unchanged. Native platform packaging was not exercised.
+
+
+## 0.39.3: Readable source lines
+
+All 767 automated tests passed without failures or skips using the existing 4 GiB Node heap. Five focused source/properties UI tests, the production build, demo validation and public-site checks pass. The demo retains 71 notes, 44 entities, 98 graph nodes, 115 named edges and 73 sourced relationships, with 200 wiki edges across 17 feature categories. The properties tour now has two authored, quote-verified source records.
+
+Source entries render as direct reference/location/quote lines and retain extra nested provenance fields. Tests cover multiple objects and string references, line breaks, safe literal HTML-like text, source-mode editing access, external refreshes, unchanged Markdown/no incidental writes and collapsed-on-reopen behavior. Generic nested-property inspection remains available independently of source presentation. A real Chromium run verified two source records, a deliberately long unbroken reference, Light/Dark rendering and narrow layout without horizontal overflow or page errors. QA captures are not bundled.
+
+The YAML collection and source values are preserved. No dependency, lockfile, icon or license changes were made. Native packaging was not exercised.

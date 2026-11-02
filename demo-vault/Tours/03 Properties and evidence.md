@@ -9,6 +9,13 @@ review_date: 2026-10-22
 observed_at: 2026-10-22T09:00:00
 reviewers: [Mara, Imani]
 short_note: Editable property examples
+sources:
+- ref: '[[Sources/Design review]]'
+  locator: Recorded assertions
+  quote: Mara Chen member of Platform team.
+- ref: '[[Sources/Field handbook]]'
+  locator: Handbook overview
+  quote: Fictional document collection describing field work.
 ---
 
 # Turn a note into a knowledge entity
@@ -34,12 +41,20 @@ restored tabs and notes opened in another pane. Expand **Properties** to see the
 compact rows. Click the type icon beside a name to change its registered type;
 there is no separate wide type column. Field values remain directly editable.
 
-Lists expand while focused and return to one line afterward. Nested source
-records stay behind a small disclosure: open them to inspect and copy their JSON
-or choose **Edit in YAML**. Removal controls appear on row hover or keyboard
+Lists expand while focused and return to one line afterward. Source records appear directly as readable Reference, Location and Quote lines.
+Other nested values stay behind a small disclosure. Use **Edit in YAML** to
+change structured evidence. Removal controls appear on row hover or keyboard
 focus. Managed timestamps remain read-only.
 
 Try Light and Dark mode, then narrow a split pane. Expand properties, edit a
 value, and wait for autosave: the section stays open during routine refreshes.
 Open another note and return: it starts collapsed again. Expanding or collapsing
 properties does not write note content or save an expanded-state preference.
+
+### Read the evidence lines
+
+Expand Properties and inspect this note's **sources**. Its two source records
+show the recorded reference, location and quote directly. Long lines wrap with
+the pane width; there is no JSON box or extra source-count disclosure. The
+original collection stays intact in YAML, including any additional provenance
+fields. Try a narrow pane and compare Light and Dark mode.

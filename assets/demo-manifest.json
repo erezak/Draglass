@@ -25,7 +25,7 @@
       "notes": [
         "Tours/03 Properties and evidence.md"
       ],
-      "exercise": "Turn a note into a knowledge entity; verify properties starts collapsed on every note activation, inspect compact type icons and nested source disclosures, edit values, and check focus/hover controls in Light, Dark and narrow panes"
+      "exercise": "Turn a note into a knowledge entity; verify properties starts collapsed on every note activation, inspect compact type icons and readable source evidence lines and other nested-value disclosures, edit values, and check focus/hover controls in Light, Dark and narrow panes; inspect both authored source records without a JSON viewer or extra record-count fold"
     },
     {
       "id": "graph",

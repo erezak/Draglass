@@ -264,3 +264,6 @@ Callouts use the pure `core/callouts` syntax/index/config component, shared by M
 ## Compact property presentation
 
 `ui/properties-view.js` owns type-icon controls, compact list presentation and inspectable read-only nested values. `ui/properties.js` keeps the existing metadata/editing contract; its disclosure state is transient and resets on note activation or pane focus changes. The app explicitly resets disclosure before opening a note, including an already active path. Routine edits and refreshes retain expansion and focused fields. No expanded-state setting is persisted. Component styling lives in `ui/properties.css` and consumes the app theme tokens.
+
+
+Source properties use `ui/source-records.js` to render each recorded field as wrapping, selectable text. It handles string references, record collections and additional nested provenance without JSON markup, HTML execution or metadata writes. The source collection remains unchanged in YAML; editing uses the existing source-mode control. Properties disclosure still resets on note activation.

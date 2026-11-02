@@ -171,3 +171,8 @@ Briefing conflicts offer Use reported content alongside Keep local and dismiss. 
 ## Compact properties · 0.39.2
 
 Property rows use narrow type icons, inline names/values, quiet removal actions and nested-value disclosures. Every note activation starts collapsed, including restored and reactivated notes; normal edits retain manual expansion. Presentation uses app theme tokens and does not alter the YAML or ontology model.
+
+
+## Readable source evidence · 0.39.3
+
+The properties inspector shows each source's reference, location, quote and additional provenance directly as wrapping lines. Multiple records remain separate, and the YAML collection stays authoritative. Structured editing remains available in source mode.

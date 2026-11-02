@@ -1,3 +1,4 @@
+import {sourceRecords} from './source-records.js';
 import {icon} from './layout.js';
 // Presentation controls are independent of metadata parsing and note writes.
 export function propertyTypeControl(select,type){
@@ -7,6 +8,7 @@ export function propertyTypeControl(select,type){
  select.title=select.disabled?label:label+' · Change property type';root.title=select.title;root.dataset.disabled=String(select.disabled);root.append(glyph,select);return root;
 }
 export function compactPropertyValue(field,key,value,{expanded=false,onSource,locked=false}={}){
+ if(key==='sources')return sourceRecords(value,{onSource,locked});
  if(value&&typeof value==='object'&&(!Array.isArray(value)||value.some(v=>v&&typeof v==='object'))){
   const detail=document.createElement('details');detail.className='property-structured';detail.open=expanded;
   const summary=document.createElement('summary'),count=Array.isArray(value)?value.length:Object.keys(value).length;summary.textContent=count+' '+(Array.isArray(value)?count===1?'record':'records':count===1?'field':'fields');
