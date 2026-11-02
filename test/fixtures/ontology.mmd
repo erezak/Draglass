@@ -1,0 +1,25 @@
+flowchart LR
+    Objective["Objective"]
+    Capability["Capability"]
+    System["System"]
+    Component["Component"]
+    API["API"]
+    Source["Source"]
+    Concept["Concept"]
+    Identity["Identity"]
+    Behavior["Behavior"]
+    DecisionRecord["DecisionRecord"]
+    Playbook["Playbook"]
+    Policy["Policy"]
+
+    Capability -->|SUPPORTS| Objective
+    Capability -->|DELIVERED_BY| System
+    System -->|COMPOSED_OF| Component
+    Component -->|EXPOSES| API
+    Component -->|IMPLEMENTED_BY| Source
+    System -->|OWNED_BY: TEAM| Identity
+    Concept -->|ASSOCIATED_WITH| Component
+    Behavior -->|IMPLEMENTS| Concept
+    DecisionRecord -->|INFORMED_BY| Concept
+    Playbook -->|ENFORCES| Policy
+    System -->|GOVERNED_BY| Policy

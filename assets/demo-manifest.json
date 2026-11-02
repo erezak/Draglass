@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "entry": "Welcome.md",
+  "title": "Lumen field station",
+  "features": [
+    {
+      "id": "writing",
+      "notes": [
+        "Tours/01 Writing.md"
+      ],
+      "exercise": "Write and edit, verify automatic created_at/updated_at with stable caret and autosave, follow table links, or edit surrounding cell space"
+    },
+    {
+      "id": "links-embeds",
+      "notes": [
+        "Tours/02 Linking and embeds.md",
+        "Tours/13 Note links.md",
+        "Reference/Navigation example.md"
+      ],
+      "exercise": "Follow and embed connected notes Follow ordinary rendered wikilinks with a plain click, Alt-click to edit, inspect shortened folder-qualified labels and try the duplicate-name chooser. Use YAML alias autocomplete and navigate/embed heading, paragraph, list, quote and table references; try image dimensions and a PDF page.; check selected and unselected autocomplete suggestions in Light and Dark themes"
+    },
+    {
+      "id": "properties-ontology",
+      "notes": [
+        "Tours/03 Properties and evidence.md"
+      ],
+      "exercise": "Turn a note into a knowledge entity"
+    },
+    {
+      "id": "graph",
+      "notes": [
+        "Tours/04 Explore the graph.md"
+      ],
+      "exercise": "Explore the knowledge network and verify every graph follows app Light, Dark and system themes without resetting its controls; filter and color by type/subtype, arbitrary nested YAML, numeric comparisons and relationship sources using the same selectors for exclusions; verify new graphs include all note types and the Filtered footer exposes restrictions on restored tabs"
+    },
+    {
+      "id": "ai",
+      "notes": [
+        "Tours/05 AI conversations.md"
+      ],
+      "exercise": "Explore bounded vault tools, ask for current local/UTC time before relative dates, inspect canonical ontology and provenance examples, find dated notes, follow citations, and review guarded edits with undo Inspect the read-only session label, explicitly enable reviewed changes, and switch Chat, Backlinks and Tasks using the right icon rail."
+    },
+    {
+      "id": "diagrams",
+      "notes": [
+        "Tours/06 Diagrams and drawings.md",
+        "Tours/19 Inline drawings.md"
+      ],
+      "exercise": "Render and edit diagrams; render and edit excalidraw fences and colon containers, preserve plain/compressed Drawing sections, keep the surrounding note intact and export static PDF vectors"
+    },
+    {
+      "id": "attachments",
+      "notes": [
+        "Tours/07 Attachments.md"
+      ],
+      "exercise": "Work with local attachments"
+    },
+    {
+      "id": "organization",
+      "notes": [
+        "Tours/08 Organize and recover.md"
+      ],
+      "exercise": "Organize ordinary files; inspect .draglass/recovery and .draglass/trash after a practice edit/delete, restore the note, and confirm vault-private data shares one folder"
+    },
+    {
+      "id": "search-settings",
+      "notes": [
+        "Tours/09 Search and settings.md"
+      ],
+      "exercise": "Find information and switch Light/Dark through the command palette or follow the system theme; compare four appearance themes, duplicate and edit overrides, test single-mode compatibility and import/export; verify theme font-size defaults, overrides and reset across mode changes"
+    },
+    {
+      "id": "onboarding",
+      "notes": [
+        "Tours/10 Your next steps.md"
+      ],
+      "exercise": "Make the workspace yours"
+    },
+    {
+      "id": "workspaces",
+      "notes": [
+        "Tours/11 Panes and workspaces.md"
+      ],
+      "exercise": "Arrange typed note, graph, search, backlinks and outline tabs; compare independent graph filters and search queries; bind local views to panes or fixed notes, and restore the layout"
+    },
+    {
+      "id": "tasks",
+      "notes": [
+        "Tours/12 Tasks.md"
+      ],
+      "exercise": "Collect inline and note tasks, promote with identity preserved, query, use durable grouped Undo, and review semantic AI task proposals. Open Tasks in the right sidebar, inspect body context wikilinks, and restore the visible Undo notice after restart.; add prerequisites, complete and Undo blockers, promote with stable IDs, query actionable and blocked tasks, inspect missing/circular diagnostics; inspect named prerequisite edges and same-note loops in local graphs; complete recurring inline and note tasks, inspect successor dates and Undo both occurrences; try the shorthand 2 days after completion in Repeat; edit importance, inspect urgency explanations, open the Eisenhower matrix and filter actionable work; keep score explanations expanded across refresh and edit importance without default recurrence markers; open the main task workspace, combine visual date/status/importance/dependency filters, save/rename/update/delete a named view, switch list/matrix, and restore independent pane state; open the task calendar, switch due/scheduled/start basis, navigate November 2026 and local current month, inspect undated work, edit/create on a day and verify Undo and calendar saved-view restoration; complete an inline task and a Task note with optional details, cancel once, skip once, inspect the dated body entry, Undo, and confirm recurring successors do not inherit outcomes; complete or cancel a scratch Task and verify archive/tasks, links, open tabs and grouped Undo; keep a recurring successor active"
+    },
+    {
+      "id": "calendar",
+      "notes": [
+        "Tours/14 Calendar.md",
+        "Journal/2026-11-01.md"
+      ],
+      "exercise": "Open independent Calendar, inspect dated-note word dots, toggle writing statistics, change first weekday, disable Tasks and toggle its optional calendar integration, then restore month state.; verify immediate right-pane opening, resize to fit, use collapsed options/day details, inspect red due dots separately from writing dots and cancel a missing-day note creation"
+    },
+    {
+      "id": "briefing",
+      "notes": [
+        "Tours/15 Daily Briefing.md"
+      ],
+      "exercise": "Open Daily Briefing; Start today copies a bounded prompt and creates a live note without narrative. Import sourced clipboard batches, inspect person ambiguity/conflicts, and Undo. Configure workdays and specific AI connection or Use chat selection. No live external results are bundled. Check asynchronous clipboard completion, formatted JSON budgets, and explicit undated identity provenance gaps. Verify short title versus detailed text, friendly numeric filename collisions, and vault-owned .draglass/briefing settings/state with a fresh board after backing-note deletion.; inspect the labeled generated Markdown frame in Live Preview and Reading view, edit its text, follow links and switch to Source to see the fence; click into a generated block to reveal editable source, activate its label with Enter, then move outside to restore the preview; inspect Since last briefing, Copy local updates, Import response acknowledgments, and changes made after copying; verify pending/Externally acknowledged states and bounded multi-batch outcomes; omit optional firstName and verify ID/full-name matching without guessed first_name metadata; inspect the request for verified company-assigned employee/user IDs in people.id and directory-access gaps; import repeated identical item IDs with combined evidence and inspect actionable errors for conflicting ID reuse; verify separate id/entityId tokens, nonblocking ignored acknowledgments, Source coverage states and continuation for skipped transcript/linked-file searches; inspect waiting_on versus mentions edges and require an explicit relation for every supplied task person; import an evidenced meeting with its date omitted and verify Date not provided"
+    },
+    {
+      "id": "pdf-export",
+      "notes": [
+        "Tours/16 PDF export.md"
+      ],
+      "exercise": "Save as PDF from palette, File and note context menu; toggle Include filename as title (H1), page size, orientation, margins, scale and page numbers; inspect tables, code, checkboxes, Mermaid, drawings, images, long notes, dark mode, cancel and unchanged drafts; repeat in a detached Markdown file"
+    },
+    {
+      "id": "callouts",
+      "notes": [
+        "Tours/17 Callouts.md"
+      ],
+      "exercise": "Insert or wrap a selection; render every canonical type, aliases, title-only and nested folding; follow rich links, edit a quoted diagram, customize a type, and use the optional right-sidebar Callout Navigator with unsaved edits"
+    },
+    {
+      "id": "connections",
+      "notes": [
+        "Tours/18 Connections.md"
+      ],
+      "exercise": "Switch Backlinks and Outgoing in the shared sidebar, follow heading/block/asset links, inspect named relationship sources, offer missing-note creation, try an ambiguous target and watch unsaved edits update."
+    }
+  ],
+  "entityTypes": [
+    "Identity",
+    "Objective",
+    "Capability",
+    "System",
+    "Component",
+    "Source",
+    "Concept",
+    "Behavior",
+    "DecisionRecord",
+    "Playbook",
+    "Policy"
+  ],
+  "intentionalMissing": [
+    "Systems/Weather relay.md",
+    "Concepts/Future research question.md"
+  ],
+  "minimumNotes": 50,
+  "minimumNamedEdges": 65,
+  "minimumWikiEdges": 60,
+  "desktopChecks": [
+    "About displays the Draglass application version and icon",
+    "Open demo vault ignores Finder metadata and reports failures visibly"
+  ],
+  "sampleData": {
+    "fictional": true,
+    "scenario": "Lumen field station",
+    "externalLinks": "Reserved example domains only; SVG namespace identifiers are not destinations."
+  }
+}

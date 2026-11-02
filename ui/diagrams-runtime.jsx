@@ -1,0 +1,17 @@
+import mermaid from 'mermaid';
+import {centerDrawingOnOpen} from './drawing-viewport.js';
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import {Excalidraw,MainMenu,restore,exportToSvg,exportToBlob,serializeAsJSON,CaptureUpdateAction} from '@excalidraw/excalidraw';
+import '@excalidraw/excalidraw/index.css';
+let sequence=0,queue=Promise.resolve();
+export function renderMermaid(source,dark){const job=queue.catch(()=>{}).then(async()=>{mermaid.initialize({startOnLoad:false,securityLevel:'strict',theme:dark?'dark':'default',suppressErrorRendering:true,htmlLabels:false,maxTextSize:100000,maxEdges:1000,flowchart:{htmlLabels:false},secure:['secure','securityLevel','startOnLoad','maxTextSize','maxEdges','suppressErrorRendering','htmlLabels']});return (await mermaid.render('draglass-mermaid-'+(++sequence),source)).svg;});queue=job;return job;}
+export async function drawingSvg(scene,dark){const restored=restore(scene,null,null);return await exportToSvg({elements:restored.elements,appState:{...restored.appState,exportWithDarkMode:dark,exportBackground:true},files:scene.files||{},exportPadding:24});}
+export async function drawingPng(scene){const restored=restore(scene,null,null);return exportToBlob({elements:restored.elements,appState:restored.appState,files:scene.files||{},exportPadding:24});}
+export function mountDrawing(host,scene,{onChange,onLink,dark=false,readonly=false,name='Drawing'}){let api=null,first=true,signature;const root=createRoot(host),initialCenter=centerDrawingOnOpen(host,()=>api,scene.elements.some(element=>!element.isDeleted));
+ const ready=value=>{api=value;initialCenter.schedule();};
+ const fingerprint=(elements,state,files)=>JSON.stringify([elements,files,state.viewBackgroundColor,state.gridSize]);
+ const changed=(elements,state,files)=>{initialCenter.schedule();const next=fingerprint(elements,state,files);if(first){first=false;signature=next;return;}if(next===signature||readonly)return;signature=next;onChange(JSON.parse(serializeAsJSON(elements,state,files,'local')));};
+ root.render(<Excalidraw initialData={{...restore(scene,null,null),files:scene.files||{},scrollToContent:true}} excalidrawAPI={ready} onChange={changed} theme={dark?'dark':'light'} viewModeEnabled={readonly} handleKeyboardGlobally={false} autoFocus={false} name={name} validateEmbeddable={()=>false} onLinkOpen={(element,event)=>{event.preventDefault();onLink?.(element.link);}} UIOptions={{canvasActions:{loadScene:false,saveToActiveFile:false,export:false,toggleTheme:false}}}><MainMenu><MainMenu.DefaultItems.ClearCanvas/><MainMenu.DefaultItems.ChangeCanvasBackground/></MainMenu></Excalidraw>);
+ return {destroy:()=>{initialCenter.dispose();root.unmount();},fit:()=>api?.scrollToContent(undefined,{fitToContent:true}),replace:next=>{first=true;api?.updateScene({...restore(next,null,null),captureUpdate:CaptureUpdateAction.NEVER});api?.addFiles(Object.values(next.files||{}));},setReadonly:value=>{readonly=value;root.render(<Excalidraw initialData={{...restore(scene,null,null),files:scene.files||{},scrollToContent:true}} excalidrawAPI={ready} onChange={changed} theme={dark?'dark':'light'} viewModeEnabled={readonly} handleKeyboardGlobally={false} name={name} validateEmbeddable={()=>false} onLinkOpen={(element,event)=>{event.preventDefault();onLink?.(element.link);}} UIOptions={{canvasActions:{loadScene:false,saveToActiveFile:false,export:false,toggleTheme:false}}}><MainMenu><MainMenu.DefaultItems.ClearCanvas/><MainMenu.DefaultItems.ChangeCanvasBackground/></MainMenu></Excalidraw>);}};
+}

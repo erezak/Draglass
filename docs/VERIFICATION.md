@@ -1,0 +1,263 @@
+# Verification · 0.35.1
+
+Acknowledgment and coverage validation: the full suite passed 644 tests without failures or skips. The final build, expanded demo checks and focused briefing suite passed. Round-trip tests extract IDs from the actual copied collection/update prompts and echo them into imports; they cover the entity/update ID collision, empty/unknown/malformed/mixed acknowledgments, partial fragments, payload-group changes under concurrent baseline updates, person-resolution batch freezing, prompt budgets with maximum cursors and entity context, visible warnings, independent source coverage and cutoff rules. Unknown tokens never advance a baseline or block valid sourced facts. Session/batch mismatches remain rejected. No live external-assistant search or persistent-memory behavior is claimed.
+
+Formatted PDF export validation: the full suite passed 629 tests with no failures or skips. After the final page-grouping and detached-button adjustments, 24 focused export/detached/demo/desktop tests and the main command/context-menu interaction test passed. The build and expanded 15-tour demo checks passed.
+
+Real Chromium printed A4 portrait and Letter landscape samples through the shared rendered-note snapshot and print HTML/CSS. All 11 pages were rasterized and visually inspected. Content checks confirmed the final paragraph, hidden YAML, repeated table headers, live checkbox states, two vector diagrams (including the 12-node ontology Mermaid example), image, embedded draft and wrapped code. Print output stayed light while the source browser was dark. There were no page errors or missing-content notices. The layout was adjusted to keep media headings with their figures. The QA adapter supplied the sample vault image as identical data-URI bytes instead of Electron's custom asset protocol.
+
+The native wrapper is covered for sender rejection, sandbox/window settings, cancellation, failures preserving an existing destination, cleanup and open-after-save failures. Native macOS/Windows/Linux packaged execution and custom asset loading in those native print windows were not run here.
+
+Duplicate-item import validation: all 620 tests passed with no failures or skips; build and demo checks passed. Regression checks cover one-note creation with combined provenance, matching optional-field completion, retry idempotency, distinct kinds sharing an ID, conflicting text/dates with unchanged state and no AI call, preserved evidence beyond eight merged references, and raw input limits before consolidation.
+
+Company-neutral identity prompt: requests verified company-assigned employee/user IDs with provenance, omits unknown values and reports restricted directory access. The targeted 59-test briefing/protocol/follow-through suite, build and demo checks passed. No live external-provider ID retrieval was performed.
+
+Optional first-name import validation: all 614 tests passed with no failures or skips; build and demo checks passed. Coverage: missing, null, empty and whitespace-only names; no invented first_name metadata; ID-first and full-name matching; exclusion of unnamed identities from the first-name pass; malformed types/oversized values and unchanged state after validation errors.
+
+Briefing follow-through validation: all 607 tests passed with no failures or skips; build and demo checks passed. The extended trusted desktop routing test also passed after adding update-only clipboard copy/import assertions. Coverage includes independent update-only sessions, note/inline completion records, unchanged-note suppression, renamed task identity, explicit acknowledgments, Unicode batching, edits after copy and stale acknowledgments. The board interaction check exercises copying, import, pending/acknowledged display, command registration and expanded-summary persistence. Native clipboard and live external memory retention require manual desktop/provider validation.
+
+Live Preview editing validation: all 595 tests passed with no failures or skips; build and demo checks passed. Selection inside a generated block reveals ordinary editable fenced source, and selection outside restores the preview. Mouse and keyboard label activation are covered. A real Chromium run with the built renderer, temporary vault and filesystem bridge passed clicking rendered text, typing, autosave, clicking outside, entering through the label, restoring preview and Reading view without page errors. Native packaged-app execution was not run.
+
+Generated Markdown validation: all 593 tests passed with no failures or skips. Build and demo checks passed. New coverage includes stable fenced boundaries, nested code, duplicate/unclosed guards, offset-preserving CRLF views, graph/backlinks, task collection and completion, renames, tags, headings/blocks, Mermaid ranges, heading embeds, autocomplete, calendar word counts, decision memory, repeat-import conflicts and existing Undo checks. Renderer checks cover editable Live Preview, labeled Reading view, source-mode fences, links/task controls and HTML sanitization. No native packaging or authenticated provider calls were run.
+
+Graph query validation: all 582 tests passed with no failures or skips. Build and demo checks passed. New tests cover exact field-name lookup, type/subtype shortcuts, bracket/brace forms, nested objects and collections, wildcard/index paths, quoted keys, typed null/boolean predicates, numeric/date comparisons, regex and Boolean values, relationship/source queries, matching groups and exclusions, local graphs, shared worker search, cycles and malformed syntax. A renderer integration check exercises the screenshot’s filter/group forms and custom-field exclusions. Native packaging was not run.
+
+Current update validation: all 571 tests passed with no failures or skips; build and demo checks passed. Focused renderer checks also passed after removing unused graph restoration compatibility. Current-format persistence remains covered; older storage and conversation formats are not converted. Completion tests cover optional/empty/multiline text, cancellation, inline and Task note forms, ordered and quoted checkboxes, linked references, task-editor status, grouped Undo, recurrence isolation, input limits and bounded worker location lookup. Native packaging and live providers were not exercised for this update.
+
+
+Briefing title/storage validation: 558 tests passed with no failures or skips. New tests cover separate friendly titles for task/decision filenames, YAML names and headings; preservation of detailed context; readable numeric collision suffixes; independent source IDs; bounded title fallbacks and prompt budgets; removal/recreation of vaults; clearing stale reports when the backing briefing is removed; vault-local settings and operation records; moved vaults; corrupt metadata and symlink rejection; and exclusion of plugin settings from named workspace snapshots. An existing restart/Undo test now injects the same clock before and after restart, avoiding dependence on the wall-clock time of day. The build and demo coverage checks also passed.
+
+Clipboard/import regression validation: 545 tests passed with no failures or skips. The trusted desktop IPC test now uses asynchronous clipboard reads/writes, checks completion ordering, propagates read/write failures, and rejects untrusted callers before clipboard access. Protocol regressions cover formatted JSON within the compact-content budget, the separate raw transport guard, undated identity evidence with explicit coverage gaps, dated event evidence, and friendly invalid-input errors. The unchanged supplied 24-item response was separately imported in a temporary vault: three Task notes, five DecisionRecord notes and three relevant person notes, with provenance, batch continuation, duplicate protection and Undo. The private response is not included in project fixtures. Native macOS clipboard execution and live AI calls remain unverified here.
+
+Daily Briefing validation: the complete suite passed 540 tests with zero failures or skips. Two additional interrupted-import/checkpoint recovery checks passed in a targeted 25-test run including desktop routing. Protocol tests cover bounded UTF-8 batches, Unicode memory fragments, acknowledgments, working-day windows, no catch-up beyond the window, wrong/duplicate responses, evidence requirements, person ambiguity, named graph relationships, live query filters, decisions and linked tasks, local conflicts, inline task deltas, vault-scoped settings and Undo guards. A real Chromium check with temporary files, the knowledge worker and a clipboard adapter passed board opening, existing local commitments, Start today, automatic sourced import, a pending decision task, settings, Light/Dark and Undo without page errors. External Copilot access, persistent remote memory, live provider calls and native OS clipboard/packaging are not claimed by this check.
+
+The demo now contains 66 notes, 44 typed entities, 114 named edges, 174 wiki edges, 72 sourced relationships and 14 feature categories. Its waiting/decision example is authored fiction, not a fabricated external-provider response.
+
+Additional regression checks passed for Finder metadata, visible demo failure without losing the active vault, explicit About version/icon options, and Mac development bundle icon/version installation before signing and launching. The development launcher check uses simulated macOS process/filesystem calls; native macOS execution remains unverified.
+
+Table regression checks cover wiki-link rendering, escaped aliases, literal code, mouse/keyboard navigation, editing and blur restoration, local Markdown links, indexing, and rename preservation. A real Chromium mouse check confirms clicking the cell padding edits while clicking the link navigates without changing the source. The additional focused rename check passed.
+
+Split/workspace verification covers shared buffers and autosave, active-pane routing, independent reading views and scrolling, immediate reading-preview refresh, horizontal/vertical arrangement, keyboard divider resizing, metadata limits, vault-scoped persistence, update/delete, duplicate names, concurrent writes, corrupt storage preservation, missing targets, failed-save cancellation, and vault switches. Desktop IPC checks verify trusted sender scoping for saved-workspace operations. A real Chromium check with the filesystem and knowledge worker passes secondary-pane editing, autosave, graph beside note, named-layout restore and restart.
+
+Verification environment: Linux and Node.js 24. Native macOS, Windows and Linux packaging is not produced in this environment.
+
+Demo checks cover first-launch selection, last-demo restoration, normal/unavailable prior vault preservation, editable edition persistence, content upgrades, concurrent installation and directory safety. Structural coverage checks verify the 61-note fictional scenario, all ontology types, sourced relationships, intentional missing targets, scene parsing and media assets. UI tests cover the palette command, saving before switching and keeping a failed-save draft. A Chromium check uses the real demo installer and knowledge worker to exercise first launch, welcome, graph/person inspection, the palette command and restoration after reload.
+
+Backend checks use real temporary vaults and worker threads. They cover unchanged-file cache reuse, external edits, rename/delete invalidation, request-scoped drafts, shared tag/backlink/graph semantics, cancellation, worker failure/restart and shutdown. The desktop IPC test deliberately stalls a search and verifies an atomic save completes before that search is released. A renderer test verifies an older asynchronous search cannot replace newer results.
+
+Conversation checks cover separate conversation creation and selection, persistence after restart, history isolation, concurrent writes, note rename, invalid conversation IDs, empty-context chat before a vault is opened, and reference-only opening prompts followed by on-demand Markdown/YAML reads for explicitly mentioned notes. UI checks cover creating and switching conversations while preserving old messages, starting a workspace chat after closing the last note, and mentioning an unopened existing note.
+
+Results: **441 tests passed**, with no failures or skipped tests. A Chromium check also passed for chat before opening a vault, chat after closing the last note, existing-note mentions, new conversations and restoring an earlier conversation. A second Chromium check uses the real knowledge worker and temporary filesystem for tags, unsaved-draft search and graph construction. The renderer build completed successfully.
+
+Local profiling smoke check: 1,000 synthetic notes of approximately 2 KiB each. Cold indexing/search took 257 ms; a warm query took 65 ms and reread zero unchanged note bodies. Editing one note caused one body reread. A fresh worker search took 331 ms while the main-thread timer continued firing. These are single-run Linux development observations, not cross-platform benchmarks or large-vault latency guarantees.
+
+Commands:
+
+```sh
+node scripts-build.mjs
+node --test --test-concurrency=2
+```
+
+Provider transports are simulated in automated tests. Live authentication, keychain integration, native Mac chat controls, application copyright display, file associations and installers need checks on their target platforms. Packaged Electron worker startup and shutdown, including ASAR paths, must also be verified there. Graph filtering/physics and AI orchestration have not moved to the worker; see ARCHITECTURE.md for remaining boundaries.
+
+Dependency declaration checks verify Excalidraw is pinned to 0.18.1 independently of the application version and agrees with the lockfile and built engine. A frozen offline installation check could not complete because the local pnpm package metadata cache was missing entries; it did not modify the lockfile. Build and regression checks use the installed dependency tree.
+
+Workspace-tree verification covers nested split creation and collapse, metadata normalization, independent tab membership, navigation, pinning, view movement, shared-buffer close semantics, external deletion of every view, and note context-menu placement. A real Chromium run with the filesystem and knowledge worker passed right/below placement, pointer-driven tab movement, autosave, saved-layout restoration, independent reading/scroll, pinning and restart. The demo and static-site checks pass. Native packaged desktop drag/drop and menus still require target-platform checks.
+
+Typed-view regression coverage includes isolated graph filters and movement, linked outlines with live drafts and heading navigation, backlink provenance, independent search scopes and stale results, tool-only layouts, mixed layout restoration, source-pane closure and missing notes, and closing a pending search. Core checks bound persisted tool state and parse real Markdown headings without YAML or fenced-code false positives. The desktop IPC fixture verifies simultaneous searches and graphs do not cancel unrelated view requests. Native packaged-app checks remain required on the target platforms.
+
+Theme checks cover the palette command, preference persistence, unchanged note text/selection, and independent paused graph state. Chromium checks verify actual canvas pixels in Light and Dark, matching graph chrome, repaint of multiple paused graphs, system-theme emulation and explicit override. Native OS appearance events in a packaged app remain a target-platform check.
+
+## Bounded vault AI
+
+The full suite passed 358 tests, including 15 focused vault-agent checks. Coverage includes metadata/property search, backlinks and named provenance, draft-aware reads, line pagination for long Unicode content, unavailable write tools in discussion, portable paths, read coverage and revision validation, lazy unopened references, external conflicts, staging without writes, append-at-EOF, apply/undo, context-window persistence/validation, initial overflow rejected before transport, repeated-turn compaction, local retention of large staged content and retained call/result pairs. Settings and verified/invented citation navigation pass renderer integration checks. Worker queries return bounded metadata rather than whole vault bodies.
+
+A real Chromium run uses the built renderer, AIService, Vault, ActionStore and knowledge worker with a local HTTP fixture implementing native Chat Completions tool calls. It passed workspace chat without an open note, initial prompt without unrelated titles or bodies, search/metadata/relationship/section retrieval, one-sentence progress, verified citation navigation, inactive invented citations, one-line proposal, acceptance and receipt undo. No page errors were recorded. Existing protocol tests cover native Chat Completions, Responses and Anthropic call IDs/results; CLI envelopes run the same host-owned tool loop. No authenticated external provider or native desktop account was used.
+
+The context guard uses conservative serialized UTF-8 accounting rather than a model tokenizer. Unknown provider windows must be configured by the user. Native CLI compatibility, enterprise gateways, account authentication and packaged desktop behavior remain target-environment checks.
+
+## Ontology and date tools
+
+Ten ontology checks cover complete paginated classification coverage, canonical/template alignment, conditional properties, relationship inverses and subtype endpoints, symmetric edges, YAML examples, custom predicates, invalid-query recovery, live canonical changes and native/CLI tool envelopes without a vault. Six date checks cover whole-day boundaries, created versus modified timestamps, timezone-aware properties, invalid/missing dates, unambiguous dated basenames, paging before content reads and a real knowledge worker with unsaved property overlays. All results remain within their individual tool bounds and the existing per-request context guard. The expanded full suite passes 358 tests with no failures or skips.
+
+The demo coverage check verifies both tool exercises and the actual observed_at fixture used by date lookup. Build and static-site checks pass. External authenticated model behavior and native desktop packaging remain target-platform checks; no provider responses were fabricated as evidence of live access.
+
+## Current-time tool
+
+Seven clock checks cover a single consistent instant across UTC/local midnight, weekday, timezone overrides, daylight-saving changes, negative and fractional-hour offsets, fresh calls across a date boundary, malformed arguments and zones, invalid clock values, native/CLI envelopes without a vault, correction of a bad timezone followed by today’s date lookup, and a usable clock response with all editing tools enabled in a 16,384-token window. Clock queries read no notes and write no files. The full suite passes 358 tests with no failures or skips. The demo explicitly exercises get_current_time and distinguishes local dates from UTC search days.
+
+Time and timezone values come from the device clock and Intl, not a network time service. Tests use injected instants/zones for deterministic boundary checks and the real clock for tool-loop integration. Native device timezone settings in packaged desktop builds remain a target-platform check.
+
+## Automatic note timestamps
+
+The full suite passes 358 tests without failures or skips. Ten timestamp-domain checks cover creation overrides, immutable saved creation values, legacy filesystem fallback, non-destructive YAML patches, comments/anchors/CRLF/BOM/body preservation, invalid YAML, unchanged drawing formats, no-op writes, detached updates, concurrent content reconciliation, AI acceptance after a stamped autosave, guarded Undo and interrupted receipt recovery, Markdown imports and link rewrites. Renderer regressions cover concurrent typing/caret preservation without a feedback loop, detached metadata synchronization and full UTC read-only property values. The real desktop IPC fixture verifies timestamps on creation and detached content saves.
+
+A Chromium run uses the built renderer, real managed Vault and knowledge worker. It types while the first save is held, releases it, and verifies two saves retain the latest body, persist timestamps, keep the caret at the typed position, show read-only UTC values and stop saving once clean. No page errors were recorded. Demo and static-site coverage checks pass; native packaged desktop behavior remains a target-platform check.
+
+## AI tool component
+
+Seven component checks verify global/vault/staging capability selection, immutable schema-copy authorization, validation before IO, provider-free proposal staging without write capabilities, independent request evidence/revisions, cancellation/close behavior during blocked reads, bounded injected clock/query ports and dependency boundaries. Direct checks prevent tools from importing agents, provider adapters, the action store or desktop/UI code, and prevent the knowledge worker from importing an agent for shared helpers. The full regression suite passes 358 tests without failures or skips.
+
+A one-off comparison against the delivered 0.23.3 source confirms provider-facing read/proposal schemas, serialization order and prompt policy are byte-identical. Existing native/CLI protocol, date/ontology/time, managed timestamp, AI acceptance/Undo, worker and renderer checks continue to pass. Build, demo and static-site checks pass. This slice changes internal boundaries without changing the demo’s user-facing exercises or creating a new editable demo edition. Native packaged application checks remain a target-platform task.
+
+## Tasks foundation · 0.24.0
+
+Fourteen task tests cover real Markdown parsing and exclusions, canonical references and aliases, declarative filters/date resolution/sort/group/pagination/explanations, invalid queries and JavaScript rejection, standalone/contextual creation, identity-preserving promotion and CRLF/nested-item preservation, completion/reopening across references, stale/ambiguous rejection, failed-promotion rollback, draft-aware worker queries and gated/bounded AI tools, autosave line shifts, self references and bounded workspace state. Existing ontology/property tests include Task.
+
+A Chromium check uses a real managed Vault and knowledge worker. It passes inline query rendering, Tasks-pane queries, promotion, deduplication after promotion, completion and source-reference synchronization, standalone creation, contextual creation with inserted reference, theme rendering and plugin disablement. Light/dark screenshots were visually inspected. The demo has a real task note/reference and a guided promotion/query exercise. The regular build and site checks pass. Native packaging and installed desktop integration were not tested in this environment.
+
+## Semantic task operations and Undo · 0.24.1
+
+Eighteen operation tests cover durable contextual creation and promotion Undo, whole-operation conflict checks, time limits and sequential Undo with managed timestamps, interrupted apply and Undo reconciliation, unknown-edit conflict preservation, history path safety, duplicate IDs, plugin/action-mode gating, request-local handles, grouped AI staging/acceptance/Undo, external edits before staging and acceptance, field-only updates and response bounds, identity lookup after rename, real AI service orchestration with reference-only prompts, larger manual reference sets versus AI limits, stale cached reads and mixed note/task overlap rejection. The original task, action, provider and UI suites remain covered.
+
+A real Chromium check uses managed Vault, knowledge worker, TasksService and AIService with a deterministic provider fixture. It passes contextual creation Undo, promotion Undo, grouped AI file previews and acceptance, grouped review Undo, and reopening task history after reload. It also verifies removed task files disappear from open views and a restored source can reopen. The history dialog was visually inspected in light mode. No live provider or native packaged app was used. Build, demo and site validation pass.
+
+## Task interaction corrections
+
+Regression checks cover right-sidebar placement, unsaved-draft refresh, persisted query docking from earlier workspace tabs, restored actionable Undo, promotion dialog/notice lifecycle, body context wikilinks, and explicitly preparing a Discuss request in proposal mode with its note references retained. A Chromium component check confirms light-theme primary-button contrast, top-layer Undo visibility and click targeting after dialog close, and right-sidebar position. Provider responses in renderer tests are fixtures; live gateway and native desktop behavior were not verified here.
+
+## Session access and right icon rail
+
+Renderer regressions cover explicit session labels, enabling changes without a new request or lost conversation/draft, request reuse without replacing a newer draft, reopening collapsed panels through the icon rail, vertical keyboard navigation, and skipping disabled Tasks. The existing vault-agent tests continue to enforce read-only tool gating. A Chromium component check passes both themes, icon placement, mode switching without sending, panel reopening and keyboard switching. It uses a provider fixture rather than a live gateway.
+
+The complete 401-test regression run passed. Seven focused renderer checks passed after the final sidebar-selection adjustment, including preserving a collapsed sidebar when Tasks is disabled. The build and bundled-demo validation passed.
+
+## Internal link display and navigation
+
+Shared-link tests cover unique suffixes, duplicate filenames, absolute root disambiguation, explicit missing-path protection, aliases/fragments, autocomplete insertion and table-safe escaping, task/context generation, unchanged source and canonical task references. Renderer checks cover plain-click wikilinks and local Markdown links, Alt-click editing, modifier placement, keyboard following, drag suppression, ambiguous-choice selection/cancellation, clean reading labels and detached-file navigation. The desktop mode and permission boundaries are unchanged.
+
+The complete 417-test regression suite passed. Eleven focused shared-link checks also passed after adding table-safe completion aliases. A Chromium component check confirms plain-click wiki/local-Markdown/table following, clean ordinary-note labels, Alt-click editing, Ctrl placement, Enter navigation, drag suppression and unchanged Markdown. No native packaged app or live provider was required for these link checks.
+
+The final 48-test focused run passed after preserving native drawing extensions and distinguishing Markdown drawing twins during short-link generation.
+
+The focused link and organization checks also pass for preserving explicitly root-qualified links during renames.
+
+## Shared note references · 0.25.0
+
+The complete 441-test suite passes with no failures or skipped tests. New coverage includes YAML alias validation and canonical autocomplete insertion; heading, nested-heading and block suggestions; paragraph/list/quote/table ranges; code/YAML exclusions; duplicate block diagnostics; CRLF offsets; draft and external metadata changes in the real knowledge worker; detached scope; and ordinary editor/reading-view navigation. The autosave test fixture now updates its simulated disk state after successful writes, so background polling does not mistake its own writes for an external rollback.
+
+A Chromium check uses the actual knowledge worker and temporary files. It passes alias/heading/block completion, table-safe alias insertion through the editor adapter, editor offsets, reading anchors, section/list embeds, image dimensions and PDF page/height URLs. The reading and embed layouts were visually inspected. PDF viewer internals, native desktop packaging and OS-specific PDF page handling were not exercised by that renderer check.
+
+The build and extended demo check pass: 61 Markdown notes, 42 typed entities, 87 graph nodes, 110 named edges, 161 wiki edges and 70 sourced relationships. The Note links tour includes real aliases, named ranges and existing image/PDF assets.
+
+## Autocomplete theme contrast · 0.25.1
+
+Real Chromium checks with the actual CodeMirror autocomplete popup passed in Light and Dark, including switching the theme while the popup remains open and moving selection with the keyboard. Selected and unselected labels and path/alias details meet a 4.5:1 contrast threshold against their rendered backgrounds. Shared CSS covers vault and detached editors. The 26 focused reference/link regression tests and the build with demo validation passed. Native packaged-app testing was not performed for this styling change.
+
+## Task dependencies · 0.26.0
+
+451 tests passed in the full suite. After the final local-date default and chooser guidance adjustment, all 41 focused task/model/operation tests passed again. New coverage includes inline parsing and serialization, YAML dependency lists, actionability/date/status semantics, missing and duplicate targets, self/circular dependencies, promotion identity, rejected semantic edits, accepted AI proposals, acceptance-time dependency validation, completion/Undo, visual add/remove controls and clickable blockers.
+
+A real Chromium check used the Tasks plugin with a temporary filesystem vault and TasksService. It added a prerequisite through the visual chooser, verified persistence, filtered blocked/actionable tasks, completed the prerequisite and undid completion. The build and demo checks passed with a real dependency chain and no accidental missing graph targets. Native packaging and live AI provider execution were not tested in this slice.
+
+## Task dependency graph and visibility · 0.26.1
+
+457 tests passed. Added coverage verifies named task edges in global and depth-one local graphs, inverse backlinks, same-note loops with multiple declarations, hollow missing/ambiguous task references, stable identity after renaming, and dependency relationships from the visual properties collection. Task editor tests verify retained relationship sources and removal of prerequisites. UI coverage verifies explicit dependencies in the Tasks pane and a single Tasks entry on the right ribbon. Build and demo validation passed. Native packaging and a separate Chromium canvas rendering check were not performed for this change.
+
+## Recurrence · 0.27.0
+
+The full suite passed 461 tests. Five focused recurrence checks and one editor interaction check also passed, including the added nested-item/carry-policy regression. Coverage includes month-end anchors, late schedules, completion-relative and weekday rules, distinct successor IDs, atomic inline/note completion and Undo, guarded reopening, and visual recurrence fields. Build and demo validation passed. Native packaging and live provider execution were not tested.
+
+## Repeat input correction · 0.27.1
+
+41 focused task/recurrence/operation tests and two editor interaction tests passed. The regression covers 2 days after completion, mixed case/spacing, and zero intervals. Build and demo validation passed. Task dialog CSS separates recurrence policy and task identity controls and bounds dialog height. Native visual verification was not performed.
+
+## Appearance themes · 0.28.0
+
+The full suite passed 472 tests. Focused checks also passed for core theme resolution/store/IPC, built-in contrast, appearance editing, mode filtering and task row actions after final UI refinements. Browser checks use real Chromium with a filesystem vault and KnowledgeService: all four themes render in both modes with actual background/font assertions; graph and Tasks render; duplicating a theme, editing/saving JSON, and filtering a dark-only theme on mode changes work. Built-in text/secondary-label and selected-control color pairs meet a 4.5:1 contrast threshold. Native packaging, native dialogs on macOS/Windows and live provider execution were not tested. Native import/export adapter tests use simulated dialog selections and real JSON files.
+
+The build and demo validation passed: 61 notes, 42 typed entities, 87 graph nodes, 112 named edges, 161 wiki edges, and 70 sourced relationships. Theme changes preserve note contents and graph settings. Detached UI tests still pass using the shared resolver.
+
+## Theme font sizes · 0.28.1
+
+37 targeted tests passed across theme/store validation, preference persistence/organization, font and settings UI, and detached windows. Chromium verified 18px documents for all eight built-in theme/mode combinations and 21px document/14px UI sizes from an inherited custom theme. Core/UI regressions cover override precedence, null reset, preserved legacy numeric settings, and mode switching without changing sizes or note text. Build and demo validation passed. Native packaging was not performed.
+
+## Task prioritization · 0.29.0
+
+The full suite passed 481 tests. After final pagination/explanation refinements, 27 core task/operation tests and eight focused UI tests passed, including third-page matrix navigation. New coverage verifies importance parsing, independent priority semantics, numeric urgency ordering and day boundaries, quadrant classification with blocked work, promotion/recurrence/Undo preservation, and reviewed AI importance proposals. Chromium with a real temporary vault passed matrix rendering, four quadrants, blocked labels, factor explanations and semantic completion. Build and demo validation passed. Native packaging and live provider calls were not tested.
+
+## Task refresh and inline metadata · 0.29.1
+
+485 tests passed, with no failures or skipped tests. The renderer build and bundled demo checks passed. New regression cases cover per-task expanded and collapsed score details across list refresh, reordering and pagination; matrix quadrant moves; independent view state; default recurrence-policy omission and cleanup; and preservation of explicit carry policies. A Chromium check clicked the score summaries and verified both expanded and collapsed choices survived repeated list and matrix refreshes. Native packaging and live provider calls were not exercised for this change.
+
+## Task workspace and saved views · 0.30.0
+
+The full regression suite passed 496 tests with no failures or skipped tests. After the final initial-state retention refinement, five focused task-workspace UI tests passed, including opening from a sidebar view, closing without edits and reopening with the same selection. The renderer build and demo checks passed.
+
+New coverage includes bounded/unique saved definitions; create/update/rename/delete; query-clause preservation; inclusive date endpoints and calendar weeks; independent split panes; main/sidebar and restart restoration; vault-switch isolation; corrupt metadata preservation; and keeping legitimate Tasks leaves in main panes during restore. A real Chromium run used a temporary filesystem vault, knowledge worker, TasksService and WorkspaceStore to validate visual filters, matrix layout, named views, semantic completion and durable Undo, reload restoration and pagination. Light, dark and narrow main/sidebar layouts were visually inspected and checked for horizontal overflow. No native packages or live provider calls were produced for this slice.
+
+## Task calendar · 0.31.0
+
+507 tests passed with no failures or skipped tests. Build and demo validation passed. New coverage includes Gregorian/leap month grids, year boundaries, due/scheduled/start projection before pagination, undated/invalid-date retention, query limits and hidden-day counts, bounded multi-page calendar loading and stale-request cancellation, read-only write restrictions, date editing and creation defaults, embedded navigation without source mutation, and saved month/date-basis persistence.
+
+A real Chromium check used a temporary filesystem vault, knowledge worker, TasksService and WorkspaceStore. It verified complete bounded month loading beyond the first page; recurring completion with successor creation and grouped Undo; date editing; saved calendar restoration after reload; and compact sidebar horizontal wheel isolation with temporary scrollbars. Light/dark layouts were visually inspected. Native packages and live provider calls were not exercised.
+
+## Independent Calendar core plugin · 0.32.0
+
+The full regression suite passed 513 tests with no failures or skipped tests. After the final provider-state rebinding refinement, three focused UI tests passed for independent Calendar operation, integration disablement and opening sidebar state in an existing main Calendar view. Build and demo coverage passed with 63 notes and 13 feature categories.
+
+Coverage includes defaults; all seven first weekdays; explicit-date precedence; word-count dots and cap; drawing/frontmatter/code/comment exclusion; draft-aware worker reads and external updates; standalone Calendar with Tasks disabled; statistics and integration toggles; disabled Calendar capabilities; note navigation; metadata preservation across vault switches; and main/sidebar state. A real Chromium run with a temporary vault, knowledge worker and workspace store passed optional Tasks removal, Calendar without Tasks, writing dots, Sunday alignment, statistics disablement, note navigation and restart restoration. Light and dark layouts were visually inspected. No native package or live provider calls were exercised.
+
+## Compact right-sidebar Calendar · 0.32.1
+
+518 tests passed with no failures or skipped tests. Build and demo validation passed. Regression coverage verifies immediate grid availability while statistics are stalled, no added middle Calendar tab, preservation of the note/tabs, a single opening action, note-creation confirmation, and red due indicators independent of scheduled/start placement and removed with the optional Tasks integration.
+
+A real Chromium run used a temporary vault, knowledge worker and workspace store. It checked the visible grid before releasing stalled statistics, preserved editor content and tab count, resized the right pane from 280 to 520 pixels without grid overflow, verified grey writing dots and red due dots across task date bases, and restored Calendar only in the sidebar after reload. Light/dark layouts were visually inspected. Native packaging and live providers were not exercised.
+
+
+## Task-note archival · 0.35.2
+
+The full regression suite passed 660 tests with no failures or skipped tests. Build and demo validation passed (67 notes, 15 feature tours). Five focused renderer tests passed after the final filesystem-refresh guard: sidebar completion keeps the archived note open, Undo restores its path, YAML status autosave redirects subsequent edits, and external loads/notifications continue to work.
+
+Filesystem tests cover completion and cancellation, creation/promotion of closed tasks, stable IDs and creation timestamps, filename collisions, body/YAML wikilinks and relative Markdown links, code-example exclusion, grouped Undo across service restarts, rollback on archive-folder failure, later-edit protection, active recurring successors, invalid input preflight, and leaving existing closed notes and inline-task containers untouched. Renderer tests use the built app with a simulated desktop bridge; native packages and live providers were not exercised.
+
+## Graph initialization and visible filters · 0.35.3
+
+Reproduced a new Global Graph inheriting a saved `type:Task` workspace query. New graph creation now clears membership restrictions and camera state while retaining display/force preferences; restoration of existing leaves keeps their own filters. A visible footer button discloses active restrictions with graph settings closed and opens the filter editor on click.
+
+663 regression tests passed with no failures or skipped tests. Build and demo checks passed (67 notes, 15 feature tours). Focused renderer tests verify all ordinary notes and Task notes appear in a fresh graph despite saved task-only defaults; filtered existing tabs restore correctly, expose the restriction, and return to all notes after reset; independent graph leaves remain independent. Unit coverage checks both scopes, exclusions, orphans, camera reset, retained appearance and non-mutation of saved state. Renderer checks use the built app with a simulated desktop bridge; native packaging was not exercised.
+
+## Rich callouts and optional sidebar Navigator · 0.36.0
+
+698 regression tests passed with no failures or skipped tests. The final full run used a 4 GiB Node test heap after the UI test process reached the default heap limit. Build, frozen-lockfile validation and demo coverage passed (68 notes, 16 feature tours). Excalidraw remains at 0.18.1 and the four existing icon assets are unchanged.
+
+Coverage includes all built-in types and aliases, unknown-type fallback, Markdown/custom/default titles, title-only cards, metadata, nested quoted/list callouts, fold defaults and retained presentation state, source insertion and completion, type switching and stale-edit protection, direct editing of folded-card bodies, task completion, quoted Mermaid editing, embedded-note ownership, static PDF expansion, safe SVG and scoped CSS, and vault-only configuration. Navigator tests verify the right sidebar, draft-aware nested search, source jumps, plugin disablement, sidebar restoration and named-layout isolation.
+
+A real Chromium run with a simulated desktop bridge verified folding without writes, offline quoted Mermaid rendering, right-sidebar navigation and source jumps, nested search, plugin disablement, scoped CSS icons and sidebar width containment. Light and dark layouts and customization Settings were visually inspected. Native packaging, native PDF output and live AI providers were not exercised.
+
+## Shared Connections sidebar · 0.37.0
+
+712 regression tests passed with no failures or skipped tests, using the existing 4 GiB test heap. Build and demo checks passed (69 notes, 17 feature tours). Excalidraw remains independently pinned at 0.18.1; existing icon assets are unchanged.
+
+New coverage exercises body and property wikilinks, aliases and fragments, inline/reference/collapsed/shortcut Markdown links, quoted code exclusions, assets, external URLs, declared relationships and provenance, identity matching, ambiguous and missing targets, cyclic YAML, bounded pagination, draft overlays and external changes. Renderer tests verify one shared Backlinks/Outgoing sidebar surface, no added document tab, navigation, missing-note creation, ambiguity without source rewrites, stale-response rejection, persistence, retained source expansion and external-opening bridge dispatch. URL validation rejects unsupported schemes, malformed URLs and control characters before shell dispatch.
+
+A real Chromium check with a simulated desktop bridge and the real outgoing-reference model verified direction switching, preserved source expansion, ambiguity choices, evidence-note navigation, sidebar width containment and unchanged document-tab count. Light and dark layouts were visually inspected after theme transitions completed. Native Electron packages, OS browser launching and live providers were not exercised.
+
+## Neutral task-person mentions · 0.37.1
+
+718 regression tests passed with no failures or skipped tests using the existing 4 GiB test heap. Build and demo checks passed (69 notes, 17 tours, 115 named edges and 73 sourced relationships). Focused briefing and ontology coverage passed 101 tests. The clipboard UI test now allows up to five seconds for its asynchronous copy operation under full-suite load instead of one second; an earlier timeout passed in isolation and the final complete run passed. Dependency versions, the lockfile and icon assets are unchanged.
+
+New tests verify explicit prompt instructions and the unchanged 8,000-byte prompt cap; sourced mentions through import, graph, inverse backlinks, task queries and task-pane navigation; idempotent re-import and Undo; replacement and Undo of a managed person edge; and rejection of missing or unsupported types before any note changes, with the task title, ID and person in the error. Neutral mentions stay out of waiting-on results. Ontology inspection derives the mentions/mentioned_by pair and person endpoint guidance from the shared definitions. No live external-assistant session or native package was exercised.
+
+## Optional briefing meeting dates · 0.37.2
+
+721 regression tests passed with no failures or skipped tests using the existing 4 GiB test heap. The focused briefing/demo run passed 99 tests. Build and demo coverage checks passed; dependencies, lockfile and icon assets are unchanged.
+
+Import coverage verifies omitted, null, empty and whitespace-only meeting dates; omission of unknown dates from the normalized data; explicit Date not provided text without undefined/null leakage; idempotent retry and Undo; retention of supplied today/next-workday dates; and rejection of malformed, non-string, impossible or out-of-window dates before writes. Source timestamps remain separate: an unknown meeting day does not bypass dated evidence validation. The bounded collection prompt now requests omission of unknown meeting dates and forbids substituting today or source/collection timestamps. No live provider session or native package was exercised.
+
+## Note-owned Excalidraw blocks · 0.38.0
+
+737 regression tests passed with no failures or skipped tests using the existing 4 GiB test heap. Build and demo checks passed (70 notes, 17 feature categories, 115 named edges and 73 sourced relationships). The focused parser/rendering/detached run passed 33 tests; eight focused UI cases passed. Excalidraw remains exactly 0.18.1; the dependency lockfile and existing icon assets are unchanged.
+
+Coverage includes fenced and colon-container scenes, plain/compressed Drawing sections, multiple scenes, CRLF and quote-prefix preservation, source exclusions, malformed and unfinished blocks, stale/ambiguous locations, read-only enforcement, detached autosave, static vector PDF output, payload-only updates, source editing, empty-scene insertion, and retaining active canvases across their own edits in Live Preview, Reading view and callouts. Compressed decoding has output/dictionary budgets; limit tests and 200 additional deterministic Unicode round trips passed against LZ-String encoding.
+
+A real Chromium run used the bundled, pinned Excalidraw engine with a simulated desktop bridge. It rendered all four forms, verified rendering caused no saves, drew a new shape on the actual canvas, observed autosave while the same canvas stayed mounted, and confirmed the other three scene payloads were unchanged. Light, dark, preview and canvas layouts were visually inspected. Native packages, native PDF output and live provider connections were not exercised.
+
+
+## 0.38.1 — Fictional sample data
+
+All 739 automated tests passed without failures or skips (Node test runner, 4 GiB heap). The 78 focused sample, relationship, template, local-knowledge and briefing tests passed. The final build validates 70 demo notes, 44 entities, 97 graph nodes, 115 named edges, 196 wiki edges and 73 sourced relationships across 17 feature categories.
+
+Reviewed sample prose, prompt examples, ontology reference, fixtures, SVG/PDF content, and decoded standalone/inline drawing scenes. Sample endpoint checks reject non-reserved external destinations, credentials, real-domain email addresses and local home paths; they run with the normal demo validation. Generated application code was rescanned. Icons and third-party notices are byte-identical to the preceding release, and dependency versions are unchanged.
+
+These checks do not claim to automatically identify every real name or confidential fact. The fictional sample policy also requires editorial review. Native platform packaging was not exercised for this content update.

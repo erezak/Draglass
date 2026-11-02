@@ -1,0 +1,21 @@
+import {validDate} from '../core/tasks/model.cjs';
+import {renderTaskResults} from './tasks-view.js';
+const states=new WeakMap();
+export function taskCalendarLayer(root,result,options={}){
+ const c=result.calendar;let state=states.get(root);if(!state){state={undatedLimit:20,expanded:new Map()};states.set(root,state);}
+ const make=(tag,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text)el.textContent=text;return el;};
+ const button=(text,action)=>{const b=make('button','',text);b.type='button';b.onclick=action;return b;};
+ const listOptions={...options,disclosureState:state.expanded};const list=items=>({...result,view:'list',items,total:items.length,nextOffset:null,group:null,explanation:[],issues:[]});
+ return {id:'tasks',capture(){for(const row of root.querySelectorAll('.task-result')){const details=row.querySelector('.task-urgency');if(details)state.expanded.set(row.dataset.taskKey,details.open);}while(state.expanded.size>1000)state.expanded.delete(state.expanded.keys().next().value);},
+ count:date=>c.dayTotals?.[date]||0,indicators:date=>c.dueTotals?.[date]?[{kind:'task-due',count:c.dueTotals[date],label:c.dueTotals[date]+' task'+(c.dueTotals[date]===1?'':'s')+' due'}]:[],
+ renderInfo(host){const info=make('p','view-result-count',`${result.items.length} shown of ${result.total} matching tasks · ${c.outsideMonth} in other months`);host.append(info);if(c.limited)host.append(make('p','view-error','The query limit hides some tasks. Refine filters or exclude undated work. Maximum 500 tasks.'));for(const issue of result.issues||[])host.append(make('p','view-error',issue.path+': '+issue.message));},
+ renderCell(cell,date,select){const tasks=result.items.filter(t=>t[c.field]===date),total=c.dayTotals?.[date]??tasks.length;
+  for(const task of tasks.slice(0,3)){const chip=make('div','calendar-chip');chip.classList.toggle('is-done',task.status==='done');const check=make('input');check.type='checkbox';check.checked=task.status==='done';check.disabled=!!options.readOnly;check.setAttribute('aria-label',(check.checked?'Reopen ':'Complete ')+task.title);check.onchange=()=>options.onToggle?.(task,check.checked);const title=button(task.title,()=>options.readOnly?options.onOpen?.(task.path,task.line):options.onEdit?.(task));title.className='calendar-title';title.title=task.title+' · '+task.status+(task.blocked?' · Blocked':'')+(task.importance==='high'?' · Important':'');chip.append(check,title);if(task.blocked)chip.append(make('span','calendar-badge','Blocked'));if(task.importance==='high')chip.append(make('span','calendar-badge','★'));cell.append(chip);}
+  if(tasks.length>3)cell.append(button('+'+(tasks.length-3)+' more',()=>{select(date);}));if(total>tasks.length)cell.append(make('small','muted',(total-tasks.length)+' outside query limit'));
+ },renderSelected(host,date,draw){
+ const selected=make('section','calendar-selection');selected.append(make('h3','','Tasks · '+c.field));if(!options.readOnly&&options.onCreateDate)selected.append(button('New Task on '+date,()=>options.onCreateDate(c.field,date)));const hiddenDue=(c.dueTotals?.[date]||0)-result.items.filter(t=>t.due===date).length;if(hiddenDue>0)selected.append(make('p','view-error',hiddenDue+' due tasks outside query limit; refine filters.'));const dayResults=make('div');selected.append(dayResults);host.append(selected);renderTaskResults(dayResults,list(result.items.filter(t=>t[c.field]===date)),listOptions);if(c.field!=='due'){const due=result.items.filter(t=>t.due===date&&t[c.field]!==date);if(due.length){selected.append(make('h4','','Also due'));const dueHost=make('div');selected.append(dueHost);renderTaskResults(dueHost,list(due),listOptions);}}
+
+ },renderFooter(host,draw){
+ const undated=result.items.filter(t=>!validDate(t[c.field]));const tray=make('details','calendar-undated'),summary=make('summary','',`Undated / invalid ${c.field} dates · ${undated.length} shown of ${c.undatedTotal}`);tray.open=!!state.undatedOpen;tray.ontoggle=()=>{if(tray.isConnected)state.undatedOpen=tray.open;};tray.append(summary);const body=make('div');tray.append(body);renderTaskResults(body,list(undated.slice(0,state.undatedLimit)),listOptions);if(undated.length>state.undatedLimit)tray.append(button('Show more undated tasks',()=>{state.undatedLimit+=50;state.undatedOpen=true;draw();}));host.append(tray);
+ }};
+}

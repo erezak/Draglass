@@ -1,0 +1,13 @@
+# PDF export
+
+Use Save as PDF… in the File menu, command palette (Cmd/Ctrl+Shift+P), or a Markdown note context menu. Detached Markdown files also offer a header button and the File command. Excalidraw files can be embedded in a Markdown note for PDF export.
+
+The dialog provides A3/A4/A5/Letter/Legal/Tabloid paper, portrait/landscape, default/minimal/no margins, 40–100% scale, Include filename as title (H1), page numbers and Open PDF after saving. Default is A4 portrait, default margins, 100% scale and filename title enabled. Turn the title off when the document already has an H1. Options are remembered with workspace preferences; detached windows remember options for their lifetime.
+
+Export captures the current draft, including open embedded-note drafts, without writing or changing notes. Valid YAML frontmatter is excluded. The static rendered document contains headings, emphasis, tables, wrapped code, checklists, images, recursive note embeds, light Mermaid and Excalidraw SVGs, and snapshots of enabled Tasks queries. Task snapshots honor query limits and pagination. They are not interactive controls. External HTTP(S)/mailto links remain links. Same-note headings/blocks can be linked; other note links remain readable text rather than links to nonexistent files inside the PDF.
+
+The PDF uses a dedicated light print stylesheet independent of the app theme. Tables wrap long cells and repeat headers, headings avoid breaks immediately afterward, and diagrams/images fit the page. Very large rows or diagrams may require landscape or reduced scale. Audio, video and embedded PDF viewers use labeled placeholders; this does not concatenate attached PDFs. Missing/failed content is printed as a notice and reported after export. Invalid images stop the PDF save rather than silently omitting the asset.
+
+Choose the output using the native save dialog. Canceling creates no PDF. The isolated print window has no Node access or preload, blocks navigation/new windows and external resources, and waits for images/fonts. A 60-second render deadline and finally cleanup prevent orphan print windows. The generated buffer is checked and written to a temporary file beside the chosen destination before atomic replacement; a render failure preserves an existing PDF. No native printer is needed.
+
+Implementation uses Electron webContents.printToPDF with explicit paper, margins, scale, optional footer and heading outline/tagged-PDF requests. These last two Chromium features are experimental; PDF accessibility conformance is not guaranteed. See the official API: https://www.electronjs.org/docs/latest/api/web-contents#contentsprinttopdfoptions

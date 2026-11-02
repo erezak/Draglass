@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "folio-night",
+  "name": "Folio Night",
+  "description": "A dark-only Folio extension with a warmer accent.",
+  "extends": "folio",
+  "modes": ["dark"],
+  "dark": {"accent": "#e6b4a2", "accentText": "#291b18"}
+}

@@ -1,0 +1,3 @@
+instrument,value,units,source_id
+harbor-reference,18.5,celsius,calibration-run-042
+wind-sensor,240,degrees,calibration-run-043

@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "tide-day",
+  "name": "Tide Day",
+  "extends": "tide",
+  "modes": ["light"],
+  "tokens": {"radius": 6},
+  "light": {"accent": "#185c68"}
+}
