@@ -221,3 +221,8 @@ Imported `mentions` edges preserve source evidence and appear in the graph, Conn
 ## Meetings without a known date
 
 A meeting item may omit `date` when the evidence does not establish the meeting day. Null or blank values also mean no date. The briefing displays **Date not provided** beside that entry; it never substitutes today, collection time or a source timestamp. Supplied dates must be valid YYYY-MM-DD values for today or the next configured working day, as before. Each item still needs dated source evidence: the source timestamp and the meeting date describe different facts.
+
+
+### Reviewing conflicts
+
+Conflict rows keep their disclosure state and mounted action buttons while the board refreshes. Open a row to read the local and reported values with their source evidence. **Open note** opens its current target; **Keep local and dismiss** removes only that conflict. Other expanded rows remain open.

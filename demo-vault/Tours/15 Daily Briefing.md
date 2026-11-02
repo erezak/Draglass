@@ -160,3 +160,7 @@ A meeting may be relevant even when its actual date is not provided. Leave `date
 out of that meeting item rather than guessing. The imported Meeting preparation
 entry displays **Date not provided**; it does not become a dated calendar event.
 Keep the dated source evidence separate from the unknown meeting day.
+
+### Review conflicts without losing your place
+
+When an import conflicts with a local edit, expand its Conflict row on the board. Leave it open while the board refreshes: its details and action buttons stay available. Use **Open note** to inspect the note or **Keep local and dismiss** to clear that conflict. Opening or dismissing one row leaves the other rows in their current state.

@@ -261,3 +261,24 @@ All 739 automated tests passed without failures or skips (Node test runner, 4 Gi
 Reviewed sample prose, prompt examples, ontology reference, fixtures, SVG/PDF content, and decoded standalone/inline drawing scenes. Sample endpoint checks reject non-reserved external destinations, credentials, real-domain email addresses and local home paths; they run with the normal demo validation. Generated application code was rescanned. Icons and third-party notices are byte-identical to the preceding release, and dependency versions are unchanged.
 
 These checks do not claim to automatically identify every real name or confidential fact. The fictional sample policy also requires editorial review. Native platform packaging was not exercised for this content update.
+
+
+## 0.38.2: Sample validator path isolation
+
+The three sample validation tests pass, including standalone, JSON Markdown and compressed Markdown drawings under project paths containing synthetic macOS and Linux home-directory segments. The regression verifies that host paths are ignored while an actual home path embedded in a compressed scene is still rejected. The production build and full bundled demo validation pass. The full application suite was not repeated for this validator-only fix.
+
+
+## 0.38.3: Stable briefing conflict controls
+
+All 742 automated tests passed without failures or skips with a 4 GiB Node heap. The 14 focused conflict and follow-through tests passed. The production build and demo checks pass, retaining 70 notes, 44 entities, 115 named edges, 196 wiki edges and 73 sourced relationships across 17 feature categories.
+
+Regression coverage keeps disclosure nodes and keyboard focus through repeated board refreshes, verifies independent open and closed rows, refreshes changed evidence and target paths, preserves row state on reordering, and dismisses only the selected conflict. Newly arriving conflicts start closed. The demo tour and feature inventory include an exercise for reviewing conflicts during refreshes. Dependency versions, lockfile, icons and license notices are unchanged.
+
+
+## 0.39.0: Document find and replace
+
+The complete suite passed 752 tests without failures or skips with the existing 4 GiB Node heap. The final build and 10 focused matching/UI tests pass after startup-readiness guards and bounded reading-highlight traversal refinements. The public-site checks pass. Demo checks cover 71 notes, 44 entities, 98 graph nodes, 115 named edges, 199 wiki edges and 73 sourced relationships across 17 feature categories.
+
+Coverage includes literal/case/Unicode whole-word/multiline regex matching, invalid patterns, zero-width matches, explicit result limits, literal and captured replacements, forward/backward wrap, Escape/focus, replace-all Undo and autosave, rendered text across formatting, unchanged clickable links, Reading find-only controls, detached Markdown, external reloads, Source/Live Preview and independent split-pane queries during shared edits and pane closure.
+
+The new demo tour provides authored text and a guided exercise without provider output. Dependencies, pnpm lockfile, icons and third-party notices are unchanged. Native macOS/Windows/Linux packaging was not executed for this renderer slice.

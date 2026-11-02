@@ -247,3 +247,10 @@ Callouts use the pure `core/callouts` syntax/index/config component, shared by M
 ## Note-owned drawing blocks
 
 `core/drawing-blocks.cjs` detects source ranges, validates scenes and computes payload-only changes while preserving wrappers and newline/container prefixes. `core/drawing-compression.cjs` bounds compressed payload expansion. These modules do not write files. `ui/inline-drawings.js` owns canvas lifecycle, guarded source matching, view-only SVG rendering and read-only enforcement; createDiagrams supplies the existing runtime and operation adapters. Live Preview widgets and the shared Markdown renderer retain an active canvas across its own payload edits, without retaining stale edits across changed source. CodeMirror owns Markdown transactions and normal autosave. PDF adapters render static vectors with no editing controls.
+
+
+## Document find and replace
+
+`core/document-search.cjs` owns literal/Unicode-word/regular-expression matching and replacement plans, independently of vault search and persistence. Queries are bounded to 512 characters, results to 10,000 matches, and replacement output to 8 MiB; truncated searches cannot replace all.
+
+`ui/document-find.js` owns group-local search bars, keyboard navigation and result highlighting for both workspace and detached Markdown. Queries and decoration ownership stay outside shared buffer state. A CodeMirror ViewPlugin draws per-editor matches; replacements use ordinary editor transactions, isolated undo groups and existing autosave. Reading view walks rendered text, marks matches without rewriting links, observes content refreshes and never offers replacements. Closing views removes their observers and marks. Find state is presentation-only and is not stored in note files.

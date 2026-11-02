@@ -1,4 +1,4 @@
-# Draglass Editor · 0.32.1
+# Draglass Editor
 
 Local Markdown editing, connected knowledge and AI conversations. Desktop first, with macOS, Windows and Linux builds from the same Electron application.
 
@@ -25,7 +25,7 @@ Copy `release/mac-arm64/Draglass Editor.app` to `/Applications`. For a DMG, use 
 
 ## Explore the demo
 
-The fictional Lumen field station connects people, goals, capabilities, systems, decisions and evidence. Eleven tours introduce editing, AI, graphs, properties, drawings, attachments and organization. The demo is editable; updated examples open as a fresh edition while earlier editions and edits are retained.
+The fictional Lumen field station connects people, goals, capabilities, systems, decisions and evidence. Guided tours introduce editing, AI, graphs, properties, drawings, attachments and organization. The demo is editable; updated examples open as a fresh edition while earlier editions and edits are retained.
 
 ## AI conversations
 
@@ -132,3 +132,7 @@ Callouts support typed and nested Markdown panels, folding, custom appearances a
 The **Connections** right sidebar switches between **Backlinks** and **Outgoing**. Use **Open outgoing connections** to inspect wiki/Markdown links, embeds, property references and named ontology relationships with their sources. Missing notes offer creation; ambiguous names require a choice. The list follows the focused note and unsaved edits without replacing your document.
 
 Excalidraw scenes can also live directly inside ordinary Markdown. Use **Insert inline drawing**, or compatible fenced/container and plain/compressed Drawing-section syntax. Edit on the canvas without creating another file; the surrounding prose and source format stay intact. See [Inline drawings](docs/INLINE_DRAWINGS.md).
+
+## Find and replace in a document
+
+Use **Cmd/Ctrl+F** to search the active document, **Enter / Shift+Enter** to move between matches, and **Esc** to return to the document. The Edit menu and command palette also expose Find and Replace. **Cmd+Alt+F** on macOS or **Ctrl+H** on Windows/Linux opens replacement controls. Match case, whole word and regular expressions are available. Each pane keeps its own search. Source and Live Preview replacements use normal undo and autosave; Reading view searches rendered text and offers find only. Detached Markdown uses the same controls.

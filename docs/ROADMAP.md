@@ -156,3 +156,8 @@ Meeting items can omit unknown dates and render an explicit Date not provided la
 ## Note-owned drawing blocks · 0.38.0
 
 Ordinary Markdown supports Excalidraw fences and colon containers, plus plain/compressed Drawing sections. Inline canvas edits save only the scene payload through existing editor/autosave services and retain source encoding, Markdown wrappers and prose. Live Preview, Reading view, transclusions, detached Markdown and PDF rendering share the component. Insert inline drawing uses the plain JSON fence by default. Excalidraw remains independently pinned at 0.18.1.
+
+
+## Document find and replace · 0.39.0
+
+Find and replace works in Source, Live Preview and detached Markdown. Reading view offers rendered-text find only. Each pane retains independent queries/options and highlights, including panes sharing a buffer. Match counts, wrapping navigation, case/word/regex modes, one-step replace-all Undo and external-edit refreshes share the document-search component. This is separate from F08 vault search result navigation.
