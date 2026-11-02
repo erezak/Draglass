@@ -259,3 +259,8 @@ Callouts use the pure `core/callouts` syntax/index/config component, shared by M
 ## Briefing conflict resolution
 
 `core/briefing/conflicts.cjs` identifies a conflict target, inspects its current value, computes a review token and plans a field/block/relationship edit. It performs no I/O. The briefing service validates the token, updates only accepted baselines, and commits through its existing recoverable operation journal. Archive moves update tracked paths after the journal returns; Undo restores pre-resolution state. The board owns stable controls for keeping local or accepting reported content and retains unrelated disclosure state during refreshes.
+
+
+## Compact property presentation
+
+`ui/properties-view.js` owns type-icon controls, compact list presentation and inspectable read-only nested values. `ui/properties.js` keeps the existing metadata/editing contract; its disclosure state is transient and resets on note activation or pane focus changes. The app explicitly resets disclosure before opening a note, including an already active path. Routine edits and refreshes retain expansion and focused fields. No expanded-state setting is persisted. Component styling lives in `ui/properties.css` and consumes the app theme tokens.

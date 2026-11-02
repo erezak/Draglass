@@ -1,6 +1,6 @@
 const fs=require('node:fs/promises'),path=require('node:path'),{createHash,randomUUID}=require('node:crypto');
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
-const initial=root=>({root,tabs:['Welcome.md'],active:'Welcome.md',reading:false,editingMode:'live',preferences:{theme:'light',propertiesCollapsed:true},layout:{leftOpen:true,rightOpen:true,rightPane:'chat',collapsedFolders:['Attachments','Behaviors','Capabilities','Companies','Components','Concepts','Decisions','Divisions','Drawings','Identities','Objectives','People','Playbooks','Policies','Practice','Reference','Sources','Systems','Teams','Tours']}});
+const initial=root=>({root,tabs:['Welcome.md'],active:'Welcome.md',reading:false,editingMode:'live',preferences:{theme:'light'},layout:{leftOpen:true,rightOpen:true,rightPane:'chat',collapsedFolders:['Attachments','Behaviors','Capabilities','Companies','Components','Concepts','Decisions','Divisions','Drawings','Identities','Objectives','People','Playbooks','Policies','Practice','Reference','Sources','Systems','Teams','Tours']}});
 class DemoVault{
  constructor(directory,{source=path.join(__dirname,'../demo-vault'),manifest=path.join(__dirname,'../assets/demo-manifest.json')}={}){this.directory=directory;this.base=path.join(directory,'demo-vaults');this.launch=path.join(directory,'demo-launch.json');this.source=source;this.manifest=manifest;this.queue=Promise.resolve();}
  isDemo(root){return typeof root==='string'&&path.dirname(path.resolve(root))===path.resolve(this.base)&&/^[a-f0-9]{24}$/.test(path.basename(root));}

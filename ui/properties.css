@@ -1,0 +1,44 @@
+/* Compact metadata uses the same color and typography tokens as the active theme. */
+#properties.properties-panel{font:var(--ui-font-size,13px)/1.45 system-ui,sans-serif;margin:0 auto 20px;padding-top:0;padding-bottom:8px;min-width:0;color:var(--text)}
+#properties.properties-panel[data-collapsed=true]{margin-bottom:12px;padding-bottom:0}
+#properties.properties-panel .properties-heading{margin-bottom:4px;padding-top:0;font-size:inherit}
+#properties.properties-panel #property-collapse{min-height:32px;padding:3px 8px;gap:8px;font-size:inherit;font-weight:550;line-height:24px;margin-left:-8px;background:transparent;border:0;border-radius:5px}
+#properties.properties-panel .properties-heading>div{display:flex;gap:2px}
+#properties.properties-panel .properties-heading button{background:transparent;color:var(--muted);border:0;padding:3px 7px;min-height:28px;font:inherit;border-radius:4px}
+#properties.properties-panel .properties-heading button:hover{background:var(--hover);color:var(--text)}
+#properties.properties-panel #property-rows{padding:2px 0 6px;border-bottom:0}
+#properties.properties-panel .property-row{display:grid;grid-template-columns:28px minmax(100px,160px) minmax(0,1fr) 28px;align-items:start;gap:2px;padding:1px 0;min-height:32px;border-radius:5px}
+#properties.properties-panel .property-row:hover{background:color-mix(in srgb,var(--hover) 48%,transparent)}
+#properties.properties-panel .property-row :is(input,textarea,select){margin:0;min-width:0;max-width:100%;box-sizing:border-box;border:1px solid transparent;border-radius:4px;background:transparent;color:var(--text);font:inherit;line-height:20px;padding:5px 7px;box-shadow:none;outline-offset:-1px}
+#properties.properties-panel .property-row .property-name{color:var(--muted);text-overflow:ellipsis}
+#properties.properties-panel .property-row :is(input,textarea):hover{background:var(--hover)}
+#properties.properties-panel .property-row :is(input,textarea,select):focus{background:var(--bg);border-color:var(--accent);outline:none}
+#properties.properties-panel .property-row .property-value{width:100%;min-height:32px}
+#properties.properties-panel .property-row textarea{resize:vertical;overflow:auto;min-height:32px;max-height:160px}
+#properties.properties-panel .property-row input[type=checkbox]{justify-self:start;align-self:center;width:16px;height:16px;min-height:0;margin:8px 7px;accent-color:var(--accent)}
+#properties.properties-panel .property-row :is(input,textarea)::placeholder{color:var(--muted);opacity:.65}
+#properties.properties-panel .property-row[data-managed=true] .property-value{color:var(--muted);font-variant-numeric:tabular-nums}
+#properties.properties-panel .property-type-control{position:relative;display:grid;place-items:center;width:28px;height:32px;border-radius:4px;color:var(--muted)}
+#properties.properties-panel .property-type-control:hover{background:var(--hover);color:var(--text)}
+#properties.properties-panel .property-type-control:focus-within{outline:2px solid var(--accent);outline-offset:-2px;background:var(--bg)}
+#properties.properties-panel .property-type-glyph{display:flex;pointer-events:none}
+#properties.properties-panel .property-type-glyph svg{width:16px;height:16px}
+#properties.properties-panel .property-type-control select{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;padding:0}
+#properties.properties-panel .property-type-control[data-disabled=true]{opacity:.55}
+#properties.properties-panel .property-remove{opacity:0;min-height:28px;padding:2px;width:28px;border:0;background:transparent;cursor:pointer;color:var(--muted);border-radius:4px;font-size:16px}
+#properties.properties-panel .property-row:is(:hover,:focus-within) .property-remove,#properties.properties-panel .property-remove:focus-visible{opacity:1}
+#properties.properties-panel .property-remove:hover{background:var(--hover);color:var(--danger)}
+#properties.properties-panel .property-remove:disabled{opacity:0;cursor:default}
+#properties.properties-panel .property-structured{min-width:0;padding:0 7px}
+#properties.properties-panel .property-structured>summary{cursor:pointer;min-height:32px;display:list-item;align-content:center;color:var(--muted);font-size:inherit;padding:5px 0;box-sizing:border-box;list-style-position:inside}
+#properties.properties-panel .property-structured>.property-value{font:var(--code-font-size,14px)/1.4 ui-monospace,monospace;width:100%;max-height:160px;white-space:pre;background:var(--bg)}
+#properties.properties-panel .property-structured>button{font:inherit;font-size:12px;color:var(--accent);padding:4px 0;background:transparent;border:0}
+#properties.properties-panel #property-relationships{margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+#properties.properties-panel .property-relationship{padding:6px 7px;border:0;border-radius:4px;font:inherit;line-height:1.45}
+#properties.properties-panel .property-relationship:hover{background:var(--hover)}
+#properties.properties-panel #note-tags:empty{display:none}
+#properties.properties-panel :is(button,input,select,textarea,summary):focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+@media(max-width:800px){#properties.properties-panel .property-row{grid-template-columns:26px minmax(80px,125px) minmax(0,1fr) 26px}}
+@media(pointer:coarse){#properties.properties-panel .property-remove{opacity:.65}}
+
+#properties.properties-panel #property-collapse::after{content:attr(data-count);font-size:11px;font-weight:400;color:var(--muted);padding:0 5px;border-radius:4px;background:var(--hover);line-height:18px}

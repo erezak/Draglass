@@ -166,3 +166,8 @@ Find and replace works in Source, Live Preview and detached Markdown. Reading vi
 ## Reported-content conflict resolution · 0.39.1
 
 Briefing conflicts offer Use reported content alongside Keep local and dismiss. Scoped property, generated-block and relationship plans retain provenance and unrelated edits; current-value review tokens reject stale comparisons. Ten-minute journal Undo restores both content and conflict state, including task archival and link changes.
+
+
+## Compact properties · 0.39.2
+
+Property rows use narrow type icons, inline names/values, quiet removal actions and nested-value disclosures. Every note activation starts collapsed, including restored and reactivated notes; normal edits retain manual expansion. Presentation uses app theme tokens and does not alter the YAML or ontology model.

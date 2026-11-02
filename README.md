@@ -45,7 +45,7 @@ Each connection has a **Context window (tokens)** setting. Draglass reserves res
 - Explorer and AI sidebars collapse independently. Cmd/Ctrl+Shift+P opens the command palette.
 - File organization, link-aware renames and moves, trash/restore, tags and local search.
 - Global and local graphs with ontology types, relationships and edge provenance.
-- YAML property editing, type/subtype selectors and visual relationship editing.
+- Compact YAML property editing with type icons, type/subtype selectors and visual relationships. Properties starts collapsed whenever a note opens.
 - Ontology entity templates, configurable in Settings → Core plugins → Entity templates.
 - Attachments, note embeds, editable Mermaid diagrams and Excalidraw canvases.
 - Element-local horizontal scrolling and hover scrollbars; Mermaid Fit and zoom controls.

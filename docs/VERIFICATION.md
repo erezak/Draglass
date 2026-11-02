@@ -291,3 +291,12 @@ All 762 automated tests passed without failures or skips with the existing 4 GiB
 Coverage includes accepting a YAML property, replacing or restoring a generated briefing block, accepting decision text, adding a sourced person relationship without dropping unrelated edges, rejecting stale review tokens, retaining unrelated prose and local-memory deltas, resolving previously recorded conflicts, restoring content/conflicts through journal Undo, blocking Undo after later edits, and normal archival/link restoration for done and cancelled Task statuses. UI coverage retains expanded rows, submits the displayed token, refreshes stale comparisons, exposes Undo and keeps unsupported targets disabled after other actions.
 
 The conflict planner is separate from I/O and uses the existing recoverable briefing journal. No settings/data migration or dependency changes were introduced. Icons, lockfile and third-party notices are unchanged. Native packaging was not exercised for this slice.
+
+
+## 0.39.2: Compact properties and closed-on-open disclosure
+
+All 765 automated tests passed without failures or skips using the existing 4 GiB Node heap. The 20 focused properties/metadata/relationship checks, production build, demo validation and public-site checks passed. Demo coverage remains 71 notes, 44 entities, 98 graph nodes, 115 named edges, 199 wiki edges and 73 sourced relationships across 17 categories.
+
+A real Chromium run with the application bundle and synthetic desktop data verified initial collapse, compact expanded rows, Light and Dark appearance, and a narrow viewport without property-panel horizontal overflow or page errors. Fourteen sample scalar/structured rows measured 34 pixels each, with 28-pixel type controls. QA images are not bundled.
+
+Regression coverage includes restored expanded preferences being ignored, note reactivation and same-note reopen, split-pane focus changes, routine autosave and external edits retaining manual expansion, accessible type controls, inspectable read-only nested values, list expansion on focus, and existing metadata/type/subtype/relationship editing and Undo. Disclosure state is transient; no note edits or persisted expanded-state preference are made by toggling it. Dependencies, lockfile, icon assets and third-party notices are unchanged. Native platform packaging was not exercised.

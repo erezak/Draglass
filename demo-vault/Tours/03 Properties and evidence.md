@@ -26,3 +26,20 @@ Use **Add relationship** to choose a predicate, a target and source references. 
 Compare [[People/Mara Chen]] with [[People/Noam Levi]] in the graph: one uses a person silhouette and one uses a local illustration.
 
 Open [[Tours/04 Explore the graph]] next.
+
+## A compact, closed-by-default inspector
+
+Properties starts collapsed every time you open or reactivate a note, including
+restored tabs and notes opened in another pane. Expand **Properties** to see the
+compact rows. Click the type icon beside a name to change its registered type;
+there is no separate wide type column. Field values remain directly editable.
+
+Lists expand while focused and return to one line afterward. Nested source
+records stay behind a small disclosure: open them to inspect and copy their JSON
+or choose **Edit in YAML**. Removal controls appear on row hover or keyboard
+focus. Managed timestamps remain read-only.
+
+Try Light and Dark mode, then narrow a split pane. Expand properties, edit a
+value, and wait for autosave: the section stays open during routine refreshes.
+Open another note and return: it starts collapsed again. Expanding or collapsing
+properties does not write note content or save an expanded-state preference.

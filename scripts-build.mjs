@@ -8,7 +8,7 @@ await mkdir('dist',{recursive:true});
 await rm('dist/fonts',{recursive:true,force:true});
 await build({entryPoints:['ui/app.js'],bundle:true,outfile:'dist/app.js',platform:'browser',format:'iife',target:'chrome140'});
 await build({entryPoints:['ui/detached.js'],bundle:true,outfile:'dist/detached.js',platform:'browser',format:'iife',target:'chrome140'});
-await Promise.all(['index.html','style.css','detached.html','detached.css','document-find.css'].map(f=>copyFile(`ui/${f}`,`dist/${f}`)));
+await Promise.all(['index.html','style.css','detached.html','detached.css','document-find.css','properties.css'].map(f=>copyFile(`ui/${f}`,`dist/${f}`)));
 
 // The pinned Excalidraw engine contains relative font URLs. Embed the bundled
 // bytes so FontFace and exports work offline from Electron's file origin.
