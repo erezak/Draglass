@@ -1,8 +1,10 @@
-# Verification · 0.40.0
+# Verification · 0.40.2
 
-The full suite passes 794 tests with no failures, cancellations or skips. The build, expanded demo/sample checks and site checks pass. Briefing coverage includes issued response GUIDs, canonical duplicate receipts across collections, item outcomes, short continuation, partial/unavailable coverage, current-day restart after Undo expiry, pre-existing notes, later edits, archive moves and interrupted restart recovery. Settings UI tests cover optional token-command persistence and CLI visibility. Credential adapter tests cover plain/JSON tokens, hidden failure output, timeout, cancellation, static-auth fallback when disabled, one HTTP 401 refresh, shared HTTP 429 backoff, both API protocols and tool-call paths.
+The full suite passes 808 tests with no failures, cancellations or skips. The build, expanded demo/sample checks and site checks pass. Briefing coverage includes issued response GUIDs, canonical duplicate receipts across collections, item outcomes, short continuation, partial/unavailable coverage, current-day restart after Undo expiry, pre-existing notes, later edits, archive moves and interrupted restart recovery. Settings UI tests cover optional token-command persistence and CLI visibility. Credential adapter tests cover plain/JSON tokens, hidden failure output, timeout, cancellation, saved-key reuse, missing-key generation, one connection-scoped generation allowance, no repeated attempts across failing requests, reset after success or relaunch, encrypted/session-only generated-key reuse, per-connection isolation, concurrent manual-key protection, shared HTTP 429 backoff, both API protocols and tool-call paths.
 
 No live enterprise assistant retrieval, gateway access or native macOS packaging is claimed. The application icon, dependency lockfile, owner attribution and third-party license notices remain unchanged; the drawing engine stays independently pinned at 0.18.1.
+
+Composer checks cover Enter and Send submission, immediate clearing while the response is pending, retained note references, Shift+Enter multiline text, IME composition, mention selection, exact draft recovery after failure and restoration scoped to the originating note.
 
 ## Earlier validation · 0.35.1
 

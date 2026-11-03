@@ -181,4 +181,12 @@ The properties inspector shows each source's reference, location, quote and addi
 
 Daily Briefing reports per-item outcomes and task counts, retains GUID-based import receipts across collections, uses short targeted continuations, and keeps incomplete coverage from advancing the completed search window. Restart day reverses today’s recorded briefing changes with later-edit protection and a confirmation; it cannot target prior days.
 
-API / LiteLLM connections optionally use a trusted token-generation command for each model request. Generated credentials stay in memory; both protocols and tool calls share cancellation, timeout, one HTTP 401 refresh and the existing temporary-error backoff.
+API / LiteLLM connections optionally use a trusted token-generation command only when their saved key is missing or HTTP 401 is returned. Generated credentials use normal encrypted/session-only key storage and are reused. Each connection permits one attempt until a successful request or app relaunch; both protocols and tool calls share cancellation, timeout and temporary-error backoff.
+
+## Conditional credential generation · 0.40.1
+
+Saved keys take priority; initial missing-key generation and 401 refresh share one connection-scoped allowance. Failed attempts are not repeated across requests, while success or app relaunch resets the allowance. Generated-key storage preserves concurrent manual key changes.
+
+## Chat composer interaction · 0.40.2
+
+Enter sends a chat message, Shift+Enter inserts a line break, and mention selection or IME composition retain their expected keyboard behavior. Submission captures note references before clearing the textbox immediately; failure or cancellation restores the original draft in its own conversation.

@@ -39,7 +39,7 @@
       "notes": [
         "Tours/05 AI conversations.md"
       ],
-      "exercise": "Explore bounded vault tools, ask for current local/UTC time before relative dates, inspect canonical ontology and provenance examples, find dated notes, follow citations, and review guarded edits with undo Inspect the read-only session label, explicitly enable reviewed changes, and switch Chat, Backlinks and Tasks using the right icon rail.; configure an optional API / LiteLLM Token command with a trusted script that prints a bare token or access_token JSON, verify both protocols and tool calls, cancellation, timeout and one HTTP 401 refresh without exposing credentials"
+      "exercise": "Explore bounded vault tools, ask for current local/UTC time before relative dates, inspect canonical ontology and provenance examples, find dated notes, follow citations, and review guarded edits with undo Inspect the read-only session label, explicitly enable reviewed changes, and switch Chat, Backlinks and Tasks using the right icon rail.; configure an optional API / LiteLLM Token command with a trusted script that prints a bare token or access_token JSON, verify both protocols and tool calls, saved-key reuse, missing-key generation, one connection-scoped attempt on HTTP 401, cancellation, timeout, secure key storage and allowance reset only after success or relaunch; use Enter to send and Shift+Enter for a new line, select note mentions before sending, check immediate textbox clearing with preserved request references, and restore failed drafts without replacing another note composer"
     },
     {
       "id": "diagrams",

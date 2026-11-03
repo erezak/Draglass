@@ -65,4 +65,10 @@ Use the Backlinks icon to inspect incoming links, then the Tasks icon to view ac
 
 In AI Settings, select an API / LiteLLM connection and optionally fill **Token command** with a trusted local script path. The script should print only the token, or JSON containing `access_token` or `token`; complete any interactive login in your terminal first. Leave it blank to retain normal key/header authentication. This demo supplies no credentials and does not claim a live connection.
 
-Send a short chat through your configured gateway, try both API protocols if it supports them, then exercise note tools or briefing reconciliation. Tokens stay in memory, override Authorization, and refresh once on HTTP 401. Stop cancels a running command; a 30-second timeout prevents indefinite waiting. The command itself is saved in provider settings, so keep secret values out of it.
+Send a short chat through your configured gateway, try both API protocols if it supports them, then exercise note tools or briefing reconciliation. A saved key is used first; the script runs only for a missing key or HTTP 401. Its result uses normal secure key storage (session-only if unavailable), so later requests reuse it. Each connection allows one attempt until a successful request or app relaunch; a generated token rejected with 401 is not refreshed again. Stop cancels a running command; a 30-second timeout prevents indefinite waiting. The command itself is saved in provider settings, so keep secret values out of it.
+
+## Sending messages
+
+Type a question and press **Enter** to send; use **Shift+Enter** for a new line. The textbox clears immediately while your message appears in the conversation. When note mention suggestions are open, Enter selects a note first; press it again to send. The selected reference still accompanies the message after the textbox clears.
+
+Try Send as well as the keyboard shortcut. On a failed or stopped request your draft returns for retry. Switch to another note during a request and verify that a failure restores only the originating draft, preserving the other note’s unsent text.
