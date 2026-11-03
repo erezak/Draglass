@@ -176,3 +176,9 @@ Property rows use narrow type icons, inline names/values, quiet removal actions 
 ## Readable source evidence · 0.39.3
 
 The properties inspector shows each source's reference, location, quote and additional provenance directly as wrapping lines. Multiple records remain separate, and the YAML collection stays authoritative. Structured editing remains available in source mode.
+
+## Accountable briefing imports and gateway credentials · 0.40.0
+
+Daily Briefing reports per-item outcomes and task counts, retains GUID-based import receipts across collections, uses short targeted continuations, and keeps incomplete coverage from advancing the completed search window. Restart day reverses today’s recorded briefing changes with later-edit protection and a confirmation; it cannot target prior days.
+
+API / LiteLLM connections optionally use a trusted token-generation command for each model request. Generated credentials stay in memory; both protocols and tool calls share cancellation, timeout, one HTTP 401 refresh and the existing temporary-error backoff.

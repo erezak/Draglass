@@ -267,3 +267,15 @@ Callouts use the pure `core/callouts` syntax/index/config component, shared by M
 
 
 Source properties use `ui/source-records.js` to render each recorded field as wrapping, selectable text. It handles string references, record collections and additional nested provenance without JSON markup, HTML execution or metadata writes. The source collection remains unchanged in YAML; editing uses the existing source-mode control. Properties disclosure still resets on note activation.
+
+## Briefing response identity and day checkpoints
+
+`core/briefing/receipts.cjs` owns canonical response fingerprints and a bounded vault-owned receipt ledger indexed by the issued response GUID; GUIDs are echoed, never model-computed hashes. `import-summary.cjs` formats task outcomes for the renderer without Node dependencies. Stable item identity and three-way merge remain independent from response deduplication. Receipts contain per-item outcomes and matching reasons and survive collection starts.
+
+`protocol.cjs` validates the issued GUID and produces a short continuation in the same external conversation; only Start today creates a collection. Coverage distinguishes actionable partial/unknown/skipped work from exhausted access limits. Only fully searched coverage advances the completed-window watermark.
+
+`restart.cjs` aggregates actual journal before/after images into a current-day checkpoint, including archival paths and link rewrites. This checkpoint is independent of journal retention and Undo TTL, stored in the vault-private state and included in interrupted-operation recovery. Reverse plans use optimistic file preconditions and the same journal with archival disabled so restoring old states does not relocate them. Files changed externally or locally are protected, as are paired archive paths. The checkpoint stores the pre-day protocol state without recursively embedding Undo or earlier checkpoints. Restart clears today’s receipts and stops collection; external memory is never claimed to be reverted.
+
+## Credential command adapter
+
+`core/ai/token-command.cjs` owns bounded trusted subprocess execution and authenticated request replay; it is shared by the streaming and tool-call HTTP adapters. The provider store persists only the optional command. Generation runs per HTTP model request with no vault working directory or note contents, with shared proxy variables and cancellation. Tokens are never passed through the renderer, conversation persistence or model context. Custom Authorization is overridden only when generation is explicitly configured. HTTP 401 refresh is limited to one replay; ordinary retry/backoff remains shared.

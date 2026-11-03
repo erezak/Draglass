@@ -60,3 +60,9 @@ With Tasks enabled, ask the assistant to query open tasks and use `read_task` fo
 Use the Chat icon on the far-right rail. The session starts with **Read-only session** visible above the conversation. Ask for a suggested improvement, then choose **Enable changes for this request**. The same conversation now shows **Read-write · changes require review**. Send the request and inspect the proposal before accepting it. **Enable changes** also switches modes without filling or sending a request. Return to Discuss in the Mode selector to restore read-only tools.
 
 Use the Backlinks icon to inspect incoming links, then the Tasks icon to view actions. Collapse the right sidebar and click any of these icons to reopen its panel. Focus an icon and use Up/Down, Home or End to switch panels. Disabling Tasks hides its icon.
+
+## Optional gateway token command
+
+In AI Settings, select an API / LiteLLM connection and optionally fill **Token command** with a trusted local script path. The script should print only the token, or JSON containing `access_token` or `token`; complete any interactive login in your terminal first. Leave it blank to retain normal key/header authentication. This demo supplies no credentials and does not claim a live connection.
+
+Send a short chat through your configured gateway, try both API protocols if it supports them, then exercise note tools or briefing reconciliation. Tokens stay in memory, override Authorization, and refresh once on HTTP 401. Stop cancels a running command; a 30-second timeout prevents indefinite waiting. The command itself is saved in provider settings, so keep secret values out of it.

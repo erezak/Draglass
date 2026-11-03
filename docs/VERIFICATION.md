@@ -1,4 +1,10 @@
-# Verification · 0.35.1
+# Verification · 0.40.0
+
+The full suite passes 794 tests with no failures, cancellations or skips. The build, expanded demo/sample checks and site checks pass. Briefing coverage includes issued response GUIDs, canonical duplicate receipts across collections, item outcomes, short continuation, partial/unavailable coverage, current-day restart after Undo expiry, pre-existing notes, later edits, archive moves and interrupted restart recovery. Settings UI tests cover optional token-command persistence and CLI visibility. Credential adapter tests cover plain/JSON tokens, hidden failure output, timeout, cancellation, static-auth fallback when disabled, one HTTP 401 refresh, shared HTTP 429 backoff, both API protocols and tool-call paths.
+
+No live enterprise assistant retrieval, gateway access or native macOS packaging is claimed. The application icon, dependency lockfile, owner attribution and third-party license notices remain unchanged; the drawing engine stays independently pinned at 0.18.1.
+
+## Earlier validation · 0.35.1
 
 Acknowledgment and coverage validation: the full suite passed 644 tests without failures or skips. The final build, expanded demo checks and focused briefing suite passed. Round-trip tests extract IDs from the actual copied collection/update prompts and echo them into imports; they cover the entity/update ID collision, empty/unknown/malformed/mixed acknowledgments, partial fragments, payload-group changes under concurrent baseline updates, person-resolution batch freezing, prompt budgets with maximum cursors and entity context, visible warnings, independent source coverage and cutoff rules. Unknown tokens never advance a baseline or block valid sourced facts. Session/batch mismatches remain rejected. No live external-assistant search or persistent-memory behavior is claimed.
 

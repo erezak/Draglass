@@ -177,3 +177,13 @@ Later edits can block Undo so they are preserved.
 If the value changes after you review it, the comparison refreshes and asks you to
 review again. **Keep local and dismiss** remains available. A reported done or
 cancelled Task status uses normal task archival, including link updates and Undo.
+
+## Accountable imports and restarting today
+
+This is a guided exercise requiring your own external assistant, not a bundled live response. Start today and inspect the copied prompt’s `RESPONSE_ID`; the response must echo this GUID as `responseId`. Import it and expand **Last import**: inspect created, updated, unchanged, deferred and conflicted Task counts, archival annotations and the matching reason beside each note. A valid import that creates zero tasks explains why.
+
+Import the same response again, optionally with different JSON indentation: the receipt reports the previous import time and summary without new writes. The GUID identifies a response; stable item IDs still identify the underlying actions across days.
+
+If Source coverage is partial or unknown, **Copy next prompt** supplies a short targeted continuation for the same chat, including specific missing meeting or document searches. It does not start another collection when complete. Inaccessible sources retain their gaps; incomplete coverage never silently advances the fully searched window.
+
+On a practice day, choose **Restart day** and read the confirmation. Only today can be reset: today’s recorded imports and collection are reversed, while earlier knowledge and later personal edits are preserved. The board lists any protected files. This works beyond the short Undo window. Start today again when ready; external assistant memory is not reset.

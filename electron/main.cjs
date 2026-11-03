@@ -80,6 +80,8 @@ const handlers={
    const saved=await workspace.read();if(saved?.root===vault.root&&saved.preferences?.corePlugins?.briefing===false)throw new Error('Enable Daily Briefing in Settings → Core plugins.');
    const config=require('../core/briefing/protocol.cjs').cleanConfig(saved?.root===vault.root?saved.preferences?.briefing:{}),service=new(require('../core/briefing/service.cjs').BriefingService)(vault,{config,reconcile:r=>ai.reconcileBriefing(r),progress:summary=>window?.webContents.send('briefing:progress',summary)});
    if(action==='board')return service.board();
+   if(action==='confirm-restart'){const r=await dialog.showMessageBox(window,{type:'warning',buttons:['Cancel','Restart today'],defaultId:0,cancelId:0,title:'Restart day',message:'Restart today’s Daily Briefing?',detail:'Reverse today’s briefing imports and reset its collection. Earlier notes and later edits are preserved. External assistant memory is not changed.'});return r.response===1;}
+   if(action==='restart')return service.restart();
    if(action==='start'||action==='copy'||action==='updates'){const result=await service[action]();await clipboard.writeText(result.prompt);delete result.prompt;return {...result,copied:true};}
    if(action==='import'){await tasksEnabled();let provider=config.provider==='chat'?args.provider:config.provider;if(!config.ai)provider=null;return service.import(await clipboard.readText(),{provider});}
    if(action==='resolve'){await tasksEnabled();return service.resolve(args.key,args.path);}

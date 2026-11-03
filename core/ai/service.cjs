@@ -17,7 +17,7 @@ class AIService{
   const controller=new AbortController();this.running={id:request.id,controller};const timer=setTimeout(()=>controller.abort(),600000);
   try {
   const config=await this.store.load(),provider=config.providers.find(p=>p.id===request.provider||(!request.provider&&p.id===config.active));if(!provider)throw new Error('Choose a provider in Settings.');
-  const apiKey=['openai','anthropic'].includes(provider.type)?await this.store.key(provider.id,config):'';
+  const apiKey=['openai','anthropic'].includes(provider.type)&&!provider.tokenCommand?await this.store.key(provider.id,config):'';
   // Validate all paths through Vault; only explicitly supplied open-tab drafts may replace disk text.
   if(!Array.isArray(request.context)||request.context.length>12)throw new Error('Choose up to 12 context notes.');
   const seen=new Set(),context=[];for(const entry of request.context){if(!entry||typeof entry.path!=='string'||seen.has(entry.path))throw new Error('Invalid note context.');seen.add(entry.path);if(entry.text!==undefined&&(typeof entry.text!=='string'||Buffer.byteLength(entry.text)>8*1024*1024))throw new Error('Invalid editor draft.');if(request.entity){const disk=await vault.read(entry.path);context.push({path:entry.path,text:entry.text===undefined?disk.text:entry.text});}else{if(vault.checked)await vault.checked(entry.path);else await vault.read(entry.path);context.push({path:entry.path,...(entry.text!==undefined?{text:entry.text}:{})});}}
@@ -36,7 +36,7 @@ class AIService{
  async reconcileBriefing({provider:providerId,batch,notes,progress=()=>{}}){
   if(this.running)throw new Error('Stop the active AI response before importing with AI.');
   const controller=new AbortController(),id='briefing-'+require('node:crypto').randomUUID();this.running={id,controller};const timer=setTimeout(()=>controller.abort(),300000);
-  try{const config=await this.store.load(),provider=config.providers.find(p=>p.id===providerId);if(!provider)throw new Error('The selected briefing AI connection is unavailable. Choose one in Settings or disable AI reconciliation.');const configured={...provider,headers:await this.store.headers(provider.id,config),network:config.network},apiKey=['openai','anthropic'].includes(provider.type)?await this.store.key(provider.id,config):'';
+  try{const config=await this.store.load(),provider=config.providers.find(p=>p.id===providerId);if(!provider)throw new Error('The selected briefing AI connection is unavailable. Choose one in Settings or disable AI reconciliation.');const configured={...provider,headers:await this.store.headers(provider.id,config),network:config.network},apiKey=['openai','anthropic'].includes(provider.type)&&!provider.tokenCommand?await this.store.key(provider.id,config):'';
    const matches={};for(const item of batch.items.filter(i=>['task','decision'].includes(i.kind))){const found=await require('../briefing/reconcile.cjs').reconcile({provider,batch:{...batch,items:[item]},notes,progress,signal:controller.signal,turn:(messages,options)=>['openai','anthropic'].includes(provider.type)?this.adapters.requestAPI(configured,apiKey,messages,{...options,signal:controller.signal,onText:()=>{},onRetry:e=>progress(e.summary)}):this.adapters.requestCLI(configured,messages,{...options,signal:controller.signal,onText:()=>{},onRetry:e=>progress(e.summary)})});Object.assign(matches,found);}return matches;
   }finally{clearTimeout(timer);this.running=null;}
  }

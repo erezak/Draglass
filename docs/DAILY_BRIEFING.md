@@ -18,6 +18,8 @@ The board and daily Markdown note are two views of the day; tasks remain normal 
 5. If more important information remains, choose **Copy next prompt**, paste it
    in the same external chat, and repeat. Continue until collection is complete.
 
+**Copy next prompt** is enabled only while today’s collection has remaining results or actionable searches. It never silently starts another collection. Continuation uses the existing external chat and a short instruction with the same window, current response GUID and targeted remaining work; it does not repeat the full initial schema. Local updates remain available separately.
+
 The initial window starts at the previous configured working day's midnight and
 ends at collection start, in the desktop's local timezone. Subsequent successful
 collections can resume within that window. After a longer gap, collection never
@@ -29,7 +31,7 @@ Prompts are capped at 8,000 UTF-8 bytes; incoming responses at 16,000 bytes of c
 24 factual items, 24 sources and 16 people per batch. Batching has no fixed
 six-item ceiling. Insignificant JSON formatting whitespace does not consume the semantic budget. Clipboard input has a separate 65,536-byte transport limit. Oversized responses are rejected intact, never clipped.
 Continue the external chat to obtain a smaller complete batch. Session and batch
-numbers reject wrong responses; importing identical clipboard text is harmless.
+numbers reject wrong responses. Each prompt issues a response GUID (`RESPONSE_ID`); the assistant must echo it exactly as `responseId`. The last 100 receipts persist across collections in this vault. Re-importing a response with formatting or JSON-key-order changes returns its original summary without applying it again. Reusing an imported GUID with different content reports an error; a genuinely updated response needs the next issued GUID. Stable item IDs remain separate and allow updates across batches and days.
 
 ## Notes and provenance
 
@@ -199,11 +201,11 @@ satisfy transcript/file searches. The cumulative `coverage` object uses keys
 Missing or invalid states are displayed as `unknown`, without inventing search
 attempts. These are external-assistant reports, not independently verified searches.
 
-Any `not-searched` channel forces continuation with a targeted cursor, even if the
+Any `not-searched`, `partial` or `unknown` channel forces targeted continuation, even if the
 response says `more:false`. The completed-window cutoff advances only when the
-collection finishes and every channel has reported searched/partial/unavailable.
-Unknown reports or skipped channels leave it unchanged. Partial/unavailable access
-remains visible alongside coverage gaps. Employee/user IDs must be explicitly
+collection finishes and all five channels report `searched`. Exhausted unavailable
+sources can end collection without repeated retries, but leave the watermark unchanged.
+Access limits remain visible alongside coverage gaps. Employee/user IDs must be explicitly
 stated in supplied identity/profile/directory evidence; email local-parts are not
 ID verification. No external task records are changed by these prompts.
 
@@ -233,3 +235,19 @@ Conflict rows keep their disclosure state and mounted action buttons while the b
 **Use reported content** applies the selected conflict through the briefing operation journal. Property conflicts change their YAML field; generated-text conflicts replace their identified block or restore it when removed. Person relationships add or merge the reported edge with its sources while retaining unrelated relationships. The board shows the current local value; a review token rejects an action if that comparison has changed. Ambiguous or missing targets cannot be applied automatically.
 
 **Undo last change** is available for ten minutes and restores the prior content, conflict and briefing baseline. Later edits block unsafe Undo. Choosing a terminal Task status uses normal archival and link rewriting. Accepted reported fields update their remote baseline without acknowledging unrelated local changes.
+
+## Import report
+
+After import, the notification counts tasks created, updated, unchanged, deferred and conflicted, with archival shown separately so it does not double-count tasks. Expand **Last import** for each received item, its outcome, matching reason (stable ID, exact name or optional AI), and a button to open its local note. Deferred identity questions and local conflicts remain actionable on the board. A pending decision owned by you also reports its generated Task. **Items received** includes deferred facts and does not claim they were applied.
+
+## Coverage and targeted follow-up
+
+Coverage is reported by the external assistant, not verified by Draglass. `partial`, `not-searched` and `unknown` keep collection open with targeted follow-up. Use `unavailable` only for attempted, exhausted access or capability limits and describe those limits in gaps; it can end collection without endless retry. Only all-five `searched` coverage advances the fully searched watermark. This conservatively keeps incomplete windows eligible for future searches.
+
+The first prompt asks for calendar discovery followed by title/date searches for relevant meetings and individual retrieval of relevant linked documents. Recap-only evidence must be identified honestly; snippets do not establish full-file coverage. Missing work, no results and access denial must be distinguished. Neither the prompt nor clipboard import can guarantee exhaustive remote retrieval.
+
+## Restart day
+
+Choose **Restart day** on the board or **Restart today’s briefing** in the palette. A confirmation explains the operation. It is available only for the current day after Draglass has created a checkpoint; it cannot target an older day. It reverses today’s tracked briefing writes across collections, including created notes, updates, archival and rewritten links, restores the pre-day collection checkpoint, clears today’s response receipts, and leaves collection stopped until **Start today**. An existing daily note is restored rather than deleted.
+
+The day checkpoint survives app restarts and the ten-minute Undo expiry. Files edited after or between briefing operations are preserved and listed on the board; both sides of an archive move are protected together. Unrelated earlier knowledge is untouched. Restart cannot undo anything remembered by the external assistant. New checkpoints are recorded going forward; earlier untracked imports cannot be safely reversed.
