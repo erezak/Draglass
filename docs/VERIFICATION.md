@@ -1,6 +1,6 @@
-# Verification · 0.41.3
+# Verification · 0.41.4
 
-The full suite passes 837 tests using a 4 GiB Node heap, with no failures, cancellations or skips. The build, expanded demo/sample checks and site checks pass. Briefing coverage includes issued response GUIDs, canonical duplicate receipts across collections, item outcomes, short continuation, partial/unavailable coverage, current-day restart after Undo expiry, pre-existing notes, later edits, archive moves and interrupted restart recovery. Settings UI tests cover optional token-command persistence and CLI visibility. Credential adapter tests cover plain/JSON tokens, hidden failure output, timeout, cancellation, saved-key reuse, missing-key generation, one connection-scoped generation allowance, no repeated attempts across failing requests, reset after success or relaunch, encrypted/session-only generated-key reuse, per-connection isolation, concurrent manual-key protection, shared HTTP 429 backoff, both API protocols and tool-call paths.
+The full suite passes 842 tests using a 4 GiB Node heap, with no failures, cancellations or skips. The build, expanded demo/sample checks and site checks pass. Briefing coverage includes issued response GUIDs, canonical duplicate receipts across collections, item outcomes, short continuation, partial/unavailable coverage, current-day restart after Undo expiry, pre-existing notes, later edits, archive moves and interrupted restart recovery. Settings UI tests cover optional token-command persistence and CLI visibility. Credential adapter tests cover plain/JSON tokens, hidden failure output, timeout, cancellation, saved-key reuse, missing-key generation, one connection-scoped generation allowance, no repeated attempts across failing requests, reset after success or relaunch, encrypted/session-only generated-key reuse, per-connection isolation, concurrent manual-key protection, shared HTTP 429 backoff, both API protocols and tool-call paths.
 
 No live enterprise assistant retrieval, gateway access or native macOS packaging is claimed. The application icon, dependency lockfile, owner attribution and third-party license notices remain unchanged; the drawing engine stays independently pinned at 0.18.1.
 
@@ -16,6 +16,9 @@ Large Markdown now defaults to the shared editable Live Preview renderer. Regres
 
 
 Opening Live Preview keeps the initial line rendered until editing intent. New UI checks cover vault notes, detached notes and large Markdown, automatic focus, first-position keyboard navigation, composition/input, same-position mouse clicks and background vault refreshes. They verify unchanged Markdown and no incidental autosave. Existing selected-syntax, source/preview switching, links, tables, diagrams and generated-block behavior remain covered. Production build and demo/sample checks pass; native macOS execution was not exercised.
+
+
+Duplicate title checks verify that matching first H1 headings hide the additional filename heading while retaining Markdown, properties and reading content without incidental writes. Coverage includes formatted ATX headings, Setext headings, entities/case normalization, fenced and quoted examples, YAML, unequal punctuation, live edits, Undo, external refresh and independent split panes. Title updates reuse cached parsed results for the current immutable document; no dependency, icon or lockfile changes were made. Native macOS layout was not exercised.
 
 ## Earlier validation · 0.35.1
 

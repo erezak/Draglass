@@ -209,3 +209,8 @@ Open large Markdown in editable Live Preview using the shared rendering componen
 ## Rendered first opening · 0.41.3
 
 Keep Live Preview fully rendered on opening despite the initial caret; reveal active Markdown only after editing intent, consistently across document contexts.
+
+
+## One document title · 0.41.4
+
+Hide the redundant filename heading when the first authored H1 matches it; preserve source content, properties and independent pane state.

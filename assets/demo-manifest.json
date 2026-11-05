@@ -9,7 +9,7 @@
         "Tours/01 Writing.md",
         "Tours/20 Document search.md"
       ],
-      "exercise": "Write and edit, verify automatic created_at/updated_at with stable caret and autosave, follow table links, or edit surrounding cell space; find and replace in the active document, test case/word/regex options, Undo, Reading view and independent split-pane queries; reopen a note and verify fully rendered initial text, then click or type to reveal syntax without an incidental save"
+      "exercise": "Write and edit, verify automatic created_at/updated_at with stable caret and autosave, follow table links, or edit surrounding cell space; find and replace in the active document, test case/word/regex options, Undo, Reading view and independent split-pane queries; reopen a note and verify fully rendered initial text, then click or type to reveal syntax without an incidental save; match the filename to the first H1 and verify one document title, then edit the heading to restore the filename title"
     },
     {
       "id": "links-embeds",

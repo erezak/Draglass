@@ -304,3 +304,8 @@ The bounded editor composes the existing Markdown parser, Live Preview decoratio
 ## Live Preview editing intent · 0.41.3
 
 The shared preview extension keeps an editor-state interaction flag, initially false. Initial selection and automatic focus leave the note rendered. Text clicks, editing/navigation keys, composition/input and explicit selection transactions activate syntax disclosure. Background document changes do not activate it. External vault reloads retain the previous interaction state while restoring the caret. The same extension supplies vault, detached and bounded-file editors.
+
+
+## Duplicate document titles · 0.41.4
+
+`ui/document-title.js` controls the additional filename heading independently of source rendering. It compares the filename with the first top-level H1 after valid frontmatter, using parsed Markdown and sanitized inline display text. Unicode, whitespace and case are normalized; punctuation is preserved. Results are cached by immutable editor document identity. Each pane refreshes its own title on edits, external reloads and path changes. Matching notes hide the whole additional heading container; the authored H1, properties and navigation remain intact. Compact detached/large-file filename bars remain file identifiers.
