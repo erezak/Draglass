@@ -5,6 +5,8 @@ import {build} from 'esbuild';
 import {mkdir,copyFile,readFile,rm,cp} from 'node:fs/promises';
 
 await mkdir('dist',{recursive:true});
+await build({entryPoints:['ui/large-file.js'],bundle:true,outfile:'dist/large-file.js',platform:'browser',format:'iife',target:'chrome140'});
+await Promise.all(['large-file.html','large-file.css'].map(f=>copyFile('ui/'+f,'dist/'+f)));
 await rm('dist/fonts',{recursive:true,force:true});
 await build({entryPoints:['ui/app.js'],bundle:true,outfile:'dist/app.js',platform:'browser',format:'iife',target:'chrome140'});
 await build({entryPoints:['ui/detached.js'],bundle:true,outfile:'dist/detached.js',platform:'browser',format:'iife',target:'chrome140'});

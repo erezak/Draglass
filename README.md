@@ -136,3 +136,7 @@ Excalidraw scenes can also live directly inside ordinary Markdown. Use **Insert 
 ## Find and replace in a document
 
 Use **Cmd/Ctrl+F** to search the active document, **Enter / Shift+Enter** to move between matches, and **Esc** to return to the document. The Edit menu and command palette also expose Find and Replace. **Cmd+Alt+F** on macOS or **Ctrl+H** on Windows/Linux opens replacement controls. Match case, whole word and regular expressions are available. Each pane keeps its own search. Source and Live Preview replacements use normal undo and autosave; Reading view searches rendered text and offers find only. Detached Markdown uses the same controls.
+
+## Large documents
+
+Markdown and drawing files have no fixed opening-size cap. Large files use automatic background loading as you scroll, with Markdown in editable Live Preview and the usual scrollbar. Autosave streams untouched bytes and retains recovery copies. Outside files keep a compact Detached badge. Drawing files remain source-only above the normal-buffer threshold. Whole-document search, PDF export and body indexing remain normal-buffer features.

@@ -15,7 +15,7 @@ app.setName('Draglass Editor');
 app.setAboutPanelOptions?.({applicationName:'Draglass Editor',applicationVersion:require('../package.json').version,version:require('../package.json').version,iconPath:path.join(__dirname,'../assets/icon.png'),copyright:'Copyright © 2026 Erez Korn'});
 const {SavedWorkspaceStore}=require('../core/saved-workspaces.cjs');
 let savedWorkspaces;
-let window, vault, workspace,watcher,watchTimer,ai,detached,knowledgeService,demoVault;
+let window, vault, workspace,watcher,watchTimer,ai,detached,largeFiles,knowledgeService,demoVault;
 async function prepareVault(root){const candidate=new Vault(root,{manageTimestamps:true}),service=new KnowledgeService(root);try{const notes=await service.request('scan');return {candidate,service,notes};}catch(e){await service.close();throw e;}}
 function useVault(candidate,service){knowledgeService?.close().catch(()=>{});vault=candidate;knowledgeService=service;watchVault();}
 const {classifyFile,filesFromArgs,FileOpenQueue}=require('../core/file-open.cjs');
@@ -32,6 +32,7 @@ const openedFiles=new Set();
 async function openUserFile(file,fragment=''){
  const result=await classifyFile(file,vault);
  openedFiles.add(result.absolute);
+ if(await require('../core/windowed-document.cjs').needsPaging(result.absolute)){await largeFiles.open(result.absolute,result.mode==='vault'?{vault,relative:result.path}:{});return;}
  if(result.mode==='vault'){window.show();window.focus();window.webContents.send('desktop:open-file',{path:result.path,fragment,root:vault.root,absolute:result.absolute});}
  else await detached.open(result.absolute,fragment);
 }
@@ -50,11 +51,12 @@ function watchVault(){
 function start(){
   require('./themes.cjs').registerThemes({app,ipcMain,dialog,BrowserWindow});
   if(process.platform==='darwin')app.dock?.setIcon(nativeImage.createFromPath(appIconPath));
-  protocol.handle('draglass-asset',request=>assetResponse(detached?.asset(request)||vault,request));
+  protocol.handle('draglass-asset',request=>assetResponse(detached?.asset(request)||largeFiles?.asset(request)||vault,request));
   workspace=new WorkspaceStore(path.join(app.getPath('userData'),'draglass'));
   savedWorkspaces=new SavedWorkspaceStore(path.join(app.getPath('userData'),'draglass'));demoVault=new DemoVault(path.join(app.getPath('userData'),'draglass'));
   ai=new AIService(path.join(app.getPath('userData'),'draglass'),safeStorage,event=>{if(window&&!window.isDestroyed())window.webContents.send('ai:chunk',event);},{tasksEnabled:async target=>{if(target!==vault)return false;const saved=await workspace.read();return saved?.root!==vault.root||saved.preferences?.corePlugins?.tasks!==false;},knowledge:async(target,method,args,signal)=>{if(method==='aiTasks')await tasksEnabled();if(target!==vault)throw new Error('The vault changed.');return knowledgeService.request(method,args,{signal});}});
-  detached=require('./file-windows.cjs').detachedWindows({app,BrowserWindow,ipcMain,shell,icon:appIconPath,workspace:()=>workspace,onOpen:openUserFile,onVault:()=>{window.show();window.focus();window.webContents.send('command','open');},onPick:pickDocuments,onExport:(owner,request)=>pdfExporter.save(owner,request),onEmpty:()=>{if(window&&!window.isDestroyed()&&!window.isVisible()){window.forceClose=true;window.close();}}});
+  largeFiles=require('./large-file-windows.cjs').largeFileWindows({app,BrowserWindow,ipcMain,shell,onOpen:openUserFile,icon:appIconPath,workspace:()=>workspace,onEmpty:()=>{if(!detached?.sessions.size&&window&&!window.isDestroyed()&&!window.isVisible()){window.forceClose=true;window.close();}}});
+  detached=require('./file-windows.cjs').detachedWindows({app,BrowserWindow,ipcMain,shell,icon:appIconPath,workspace:()=>workspace,onOpen:openUserFile,onVault:()=>{window.show();window.focus();window.webContents.send('command','open');},onPick:pickDocuments,onExport:(owner,request)=>pdfExporter.save(owner,request),onEmpty:()=>{if(!largeFiles?.sessions.size&&window&&!window.isDestroyed()&&!window.isVisible()){window.forceClose=true;window.close();}}});
   window=new BrowserWindow({show:!fileQueue.pending.length,icon:appIconPath,width:1320,height:880,minWidth:900,minHeight:600,backgroundColor:'#fcfaf5',webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
   window.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   window.webContents.on('will-navigate',event=>event.preventDefault());
@@ -71,6 +73,7 @@ ipcMain.handle('desktop:reopenFile',(event,file)=>{validate(event);if(!openedFil
 ipcMain.handle('desktop:pickFiles',event=>{validate(event);return pickDocuments();});
 function validate(event){if(event.sender!==window?.webContents || event.senderFrame?.url!==entry) throw new Error('Untrusted caller.');}
 const handlers={
+  openPaged:async p=>{const file=await vault.checked(p);return largeFiles.open(file,{vault,relative:p});},
   exportPdf:request=>pdfExporter.save(window,request),
   open:async()=>{const result=await dialog.showOpenDialog(window,{properties:['openDirectory'],title:'Open Markdown vault'});if(result.canceled)return null;const profile=await workspace.forVault(result.filePaths[0]);const {candidate,service,notes}=await prepareVault(result.filePaths[0]);ai.cancel();useVault(candidate,service);return {root:vault.root,name:path.basename(vault.root),notes,...(profile?{workspace:profile}:{})};},
   demo:async()=>{let prepared;try{let selected=await demoVault.open();const profile=await workspace.forVault(selected.root);if(profile)selected={...selected,preferences:{...selected.preferences,...profile.preferences},layout:{...selected.layout,...profile.layout}};prepared=await prepareVault(selected.root);await workspace.write(selected.root,selected);ai.cancel();useVault(prepared.candidate,prepared.service);return {root:vault.root,name:'Demo Vault',notes:prepared.notes,workspace:selected};}catch(error){if(prepared&&prepared.service!==knowledgeService)await prepared.service.close();dialog.showErrorBox('Could not open demo vault',error.message);throw error;}},
@@ -121,7 +124,7 @@ const knowledgeReads=new Set(['exportPdf','calendar','linkSuggestions','tasks','
 let vaultQueue=Promise.resolve();
 for(const [name,fn] of Object.entries(handlers))ipcMain.handle('vault:'+name,(event,...args)=>{validate(event);if(knowledgeReads.has(name)){if(!vault)throw new Error('Open a vault first.');return fn(...args);}const job=vaultQueue.catch(()=>{}).then(()=>{if(!['open','restore','demo'].includes(name)&&!vault)throw new Error('Open a vault first.');return fn(...args);});vaultQueue=job;return job;});
 for(const [name,handler] of Object.entries({settings:()=>ai.settings(),save:value=>ai.save(value),cancel:()=>ai.cancel(),chat:request=>{if(!vault&&request?.context?.length)throw new Error('Open a vault to mention notes.');return ai.chat(vault,request);},conversations:note=>ai.store.listConversations(vault?.root||'@global',note||''),newConversation:note=>ai.store.newConversation(vault?.root||'@global',note||''),thread:(note,id)=>ai.store.thread(vault?.root||'@global',note||'',id),clear:(note,id)=>ai.store.writeThread(vault?.root||'@global',note||'',[],id)}))ipcMain.handle('ai:'+name,(event,...args)=>{validate(event);return handler(...args);});
-ipcMain.handle('close-approved',event=>{validate(event);if(detached?.sessions.size){window.hide();}else{window.forceClose=true;window.close();}});
+ipcMain.handle('close-approved',event=>{validate(event);if(detached?.sessions.size||largeFiles?.sessions.size){window.hide();}else{window.forceClose=true;window.close();}});
 app.on('before-quit',()=>{pdfExporter.close();ai?.cancel();knowledgeService?.close().catch(()=>{});watcher?.close();clearTimeout(watchTimer);});
 if(primary)app.whenReady().then(start);app.on('window-all-closed',()=>app.quit());
 app.on('activate',()=>{if(window&&!window.isDestroyed()){window.show();window.focus();}});

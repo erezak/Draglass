@@ -127,6 +127,13 @@
         "Tours/18 Connections.md"
       ],
       "exercise": "Switch Backlinks and Outgoing in the shared sidebar, follow heading/block/asset links, inspect named relationship sources, offer missing-note creation, try an ambiguous target and watch unsaved edits update."
+    },
+    {
+      "id": "large-files",
+      "notes": [
+        "Tours/21 Large files.md"
+      ],
+      "exercise": "Generate a fictional field log outside the vault, open it in Live Preview, check rendered headings/bold/table editing, scroll continuously with automatic background loading and code-fence context, autosave with caret/Undo preservation, verify unedited bytes, retry it inside the vault and preserve drafts when an external edit conflicts. No huge sample is bundled."
     }
   ],
   "entityTypes": [

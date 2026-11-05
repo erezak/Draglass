@@ -1,3 +1,4 @@
+const {NORMAL_BYTES,needsPaging,wholeReadError,readCompact}=require('./windowed-document.cjs');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const {createHash, randomUUID} = require('node:crypto');
@@ -31,9 +32,9 @@ class Vault {
         else if(entry.isFile() && !require('./file-open.cjs').supported(entry.name)) {const stat=await fs.stat(path.join(dir,entry.name));attachments.push({path:rel,createdAt:stat.birthtimeMs||stat.mtimeMs,version:String(stat.mtimeMs)+':'+stat.size});}
         else if(entry.isFile() && (require('./file-open.cjs').supported(entry.name))) {
           const stat=await fs.stat(path.join(dir,entry.name));
-          if(stat.size>8*1024*1024) continue;
+          if(stat.size>NORMAL_BYTES){notes.push({path:rel,title:entry.name.replace(/\.(?:excalidraw(?:\.md)?|md)$/,''),text:'',version:[stat.mtimeMs,stat.ctimeMs,stat.size,stat.ino].join(':'),paged:true,size:stat.size,createdAt:stat.birthtimeMs||stat.mtimeMs,modifiedAt:stat.mtimeMs});continue;}
           const stamp=[stat.mtimeMs,stat.ctimeMs,stat.size,stat.ino].join(':'),old=this.scanCache.get(rel);
-          let text,version;if(old?.stamp===stamp){text=old.text;version=old.version;}else{text=await fs.readFile(path.join(dir,entry.name),'utf8');version=hash(text);this.scanReads++;}cache.set(rel,{stamp,text,version});
+          let text,version;if(old?.stamp===stamp){text=old.text;version=old.version;}else{try{text=(await readCompact(path.join(dir,entry.name))).text;}catch(e){if(e.code==='WINDOWED_DOCUMENT'){const latest=await fs.stat(path.join(dir,entry.name));notes.push({path:rel,title:entry.name.replace(/\.(?:excalidraw(?:\.md)?|md)$/,''),text:'',version:[latest.mtimeMs,latest.ctimeMs,latest.size,latest.ino].join(':'),paged:true,size:latest.size,createdAt:latest.birthtimeMs||latest.mtimeMs,modifiedAt:latest.mtimeMs});continue;}throw e;}version=hash(text);this.scanReads++;}cache.set(rel,{stamp,text,version});
           notes.push({path:rel,title:entry.name.replace(/\.(?:excalidraw(?:\.md)?|md)$/,''),text,version,createdAt:stat.birthtimeMs||stat.mtimeMs,modifiedAt:stat.mtimeMs});
         }
       }
@@ -42,19 +43,19 @@ class Vault {
     return this.notes.map(({text,...note})=>note);
   }
   async graph(){await this.scan();return {notes:this.notes,attachments:this.attachments};}
-  async read(relative) { const file=await this.checked(relative); const text=await fs.readFile(file,'utf8'); return {path:relative,text,version:hash(text)}; }
+  async read(relative) { const file=await this.checked(relative);const {text}=await readCompact(file); return {path:relative,text,version:hash(text)}; }
   async prepareText(relative,text,{creating=false}={}) {if(!this.manageTimestamps)return {text};if(creating)return require('./note-timestamps.cjs').stampNote(relative,text,{creating:true});const old=await this.read(relative),stat=await fs.stat(await this.checked(relative));return require('./note-timestamps.cjs').stampNote(relative,text,{old:old.text,createdAt:stat.birthtimeMs||stat.mtimeMs});}
   async write(relative,text,options={}) {
         const expectedText=options&&typeof options==='object'?options.expectedText:undefined;
-    if(typeof text!=='string' || Buffer.byteLength(text)>8*1024*1024) throw new Error('Note is too large.');
+    if(typeof text!=='string')throw new Error('Invalid note text.');
     if(this.busy) throw new Error('Another save is running. Try again.');
     this.busy=true;
     let temp;
     try {
       const file=await this.checked(relative);
-      const old=await fs.readFile(file,'utf8');if(expectedText!==undefined&&old!==expectedText)throw new Error('The note changed on disk. Regenerate the proposal.');
+      const {text:old}=await readCompact(file);if(expectedText!==undefined&&old!==expectedText)throw new Error('The note changed on disk. Regenerate the proposal.');
       const stat=await fs.stat(file);
-      const stamp=this.manageTimestamps&&!options.timestamped?require('./note-timestamps.cjs').stampNote(relative,text,{old,createdAt:stat.birthtimeMs||stat.mtimeMs}):{text};text=stamp.text;if(Buffer.byteLength(text)>8*1024*1024)throw new Error('Note is too large.');if(this.manageTimestamps&&text===old)return {path:relative,text,version:hash(text),...(stamp.timestampWarning?{timestampWarning:stamp.timestampWarning}:{})};
+      const stamp=this.manageTimestamps&&!options.timestamped?require('./note-timestamps.cjs').stampNote(relative,text,{old,createdAt:stat.birthtimeMs||stat.mtimeMs}):{text};text=stamp.text;if(this.manageTimestamps&&text===old)return {path:relative,text,version:hash(text),...(stamp.timestampWarning?{timestampWarning:stamp.timestampWarning}:{})};
       // Keep recovery snapshots outside the vault's visible note tree.
       const recovery=path.join(this.root,'.draglass','recovery');
       for (const folder of [path.join(this.root,'.draglass'), recovery]) {
@@ -66,14 +67,14 @@ class Vault {
       temp=path.join(path.dirname(file),`.draglass-${randomUUID()}.tmp`);
       const handle=await fs.open(temp,'wx',stat.mode);
       try {await handle.writeFile(text,'utf8'); await handle.sync();} finally {await handle.close();}
-      if(expectedText!==undefined&&(await fs.readFile(file,'utf8'))!==expectedText)throw new Error('The note changed on disk. Regenerate the proposal.');await fs.rename(temp,file); temp=null;
+      if(expectedText!==undefined&&(await readCompact(file)).text!==expectedText)throw new Error('The note changed on disk. Regenerate the proposal.');await fs.rename(temp,file); temp=null;
       // Autosave retains the latest 20 pre-save versions per note.
       const snapshots=(await fs.readdir(recovery).catch(()=>[])).filter(name=>name.startsWith(recoveryPrefix)&&name.endsWith('.md')).sort();
       await Promise.all(snapshots.slice(0,-20).map(name=>fs.unlink(path.join(recovery,name)).catch(()=>{})));
       return {path:relative,text,version:hash(text),...(stamp.timestampWarning?{timestampWarning:stamp.timestampWarning}:{})};
     } finally {if(temp) await fs.unlink(temp).catch(()=>{}); this.busy=false;}
   }
-  async create(relative,text='',options={}) { if(typeof text!=='string'||Buffer.byteLength(text)>8*1024*1024)throw new Error('Note is too large.'); if(/[\[\]#%]/.test(relative))throw new Error('Use names without [ ] # or % so links remain unambiguous.');const stamp=this.manageTimestamps&&!options.timestamped?require('./note-timestamps.cjs').stampNote(relative,text,{creating:true}):{text};text=stamp.text;if(Buffer.byteLength(text)>8*1024*1024)throw new Error('Note is too large.');const file=await this.checked(relative,true); await fs.writeFile(file,text,{flag:'wx'}); return {...await this.read(relative),...(stamp.timestampWarning?{timestampWarning:stamp.timestampWarning}:{})}; }
+  async create(relative,text='',options={}) { if(typeof text!=='string')throw new Error('Invalid note text.'); if(/[\[\]#%]/.test(relative))throw new Error('Use names without [ ] # or % so links remain unambiguous.');const stamp=this.manageTimestamps&&!options.timestamped?require('./note-timestamps.cjs').stampNote(relative,text,{creating:true}):{text};text=stamp.text;const file=await this.checked(relative,true); await fs.writeFile(file,text,{flag:'wx'}); return {path:relative,text,version:hash(text),...(stamp.timestampWarning?{timestampWarning:stamp.timestampWarning}:{})}; }
   backlinks(target) {
     return require('./plugins/local-knowledge.cjs').backlinks(this.notes,target);
   }

@@ -35,6 +35,7 @@ contextBridge.exposeInMainWorld('vaultAPI', {
   graph:()=>ipcRenderer.invoke('vault:graph'),
   graphModel:drafts=>ipcRenderer.invoke('vault:graphModel',drafts),
   tags:drafts=>ipcRenderer.invoke('vault:tags',drafts),
+  openPaged:path=>ipcRenderer.invoke('vault:openPaged',path),
   read:path=>ipcRenderer.invoke('vault:read',path),
   write:(path,text)=>ipcRenderer.invoke('vault:write',path,text),
   create:(path,text)=>ipcRenderer.invoke('vault:create',path,text),

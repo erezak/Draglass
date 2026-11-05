@@ -20,7 +20,7 @@ SVG and PNG export use Excalidraw's official export utilities. Both engines and 
 - Excalidraw element/group/area/frame fragments and custom embed alignments are not implemented. A fragment produces an explicit message; use a whole-file embed.
 - Native Excalidraw element links can navigate to vault notes/drawings. External website links and web/iframe embeddables are not opened in the canvas. Text-only wiki links on the canvas do not provide backlinks, transclusions or link-aware renames.
 - Mermaid uses strict rendering, text labels, bounded source/edge limits and sanitized SVG. Executable click callbacks and HTML/iframe content are not enabled. Node links use `internal-link` navigation; they do not create graph edges. Supported diagram syntax and layout behavior follow the bundled Mermaid 11.17.2 engine.
-- Drawing files retain the existing 8 MiB limit, with up to 10,000 elements. These are input limits, not native performance guarantees. Huge scenes and CJK/Hebrew handwriting/font behavior require native validation.
+- Large drawing files can open as paged source without a file-size rejection. Visual scene decoding remains a separate bounded operation (8 MiB decoded scenes, up to 10,000 elements). These are input limits, not native performance guarantees. Huge scenes and CJK/Hebrew handwriting/font behavior require native validation.
 - AI actions remain Markdown-note operations and reject drawing contexts. Discussion can receive drawing JSON, but providers are not supplied a raster image of the canvas.
 - Native Mac/Windows/Linux file handling, OS clipboard/import/export dialogs and signed installers still require native validation. The verification browser uses a real temporary Vault through a binding, not Electron IPC.
 

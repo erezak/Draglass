@@ -8,7 +8,6 @@ function filesFromArgs(args,cwd=process.cwd()){
 async function classifyFile(file,vault){
  const absolute=await fs.realpath(file),stat=await fs.stat(absolute);
  if(!supported(absolute)||!stat.isFile())throw new Error('Open a Markdown (.md) or Excalidraw (.excalidraw) file.');
- if(stat.size>8*1024*1024)throw new Error('Open files up to 8 MiB.');
  if(vault){
   let root;try{root=await fs.realpath(vault.root);}catch{return {mode:'detached',absolute};}const relative=path.relative(root,absolute);
   if(relative&&!relative.startsWith('..'+path.sep)&&relative!=='..'&&!path.isAbsolute(relative)){

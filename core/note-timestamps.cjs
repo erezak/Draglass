@@ -13,9 +13,9 @@ function setManaged(text,values){
 function managedValues(text){const m=readMetadata(text);return m.error?null:Object.fromEntries(keys.filter(k=>typeof m.values[k]==='string').map(k=>[k,m.values[k]]));}
 function mergeSavedTimestamps(current,saved){const values=managedValues(saved);if(!values||!keys.every(k=>values[k]))return current;try{return setManaged(current,values);}catch{return current;}}
 function sameNoteContent(a,b){if(a===b)return true;try{return setManaged(a,{created_at:'__managed__',updated_at:'__managed__'})===setManaged(b,{created_at:'__managed__',updated_at:'__managed__'});}catch{return false;}}
-function stampNote(path,text,{old,createdAt,creating=false,now=new Date()}={}){
+function stampNote(path,text,{old,createdAt,creating=false,force=false,now=new Date()}={}){
  if(!/\.md$/i.test(path)||isDrawing(path,text)||isDrawing(path,old||''))return {text};
- if(!creating&&text===old)return {text};
+ if(!creating&&!force&&text===old)return {text};
  const at=now.toISOString(),previous=old===undefined?null:managedValues(old);
  const created=creating?at:previous?.created_at||new Date(createdAt??now.getTime()).toISOString();
  try{return {text:setManaged(text,{created_at:created,updated_at:at})};}catch{return {text,timestampWarning:'Saved; fix YAML to update timestamps.'};}

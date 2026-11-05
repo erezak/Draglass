@@ -56,3 +56,5 @@ Export a shareable document with [[Tours/16 PDF export|Save as PDF]].
 Lumen field station, its people, organizations, systems and source evidence are invented examples. Names and dates demonstrate features rather than describe real events. External sample links use reserved example domains; bundled media are synthetic illustrations and test signals.
 
 Find words within one note using [[Tours/20 Document search]].
+
+- [[Tours/21 Large files|Large files without whole-file loading]]

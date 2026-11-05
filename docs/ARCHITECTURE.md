@@ -281,3 +281,21 @@ Source properties use `ui/source-records.js` to render each recorded field as wr
 `core/ai/token-command.cjs` owns bounded trusted subprocess execution and authenticated replay, shared by streaming and tool-call HTTP adapters. `AIService.providerConfig` supplies request-local key access and connection-scoped attempt callbacks without exposing credentials to the renderer. A saved key is preferred; generation occurs only for an absent key or HTTP 401. One generation attempt, including initial generation, is allowed until a successful HTTP request or app relaunch. `AIStore.tokenAttempts` owns that in-memory allowance independently for each connection; it is not persisted or reset by an ordinary retry.
 
 Generated tokens go through `AIStore.saveGeneratedKey`, using the same encryption/session-only policy as manually entered keys. The queued write checks the provider URL, command and previous key before replacing credentials, preserving concurrent settings changes. Active agent turns reuse their updated request-local key, while later operations load the saved key. Shared proxy variables, cancellation and output/time limits still apply. HTTP 401 has at most one credential replay; temporary-error backoff never resets or multiplies generation attempts. No vault contents enter the command.
+
+## Windowed document I/O · 0.41.0
+
+`core/windowed-document.cjs` separates document size from operation budgets. `WindowedDocument` uses positioned UTF-8 reads (128 KiB per page), stat-version tokens and serialized atomic streamed replacement. It holds no document-sized string, line array or byte-offset index. Copy loops use 64 KiB buffers; recovery delegates to filesystem copy with optional reflinks. Header timestamp changes use the shared timestamp service with an explicit force flag when edits are outside the header.
+
+Vault scan retains only metadata for paged documents, marking `paged:true` with an empty indexed body. Whole-document internal reads fail with a window-required signal instead of silently loading a huge body. The ordinary editor redirects this signal or its metadata marker to the paged window. OS opens use the same path for vault and detached files. Compact normal buffers retain existing editor features.
+
+`electron/large-file-windows.cjs` owns file-bound sessions and validates both the sender and its exact page URL; renderer requests carry only positions, versions and bounded replacement text. The renderer cannot select arbitrary files. `ui/large-file.js` owns bounded Source editing, automatic scroll navigation, autosave, scoped external refresh and close guards. Saves preserve the caret and local Undo; streaming saves temporarily lock editing/navigation. Main/detached/large windows share close-lifecycle accounting so the main process cannot abandon an active document.
+
+
+Large-file scrolling uses an overlapping rolling buffer, a byte-backed whole-document scrollbar and viewport anchors. Reads are queued with the newest destination taking precedence; edits are saved before changing ranges. The dedicated layout is isolated from the workspace grid. Its CodeMirror content wraps within the full available width. Header timestamp growth returns an anchor shift so saves retain the visible position.
+
+
+## Large Markdown Live Preview · 0.41.2
+
+The bounded editor composes the existing Markdown parser, Live Preview decorations, embeds and diagram components. Only standalone drawing source skips Markdown. File-scoped IPC exposes bounded embed reads, resource discovery from the current buffer and explicit link opening, using the existing folder and protocol checks.
+
+`core/markdown-window-context.cjs` streams preceding bytes in 64 KiB chunks to track code fences, with at most 64 sparse checkpoints plus the origin. It keeps scalar line state rather than a whole-line or document string. Version changes invalidate checkpoints. Distant first seeks can require a sequential context scan; subsequent nearby reads reuse checkpoints. `ui/editor/window-markdown.js` supplies virtual parser context and maps syntax positions back to the actual buffer, without inserting or saving synthetic text. Range changes dispose old drawing widgets and invalidate their edit epoch.

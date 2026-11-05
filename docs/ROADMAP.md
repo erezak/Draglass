@@ -190,3 +190,17 @@ Saved keys take priority; initial missing-key generation and 401 refresh share o
 ## Chat composer interaction · 0.40.2
 
 Enter sends a chat message, Shift+Enter inserts a line break, and mention selection or IME composition retain their expected keyboard behavior. Submission captures note references before clearing the textbox immediately; failure or cancellation restores the original draft in its own conversation.
+
+## Bounded-memory large files · 0.41.0
+
+Remove the fixed file-opening size cap across vault and detached contexts. Shared windowed Source editing uses positioned UTF-8 reads, automatic scroll navigation and streamed atomic saves with recovery. Vault discovery includes large files without whole-body indexing. Future work can add streaming search and richer viewport rendering without reintroducing document-sized buffers.
+
+
+### 0.41.1 — Transparent large-file scrolling
+
+Replace explicit section navigation with continuous scrolling and a whole-file scrollbar; fix narrow clipped text through an isolated full-width layout. Keep bounded UTF-8 reads, streamed autosave, detached context and draft protection.
+
+
+## Large-file Live Preview · 0.41.2
+
+Open large Markdown in editable Live Preview using the shared rendering components. Preserve streamed reads/saves and code-fence context across ranges; keep large standalone drawings as source and whole-document operations bounded.
