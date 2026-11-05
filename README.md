@@ -113,6 +113,8 @@ Calendar is an independent core plugin in the right sidebar for navigating dated
 
 Daily Briefing is an optional core plugin for a compact clipboard exchange with an external knowledge assistant. Its board combines all open tasks with a daily note, sourced decisions, person relationships, conflict flags and Undo. See [Daily Briefing](docs/DAILY_BRIEFING.md) for setup.
 
+Clipboard response size is independent of AI context budgets: complete valid briefing batches are accepted beyond the former byte ceilings and collection-count quotas, while each optional AI reconciliation request remains bounded. Coverage explanations and continuation instructions are preserved without character-count quotas.
+
 Daily Briefing uses short note titles with full context in the body. Its state, settings and Undo records are stored inside each vault under `.draglass/briefing/`.
 
 Vault-private recovery snapshots, trash, operation history and plugin data live in `.draglass/`.

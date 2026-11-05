@@ -187,3 +187,14 @@ Import the same response again, optionally with different JSON indentation: the 
 If Source coverage is partial or unknown, **Copy next prompt** supplies a short targeted continuation for the same chat, including specific missing meeting or document searches. It does not start another collection when complete. Inaccessible sources retain their gaps; incomplete coverage never silently advances the fully searched window.
 
 On a practice day, choose **Restart day** and read the confirmation. Only today can be reset: today’s recorded imports and collection are reversed, while earlier knowledge and later personal edits are preserved. The board lists any protected files. This works beyond the short Undo window. Start today again when ready; external assistant memory is not reset.
+
+
+## Clipboard size and AI context
+
+Import a complete, valid response even if it exceeds 16 KB of compact JSON or 64 KB after formatting. Those byte ceilings no longer apply. Preserve the response GUID and the existing item, source, people and field validation rules. Do not split JSON or delete evidence just to fit a byte target. Try the same response with extra indentation: it should be recognized as a duplicate, without creating more notes.
+
+Outgoing prompts remain compact. Optional AI reconciliation works on one task or decision at a time under the selected connection’s context budget; the complete clipboard response is not sent as one model prompt.
+
+Try a valid report containing more than twelve distinct coverage gaps: all should appear on the board. Larger collections remain one import for duplicate detection, Undo and Restart day; they do not become a single oversized AI request.
+
+Also try a valid gap explanation longer than 400 characters and continuation instructions longer than 500 characters. Import should preserve both completely. Copy next prompt should stay compact and refer to the full previous cursor in the same external chat.

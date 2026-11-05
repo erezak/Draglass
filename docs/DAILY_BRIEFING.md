@@ -27,10 +27,22 @@ extends earlier than the previous working day. Meetings needing preparation can
 include today and the next working day. Configure working days in Settings →
 Daily Briefing; Monday–Friday is the default.
 
-Prompts are capped at 8,000 UTF-8 bytes; incoming responses at 16,000 bytes of compact JSON,
-24 factual items, 24 sources and 16 people per batch. Batching has no fixed
-six-item ceiling. Insignificant JSON formatting whitespace does not consume the semantic budget. Clipboard input has a separate 65,536-byte transport limit. Oversized responses are rejected intact, never clipped.
-Continue the external chat to obtain a smaller complete batch. Session and batch
+Outgoing prompts are capped at 8,000 UTF-8 bytes. Response instructions target
+concise JSON around 12,000 bytes, rather than requiring a byte ceiling. Clipboard
+imports have no separate raw-text or compact-JSON byte cap; formatting whitespace
+and UTF-8 characters do not cause a size rejection. Schema validation still
+checks the response GUID, session, batch, evidence, field rules and collection
+types. There are no fixed import counts for gaps, items, sources, people,
+provenance references or acknowledgment entries. The response guide's suggested
+batch sizes keep exchanges concise; they are not import rejection thresholds.
+Identity/date field rules and malformed evidence still fail
+before changes are applied. Nothing is clipped to meet a prompt budget.
+
+Optional AI reconciliation handles one task or decision at a time, with a fresh
+conversation and the configured connection's context budget. It does not receive
+the complete clipboard response. Duplicate detection, one import summary and
+recoverable Undo continue to cover the complete validated batch.
+Session and batch
 numbers reject wrong responses. Each prompt issues a response GUID (`RESPONSE_ID`); the assistant must echo it exactly as `responseId`. The last 100 receipts persist across collections in this vault. Re-importing a response with formatting or JSON-key-order changes returns its original summary without applying it again. Reusing an imported GUID with different content reports an error; a genuinely updated response needs the next issued GUID. Stable item IDs remain separate and allow updates across batches and days.
 
 ## Notes and provenance
@@ -251,3 +263,8 @@ The first prompt asks for calendar discovery followed by title/date searches for
 Choose **Restart day** on the board or **Restart today’s briefing** in the palette. A confirmation explains the operation. It is available only for the current day after Draglass has created a checkpoint; it cannot target an older day. It reverses today’s tracked briefing writes across collections, including created notes, updates, archival and rewritten links, restores the pre-day collection checkpoint, clears today’s response receipts, and leaves collection stopped until **Start today**. An existing daily note is restored rather than deleted.
 
 The day checkpoint survives app restarts and the ten-minute Undo expiry. Files edited after or between briefing operations are preserved and listed on the board; both sides of an archive move are protected together. Unrelated earlier knowledge is untouched. Restart cannot undo anything remembered by the external assistant. New checkpoints are recorded going forward; earlier untracked imports cannot be safely reversed.
+
+
+## Full coverage explanations
+
+Coverage-gap explanations and continuation instructions have no character-count quota. They must be proper text rather than blank explanations or NUL-containing strings. Long Unicode and multiline descriptions are preserved in the vault. A long continuation cursor is retained in full; **Copy next prompt** refers to the complete next-search instructions in the external assistant’s previous response, keeping the copied prompt compact. Continue in that same external chat. No gaps or search targets are discarded to satisfy a prompt budget.

@@ -309,3 +309,20 @@ The shared preview extension keeps an editor-state interaction flag, initially f
 ## Duplicate document titles · 0.41.4
 
 `ui/document-title.js` controls the additional filename heading independently of source rendering. It compares the filename with the first top-level H1 after valid frontmatter, using parsed Markdown and sanitized inline display text. Unicode, whitespace and case are normalized; punctuation is preserved. Results are cached by immutable editor document identity. Each pane refreshes its own title on edits, external reloads and path changes. Matching notes hide the whole additional heading container; the authored H1, properties and navigation remain intact. Compact detached/large-file filename bars remain file identifiers.
+
+
+## Clipboard import budgets · 0.41.5
+
+Daily Briefing decodes clipboard JSON once, validates the parsed object and retains its full canonical receipt. Raw-text and compact-JSON byte rejection are removed independently of external collection shape/field limits. The 8,000-byte outgoing prompt limit and per-request AI context fitting remain. AI reconciliation already creates a fresh, read-only request per task/decision; source arrays and complete clipboard payloads are not model context. The deterministic importer validates the whole collection before applying its existing recoverable journal operation.
+
+
+## Briefing collections · 0.41.6
+
+Protocol collection validation checks array shape and every entry without fixed counts for gaps, items, sources, people, evidence references or acknowledgment entries. Factual field, source-ID, duplicate-ID and session checks remain. Dated-source membership uses a Set rather than repeated source scans. Suggested external batch sizes and AI request budgets are independent of accepted import counts.
+
+The briefing journal opts out of the ordinary Tasks file-count policy through an internal `maxFiles` constructor option. Generic task operations retain their 256-file policy. Briefing imports still plan and validate all changes before writes, write files sequentially, preserve a single receipt/Undo/checkpoint and roll back interrupted changes. Recovery disk reads are limited to 32 concurrent files. Existing journal byte/durability safeguards remain; there is no new fixed record quota replacing the removed limits.
+
+
+## Briefing explanatory text · 0.41.7
+
+Coverage gaps and continuation cursors use text/type/NUL validation without character quotas. Incomplete-coverage cursor augmentation preserves the full incoming cursor. Clipboard receipts still hash the unchanged response. Copied prompts use a short reference to the external assistant’s complete previous next-search instructions when the retained cursor is too large for a compact reminder; the full cursor stays in vault state. Gaps are never model context, and local AI request budgets remain unchanged.

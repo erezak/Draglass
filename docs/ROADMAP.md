@@ -214,3 +214,18 @@ Keep Live Preview fully rendered on opening despite the initial caret; reveal ac
 ## One document title · 0.41.4
 
 Hide the redundant filename heading when the first authored H1 matches it; preserve source content, properties and independent pane state.
+
+
+## Separate import and AI budgets · 0.41.5
+
+Accept complete clipboard responses beyond the former 16 KB compact and 64 KB raw limits; retain schema/provenance validation, bounded AI requests, duplicate receipts and Undo.
+
+
+## Independent import collection sizes · 0.41.6
+
+Remove fixed coverage-gap, item, source, person, reference and acknowledgment entry counts. Preserve complete validation and recoverable import/Undo/Restart day across larger note collections, with bounded recovery I/O and separate AI context budgets.
+
+
+## Complete coverage explanations · 0.41.7
+
+Accept full coverage-gap and continuation text without character quotas. Preserve the stored instructions and keep same-chat continuation prompts compact through a reference rather than truncating imported data.
