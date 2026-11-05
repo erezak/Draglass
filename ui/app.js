@@ -28,7 +28,7 @@ import {defaultKeymap,history,historyKeymap,isolateHistory,undo,redo} from '@cod
 import {autocompletion,completionKeymap} from '@codemirror/autocomplete';
 import {markdown} from '@codemirror/lang-markdown';
 import {GFM} from '@lezer/markdown';
-import {livePreview,setLiveMode,refreshEmbeds} from './editor/live-preview.js';
+import {livePreview,setLiveMode,refreshEmbeds,setLiveInteraction,hasLiveInteraction} from './editor/live-preview.js';
 import {mergeSavedTimestamps,sameNoteContent} from '../core/note-timestamps.cjs';
 import {minimalChange} from '../core/diff.cjs';
 import {cleanPreferences} from '../core/preferences.cjs';
@@ -290,7 +290,7 @@ async function reconcileExternal(){
         if(epoch!==vaultEpoch||loading||!tabs.includes(tab)||disk.version===tab.version)return;
         clearTimeout(tab.autosaveTimer);
         const selection=tab.state.selection.main;
-        Object.assign(tab,disk,{state:stateFor(disk.text,tab.path,tab).update({selection:{anchor:Math.min(selection.anchor,disk.text.length),head:Math.min(selection.head,disk.text.length)}}).state,saveError:null});
+        Object.assign(tab,disk,{state:stateFor(disk.text,tab.path,tab).update({effects:setLiveInteraction.of(hasLiveInteraction(tab.state)),selection:{anchor:Math.min(selection.anchor,disk.text.length),head:Math.min(selection.head,disk.text.length)}}).state,saveError:null});
         if(current===tab){editor.setState(tab.state);propertyEditor.render(true);discovery.changed();words();renderReading();status('Updated from disk');}renderTabs();
       });
       saveQueue=job;

@@ -204,3 +204,8 @@ Replace explicit section navigation with continuous scrolling and a whole-file s
 ## Large-file Live Preview · 0.41.2
 
 Open large Markdown in editable Live Preview using the shared rendering components. Preserve streamed reads/saves and code-fence context across ranges; keep large standalone drawings as source and whole-document operations bounded.
+
+
+## Rendered first opening · 0.41.3
+
+Keep Live Preview fully rendered on opening despite the initial caret; reveal active Markdown only after editing intent, consistently across document contexts.

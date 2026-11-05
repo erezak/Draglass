@@ -299,3 +299,8 @@ Large-file scrolling uses an overlapping rolling buffer, a byte-backed whole-doc
 The bounded editor composes the existing Markdown parser, Live Preview decorations, embeds and diagram components. Only standalone drawing source skips Markdown. File-scoped IPC exposes bounded embed reads, resource discovery from the current buffer and explicit link opening, using the existing folder and protocol checks.
 
 `core/markdown-window-context.cjs` streams preceding bytes in 64 KiB chunks to track code fences, with at most 64 sparse checkpoints plus the origin. It keeps scalar line state rather than a whole-line or document string. Version changes invalidate checkpoints. Distant first seeks can require a sequential context scan; subsequent nearby reads reuse checkpoints. `ui/editor/window-markdown.js` supplies virtual parser context and maps syntax positions back to the actual buffer, without inserting or saving synthetic text. Range changes dispose old drawing widgets and invalidate their edit epoch.
+
+
+## Live Preview editing intent · 0.41.3
+
+The shared preview extension keeps an editor-state interaction flag, initially false. Initial selection and automatic focus leave the note rendered. Text clicks, editing/navigation keys, composition/input and explicit selection transactions activate syntax disclosure. Background document changes do not activate it. External vault reloads retain the previous interaction state while restoring the caret. The same extension supplies vault, detached and bounded-file editors.

@@ -7,6 +7,8 @@ demonstrates:
 
 # Write, edit and keep your place
 
+Open this note and check that Live Preview starts fully rendered, even on the caret’s initial line. Click into the text, type or navigate with the keyboard to reveal Markdown syntax. Automatic focus alone should not reveal it.
+
 Edit this note directly. Live Preview formats Markdown while keeping it editable; move the caret into **bold**, *italic*, ~~struck text~~ or `inline code` to see its syntax. Use the note menu for **Source** and **Reading view**. Nothing here is a screenshot of an editor.
 
 ## A small checklist
