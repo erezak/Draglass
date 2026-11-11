@@ -180,3 +180,5 @@ This board uses Mindflow JSON and the bundled Mindflow canvas. Scroll over the c
 Use **Insert mind map** from the command palette to create another. In Source mode, paste a raw Mindflow board object (its `nodes` and `edges`) inside a `mindmap` fence. The same JSON can be copied back out after editing.
 
 To import a downloaded board, open **Edit mind map → Import / repair JSON**, paste the full JSON, choose **Load board**, then **Save map**. This replaces only that map. The same panel opens automatically if a fence contains malformed JSON.
+
+Thanks to Danny (@dimkinv) for the Mindflow canvas, the Excalidraw team for the drawing tools, and the Mermaid team for diagram rendering.

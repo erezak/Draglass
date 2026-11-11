@@ -8,4 +8,8 @@ for(const match of html.matchAll(/(?:href|src)="([^"]+)"/g)){const url=match[1];
 assert.ok(!/contenteditable\s*=\s*["']?(?:true|plaintext-only)/i.test(html));assert.ok(!/<textarea/i.test(html));assert.ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/.test(fs.readFileSync(path.join(root,'assets/site.js'),'utf8')),'The tour must not send requests');
 for(const file of ['.nojekyll','404.html','robots.txt','sitemap.xml'])assert.ok(fs.existsSync(path.join(root,file)));
 assert.ok(html.includes('© 2026 Erez Korn'));
+const mindmap=fs.readFileSync(path.join(root,'assets/showcase-mindmap.js'),'utf8');
+assert.ok(html.includes('id="showcase-mindmap"')&&html.includes('id="diagrams-mindflow"'));
+assert.doesNotMatch(mindmap,/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/,'The Mindflow showcase must stay offline-capable');
+
 console.log('Site checks passed: nine pages, unique IDs, resolved local links/assets, read-only notes, and GitHub Pages support.');

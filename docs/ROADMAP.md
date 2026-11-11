@@ -251,3 +251,7 @@ New inline and standalone drawings start transparent. Existing drawings retain t
 ## Bundled Mindflow canvas · 0.42.4
 
 Use Mindflow’s interactive canvas for note previews and editing. Draglass stores the board in its Markdown fence and keeps the static PDF renderer.
+
+## Mindflow showcase and credits · 0.42.5
+
+Explore the demo vault’s Field day board in the read-only web tour, or open it from the demo vault’s Welcome note to edit it. About credits Danny, Excalidraw and Mermaid.

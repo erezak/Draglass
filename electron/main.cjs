@@ -12,7 +12,7 @@ const organization=require('../core/organization.cjs');
 const {importFiles,assetResponse,MAX}=require('../core/attachments.cjs');
 protocol.registerSchemesAsPrivileged([{scheme:'draglass-asset',privileges:{standard:true,secure:true,stream:true}}]);
 app.setName('Draglass Editor');
-app.setAboutPanelOptions?.({applicationName:'Draglass Editor',applicationVersion:require('../package.json').version,version:require('../package.json').version,iconPath:path.join(__dirname,'../assets/icon.png'),copyright:'Copyright © 2026 Erez Korn'});
+app.setAboutPanelOptions?.({applicationName:'Draglass Editor',applicationVersion:require('../package.json').version,version:require('../package.json').version,iconPath:path.join(__dirname,'../assets/icon.png'),copyright:'Copyright © 2026 Erez Korn',credits:'Mindflow canvas — Danny (@dimkinv)\nDrawing tools — Excalidraw team\nDiagram rendering — Mermaid team',authors:['Erez Korn','Danny (@dimkinv) — Mindflow','Excalidraw team','Mermaid team']});
 const {SavedWorkspaceStore}=require('../core/saved-workspaces.cjs');
 let savedWorkspaces;
 let window, vault, workspace,watcher,watchTimer,ai,detached,largeFiles,knowledgeService,demoVault;

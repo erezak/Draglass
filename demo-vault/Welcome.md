@@ -19,6 +19,7 @@ This is an editable vault. Try things, follow links and change text. Your change
 | 04 Explore the graph | [[Tours/04 Explore the graph]] |
 | 05 AI conversations | [[Tours/05 AI conversations]] |
 | 06 Diagrams and drawings | [[Tours/06 Diagrams and drawings]] |
+| Field day mind map | [[Tours/06 Diagrams and drawings#A mind map for field day|Try the Mindflow canvas]] |
 | 07 Attachments | [[Tours/07 Attachments]] |
 | 08 Organize and recover | [[Tours/08 Organize and recover]] |
 | 09 Search and settings | [[Tours/09 Search and settings]] |

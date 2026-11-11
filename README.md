@@ -142,3 +142,5 @@ Use **Cmd/Ctrl+F** to search the active document, **Enter / Shift+Enter** to mov
 ## Large documents
 
 Markdown and drawing files have no fixed opening-size cap. Large files use automatic background loading as you scroll, with Markdown in editable Live Preview and the usual scrollbar. Autosave streams untouched bytes and retains recovery copies. Outside files keep a compact Detached badge. Drawing files remain source-only above the normal-buffer threshold. Whole-document search, PDF export and body indexing remain normal-buffer features.
+
+The read-only web showcase includes the demo vault’s Field day mind map. Run `pnpm build:showcase` to rebuild its browser bundle after editing the demo board.

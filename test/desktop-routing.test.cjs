@@ -23,6 +23,7 @@ test('desktop cold open restores the vault before routing; warm opens reuse wind
  let holdSearch=false,releaseSearch,searchStarted;const started=new Promise(resolve=>searchStarted=resolve);const gate=new Promise(resolve=>releaseSearch=resolve);const {KnowledgeService}=require('../core/backend/client.cjs');class TestKnowledgeService extends KnowledgeService{async request(method,...args){if(method==='search'&&holdSearch){searchStarted();await gate;}return super.request(method,...args);}}
  vm.runInNewContext(await fs.readFile(filename,'utf8'),{require:name=>name==='electron'?electron:name==='../core/demo-vault.cjs'?{DemoVault:TestDemoVault}:name==='../core/backend/client.cjs'?{KnowledgeService:TestKnowledgeService}:localRequire(name),__dirname:path.dirname(filename),process:{platform:'darwin',argv:['Draglass',inside]},setTimeout,clearTimeout,console});
  assert.equal(app.about.applicationVersion,require('../package.json').version);assert.equal(app.about.version,require('../package.json').version);assert.ok(app.about.iconPath.endsWith('assets/icon.png'));
+ for(const credit of ['Danny (@dimkinv)','Excalidraw','Mermaid']){assert.ok(app.about.credits.includes(credit));assert.ok(app.about.authors.some(author=>author.includes(credit)));}
  // The OS can deliver another file before readiness.
  app.emit('open-file',{preventDefault(){}},outside);
  for(let i=0;i<50&&!windows.length;i++)await new Promise(r=>setTimeout(r,10));
