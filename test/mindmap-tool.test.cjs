@@ -23,7 +23,7 @@ for(const cli of [false,true])test('read-only chat can draft a mind map through 
  let step=0;const progress=[];
  const result=await runVaultAgent({vault:null,prompt:'Make a small Draglass mind map.',signal:new AbortController().signal,provider:{contextWindow:16384},progress:v=>progress.push(v),turn:async(messages,{tools})=>{
   assert.ok(tools.some(t=>t.name==='get_mindmap_guide'));
-  assert.match(messages[0].content,/Call get_mindmap_guide before drafting or editing a mind map/);
+  assert.match(messages[0].content,/Call get_mindmap_guide when drafting a new mind map/);
   if(++step===1){const call={id:'guide',name:'get_mindmap_guide',arguments:{}};return cli?JSON.stringify({tool_calls:[call]}):{calls:[call]};}
   return {content:JSON.parse(messages.at(-1).content).example_markdown,calls:[]};
  }});
