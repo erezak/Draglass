@@ -330,3 +330,5 @@ Coverage gaps and continuation cursors use text/type/NUL validation without char
 Mind maps use a self-contained `mindmap` fence. `core/mindmap.cjs` validates the Mindflow board snapshot (nodes, coordinates, parent IDs, styled edges and cross-links) and preserves the Markdown fence and container on replacement. The previous outline syntax is accepted and converts to JSON when edited and saved. `ui/mindmap.js` owns the positioned SVG canvas, viewport and visual editor; it submits one guarded CodeMirror transaction for normal autosave and undo. The shared Markdown renderer and PDF exporter reuse the SVG layout. No map data lives outside the note.
 
 The global read-only AI tool `get_mindmap_guide` supplies the Mindflow schema, layout hints and a parser-checked example on demand. It can be called without a vault. Note changes still use the ordinary proposal flow.
+
+The shared new-drawing template sets a transparent Excalidraw canvas for inline blocks and standalone files. Preview and image export explicitly omit the background when the saved canvas is transparent.

@@ -4,12 +4,12 @@ demonstrates: [diagrams]
 # Drawings inside Markdown
 
 These scenes live inside this ordinary note. They do not require separate drawing files.
-Use **Insert inline drawing** from the command palette for a new empty scene.
+Use **Insert inline drawing** from the command palette for a new empty scene. New inline and standalone drawings start with a transparent canvas. Add a shape, select **Done**, and check that the preview shows the note surface around it. To give a drawing its own color, choose **Change canvas background** in the drawing menu.
 
 ## Excalidraw fence
 
 ```excalidraw
-{"type":"excalidraw","version":2,"source":"Draglass Editor","elements":[{"id":"idea","type":"rectangle","x":20,"y":20,"width":210,"height":100,"angle":0,"strokeColor":"#7960bd","backgroundColor":"#eee7fa","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"index":"a0","roundness":{"type":3},"seed":101,"version":1,"versionNonce":1,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false},{"id":"idea-label","type":"text","x":48,"y":48,"width":150,"height":30,"angle":0,"strokeColor":"#7960bd","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"index":"a1","roundness":null,"seed":102,"version":1,"versionNonce":1,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"Field reading","originalText":"Field reading","fontSize":24,"fontFamily":5,"textAlign":"left","verticalAlign":"top","containerId":null,"lineHeight":1.25,"autoResize":true}],"appState":{"viewBackgroundColor":"#ffffff"},"files":{}}
+{"type":"excalidraw","version":2,"source":"Draglass Editor","elements":[{"id":"idea","type":"rectangle","x":20,"y":20,"width":210,"height":100,"angle":0,"strokeColor":"#7960bd","backgroundColor":"#eee7fa","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"index":"a0","roundness":{"type":3},"seed":101,"version":1,"versionNonce":1,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false},{"id":"idea-label","type":"text","x":48,"y":48,"width":150,"height":30,"angle":0,"strokeColor":"#7960bd","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":2,"strokeStyle":"solid","roughness":1,"opacity":100,"groupIds":[],"frameId":null,"index":"a1","roundness":null,"seed":102,"version":1,"versionNonce":1,"isDeleted":false,"boundElements":null,"updated":1,"link":null,"locked":false,"text":"Field reading","originalText":"Field reading","fontSize":24,"fontFamily":5,"textAlign":"left","verticalAlign":"top","containerId":null,"lineHeight":1.25,"autoResize":true}],"appState":{"viewBackgroundColor":"transparent"},"files":{}}
 ```
 
 Choose **Edit inline**, add a shape, and keep editing after autosave. Choose **Done**

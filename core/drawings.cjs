@@ -24,5 +24,5 @@ function writeDrawing(document,scene){validateScene(scene);const raw=JSON.string
  const heading=/^#{1,2} Text Elements[ \t]*\r?\n/gm,match=heading.exec(text);if(match){const start=match.index+match[0].length,tail=text.slice(start),next=/^#{1,2} (?:Drawing|Embedded Files|Element Links|Excalidraw Data)\b/m.exec(tail);if(next){const content=scene.elements.filter(e=>e.type==='text'&&!e.isDeleted).map(e=>(e.originalText??e.text??e.rawText??'')+' ^'+e.id).join('\n\n');const marker=tail.slice(0,next.index).match(/(?:^|\n)(%%[ \t]*\r?\n[ \t\r\n]*)$/)?.[1]||'';text=text.slice(0,start)+'\n'+content+'\n\n'+marker+tail.slice(next.index);}}
  if(text.length>MAX)throw new Error('Drawing is too large (8 MiB limit).');return text;
 }
-function emptyDrawing(){return JSON.stringify({type:'excalidraw',version:2,source:'Draglass Editor',elements:[],appState:{viewBackgroundColor:'#ffffff'},files:{}},null,2)+'\n';}
+function emptyDrawing(){return JSON.stringify({type:'excalidraw',version:2,source:'Draglass Editor',elements:[],appState:{viewBackgroundColor:'transparent'},files:{}},null,2)+'\n';}
 module.exports={MAX,isDrawingPath,isDrawing,validateScene,parseDrawing,writeDrawing,emptyDrawing};

@@ -243,3 +243,7 @@ The inline map editor now reads and writes Mindflow’s JSON board data. Preserv
 Chat can retrieve the Mindflow format and a valid example on demand, then draft a copyable map or stage a reviewed note edit.
 
 The map editor also validates and previews a pasted JSON board before saving it. A malformed fence opens the same repair panel.
+
+## Transparent new Excalidraw canvases · 0.42.3
+
+New inline and standalone drawings start transparent. Existing drawings retain their saved canvas colors.

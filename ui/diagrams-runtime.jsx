@@ -6,8 +6,8 @@ import {Excalidraw,MainMenu,restore,exportToSvg,exportToBlob,serializeAsJSON,Cap
 import '@excalidraw/excalidraw/index.css';
 let sequence=0,queue=Promise.resolve();
 export function renderMermaid(source,dark){const job=queue.catch(()=>{}).then(async()=>{mermaid.initialize({startOnLoad:false,securityLevel:'strict',theme:dark?'dark':'default',suppressErrorRendering:true,htmlLabels:false,maxTextSize:100000,maxEdges:1000,flowchart:{htmlLabels:false},secure:['secure','securityLevel','startOnLoad','maxTextSize','maxEdges','suppressErrorRendering','htmlLabels']});return (await mermaid.render('draglass-mermaid-'+(++sequence),source)).svg;});queue=job;return job;}
-export async function drawingSvg(scene,dark){const restored=restore(scene,null,null);return await exportToSvg({elements:restored.elements,appState:{...restored.appState,exportWithDarkMode:dark,exportBackground:true},files:scene.files||{},exportPadding:24});}
-export async function drawingPng(scene){const restored=restore(scene,null,null);return exportToBlob({elements:restored.elements,appState:restored.appState,files:scene.files||{},exportPadding:24});}
+export async function drawingSvg(scene,dark){const restored=restore(scene,null,null);return await exportToSvg({elements:restored.elements,appState:{...restored.appState,exportWithDarkMode:dark,exportBackground:restored.appState.viewBackgroundColor!=='transparent'},files:scene.files||{},exportPadding:24});}
+export async function drawingPng(scene){const restored=restore(scene,null,null);return exportToBlob({elements:restored.elements,appState:restored.appState.viewBackgroundColor==='transparent'?{...restored.appState,exportBackground:false}:restored.appState,files:scene.files||{},exportPadding:24});}
 export function mountDrawing(host,scene,{onChange,onLink,dark=false,readonly=false,name='Drawing'}){let api=null,first=true,signature;const root=createRoot(host),initialCenter=centerDrawingOnOpen(host,()=>api,scene.elements.some(element=>!element.isDeleted));
  const ready=value=>{api=value;initialCenter.schedule();};
  const fingerprint=(elements,state,files)=>JSON.stringify([elements,files,state.viewBackgroundColor,state.gridSize]);
