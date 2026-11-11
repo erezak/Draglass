@@ -229,3 +229,17 @@ Remove fixed coverage-gap, item, source, person, reference and acknowledgment en
 ## Complete coverage explanations · 0.41.7
 
 Accept full coverage-gap and continuation text without character quotas. Preserve the stored instructions and keep same-chat continuation prompts compact through a reference rather than truncating imported data.
+
+## Inline mind maps · 0.42.0
+
+Create an editable standalone map in a Markdown fence. Draglass lays it out on a grid with a central root and colored branches, and renders it in Live Preview, Reading view and PDF. The visual editor saves a single undoable edit to the fence.
+
+## Mindflow board format · 0.42.1
+
+The inline map editor now reads and writes Mindflow’s JSON board data. Preserve free positions, parent relationships, manual cross-links and connector styles through edits, Reading view and PDF.
+
+## AI mind-map guide · 0.42.2
+
+Chat can retrieve the Mindflow format and a valid example on demand, then draft a copyable map or stage a reviewed note edit.
+
+The map editor also validates and previews a pasted JSON board before saving it. A malformed fence opens the same repair panel.

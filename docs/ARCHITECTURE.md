@@ -326,3 +326,7 @@ The briefing journal opts out of the ordinary Tasks file-count policy through an
 ## Briefing explanatory text · 0.41.7
 
 Coverage gaps and continuation cursors use text/type/NUL validation without character quotas. Incomplete-coverage cursor augmentation preserves the full incoming cursor. Clipboard receipts still hash the unchanged response. Copied prompts use a short reference to the external assistant’s complete previous next-search instructions when the retained cursor is too large for a compact reminder; the full cursor stays in vault state. Gaps are never model context, and local AI request budgets remain unchanged.
+
+Mind maps use a self-contained `mindmap` fence. `core/mindmap.cjs` validates the Mindflow board snapshot (nodes, coordinates, parent IDs, styled edges and cross-links) and preserves the Markdown fence and container on replacement. The previous outline syntax is accepted and converts to JSON when edited and saved. `ui/mindmap.js` owns the positioned SVG canvas, viewport and visual editor; it submits one guarded CodeMirror transaction for normal autosave and undo. The shared Markdown renderer and PDF exporter reuse the SVG layout. No map data lives outside the note.
+
+The global read-only AI tool `get_mindmap_guide` supplies the Mindflow schema, layout hints and a parser-checked example on demand. It can be called without a vault. Note changes still use the ordinary proposal flow.

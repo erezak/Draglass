@@ -47,8 +47,8 @@ Each connection has a **Context window (tokens)** setting. Draglass reserves res
 - Global and local graphs with ontology types, relationships and edge provenance.
 - Compact YAML property editing with type icons, type/subtype selectors and visual relationships. Properties starts collapsed whenever a note opens.
 - Ontology entity templates, configurable in Settings → Core plugins → Entity templates.
-- Attachments, note embeds, editable Mermaid diagrams and Excalidraw canvases.
-- Element-local horizontal scrolling and hover scrollbars; Mermaid Fit and zoom controls.
+- Attachments, note embeds, editable Mermaid diagrams, Mindflow JSON mind maps and Excalidraw canvases.
+- Element-local horizontal scrolling and hover scrollbars; Fit and zoom controls for Mermaid and mind maps.
 - OS Markdown/Excalidraw file associations and clearly labelled detached editing.
 
 ## Architecture and roadmap

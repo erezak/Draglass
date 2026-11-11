@@ -382,3 +382,41 @@ dialog{width:410px;max-width:90vw;background:var(--panel);color:var(--text);bord
 .connections-switch button{flex:1;border:0;background:transparent;color:var(--muted);padding:7px 10px;border-radius:6px}
 .connections-switch button.selected{background:var(--panel);color:var(--text);box-shadow:0 1px 3px #0001;font-weight:600}
 #outgoing-connections{min-width:0}.outgoing-note{overflow-wrap:anywhere}.outgoing-entry{display:flex;flex-direction:column;gap:5px;padding:12px 0;border-bottom:1px solid var(--border);min-width:0}.outgoing-kind{text-transform:uppercase;letter-spacing:.06em;font-size:10px;color:var(--muted)}.outgoing-target{display:block;text-align:start;white-space:normal;overflow-wrap:anywhere;color:var(--accent);font-weight:600;text-decoration:none;background:transparent;border:0;padding:2px 0}.outgoing-target:hover{text-decoration:underline}.outgoing-location,.outgoing-entry small{overflow-wrap:anywhere;color:var(--muted);font-size:11px}.outgoing-entry[data-status="missing"] .outgoing-target{color:var(--muted)}.outgoing-entry .relationship-evidence{font-size:12px}.outgoing-more{margin:12px 0;width:100%}
+
+/* Mind maps use the note's palette around a neutral grid and colored branches. */
+.mindmap-block{box-sizing:border-box;width:100%;min-width:0;contain:inline-size;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--panel);margin:16px 0}
+.cm-content .mindmap-block{margin-block:0}
+.mindmap-block .diagram-preview{overscroll-behavior-y:auto}
+:is(.mindmap-block,.mindmap-dialog) .diagram-preview{--map-grid:color-mix(in srgb,var(--muted) 15%,transparent);background-color:var(--panel);background-image:linear-gradient(var(--map-grid) 1px,transparent 1px),linear-gradient(90deg,var(--map-grid) 1px,transparent 1px);background-size:30px 30px;cursor:grab}
+:is(.mindmap-block,.mindmap-dialog) .diagram-preview.panning{cursor:grabbing}
+.mindmap-svg{--map-label:var(--text,#252238);--map-card:var(--panel,#fff);--map-root:#7a4cff}
+.mindmap-svg .mindmap-node:not(.mindmap-root) rect{fill:color-mix(in srgb,var(--node-color) 13%,var(--map-card))}
+.mindmap-svg .mindmap-node:not(.mindmap-root) text{fill:var(--map-label)}
+.mindmap-svg .mindmap-node text{pointer-events:none}
+.mindmap-svg .mindmap-node.selected rect,.mindmap-svg .mindmap-node:focus-visible rect{stroke-width:4;stroke:var(--map-label)}
+.mindmap-node[role=button],.mindmap-plus{cursor:pointer;outline:none}
+.mindmap-dialog .mindmap-node[role=button]{touch-action:none;cursor:grab}
+.mindmap-plus circle{fill:var(--map-root);stroke:var(--map-card);stroke-width:2}
+.mindmap-plus:focus-visible circle{stroke:var(--map-label)}
+.mindmap-plus path{fill:none;stroke:white;stroke-width:1.7;stroke-linecap:round}
+.mindmap-dialog{width:min(1080px,94vw);max-width:none}
+.mindmap-dialog .diagram-dialog-heading h2{margin-right:auto}
+.mindmap-dialog .diagram-dialog-heading button{margin-left:0}
+.mindmap-tools{display:flex;align-items:end;flex-wrap:wrap;gap:8px;margin-block:12px}
+.mindmap-tools label{display:grid;gap:4px;flex:1 1 220px}
+.mindmap-tools input{min-width:0;width:100%}
+.mindmap-dialog .diagram-toolbar{justify-content:flex-end;border:1px solid var(--border);border-radius:10px 10px 0 0}
+.mindmap-dialog .diagram-preview{border:1px solid var(--border);border-top:0;border-radius:0 0 10px 10px;height:min(50vh,480px)}
+.mindmap-error:not(:empty){color:var(--danger);margin-bottom:0}
+.mindmap-error:empty{margin:0}
+
+.mindmap-tools :is(textarea,select,input){max-width:100%;min-width:0}
+.mindmap-tools label:has(input[type=number]){flex:0 1 100px}
+.mindmap-tools label:has(input[type=color]){flex:0 0 86px}
+.mindmap-tools input[type=color]{height:34px;padding:3px}
+.mindmap-tools textarea{min-height:34px;width:100%;resize:vertical}
+.mindmap-connection-tools{margin:0 0 12px}
+
+.mindmap-json-tools{margin:0 0 12px}
+.mindmap-json-tools textarea{box-sizing:border-box;display:block;width:100%;margin:8px 0;font-family:monospace;resize:vertical}
+.mindmap-dialog [hidden]{display:none!important}

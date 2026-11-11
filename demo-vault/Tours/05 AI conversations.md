@@ -72,3 +72,7 @@ Send a short chat through your configured gateway, try both API protocols if it 
 Type a question and press **Enter** to send; use **Shift+Enter** for a new line. The textbox clears immediately while your message appears in the conversation. When note mention suggestions are open, Enter selects a note first; press it again to send. The selected reference still accompanies the message after the textbox clears.
 
 Try Send as well as the keyboard shortcut. On a failed or stopped request your draft returns for retry. Switch to another note during a request and verify that a failure restores only the originating draft, preserving the other note’s unsent text.
+
+## Draft a mind map
+
+With a provider connected, ask: “Use `get_mindmap_guide` to draft a Draglass mind map about planning a community garden. Add four branches and a dotted cross-link. Return a copyable mindmap fence.” Copy the fence into a note in Source mode, then switch to Live Preview to inspect it. To ask the model to put the map in a note, enable changes and review the proposed edit before accepting it.

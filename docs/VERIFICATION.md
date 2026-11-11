@@ -1,6 +1,6 @@
-# Verification · 0.41.7
+# Verification · 0.42.2
 
-The full suite passes 855 tests using a 4 GiB Node heap, with no failures, cancellations or skips. The build, expanded demo/sample checks and site checks pass. Briefing coverage includes issued response GUIDs, canonical duplicate receipts across collections, item outcomes, short continuation, partial/unavailable coverage, current-day restart after Undo expiry, pre-existing notes, later edits, archive moves and interrupted restart recovery. Settings UI tests cover optional token-command persistence and CLI visibility. Credential adapter tests cover plain/JSON tokens, hidden failure output, timeout, cancellation, saved-key reuse, missing-key generation, one connection-scoped generation allowance, no repeated attempts across failing requests, reset after success or relaunch, encrypted/session-only generated-key reuse, per-connection isolation, concurrent manual-key protection, shared HTTP 429 backoff, both API protocols and tool-call paths.
+Run the full suite with `NODE_OPTIONS=--max-old-space-size=4096 pnpm test`. The build, expanded demo/sample checks and site checks pass. Briefing coverage includes issued response GUIDs, canonical duplicate receipts across collections, item outcomes, short continuation, partial/unavailable coverage, current-day restart after Undo expiry, pre-existing notes, later edits, archive moves and interrupted restart recovery. Settings UI tests cover optional token-command persistence and CLI visibility. Credential adapter tests cover plain/JSON tokens, hidden failure output, timeout, cancellation, saved-key reuse, missing-key generation, one connection-scoped generation allowance, no repeated attempts across failing requests, reset after success or relaunch, encrypted/session-only generated-key reuse, per-connection isolation, concurrent manual-key protection, shared HTTP 429 backoff, both API protocols and tool-call paths.
 
 No live enterprise assistant retrieval, gateway access or native macOS packaging is claimed. The application icon, dependency lockfile, owner attribution and third-party license notices remain unchanged; the drawing engine stays independently pinned at 0.18.1.
 
@@ -340,3 +340,11 @@ All 767 automated tests passed without failures or skips using the existing 4 Gi
 Source entries render as direct reference/location/quote lines and retain extra nested provenance fields. Tests cover multiple objects and string references, line breaks, safe literal HTML-like text, source-mode editing access, external refreshes, unchanged Markdown/no incidental writes and collapsed-on-reopen behavior. Generic nested-property inspection remains available independently of source presentation. A real Chromium run verified two source records, a deliberately long unbroken reference, Light/Dark rendering and narrow layout without horizontal overflow or page errors. QA captures are not bundled.
 
 The YAML collection and source values are preserved. No dependency, lockfile, icon or license changes were made. Native packaging was not exercised.
+
+Mind map checks cover fence parsing and quoted source preservation, command insertion, visual editing, one-step Undo, stale edit refusal, Live Preview, Reading view, and static PDF SVGs. The demo contains a standalone field-day map. No new dependency or drawing-engine upgrade is required.
+
+Mindflow board checks verify the brief’s JSON schema, absolute positions, styled cross-links, branch movement, reparenting, one-step Undo, quoted fences, preservation of surrounding Markdown, and static PDF output.
+
+The AI mind-map guide is exercised in global read-only sessions and native/CLI chat turns. Its example parses as a real mindmap fence and preserves visible parent links and a manual cross-link. Existing clock and ontology calls are exercised alongside the new guide under the same context budget.
+
+The downloaded 41-node roadmap board is a regression fixture. Tests cover pasted-fence rendering and repair of malformed JSON, including no note write until Save map.

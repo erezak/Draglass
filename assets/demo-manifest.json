@@ -39,7 +39,7 @@
       "notes": [
         "Tours/05 AI conversations.md"
       ],
-      "exercise": "Explore bounded vault tools, ask for current local/UTC time before relative dates, inspect canonical ontology and provenance examples, find dated notes, follow citations, and review guarded edits with undo Inspect the read-only session label, explicitly enable reviewed changes, and switch Chat, Backlinks and Tasks using the right icon rail.; configure an optional API / LiteLLM Token command with a trusted script that prints a bare token or access_token JSON, verify both protocols and tool calls, saved-key reuse, missing-key generation, one connection-scoped attempt on HTTP 401, cancellation, timeout, secure key storage and allowance reset only after success or relaunch; use Enter to send and Shift+Enter for a new line, select note mentions before sending, check immediate textbox clearing with preserved request references, and restore failed drafts without replacing another note composer"
+      "exercise": "Explore bounded vault tools, then use the mind-map guide to produce a copyable Mindflow fence, ask for current local/UTC time before relative dates, inspect canonical ontology and provenance examples, find dated notes, follow citations, and review guarded edits with undo Inspect the read-only session label, explicitly enable reviewed changes, and switch Chat, Backlinks and Tasks using the right icon rail.; configure an optional API / LiteLLM Token command with a trusted script that prints a bare token or access_token JSON, verify both protocols and tool calls, saved-key reuse, missing-key generation, one connection-scoped attempt on HTTP 401, cancellation, timeout, secure key storage and allowance reset only after success or relaunch; use Enter to send and Shift+Enter for a new line, select note mentions before sending, check immediate textbox clearing with preserved request references, and restore failed drafts without replacing another note composer"
     },
     {
       "id": "diagrams",
@@ -47,7 +47,7 @@
         "Tours/06 Diagrams and drawings.md",
         "Tours/19 Inline drawings.md"
       ],
-      "exercise": "Render and edit diagrams; render and edit excalidraw fences and colon containers, preserve plain/compressed Drawing sections, keep the surrounding note intact and export static PDF vectors"
+      "exercise": "Render and edit diagrams; render and edit excalidraw fences and colon containers, preserve plain/compressed Drawing sections, keep the surrounding note intact and export static PDF vectors; open a Mindflow JSON board, import or repair a pasted board without editing the fence by hand, drag a branch, edit its hierarchy and styled cross-links, try Fit/zoom and canvas pan in both themes, and verify Reading view and PDF preserve the layout"
     },
     {
       "id": "attachments",

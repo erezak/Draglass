@@ -1,4 +1,4 @@
-const time=require('./time.cjs'),ontology=require('./ontology.cjs'),dates=require('./date.cjs');
+const time=require('./time.cjs'),ontology=require('./ontology.cjs'),dates=require('./date.cjs'),mindmap=require('./mindmap.cjs');
 const reads=require('./vault-read.cjs'),writes=require('./note-write.cjs');
 const {validateArguments}=require('./schema.cjs');
 const {bounded}=require('./results.cjs');
@@ -13,6 +13,7 @@ const catalog=[
  {definition:require('./tasks.cjs').definition,scope:'vault',plugin:'tasks',access:'read',execute:require('./tasks.cjs').execute},
  {definition:time.definition,scope:'global',access:'read',execute:(a,c)=>{c.progress('Checking the current time and timezone.');return (c.clock||time.getCurrentTime)(a);}},
  {definition:ontology.definition,scope:'global',access:'read',execute:(a,c)=>{c.progress('Inspecting the ontology'+(a.type?' for '+a.type:'')+'.');return (c.ontology||ontology.inspectOntology)(a);}},
+ {definition:mindmap.definition,scope:'global',access:'read',execute:(_a,c)=>{c.progress('Checking the mind-map format and layout rules.');return mindmap.guide();}},
  {definition:dates.definition,scope:'vault',access:'read',execute:async(a,c)=>{dates.clean(a);c.progress('Finding notes by '+(a.field||'modified')+' date.');if(c.knowledgeQuery)return c.knowledgeQuery('aiDateSearch',{...a,drafts:c.context.filter(n=>typeof n.text==='string')});return {...dates.dateInfo(a),...require('./results.cjs').page(dates.findNotesByDate(await c.notes(),a),a.offset)};}},
  ...reads.definitions.map(definition=>({definition,scope:'vault',access:'read',execute:reads.handlers[definition.name]})),
  ...writes.definitions.map(definition=>({definition,scope:'vault',access:'stage',execute:writes.handlers[definition.name]}))

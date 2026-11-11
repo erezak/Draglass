@@ -510,3 +510,33 @@ test('title matching uses rendered ATX and Setext text while ignoring fenced, qu
 test('editing a matching H1 restores the filename title immediately and Undo hides it again',async t=>{const text='# A\n\nBody\n',h=await harness(t,{text}),view=h.view();assert.equal(h.d.querySelector('#title').closest('.document-heading').hidden,true);view.dispatch({changes:{from:2,to:3,insert:'Different'}});assert.equal(h.d.querySelector('#title').closest('.document-heading').hidden,false);view.contentDOM.dispatchEvent(new h.w.KeyboardEvent('keydown',{key:'z',ctrlKey:true,bubbles:true,cancelable:true}));assert.equal(h.d.querySelector('#title').closest('.document-heading').hidden,true);assert.equal(view.state.sliceDoc(),text);});
 test('split panes independently hide matching titles and update the unfocused pane with shared edits',async t=>{const h=await harness(t,{text:'# A\n\nBody'});await h.command('split-right');await until(()=>h.d.querySelectorAll('.editor-pane').length===2);const panes=[...h.d.querySelectorAll('.editor-pane')];assert.ok(panes.every(p=>p.querySelector('.document-heading').hidden));h.view().dispatch({changes:{from:2,to:3,insert:'Different'}});assert.ok(panes.every(p=>!p.querySelector('.document-heading').hidden));assert.equal(h.view().state.sliceDoc(),'# Different\n\nBody');});
 test('external heading changes refresh title visibility without writing the note',async t=>{const h=await harness(t,{text:'# A\n\nBody'});assert.equal(h.d.querySelector('#title').closest('.document-heading').hidden,true);h.notes[0].text='# Different\n\nBody';h.notes[0].version='2';await h.changed();await until(()=>h.view().state.sliceDoc().includes('Different'));assert.equal(h.d.querySelector('#title').closest('.document-heading').hidden,false);assert.equal(h.saved.length,0);});
+
+test('mind maps insert through the command, render in Live Preview and Reading view, and undo as one edit',async t=>{
+ const h=await harness(t,{text:'Preserve this paragraph.'});
+ h.command('insert-mindmap');await until(()=>h.d.querySelector('.mindmap-dialog')?.open);
+ const dialog=h.d.querySelector('.mindmap-dialog'),input=dialog.querySelector('textarea');
+ input.value='Field study';input.dispatchEvent(new h.w.Event('input'));
+ [...dialog.querySelectorAll('button')].find(b=>b.textContent==='Save map').click();
+ await until(()=>h.d.querySelector('#editor .mindmap-svg')?.textContent.includes('Field study'));
+ assert.match(h.view().state.doc.toString(),/^Preserve this paragraph\.\n\n```mindmap\n\{/);
+ const model=require('../core/mindmap.cjs');
+ assert.equal(model.parse(model.blocks(h.view().state.doc.toString())[0].source).nodes[0].text,'Field study');
+ const content=h.d.querySelector('#editor .cm-content');content.dispatchEvent(new h.w.KeyboardEvent('keydown',{key:'z',ctrlKey:true,bubbles:true}));
+ await until(()=>h.view().state.doc.toString().includes('Central idea'));
+ h.d.querySelector('#preview-button').click();
+ await until(()=>h.d.querySelector('#reading .mindmap-svg')?.textContent.includes('Central idea'));
+ h.d.querySelector('#reading .mindmap-block button').click();await until(()=>h.d.querySelector('.mindmap-dialog[open]'));
+});
+
+test('a pasted roadmap JSON fence renders all nodes in Live Preview and Reading view',async t=>{
+ const board=require('./fixtures/draglass-roadmap-mindmap.json');
+ const h=await harness(t,{text:'Roadmap'});
+ const source='Roadmap\n\n```mindmap\n'+JSON.stringify(board,null,2)+'\n```\n';
+ h.view().dispatch({changes:{from:0,to:h.view().state.doc.length,insert:source},selection:{anchor:0}});
+ await until(()=>h.d.querySelectorAll('#editor .mindmap-node').length===41);
+ assert.equal(h.d.querySelector('#editor .diagram-error'),null);
+ h.d.querySelector('#preview-button').click();
+ await until(()=>h.d.querySelectorAll('#reading .mindmap-node').length===41);
+ assert.equal(h.d.querySelectorAll('#reading .mindflow-edge').length,48);
+ assert.equal(h.view().state.doc.toString(),source);
+});
