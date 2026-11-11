@@ -255,3 +255,7 @@ Use Mindflow’s interactive canvas for note previews and editing. Draglass stor
 ## Mindflow showcase and credits · 0.42.5
 
 Explore the demo vault’s Field day board in the read-only web tour, or open it from the demo vault’s Welcome note to edit it. About credits Danny, Excalidraw and Mermaid.
+
+## AI editing for existing mind maps · 0.42.6
+
+Read and edit map nodes and connectors directly through bounded tools; batch edits into a single review proposal without rewriting JSON through line tools.

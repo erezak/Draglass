@@ -1,4 +1,5 @@
 const time=require('./time.cjs'),ontology=require('./ontology.cjs'),dates=require('./date.cjs'),mindmap=require('./mindmap.cjs');
+const mapEdit=require('./mindmap-edit.cjs');
 const reads=require('./vault-read.cjs'),writes=require('./note-write.cjs');
 const {validateArguments}=require('./schema.cjs');
 const {bounded}=require('./results.cjs');
@@ -14,18 +15,21 @@ const catalog=[
  {definition:time.definition,scope:'global',access:'read',execute:(a,c)=>{c.progress('Checking the current time and timezone.');return (c.clock||time.getCurrentTime)(a);}},
  {definition:ontology.definition,scope:'global',access:'read',execute:(a,c)=>{c.progress('Inspecting the ontology'+(a.type?' for '+a.type:'')+'.');return (c.ontology||ontology.inspectOntology)(a);}},
  {definition:mindmap.definition,scope:'global',access:'read',execute:(_a,c)=>{c.progress('Checking the mind-map format and layout rules.');return mindmap.guide();}},
+ {definition:mapEdit.readDefinition,scope:'vault',feature:'mindmap',access:'read',execute:mapEdit.read},
+ {definition:mapEdit.writeDefinition,scope:'vault',feature:'mindmap',access:'stage',execute:mapEdit.stage},
  {definition:dates.definition,scope:'vault',access:'read',execute:async(a,c)=>{dates.clean(a);c.progress('Finding notes by '+(a.field||'modified')+' date.');if(c.knowledgeQuery)return c.knowledgeQuery('aiDateSearch',{...a,drafts:c.context.filter(n=>typeof n.text==='string')});return {...dates.dateInfo(a),...require('./results.cjs').page(dates.findNotesByDate(await c.notes(),a),a.offset)};}},
  ...reads.definitions.map(definition=>({definition,scope:'vault',access:'read',execute:reads.handlers[definition.name]})),
  ...writes.definitions.map(definition=>({definition,scope:'vault',access:'stage',execute:writes.handlers[definition.name]}))
 ];
 function freeze(value){if(value&&typeof value==='object'&&!Object.isFrozen(value)){Object.freeze(value);for(const v of Object.values(value))freeze(v);}return value;}
 freeze(catalog);
-const readTools=freeze(catalog.filter(t=>t.access==='read'&&!t.plugin).map(t=>t.definition));
-const writeTools=freeze(catalog.filter(t=>t.access==='stage'&&!t.plugin).map(t=>t.definition));
-function enabledEntries(hasVault,actionMode,tasksEnabled=false){return catalog.filter(t=>(!t.plugin||tasksEnabled)&&(t.scope==='global'||hasVault)&&(t.access==='read'||actionMode));}
-function toolDefinitions({hasVault=false,actionMode=false,tasksEnabled=false}={}){return structuredClone(enabledEntries(hasVault,actionMode,tasksEnabled).map(t=>t.definition));}
+const readTools=freeze(catalog.filter(t=>t.access==='read'&&!t.plugin&&!t.feature).map(t=>t.definition));
+const writeTools=freeze(catalog.filter(t=>t.access==='stage'&&!t.plugin&&!t.feature).map(t=>t.definition));
+const focusedNames=new Set(['get_mindmap_guide','read_mindmap','update_mindmap','search_vault','read_note','create_note','update_note','get_current_time']);
+function enabledEntries(hasVault,actionMode,tasksEnabled=false,mindmap=false,focused=false){return catalog.filter(t=>(!t.feature||mindmap)&&(!focused||focusedNames.has(t.definition.name))&&(!t.plugin||tasksEnabled)&&(t.scope==='global'||hasVault)&&(t.access==='read'||actionMode));}
+function toolDefinitions({hasVault=false,actionMode=false,tasksEnabled=false,mindmap=false,focused=false}={}){return structuredClone(enabledEntries(hasVault,actionMode,tasksEnabled,mindmap,focused).map(t=>t.definition));}
 function createToolSession(options={}){
- const entries=enabledEntries(!!options.vault,!!options.actionMode,!!options.tasksEnabled);
+ const entries=enabledEntries(!!options.vault,!!options.actionMode,!!options.tasksEnabled,!!options.mindmap,!!options.focused);
  const enabled=new Map(entries.map(t=>[t.definition.name,t]));
  const schemas=entries.map(t=>t.definition);
  const readLimit=options.readLimit??4000;

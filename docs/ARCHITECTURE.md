@@ -334,3 +334,5 @@ The global read-only AI tool `get_mindmap_guide` supplies the Mindflow schema, l
 The shared new-drawing template sets a transparent Excalidraw canvas for inline blocks and standalone files. Preview and image export explicitly omit the background when the saved canvas is transparent.
 
 The interactive mind-map view and editor mount the bundled Mindflow canvas through a Draglass adapter. The upstream component owns gestures, selection and editing in its shadow DOM; Draglass owns Markdown validation, import/repair, cancel, save, undo and stale-note checks. A compatibility renderer remains available for older boards with inconsistent edges, and PDF uses static SVG. No database or Mindflow server is bundled. See [the source attribution](../vendor/mindflow/ORIGIN.md).
+
+The AI registry offers scoped read_mindmap and update_mindmap tools for mind-map requests. They select a fenced board by index, read bounded node and connector summaries, and stage a validated batch against the read revision through the existing proposal workflow.

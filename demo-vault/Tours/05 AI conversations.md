@@ -76,3 +76,5 @@ Try Send as well as the keyboard shortcut. On a failed or stopped request your d
 ## Draft a mind map
 
 With a provider connected, ask: “Use `get_mindmap_guide` to draft a Draglass mind map about planning a community garden. Add four branches and a dotted cross-link. Return a copyable mindmap fence.” Copy the fence into a note in Source mode, then switch to Live Preview to inspect it. To ask the model to put the map in a note, enable changes and review the proposed edit before accepting it.
+
+To change an existing map, open **06 Diagrams and drawings**, enable **Propose changes**, and ask: “Rename Research to Field research in the Field day mind map.” Draglass can read the board with `read_mindmap` and stage the requested edits together with `update_mindmap`. Review the note proposal before accepting it.

@@ -1,4 +1,7 @@
-# Verification · 0.42.5
+# Verification · 0.42.6
+
+Mind map regressions cover scoped reads, batched updates, stale revisions, read-only access, and preserving the rest of the note while staging a proposal. The site test opens the diagrams note after startup, gives the canvas measurable dimensions, and checks that it fits the board. The static SVG is built from the same demo note and checked for all nodes and connectors. The site test simulates layout measurements; it does not validate the published GitHub Pages site.
+
 
 Run the full suite with `NODE_OPTIONS=--max-old-space-size=4096 pnpm test`. The build, expanded demo/sample checks and site checks pass. Briefing coverage includes issued response GUIDs, canonical duplicate receipts across collections, item outcomes, short continuation, partial/unavailable coverage, current-day restart after Undo expiry, pre-existing notes, later edits, archive moves and interrupted restart recovery. Settings UI tests cover optional token-command persistence and CLI visibility. Credential adapter tests cover plain/JSON tokens, hidden failure output, timeout, cancellation, saved-key reuse, missing-key generation, one connection-scoped generation allowance, no repeated attempts across failing requests, reset after success or relaunch, encrypted/session-only generated-key reuse, per-connection isolation, concurrent manual-key protection, shared HTTP 429 backoff, both API protocols and tool-call paths.
 
