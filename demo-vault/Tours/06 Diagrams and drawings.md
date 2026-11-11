@@ -38,7 +38,7 @@ containers and plain/compressed Drawing sections inside ordinary Markdown.
 
 ## A mind map for field day
 
-This board uses Mindflow JSON. Select **Edit mind map**, drag Research and watch its children move, then add a child to Field day. Open **Connections** to inspect the dashed cross-link from Compare sensor readings to Debrief. Try changing its line shape, then choose **Save map**. Drag the grid to pan after zooming in; **Fit** brings the whole map back. The map also renders in Reading view and PDF export.
+This board uses Mindflow JSON and the bundled Mindflow canvas. Scroll over the canvas to zoom, drag the background to pan, and choose **Fit** to see the whole board. Select **Edit mind map**, drag Research and watch its children move, then double-click a node to rename it. Right-click for duplication, reparenting and branch colors. Select a node and press **Tab** to add a child. Click the dashed cross-link to select and style its connector. Choose **Save map** to update the note. Reading view uses the same interactive viewer; PDF export prints a static diagram.
 
 ```mindmap
 {

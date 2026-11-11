@@ -1,3 +1,4 @@
+import {canMountMindflow,mountMindflow} from './mindflow-canvas.js';
 import {minimalChange} from '../core/diff.cjs';
 import model from '../core/mindmap.cjs';
 import {diagramViewport} from './diagram-viewport.js';
@@ -119,7 +120,14 @@ export function renderMindMap(host,source,{edit,print=false}={}){
   host.replaceChildren(toolbar,body);
  }else host.replaceChildren(body);
  try{
-  body.append(mindMapSvg(model.parse(source),{print}));
+  const board=model.parse(source);
+  if(!print&&canMountMindflow(board)){
+   body.classList.add('mindflow-surface');
+   const canvas=mountMindflow(body,board,{readOnly:true});
+   host._diagramViewportDispose=()=>canvas.destroy();
+   return;
+  }
+  body.append(mindMapSvg(board,{print}));
   if(!print){
    panCanvas(body);host._diagramViewportDispose=diagramViewport(body,toolbar,{label:'Mind map'});
    host._diagramDeactivate=()=>host._diagramViewportDispose?.pause();
@@ -140,7 +148,7 @@ export function createMindMapEditor({getTabs,getEpoch,onEdit,onError,isLocked,ge
   const found=getMindMapBlocks(snapshot).find(b=>b.blockFrom===block.blockFrom&&b.blockTo===block.blockTo&&b.source===block.source);
   if(!found){onError(new Error('The mind map changed. Reopen the note and try again.'));return;}
   close();
-  let selected=tree.nodes[0]?.id,dispose,dirty=false;
+  let selected=tree.nodes[0]?.id,dispose,mindflow,dirty=false;
   const dialog=html('dialog',null,'mindmap-dialog'),heading=html('div',null,'diagram-dialog-heading');
   const title=html('h2','Edit mind map');title.id='mindmap-editor-title';dialog.setAttribute('aria-labelledby',title.id);
   const tools=html('div',null,'mindmap-tools'),toolbar=html('div',null,'diagram-toolbar'),body=html('div',null,'diagram-preview');
@@ -176,8 +184,7 @@ export function createMindMapEditor({getTabs,getEpoch,onEdit,onError,isLocked,ge
    try{
     tree=model.parseImport(jsonInput.value);
     selected=tree.nodes[0]?.id;edgeId='';extent=undefined;invalid=null;jsonPanel.open=false;jsonInput.value='';
-    tools.hidden=connectionTools.hidden=toolbar.hidden=body.hidden=false;
-    refresh();
+    dirty=true;error.textContent='';mountBoard();
    }catch(e){error.textContent=e.message;}
   });
   jsonPanel.append(html('summary','Import / repair JSON'),jsonInput,loadJson);
@@ -210,7 +217,7 @@ export function createMindMapEditor({getTabs,getEpoch,onEdit,onError,isLocked,ge
   const edgeFields=html('div',null,'mindmap-tools');
   edgeFields.append(labeled('Connect to',target),connect,labeled('Edit connection',edgePicker),labeled('Line shape',shape),labeled('Line stroke',dash),labeled('Line color',edgeColor),disconnect);connectionTools.append(edgeFields);
   tools.append(label,labeled('Parent',parent),labeled('X position',x),labeled('Y position',y),labeled('Branch color',nodeColor),addChild,addRoot,remove);
-  dialog.append(heading,html('p','Drag a node to move its branch. Use Connections to add cross-links or style the lines.','muted'),tools,jsonPanel,connectionTools,toolbar,body,error);
+  dialog.append(heading,html('p','Drag a branch to move it, double-click a node to rename it, or right-click for more actions.','muted'),tools,jsonPanel,connectionTools,toolbar,body,error);
   let edgeId='',drag,extent,ignoreClick=false;
   const currentEdge=()=>tree.edges.find(e=>e.id===edgeId);
   const toHex=color=>color.length===4?'#'+[...color.slice(1)].map(c=>c+c).join(''):color;
@@ -312,13 +319,23 @@ export function createMindMapEditor({getTabs,getEpoch,onEdit,onError,isLocked,ge
   target.onchange=()=>{connect.disabled=!currentNode()||!target.value||tree.edges.length>=model.MAX_EDGES;};
   edgePicker.onchange=()=>{edgeId=edgePicker.value;controls();};
   for(const [field,key] of [[shape,'shape'],[dash,'dash'],[edgeColor,'color']])field.onchange=()=>{const edge=currentEdge();if(edge){edge[key]=field.value;refresh();}};
-  dialog.addEventListener('close',()=>{dispose?.();dialog.remove();if(active===dialog)active=null;},{once:true});
+  function mountBoard(){
+   mindflow?.destroy();mindflow=null;dispose?.();dispose=null;
+   body.replaceChildren();body.classList.remove('mindflow-surface','mermaid-viewport');
+   const native=canMountMindflow(tree);
+   tools.hidden=connectionTools.hidden=toolbar.hidden=native;body.hidden=false;
+   if(native){
+    body.classList.add('mindflow-surface');
+    mindflow=mountMindflow(body,tree,{onChange:next=>{tree=next;dirty=true;},onSaveRequest:save});
+   }else{paint();controls();}
+  }
+  dialog.addEventListener('close',()=>{mindflow?.destroy();dispose?.();dialog.remove();if(active===dialog)active=null;},{once:true});
   document.body.append(dialog);active=dialog;dialog.showModal();
   if(invalid){
    jsonPanel.open=true;tools.hidden=connectionTools.hidden=toolbar.hidden=body.hidden=true;
    error.textContent=invalid.message+' Replace the board JSON here, then select Load board.';
    jsonInput.focus();jsonInput.select();
-  }else{paint();controls();}
+  }else{mountBoard();}
  }
  return {open,close};
 }

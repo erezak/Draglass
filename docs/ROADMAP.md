@@ -247,3 +247,7 @@ The map editor also validates and previews a pasted JSON board before saving it.
 ## Transparent new Excalidraw canvases · 0.42.3
 
 New inline and standalone drawings start transparent. Existing drawings retain their saved canvas colors.
+
+## Bundled Mindflow canvas · 0.42.4
+
+Use Mindflow’s interactive canvas for note previews and editing. Draglass stores the board in its Markdown fence and keeps the static PDF renderer.

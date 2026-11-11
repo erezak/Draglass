@@ -40,9 +40,10 @@ test('parent changes keep cross-links, and deleting a node keeps its children wi
  M.removeNode(data,'route');
  assert.equal(radio.parentId,undefined);assert.ok(data.nodes.includes(radio));assert.equal(data.edges.length,1);
 });
+function canvas(host){return host.querySelector('.mindflow-mount > div').shadowRoot;}
 function harness(t){
  const {window:w}=new JSDOM('<!doctype html><body><article></article></body>',{runScripts:'outside-only',pretendToBeVisual:true});
- t.after(()=>w.close());w.eval(bundle);const d=w.document;
+ t.after(()=>w.close());w.structuredClone=structuredClone;w.eval(bundle);const d=w.document;
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};
  w.HTMLDialogElement.prototype.close=function(){this.open=false;this.dispatchEvent(new w.Event('close'));};
  let text='Before\n\n'+block+'\n\nAfter';const changes=[],errors=[];
@@ -50,15 +51,18 @@ function harness(t){
  const editor=w.Maps.createMindMapEditor({getTabs:()=>[tab],getEpoch:()=>0,isLocked:()=>false,onError:error=>errors.push(error),onEdit:(_,change)=>{
   changes.push(change);text=text.slice(0,change.from)+change.insert+text.slice(change.to);
  }});
+ w.HTMLElement.prototype.setPointerCapture=function(){};w.HTMLElement.prototype.hasPointerCapture=function(){return false;};
  const open=()=>editor.open(tab,M.blocks(text)[0]),click=name=>[...d.querySelectorAll('dialog[open] button')].find(b=>b.textContent===name).click();
- const name=value=>{const input=d.querySelector('dialog[open] textarea');input.value=value;input.dispatchEvent(new w.Event('input'));};
- return {w,d,changes,errors,open,click,name,read:()=>text,write:value=>{text=value;}};
+ const root=()=>canvas(d.querySelector('dialog[open]'));
+ const action=value=>root().querySelector('[data-action="'+value+'"]').click();
+ const name=(value,nodeId='root')=>{const c=root(),node=c.querySelector('[data-node="'+nodeId+'"]');if(!node.querySelector('input'))node.dispatchEvent(new w.MouseEvent('dblclick',{bubbles:true}));const input=node.querySelector('input');input.value=value;input.dispatchEvent(new w.Event('input',{bubbles:true}));};
+ return {w,d,changes,errors,open,click,name,root,action,read:()=>text,write:value=>{text=value;}};
 }
 
 test('visual editor saves one scoped change, handles harmless offsets, and refuses stale edits',t=>{
  const h=harness(t);
  h.open();h.name('Draft');h.click('Cancel');assert.equal(h.changes.length,0);
- h.open();h.name('Field day');h.click('Add child');h.name('Debrief');
+ h.open();h.name('Field day');h.root().querySelector('[data-node=root] button').click();const added=h.root().querySelector('[data-node].selected').dataset.node;h.name('Debrief',added);
  h.write('Outside edit\n\n'+h.read());h.click('Save map');assert.equal(h.changes.length,1);
  const result=M.parse(M.blocks(h.read())[0].source);
  assert.equal(result.nodes[0].text,'Field day');
@@ -73,26 +77,30 @@ test('renderer uses stored coordinates and styles, keeps labels inert, and expor
  const h=harness(t),host=h.d.querySelector('article'),data=structuredClone(board);
  data.nodes[1].text='<script>unsafe()</script>';
  h.w.Maps.renderMindMap(host,M.serialize(data),{edit:()=>{}});
- assert.equal(host.querySelectorAll('.mindmap-node')[1].getAttribute('transform'),'translate(410 220)');
- assert.equal(host.querySelectorAll('.mindflow-edge').length,4);assert.equal(host.querySelector('script'),null);
- assert.match(host.textContent,/<script>/);assert.ok(host.querySelector('output'));
- const cross=host.querySelector('[stroke="#f43fa4"]');
- assert.equal(cross.getAttribute('stroke-dasharray'),'1 7');assert.match(cross.getAttribute('d'),/ H .* V /);
+ const root=canvas(host),supplies=root.querySelector('[data-node=supplies]');
+ assert.equal(supplies.style.left,'410px');assert.equal(supplies.style.top,'220px');
+ assert.equal(root.querySelectorAll('[data-edge]').length,4);assert.equal(root.querySelector('script'),null);
+ assert.equal(supplies.textContent,'<script>unsafe()</script>');
+ assert.ok(root.querySelector('[aria-label="Fit whole board"]'));
+ assert.equal(root.querySelector('[data-action=add]'),null);
+ supplies.dispatchEvent(new h.w.MouseEvent('dblclick',{bubbles:true}));assert.equal(supplies.querySelector('input'),null);
+ const cross=root.querySelector('[stroke="#f43fa4"]');
+ assert.equal(cross.getAttribute('stroke-dasharray'),'2 8');assert.equal((cross.getAttribute('d').match(/ L /g)||[]).length,3);
+ h.w.Maps.renderMindMap(host,M.serialize(data));assert.equal(root.host.isConnected,false);
  const pdf=await h.w.Maps.renderPdfNote({note:{path:'A.md',text:block},api:{},notes:[]});
  assert.match(pdf.html,/<svg[^>]+mindmap-print/);assert.match(pdf.html,/translate\(410 220\)/);assert.match(pdf.html,/stroke="#ff5c35"/);assert.doesNotMatch(pdf.html,/<button|<pre/);
 });
 test('dragging a branch moves its descendants, and connector controls persist cross-link styles',t=>{
- const h=harness(t);h.open();const dialog=h.d.querySelector('dialog[open]');
- const canvas=dialog.querySelector('svg'),node=dialog.querySelector('[aria-label="Supplies"]'),body=canvas.parentElement;
- const bounds=canvas.getAttribute('viewBox').split(' ').map(Number);
- canvas.getBoundingClientRect=()=>({width:bounds[2],height:bounds[3]});
+ const h=harness(t);h.open();const root=h.root(),surface=root.querySelector('.canvas'),node=root.querySelector('[data-node=supplies]');
  const pointer=(element,type,clientX,clientY)=>{const e=new h.w.MouseEvent(type,{button:0,bubbles:true,cancelable:true,clientX,clientY});Object.defineProperty(e,'pointerId',{value:1});element.dispatchEvent(e);};
- pointer(node,'pointerdown',100,100);pointer(body,'pointermove',170,125);pointer(body,'pointerup',170,125);
- assert.equal(dialog.querySelector('[aria-label="Radio"]').getAttribute('transform'),'translate(235 215)');
- const choose=(text,value)=>{const el=[...dialog.querySelectorAll('label')].find(label=>label.firstChild.textContent===text).querySelector('select');el.value=value;el.dispatchEvent(new h.w.Event('change'));};
- choose('Connect to','route');h.click('Connect nodes');choose('Line shape','straight');choose('Line stroke','dashed');h.click('Save map');
+ pointer(node,'pointerdown',100,100);pointer(node,'pointermove',163,127);pointer(node,'pointerup',163,127);
+ assert.equal(root.querySelector('[data-node=radio]').style.left,'235px');
+ h.action('connect');root.querySelector('[data-node=route]').click();
+ const linkId=[...root.querySelectorAll('[data-edge]')].at(-1).getAttribute('data-edge');
+ pointer(root.querySelector('[data-edge="'+linkId+'"]'),'pointerdown',250,150);
+ h.action('shape-straight');h.action('dash-dashed');h.click('Save map');
  const data=M.parse(M.blocks(h.read())[0].source);
- assert.deepEqual(data.nodes.map(n=>[n.x,n.y]),[[650,360],[480,245],[235,215],[930,450]]);
+ assert.deepEqual(data.nodes.map(n=>[n.x,n.y]),[[650,360],[480,250],[235,220],[930,450]]);
  assert.deepEqual(data.edges.find(e=>e.id==='cross'),board.edges.at(-1));
  const link=data.edges.at(-1);
  assert.deepEqual([link.from,link.to,link.manual,link.shape,link.dash],['supplies','route',true,'straight','dashed']);
@@ -107,9 +115,34 @@ test('the full roadmap board replaces a malformed fence only after validation an
  h.click('Load board');assert.equal(h.changes.length,0);assert.match(dialog.querySelector('[role=alert]').textContent,/one complete/);
  json.value='```mindmap\n'+JSON.stringify(fixture)+'\n```';
  h.click('Load board');assert.equal(h.changes.length,0);
- assert.equal(dialog.querySelectorAll('.mindmap-node').length,41);
- assert.equal(dialog.querySelectorAll('.mindflow-edge').length,48);
+ assert.equal(canvas(dialog).querySelectorAll('[data-node]').length,41);
+ assert.equal(canvas(dialog).querySelectorAll('[data-edge]').length,48);
  h.click('Save map');assert.equal(h.changes.length,1);
  assert.deepEqual(M.parse(M.blocks(h.read())[0].source),fixture);
  assert.match(h.read(),/^Before\n\n```mindmap[\s\S]+\n\nAfter$/);
+});
+
+test('upstream context actions, keyboard branching, pointer zoom and Fit work in the note canvas',t=>{
+ const h=harness(t);h.open();
+ const root=h.root(),surface=root.querySelector('.canvas'),world=root.querySelector('.canvas-world');
+ Object.defineProperties(surface,{clientWidth:{value:600},clientHeight:{value:360}});
+ surface.getBoundingClientRect=()=>({left:20,top:40,width:600,height:360});
+ const fit=root.querySelector('[data-action=fit]');fit.click();
+ const fitted=world.style.transform;
+ assert.match(fitted,/scale\(0\.[0-8]/);
+ surface.dispatchEvent(new h.w.WheelEvent('wheel',{bubbles:true,cancelable:true,clientX:150,clientY:100,deltaY:-100}));
+ assert.notEqual(world.style.transform,fitted);
+ root.querySelector('[data-action=fit]').click();assert.equal(world.style.transform,fitted);
+ const supplies=root.querySelector('[data-node=supplies]');
+ supplies.dispatchEvent(new h.w.MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:100,clientY:100}));
+ assert.ok(root.querySelector('[role=menu]'));
+ h.action('duplicate');assert.equal(root.querySelectorAll('[data-node]').length,5);
+ supplies.click();
+ surface.dispatchEvent(new h.w.KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true}));
+ assert.equal(root.querySelectorAll('[data-node]').length,6);
+ assert.ok(root.querySelector('input[aria-label="Node text"]'));
+ surface.dispatchEvent(new h.w.KeyboardEvent('keydown',{key:'s',ctrlKey:true,bubbles:true,cancelable:true}));
+ const next=M.parse(M.blocks(h.read())[0].source);
+ assert.equal(next.nodes.filter(n=>n.parentId==='supplies').length,2);
+ assert.equal(next.nodes.filter(n=>!n.parentId).length,2);
 });

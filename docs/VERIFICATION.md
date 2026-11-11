@@ -1,4 +1,4 @@
-# Verification · 0.42.3
+# Verification · 0.42.4
 
 Run the full suite with `NODE_OPTIONS=--max-old-space-size=4096 pnpm test`. The build, expanded demo/sample checks and site checks pass. Briefing coverage includes issued response GUIDs, canonical duplicate receipts across collections, item outcomes, short continuation, partial/unavailable coverage, current-day restart after Undo expiry, pre-existing notes, later edits, archive moves and interrupted restart recovery. Settings UI tests cover optional token-command persistence and CLI visibility. Credential adapter tests cover plain/JSON tokens, hidden failure output, timeout, cancellation, saved-key reuse, missing-key generation, one connection-scoped generation allowance, no repeated attempts across failing requests, reset after success or relaunch, encrypted/session-only generated-key reuse, per-connection isolation, concurrent manual-key protection, shared HTTP 429 backoff, both API protocols and tool-call paths.
 
@@ -348,3 +348,5 @@ Mindflow board checks verify the brief’s JSON schema, absolute positions, styl
 The AI mind-map guide is exercised in global read-only sessions and native/CLI chat turns. Its example parses as a real mindmap fence and preserves visible parent links and a manual cross-link. Existing clock and ontology calls are exercised alongside the new guide under the same context budget.
 
 The downloaded 41-node roadmap board is a regression fixture. Tests cover pasted-fence rendering and repair of malformed JSON, including no note write until Save map.
+
+Canvas tests exercise the bundled Mindflow component through the Draglass adapter, including read-only behavior, editing, cross-links, branch dragging, cancellation, repair and the full roadmap fixture.
