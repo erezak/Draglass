@@ -182,3 +182,5 @@ Use **Insert mind map** from the command palette to create another. In Source mo
 To import a downloaded board, open **Edit mind map → Import / repair JSON**, paste the full JSON, choose **Load board**, then **Save map**. This replaces only that map. The same panel opens automatically if a fence contains malformed JSON.
 
 Thanks to Danny (@dimkinv) for the Mindflow canvas, the Excalidraw team for the drawing tools, and the Mermaid team for diagram rendering.
+
+Collapse both sidebars or widen a split pane to give the Field day map more room. The inline preview grows in both dimensions according to the shape of the board. Drag a split very narrow to try the note’s horizontal scrollbar.

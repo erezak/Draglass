@@ -53,3 +53,5 @@ Embedded notes are rendered recursively with the normal depth guard. Diagrams re
 ## Useful checks
 
 Export a long practice note with several pages: table headers should repeat when a table crosses pages, headings should stay with following text, code should wrap, and images/diagrams should fit the page. Reopen the source afterward and verify that no title or page-layout syntax was inserted.
+
+PDF prose uses **Settings → Editor → Text alignment**. Export once with **Justify**, then with **Align left (right for RTL)** to compare the same paragraph.

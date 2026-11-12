@@ -4,10 +4,10 @@ import {createMindMap,isBoardData} from '../vendor/mindflow/index.ts';
 // with inconsistent hierarchy still use the local compatibility renderer.
 export {isBoardData as canMountMindflow};
 
-export function mountMindflow(container,data,{readOnly,onChange,onSaveRequest}={}){
+export function mountMindflow(container,data,{readOnly,onChange,onSaveRequest,maxFitZoom}={}){
  const mount=container.ownerDocument.createElement('div');
  mount.className='mindflow-mount';container.append(mount);
- const editor=createMindMap(mount,{data,readOnly,onChange,onSaveRequest,fitOnOpen:true});
+ const editor=createMindMap(mount,{data,readOnly,onChange,onSaveRequest,fitOnOpen:true,maxFitZoom});
  const shadow=mount.firstElementChild.shadowRoot;
  const theme=container.ownerDocument.createElement('style');
  theme.textContent=`

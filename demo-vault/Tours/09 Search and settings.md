@@ -13,7 +13,7 @@ Try searches such as `path:Systems`, `tag:#lumen/identity`, `[type:Identity]`, `
 
 ## Settings
 
-Settings has categories for editing, files, appearance, shortcuts, AI and core plugins. Try Light, Dark or System, readable line length, font size, line numbers, spellcheck or text direction. Change property visibility or explorer sorting. For a quick appearance change, run **Toggle light / dark theme** from the command palette. Graphs and other workspace views change with the app; the toggle keeps graph filters, zoom and pause state. Choosing the toggle while following the system makes the opposite visible theme your explicit preference.
+Settings has categories for editing, files, appearance, shortcuts, AI and core plugins. Try Light, Dark or System, comfortable note margins, font size, line numbers, spellcheck or text direction. Change property visibility or explorer sorting. For a quick appearance change, run **Toggle light / dark theme** from the command palette. Graphs and other workspace views change with the app; the toggle keeps graph filters, zoom and pause state. Choosing the toggle while following the system makes the opposite visible theme your explicit preference.
 
 Collapse either sidebar, resize it with its divider, or switch between chat and backlinks on the right. The layout and note tabs are remembered for the active workspace.
 
@@ -36,3 +36,5 @@ Use **Export** and **Import** to move a JSON theme between machines. Importing a
 ## Theme font sizes
 
 In Appearance, clear Document, Interface and Code overrides with **Reset to theme default**, then Apply. With a built-in theme these resolve to 18, 13 and 14 px. Set Document to 22 px and switch between Light and Dark: its size should remain 22 px. Reset it and Apply again to follow the theme. Duplicate Folio, add `"documentFontSize": 20` inside its `tokens`, save and Apply; an empty Document override should now resolve to 20 px. Source/code text uses the separate code-size token. Existing numeric sizes stay overrides until reset.
+
+In **Settings → Editor**, choose **Justify** (the default) or **Align left (right for RTL)**. Compare a wrapped paragraph in Live Preview and an exported PDF. The separate Reading view and Markdown Source keep their usual alignment.

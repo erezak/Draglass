@@ -9,7 +9,7 @@
         "Tours/01 Writing.md",
         "Tours/20 Document search.md"
       ],
-      "exercise": "Write and edit, verify automatic created_at/updated_at with stable caret and autosave, follow table links, or edit surrounding cell space; find and replace in the active document, test case/word/regex options, Undo, Reading view and independent split-pane queries; reopen a note and verify fully rendered initial text, then click or type to reveal syntax without an incidental save; match the filename to the first H1 and verify one document title, then edit the heading to restore the filename title"
+      "exercise": "Write and edit, verify automatic created_at/updated_at with stable caret and autosave, follow table links, or edit surrounding cell space; find and replace in the active document, test case/word/regex options, Undo, Reading view and independent split-pane queries; reopen a note and verify fully rendered initial text, then click or type to reveal syntax without an incidental save; match the filename to the first H1 and verify one document title, then edit the heading to restore the filename title; change prose alignment and compare Live Preview with Source"
     },
     {
       "id": "links-embeds",
@@ -47,7 +47,7 @@
         "Tours/06 Diagrams and drawings.md",
         "Tours/19 Inline drawings.md"
       ],
-      "exercise": "Render and edit diagrams; render and edit excalidraw fences and colon containers, preserve plain/compressed Drawing sections, keep the surrounding note intact, compare a transparent canvas with an explicitly colored one, and export static PDF vectors; open a Mindflow JSON board, import or repair a pasted board without editing the fence by hand, drag a branch, double-click to rename, try the context menu and Tab to add a child, select a connector to restyle it, and try Fit, pointer zoom and canvas pan in both themes, and verify Reading view and PDF preserve the layout; open the Field day board directly from Welcome and find component credits in About"
+      "exercise": "Render and edit diagrams; render and edit excalidraw fences and colon containers, preserve plain/compressed Drawing sections, keep the surrounding note intact, compare a transparent canvas with an explicitly colored one, and export static PDF vectors; open a Mindflow JSON board, import or repair a pasted board without editing the fence by hand, drag a branch, double-click to rename, try the context menu and Tab to add a child, select a connector to restyle it, and try Fit, pointer zoom and canvas pan in both themes, and verify Reading view and PDF preserve the layout; open the Field day board directly from Welcome and find component credits in About; resize a split pane and verify that the map keeps its proportions"
     },
     {
       "id": "attachments",
@@ -112,7 +112,7 @@
       "notes": [
         "Tours/16 PDF export.md"
       ],
-      "exercise": "Save as PDF from palette, File and note context menu; toggle Include filename as title (H1), page size, orientation, margins, scale and page numbers; inspect tables, code, checkboxes, Mermaid, drawings, images, long notes, dark mode, cancel and unchanged drafts; repeat in a detached Markdown file"
+      "exercise": "Save as PDF from palette, File and note context menu; toggle Include filename as title (H1), page size, orientation, margins, scale and page numbers; inspect tables, code, checkboxes, Mermaid, drawings, images, long notes, dark mode, cancel and unchanged drafts; compare both Editor text alignments in a PDF; repeat export in a detached Markdown file"
     },
     {
       "id": "callouts",

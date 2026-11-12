@@ -1,4 +1,7 @@
-# Verification · 0.42.7
+# Verification · 0.42.8
+
+Responsive note layout was checked in Chromium with 1,300, 680 and 320 px panes. Note content fills wider panes; the narrow pane scrolls horizontally to the 440 px minimum. The inline mind map keeps its aspect ratio as the pane resizes. Focused tests cover persisted Live Preview alignment, logical start alignment for RTL and matching PDF output.
+
 
 Balanced radial layout requests are exercised through the chat service and model tool loop, with proposal acceptance and undo. Mind map regressions cover scoped reads, batched updates, stale revisions, read-only access, and preserving the rest of the note while staging a proposal. The site test opens the diagrams note after startup, gives the canvas measurable dimensions, and checks that it fits the board. The static SVG is built from the same demo note and checked for all nodes and connectors. The site test simulates layout measurements; it does not validate the published GitHub Pages site.
 

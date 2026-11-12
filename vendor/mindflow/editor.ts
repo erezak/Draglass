@@ -6,6 +6,7 @@ export type MindMapOptions = {
   data?: BoardData;
   readOnly?: boolean;
   fitOnOpen?: boolean;
+  maxFitZoom?: number;
   /** Called for local edits only. setData never emits a change. */
   onChange?: (data: BoardData) => void;
   /** The host owns persistence and decides how to handle this shortcut. */
@@ -119,7 +120,7 @@ export function createMindMap(container: HTMLElement, options: MindMapOptions = 
     if (!board.nodes.length || canvas.clientWidth < 40 || canvas.clientHeight < 40) return;
     const left = Math.min(...board.nodes.map(n => n.x)), top = Math.min(...board.nodes.map(n => n.y));
     const right = Math.max(...board.nodes.map(n => n.x)) + NODE_W, bottom = Math.max(...board.nodes.map(n => n.y)) + NODE_H;
-    zoom = Math.min(.9, (canvas.clientWidth - 36) / (right - left), (canvas.clientHeight - 64 > 0 ? canvas.clientHeight - 64 : canvas.clientHeight - 36) / (bottom - top));
+    zoom = Math.min(options.maxFitZoom ?? .9, (canvas.clientWidth - 36) / (right - left), (canvas.clientHeight - 64 > 0 ? canvas.clientHeight - 64 : canvas.clientHeight - 36) / (bottom - top));
     pan = { x: (canvas.clientWidth - (left + right) * zoom) / 2, y: (canvas.clientHeight - (top + bottom) * zoom) / 2 };
     render();
   }

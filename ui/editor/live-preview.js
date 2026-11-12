@@ -170,6 +170,7 @@ export function livePreview({enabled=true,windowContext,onTasks,tasksEnabled=()=
       }
       const styles={StrongEmphasis:'cm-live-strong',Emphasis:'cm-live-emphasis',Strikethrough:'cm-live-strike',InlineCode:'cm-live-inline-code'};
       if(styles[name]){mark(node.from,node.to,styles[name]);if(!active)for(const child of parts)if(['EmphasisMark','StrikethroughMark','CodeMark'].includes(child.name))hide(child.from,child.to);if(name==='InlineCode'){blocked.push([node.from,node.to]);return false;}}
+      if(name==='Paragraph'&&node.parent?.name==='Document')eachLine(node.from,node.to,l=>line(l.from,'cm-live-prose'));
       if(name==='Blockquote')eachLine(node.from,node.to,l=>line(l.from,'cm-live-quote'));
       if(name==='QuoteMark'&&!intersects(state,node.parent.from,node.parent.to)){let end=node.to;if(state.sliceDoc(end,end+1)===' ')end++;hide(node.from,end);}
       if(name==='ListMark'&&state.sliceDoc(node.from,node.to).match(/^[-+*]$/)&&!intersects(state,node.parent.from,node.parent.to))hide(node.from,node.to,new SymbolWidget('•','cm-live-bullet',node.from));

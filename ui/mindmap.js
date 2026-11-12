@@ -1,3 +1,4 @@
+import {NODE_W,NODE_H} from '../vendor/mindflow/model.ts';
 import {canMountMindflow,mountMindflow} from './mindflow-canvas.js';
 import {minimalChange} from '../core/diff.cjs';
 import model from '../core/mindmap.cjs';
@@ -123,7 +124,13 @@ export function renderMindMap(host,source,{edit,print=false}={}){
   const board=model.parse(source);
   if(!print&&canMountMindflow(board)){
    body.classList.add('mindflow-surface');
-   const canvas=mountMindflow(body,board,{readOnly:true});
+   if(board.nodes.length){
+    const xs=board.nodes.map(node=>node.x),ys=board.nodes.map(node=>node.y);
+    const width=Math.max(...xs)-Math.min(...xs)+NODE_W;
+    const height=Math.max(...ys)-Math.min(...ys)+NODE_H;
+    body.style.setProperty('--mindmap-aspect',String(Math.min(5,Math.max(.4,(width+36)/(height+64)))));
+   }
+   const canvas=mountMindflow(body,board,{readOnly:true,maxFitZoom:1.5});
    host._diagramViewportDispose=()=>canvas.destroy();
    return;
   }

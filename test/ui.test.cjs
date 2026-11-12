@@ -541,3 +541,15 @@ test('a pasted roadmap JSON fence renders all nodes in Live Preview and Reading 
  assert.equal(h.d.querySelector('#reading .mindflow-mount > div').shadowRoot.querySelectorAll('[data-edge]').length,48);
  assert.equal(h.view().state.doc.toString(),source);
 });
+
+test('Editor alignment defaults to justified prose and can follow the RTL start edge',async t=>{
+ const h=await harness(t,{text:'# Heading\n\nA paragraph with words.\n\n```text\nKeep code alignment\n```'});
+ assert.equal(h.d.body.dataset.textAlignment,'justify');
+ assert.equal(h.d.querySelector('.cm-live-prose').textContent,'A paragraph with words.');
+ assert.equal(h.d.querySelector('.cm-live-heading').classList.contains('cm-live-prose'),false);
+ h.command('settings');
+ h.d.querySelector('#pref-textAlignment').value='start';
+ h.d.querySelector('#pref-direction').value='rtl';
+ h.d.querySelector('#preferences-form').dispatchEvent(new h.w.Event('submit',{cancelable:true}));
+ await until(()=>h.d.body.dataset.textAlignment==='start'&&h.d.querySelector('.cm-content').dir==='rtl');
+});

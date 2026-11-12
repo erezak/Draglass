@@ -424,3 +424,28 @@ dialog{width:410px;max-width:90vw;background:var(--panel);color:var(--text);bord
 :is(.mindmap-block,.mindmap-dialog) .mindflow-surface{height:clamp(290px,49vh,520px);padding:0;overflow:hidden;cursor:default;background:none}
 .mindmap-dialog .mindflow-surface{height:clamp(320px,57vh,670px);border:1px solid var(--border);border-radius:10px}
 .mindflow-mount{width:100%;height:100%}
+
+/* Each pane owns its note width and its overflow, even in split workspaces. */
+.workspace .editor-pane :is(#document,[data-pane-id="document"]):not(.drawing-document) {
+  container-type:inline-size;
+  padding-inline:0;
+}
+:root :is(.workspace .editor-pane) :is(#document,[data-pane-id="document"]):not(.drawing-document) > :is(.document-heading,#properties,#editor,[data-pane-id="editor"],#reading,[data-pane-id="reading"]) {
+  --note-gutter:clamp(12px,2.5cqi,32px);
+  inline-size:100%;
+  min-inline-size:440px;
+  max-width:none;
+  margin-inline:0;
+  padding-inline:var(--note-gutter);
+}
+:root body.full-line-length .workspace .editor-pane :is(#document,[data-pane-id="document"]):not(.drawing-document) > :is(.document-heading,#properties,#editor,[data-pane-id="editor"],#reading,[data-pane-id="reading"]) {
+  --note-gutter:clamp(8px,1.4cqi,20px);
+}
+:root .workspace .editor-pane :is(#document,[data-pane-id="document"]):not(.drawing-document) > :is(#editor,[data-pane-id="editor"]) {
+  padding-inline:calc(var(--note-gutter) - 6px);
+}
+
+.cm-live-preview .cm-line.cm-live-prose {text-align:justify;text-align-last:start}
+body[data-text-alignment=start] .cm-live-preview .cm-line.cm-live-prose {text-align:start}
+.mindmap-block .mindflow-surface {height:auto;min-height:220px;aspect-ratio:var(--mindmap-aspect, 16 / 9);position:relative}
+.mindmap-block .mindflow-surface > .mindflow-mount {position:absolute;inset:0}
