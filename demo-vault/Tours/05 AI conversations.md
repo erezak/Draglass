@@ -11,7 +11,7 @@ AI is optional. This demo does not send any requests automatically, create fake 
 
 ## Connect a provider
 
-Open Settings → AI providers. You can configure API providers or a gateway, or detected Copilot, Codex or OpenCode tools. API connections support model selection, custom URLs, HTTP headers and Chat Completions or Responses where applicable. Network settings provide proxy configuration. CLI connections need installation and sign-in outside the demo.
+Open Settings → AI providers. You can configure API providers or a gateway, or detected Copilot, Codex or OpenCode tools. API connections support model selection, custom URLs, HTTP headers and Chat Completions or Responses where applicable. Each AI connection has its own proxy configuration. CLI connections need installation and sign-in outside the demo.
 
 ## Discuss a note
 
@@ -80,3 +80,9 @@ With a provider connected, ask: “Use `get_mindmap_guide` to draft a Draglass m
 To change an existing map, open **06 Diagrams and drawings**, enable **Propose changes**, and ask: “Rename Research to Field research in the Field day mind map.” Draglass can read the board with `read_mindmap` and stage the requested edits together with `update_mindmap`. Review the note proposal before accepting it.
 
 For layout alone, ask: “Arrange this mind map in a balanced radial layout.” The model reads the compact hierarchy, chooses coordinates and stages them with `layout_mindmap`. Check that accepting the proposal moves the cards but leaves their text and connections unchanged.
+
+## Fetch and Search
+
+The **Web** core plugin starts enabled. Ask AI chat to search for a public topic without adding a key, then fetch a result and cite it. DuckDuckGo provides the default results; automated access can be limited. Toggle **Settings → Core plugins → Web** off and verify neither tool is available, then turn it back on. In **AI settings → Web tools**, optionally add a Brave Search API key or a shared proxy for Fetch and Search. These exercises require network access and use public data.
+
+Start a **New conversation** after a completed reply. Earlier messages and drafts are not sent. A long first reply may still compact its own tool results. To remove saved history for the selected model, choose **Clear model chats** and confirm.

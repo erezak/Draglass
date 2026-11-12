@@ -1,6 +1,6 @@
 {
   "name": "draglass-editor",
-  "version": "0.42.8",
+  "version": "0.42.11",
   "private": true,
   "description": "Local Markdown workspace with tabs and connected notes",
   "main": "electron/main.cjs",
@@ -31,6 +31,7 @@
     "lz-string": "1.5.0",
     "marked": "^17.0.0",
     "mermaid": "11.17.2",
+    "parse5": "8.0.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "undici": "8.11.2",
@@ -100,7 +101,7 @@
     "nsis": {
       "perMachine": true
     },
-    "copyright": "Copyright \u00a9 2026 Erez Korn"
+    "copyright": "Copyright © 2026 Erez Korn"
   },
   "productName": "Draglass Editor",
   "engines": {

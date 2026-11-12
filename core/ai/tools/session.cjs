@@ -4,7 +4,7 @@ const hash=text=>createHash('sha256').update(text).digest('hex');
 
 // Read capabilities and mutable evidence/proposal state belong to one request.
 // No provider, credentials, UI objects or mutation service enter this context.
-function createSessionContext({vault,context=[],signal,progress=()=>{},knowledgeQuery,readLimit=4000,clock,ontology}){
+function createSessionContext({vault,context=[],signal,progress=()=>{},knowledgeQuery,readLimit=4000,clock,ontology,web}){
  let closed=false,indexed=null;
  const mindmapReads=new Map(),mindmapStaged=new Map(),taskReads=new Map(),snapshots=new Map(),ranges=new Map(),staged=new Map(),references=new Map();
  const inputs=structuredClone(context),drafts=new Map(inputs.map(n=>[n.path,n.text]));
@@ -30,7 +30,7 @@ function createSessionContext({vault,context=[],signal,progress=()=>{},knowledge
  const query=knowledgeQuery?async(method,args)=>{assertActive();const value=await knowledgeQuery(method,args);assertActive();return value;}:undefined;
  return {
   context:inputs,mindmapReads,mindmapStaged,taskReads,snapshots,ranges,staged,references,notes,snapshot,readDisk,assertActive,
-  knowledgeQuery:query,readLimit,clock,ontology,progress:summary=>{assertActive();progress(summary);},
+  knowledgeQuery:query,readLimit,clock,ontology,web,progress:summary=>{assertActive();progress(summary);},
   result(){assertActive();return structuredClone({changes:[...staged.values()],context:[...snapshots.values()],citations:[...references.values()]});},
   close(){closed=true;indexed=null;for(const map of [mindmapReads,mindmapStaged,taskReads,snapshots,ranges,staged,references,drafts])map.clear();inputs.length=0;}
  };

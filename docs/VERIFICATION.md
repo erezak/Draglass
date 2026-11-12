@@ -1,4 +1,13 @@
-# Verification · 0.42.8
+# Verification · 0.42.11
+
+Fresh chats and model-scoped history clearing were checked through the renderer and storage. Tool budget notices distinguish same-reply results from previous messages.
+
+
+The default-on Web core plugin and its toggle were checked in Settings and against persisted settings. DuckDuckGo fixtures cover results, no results, human verification and rate limits; Brave remains covered with mocked responses. No live search credentials or live search results were used.
+
+
+Web tool checks cover Fetch extraction, private redirects and DNS answers, a real HTTP proxy tunnel pinned to the checked address, Brave result parsing with a mocked endpoint, an AI chat that uses both tools without a vault, credential storage, proxy separation and Settings. Live Brave search was not exercised.
+
 
 Responsive note layout was checked in Chromium with 1,300, 680 and 320 px panes. Note content fills wider panes; the narrow pane scrolls horizontally to the 440 px minimum. The inline mind map keeps its aspect ratio as the pane resizes. Focused tests cover persisted Live Preview alignment, logical start alignment for RTL and matching PDF output.
 

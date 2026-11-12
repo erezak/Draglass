@@ -32,3 +32,18 @@ test('general chat works before a vault is opened and note actions still require
  await assert.rejects(service.chat(null,{id:'no-vault-actions',mode:'actions',context:[],scope:'',prompt:'Create a note'}),/Open a vault/);
 });
 test('unsupported single-thread arrays are rejected without converting or rewriting them',async t=>{const dir=await temp(t),store=new AIStore(dir),file=store.threadFile('/vault','A.md'),text=JSON.stringify([{role:'user',content:'Old message'}]);await fs.mkdir(path.dirname(file),{recursive:true});await fs.writeFile(file,text);await assert.rejects(store.listConversations('/vault','A.md'),/Invalid conversation history/);assert.equal(await fs.readFile(file,'utf8'),text);});
+
+test('clearing a model removes its saved turns across vaults and preserves other models',async t=>{
+ const dir=await temp(t),service=new AIService(dir,null,()=>{},{}),store=service.store;
+ await store.save({active:'api',providers:[{id:'api',name:'Gateway',type:'openai',url:'https://api.example.com/v1',model:'chosen'}]});
+ const turn=(content,model)=>['user','assistant'].map(role=>({role,content,provider:'Gateway',providerId:'api',model}));
+ const mixed=await store.newConversation('/vault','Note.md');
+ await store.writeThread('/vault','Note.md',[...turn('remove','chosen'),...turn('keep','other')],mixed.id);
+ const solo=await store.newConversation('/other','');
+ await store.writeThread('/other','',turn('remove this too','chosen'),solo.id);
+ assert.deepEqual(await service.clearModelConversations('api'),{removed:2});
+ await assert.rejects(store.thread('/vault','Note.md',mixed.id),/unavailable/);
+ assert.deepEqual((await store.thread('/vault','Note.md')).map(m=>m.content),['keep','keep']);
+ assert.equal((await store.thread('/other','')).length,0);
+ await assert.rejects(store.thread('/other','',solo.id),/unavailable/);
+});

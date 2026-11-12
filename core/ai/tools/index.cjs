@@ -1,4 +1,5 @@
 const time=require('./time.cjs'),ontology=require('./ontology.cjs'),dates=require('./date.cjs'),mindmap=require('./mindmap.cjs');
+const webTools=require('./web.cjs');
 const mapEdit=require('./mindmap-edit.cjs');
 const reads=require('./vault-read.cjs'),writes=require('./note-write.cjs');
 const {validateArguments}=require('./schema.cjs');
@@ -9,6 +10,8 @@ const {createSessionContext}=require('./session.cjs');
 // These metadata fields stay local; providers receive only definition objects.
 const taskActions=require('./task-operations.cjs');
 const catalog=[
+ {definition:webTools.fetchDefinition,scope:'global',capability:'fetch',access:'read',execute:(a,c)=>{c.progress('Fetching public web content.');return c.web.fetch(a.url,a.offset,Math.min(3200,c.readLimit));}},
+ {definition:webTools.searchDefinition,scope:'global',capability:'search',access:'read',execute:(a,c)=>{c.progress('Searching the public web.');return c.web.search(a.query,c.readLimit);}},
  {definition:taskActions.readDefinition,scope:'vault',plugin:'tasks',access:'read',execute:taskActions.readTask},
  ...taskActions.definitions.map(definition=>({definition,scope:'vault',plugin:'tasks',access:'stage',execute:taskActions.handlers[definition.name]})),
  {definition:require('./tasks.cjs').definition,scope:'vault',plugin:'tasks',access:'read',execute:require('./tasks.cjs').execute},
@@ -24,14 +27,14 @@ const catalog=[
 ];
 function freeze(value){if(value&&typeof value==='object'&&!Object.isFrozen(value)){Object.freeze(value);for(const v of Object.values(value))freeze(v);}return value;}
 freeze(catalog);
-const readTools=freeze(catalog.filter(t=>t.access==='read'&&!t.plugin&&!t.feature).map(t=>t.definition));
+const readTools=freeze(catalog.filter(t=>t.access==='read'&&!t.plugin&&!t.feature&&!t.capability).map(t=>t.definition));
 const writeTools=freeze(catalog.filter(t=>t.access==='stage'&&!t.plugin&&!t.feature).map(t=>t.definition));
 const mapOnlyNames=new Set(['read_mindmap','update_mindmap','layout_mindmap']);
 const focusedNames=new Set(['get_mindmap_guide','read_mindmap','update_mindmap','layout_mindmap','search_vault','create_note']);
-function enabledEntries(hasVault,actionMode,tasksEnabled=false,mindmap=false,focused=false){return catalog.filter(t=>(!t.feature||mindmap)&&(!focused||(focused==='map-only'?mapOnlyNames:focusedNames).has(t.definition.name))&&(!t.plugin||tasksEnabled)&&(t.scope==='global'||hasVault)&&(t.access==='read'||actionMode));}
-function toolDefinitions({hasVault=false,actionMode=false,tasksEnabled=false,mindmap=false,focused=false}={}){return structuredClone(enabledEntries(hasVault,actionMode,tasksEnabled,mindmap,focused).map(t=>t.definition));}
+function enabledEntries(hasVault,actionMode,tasksEnabled=false,mindmap=false,focused=false,web){return catalog.filter(t=>(!t.capability||typeof web?.[t.capability]==='function')&&(!t.feature||mindmap)&&(!focused||(focused==='map-only'?mapOnlyNames:focusedNames).has(t.definition.name))&&(!t.plugin||tasksEnabled)&&(t.scope==='global'||hasVault)&&(t.access==='read'||actionMode));}
+function toolDefinitions({hasVault=false,actionMode=false,tasksEnabled=false,mindmap=false,focused=false,web}={}){return structuredClone(enabledEntries(hasVault,actionMode,tasksEnabled,mindmap,focused,web).map(t=>t.definition));}
 function createToolSession(options={}){
- const entries=enabledEntries(!!options.vault,!!options.actionMode,!!options.tasksEnabled,!!options.mindmap,options.focused);
+ const entries=enabledEntries(!!options.vault,!!options.actionMode,!!options.tasksEnabled,!!options.mindmap,options.focused,options.web);
  const enabled=new Map(entries.map(t=>[t.definition.name,t]));
  const schemas=entries.map(t=>t.definition);
  const readLimit=options.readLimit??4000;

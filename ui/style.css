@@ -449,3 +449,6 @@ dialog{width:410px;max-width:90vw;background:var(--panel);color:var(--text);bord
 body[data-text-alignment=start] .cm-live-preview .cm-line.cm-live-prose {text-align:start}
 .mindmap-block .mindflow-surface {height:auto;min-height:220px;aspect-ratio:var(--mindmap-aspect, 16 / 9);position:relative}
 .mindmap-block .mindflow-surface > .mindflow-mount {position:absolute;inset:0}
+
+#chat-clear-model { white-space:nowrap; }
+.chat-top:has(#chat-clear-model) { flex-wrap:wrap; }

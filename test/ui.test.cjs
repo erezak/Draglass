@@ -104,7 +104,23 @@ test('YAML source property display retains literal YAML in live and reading mode
 
 
 test('API Settings edits custom HTTP headers and Responses protocol, retains saved values and clears drafts on close',async t=>{let config={active:'api',secureKeys:true,detected:[],providers:[{id:'api',name:'Gateway',type:'openai',url:'https://host/v1/chat/completions',model:'test',protocol:'chat-completions',headers:[{name:'X-Saved',hasValue:true}]}]},captured;const ai=aiMock({settings:async()=>config,save:async value=>{captured=structuredClone(value);config={...value,secureKeys:true,detected:[],providers:value.providers.map(p=>({...p,headers:p.headers.map(h=>({name:h.name,hasValue:true}))}))};return config;}});const h=await harness(t,{ai});const $=id=>h.d.getElementById(id);h.command('ai-settings');await until(()=>$('settings-dialog').open);assert.equal($('provider-protocol').value,'chat-completions');assert.equal($('provider-headers').querySelector('[data-header-value]').value,'');$('provider-protocol').value='responses';$('provider-protocol').dispatchEvent(new h.w.Event('change'));assert.equal($('provider-url').value,'https://host/v1/responses');$('provider-header-add').click();const added=$('provider-headers').lastElementChild;added.querySelector('[data-header-name]').value='X-Team';added.querySelector('[data-header-value]').value='draft-header-token';$('settings-form').dispatchEvent(new h.w.Event('submit',{bubbles:true,cancelable:true}));await until(()=>!$('settings-dialog').open);assert.equal(captured.providers[0].protocol,'responses');assert.equal(captured.providers[0].headers[0].originalName,'X-Saved');assert.equal(captured.providers[0].headers[0].value,'');assert.equal(captured.providers[0].headers[1].value,'draft-header-token');assert.equal($('provider-headers').children.length,0);h.command('ai-settings');await until(()=>$('settings-dialog').open);assert.equal($('provider-headers').querySelectorAll('.provider-header-row').length,2);$('provider-headers').firstElementChild.querySelector('button').click();$('settings-form').dispatchEvent(new h.w.Event('submit',{bubbles:true,cancelable:true}));await until(()=>!$('settings-dialog').open);assert.equal(captured.providers[0].headers.length,1);assert.equal(captured.providers[0].headers[0].name,'X-Team');});
-test('shared proxy settings save independently of the selected provider and apply to every connection',async t=>{let config={...await aiMock().settings(),network:{proxyMode:'system',proxyURL:'',noProxy:'localhost,127.0.0.1,::1'}},captured;const ai=aiMock({settings:async()=>config,save:async value=>{captured=structuredClone(value);config={...value,secureKeys:true,detected:[]};return config;}}),h=await harness(t,{ai}),$=id=>h.d.getElementById(id);h.command('ai-settings');await until(()=>$('settings-dialog').open);$('provider-network-open').click();assert.equal($('provider-network-fields').hidden,false);assert.equal($('provider-fields').hidden,true);$('network-proxyMode').value='manual';$('network-proxyURL').value='http://localhost:9051';$('network-noProxy').value='localhost,.company.example';$('settings-form').dispatchEvent(new h.w.Event('submit',{bubbles:true,cancelable:true}));await until(()=>!$('settings-dialog').open);assert.equal(captured.active,'api');assert.equal(captured.network.proxyURL,'http://localhost:9051');assert.equal(captured.network.noProxy,'localhost,.company.example');});
+test('each provider has its own proxy and Web tools use one separate proxy',async t=>{
+ let config={...await aiMock().settings(),network:{proxyMode:'system',proxyURL:'',noProxy:'localhost'},web:{fetchEnabled:true,hasSearchKey:false}},captured;
+ config.providers.push({id:'cli',name:'CLI',type:'codex',network:{proxyMode:'off'}});
+ const ai=aiMock({settings:async()=>config,save:async value=>{captured=structuredClone(value);config={...value,secureKeys:true,detected:[]};return config;}}),h=await harness(t,{ai}),$=id=>h.d.getElementById(id);
+ h.command('ai-settings');await until(()=>$('settings-dialog').open);
+ $('network-proxyMode').value='manual';$('network-proxyURL').value='http://localhost:9051';
+ $('provider-list').lastElementChild.click();assert.equal($('network-proxyMode').value,'off');
+ $('provider-list').firstElementChild.click();assert.equal($('network-proxyURL').value,'http://localhost:9051');
+ $('provider-network-open').click();assert.equal($('provider-network-fields').hidden,false);
+ $('web-proxyURL').value='http://localhost:9052';$('web-searchKey').value='new-key';
+ $('settings-form').dispatchEvent(new h.w.Event('submit',{bubbles:true,cancelable:true}));
+ await until(()=>!$('settings-dialog').open);
+ assert.equal(captured.providers[0].network.proxyURL,'http://localhost:9051');
+ assert.equal(captured.providers[1].network.proxyMode,'off');
+ assert.equal(captured.web.proxyURL,'http://localhost:9052');assert.equal(captured.web.searchKey,'new-key');
+ assert.equal($('web-searchKey').value,'');
+});
 
 
 
@@ -148,12 +164,12 @@ test('ontology Mermaid source reaches the inline renderer unchanged and zoom con
 
 test('AI sidebar starts fresh conversations without deleting earlier chats and supports mentions with no open note',async t=>{
  const books=new Map(),requests=[];let counter=0;const book=note=>{if(!books.has(note))books.set(note,{active:'initial',conversations:[{id:'initial',title:'New conversation',messages:[]}]});return books.get(note);};
- const ai=aiMock({conversations:async note=>structuredClone(book(note)),newConversation:async note=>{const b=book(note),c={id:'conversation-'+(++counter),title:'New conversation',messages:[]};b.conversations.push(c);b.active=c.id;return structuredClone(c);},thread:async(note,id)=>{const b=book(note);if(id)b.active=id;return structuredClone(b.conversations.find(c=>c.id===b.active).messages);},chat:async request=>{requests.push(structuredClone(request));const b=book(request.scope),c=b.conversations.find(c=>c.id===request.conversation);c.messages=[...request.history,{role:'user',content:request.prompt},{role:'assistant',content:'Reply to '+request.prompt}];return {thread:structuredClone(c.messages)};}});
+ const ai=aiMock({conversations:async note=>structuredClone(book(note)),newConversation:async note=>{const b=book(note),c={id:'conversation-'+(++counter),title:'New conversation',messages:[]};b.conversations.push(c);b.active=c.id;return structuredClone(c);},thread:async(note,id)=>{const b=book(note);if(id)b.active=id;return structuredClone(b.conversations.find(c=>c.id===b.active).messages);},chat:async request=>{requests.push(structuredClone(request));const b=book(request.scope),c=b.conversations.find(c=>c.id===request.conversation);c.messages=[...c.messages,{role:'user',content:request.prompt},{role:'assistant',content:'Reply to '+request.prompt}];return {thread:structuredClone(c.messages)};}});
  const h=await harness(t,{ai}),$=id=>h.d.getElementById(id);await until(()=>!$('chat-send').disabled);h.command('close-tab');await until(()=>$('chat-note').textContent==='Workspace conversation'&&!$('chat-send').disabled);
  $('chat-input').value='@B';$('chat-input').dispatchEvent(new h.w.Event('input'));assert.equal($('mention-results').hidden,false);$('mention-results').querySelector('button').click();$('chat-input').value+='Explain this note';$('chat-form').dispatchEvent(new h.w.Event('submit',{bubbles:true,cancelable:true}));await until(()=>requests.length===1&&!$('chat-send').disabled);
  assert.equal(requests[0].scope,'');assert.deepEqual(requests[0].context,[{path:'B.md'}]);assert.match($('chat-messages').textContent,/Reply to/);
  $('chat-new').click();await until(()=>$('chat-conversation').value==='conversation-1'&&!$('chat-send').disabled);assert.doesNotMatch($('chat-messages').textContent,/Reply to/);assert.equal($('chat-input').value,'');
- $('chat-input').value='Fresh question';$('chat-form').dispatchEvent(new h.w.Event('submit',{bubbles:true,cancelable:true}));await until(()=>requests.length===2&&!$('chat-send').disabled);assert.deepEqual(requests[1].history,[]);assert.deepEqual(requests[1].context,[]);
+ $('chat-input').value='Fresh question';$('chat-form').dispatchEvent(new h.w.Event('submit',{bubbles:true,cancelable:true}));await until(()=>requests.length===2&&!$('chat-send').disabled);assert.equal(requests[1].history,undefined);assert.deepEqual(requests[1].context,[]);
  $('chat-conversation').value='initial';$('chat-conversation').dispatchEvent(new h.w.Event('change'));await until(()=>$('chat-messages').textContent.includes('Explain this note'));assert.doesNotMatch($('chat-messages').textContent,/Fresh question/);assert.equal(book('').conversations.length,2);
 });
 
@@ -552,4 +568,27 @@ test('Editor alignment defaults to justified prose and can follow the RTL start 
  h.d.querySelector('#pref-direction').value='rtl';
  h.d.querySelector('#preferences-form').dispatchEvent(new h.w.Event('submit',{cancelable:true}));
  await until(()=>h.d.body.dataset.textAlignment==='start'&&h.d.querySelector('.cm-content').dir==='rtl');
+});
+
+test('Web core plugin is enabled by default and can be toggled from Settings',async t=>{
+ let enabled=true;const config=await aiMock().settings();
+ const ai=aiMock({settings:async()=>({...config,web:{enabled}}),setWebEnabled:async value=>{enabled=value;return {web:{enabled}};}});
+ const h=await harness(t,{ai}),$=id=>h.d.getElementById(id);
+ h.command('settings');$('settings-nav-core').click();
+ await until(()=>$('pref-webEnabled').disabled===false);
+ assert.equal($('pref-webEnabled').checked,true);
+ $('pref-webEnabled').click();await until(()=>enabled===false&&!$('pref-webEnabled').disabled);
+ $('settings-web-open').click();await until(()=>$('settings-dialog').open);
+ assert.equal($('provider-network-fields').hidden,false);
+});
+
+test('Clear model chats confirms the selected connection and reloads saved history',async t=>{
+ let cleared=false,provider;
+ const ai=aiMock({conversations:async()=>({active:cleared?'fresh':'initial',conversations:[{id:cleared?'fresh':'initial',title:cleared?'New conversation':'Old conversation'}]}),thread:async()=>cleared?[]:[{role:'user',content:'Old chat'}],clearModelConversations:async id=>{provider=id;cleared=true;return {removed:1};}});
+ const h=await harness(t,{ai,confirm:()=>true}),$=id=>h.d.getElementById(id);
+ await until(()=>$('chat-messages').textContent.includes('Old chat')&&!$('chat-clear-model').disabled);
+ $('chat-clear-model').click();
+ await until(()=>$('chat-conversation').value==='fresh'&&!$('chat-clear-model').disabled);
+ assert.equal(provider,'api');
+ assert.doesNotMatch($('chat-messages').textContent,/Old chat/);
 });

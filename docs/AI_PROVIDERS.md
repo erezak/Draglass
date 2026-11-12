@@ -68,7 +68,7 @@ The sidebar labels Discuss as **Read-only session**. **Enable changes** explicit
 
 ## API / LiteLLM token command
 
-An OpenAI-compatible connection can optionally set **Token command** in AI Settings. Leave it blank to use normal key/header authentication. Configure a trusted local script command, quoting paths containing spaces. Use absolute paths and keep secret values out of the command itself. The command runs in the desktop process from the user’s home directory, with the shared proxy environment. macOS/Linux use the configured login shell; Windows uses the command shell.
+An OpenAI-compatible connection can optionally set **Token command** in AI Settings. Leave it blank to use normal key/header authentication. Configure a trusted local script command, quoting paths containing spaces. Use absolute paths and keep secret values out of the command itself. The command runs in the desktop process from the user’s home directory, with that connection’s proxy environment. macOS/Linux use the configured login shell; Windows uses the command shell.
 
 The saved API key is used first. The script runs only when that connection has no saved key, or its request returns HTTP 401. It must print a bare token, `Bearer <token>`, or JSON containing a string `access_token` or `token`. Generated tokens replace the connection’s API key through normal operating-system encryption; when secure storage is unavailable they remain session-only, matching manually entered keys. Later requests and agent turns reuse that key. With a token command enabled, this key supplies Authorization; unrelated custom headers remain intact. No generated token is exposed to the renderer, model prompts or conversations.
 
@@ -79,3 +79,9 @@ Commands have a 30-second timeout, bounded output and cancellation. Complete int
 ## Chat composer
 
 Press Enter to send or Shift+Enter to insert a new line. Enter selects a highlighted note mention while autocomplete is open; press Enter again to send. IME composition never submits a message. The composer clears immediately after the request and its references are captured, while the sent message remains in the conversation. If sending fails or is stopped, the original draft is restored in its originating conversation without replacing another note’s draft.
+
+## Web tools
+
+The **Web** core plugin is enabled by default. Disable it in **Settings → Core plugins** to remove Fetch and Search from AI chat, including chat without a vault. In AI Settings, open **Web tools**. Fetch reads public HTTP(S) HTML and text formats (including Markdown, CSV, JSON and XML). Search uses DuckDuckGo’s lightweight public HTML results without a key, or the Brave Search API when you add a key. DuckDuckGo can rate-limit requests or change its page layout. The optional HTTP(S) proxy there is shared by both tools. With no web proxy, both tools connect directly. Each AI connection has its own proxy modes and bypass list. Older shared provider settings initialize those connection settings.
+
+Fetch does not run scripts or load page assets. It blocks private and local destinations, checks redirects, limits response size, and returns text in chunks. Searches send the query to the configured search engine and return source URLs and snippets. The search key uses the same encrypted or session-only storage policy as provider keys.
