@@ -23,8 +23,9 @@ The board and daily Markdown note are two views of the day; tasks remain normal 
 The initial window starts at the previous configured working day's midnight and
 ends at collection start, in the desktop's local timezone. Subsequent successful
 collections can resume within that window. After a longer gap, collection never
-extends earlier than the previous working day. Meetings needing preparation can
-include today and the next working day. Configure working days in Settings →
+extends earlier than the previous working day. Meeting preparation prioritizes near-term meetings and also includes later
+meetings when important preparation should start now. The evidence collection
+window does not limit the meeting date. Configure working days in Settings →
 Daily Briefing; Monday–Friday is the default.
 
 Outgoing prompts are capped at 8,000 UTF-8 bytes. Response instructions target

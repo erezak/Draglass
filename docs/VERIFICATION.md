@@ -1,4 +1,4 @@
-# Verification · 0.42.11
+# Verification · 0.42.12
 
 Fresh chats and model-scoped history clearing were checked through the renderer and storage. Tool budget notices distinguish same-reply results from previous messages.
 

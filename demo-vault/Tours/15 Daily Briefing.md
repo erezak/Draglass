@@ -156,6 +156,10 @@ relationship is mentions
 
 ## Meeting dates
 
+Include a later meeting if important preparation should start now. For example,
+try importing a meeting two weeks out with a dated source explaining why its
+materials need to be prepared today. Check that its scheduled date is retained.
+
 A meeting may be relevant even when its actual date is not provided. Leave `date`
 out of that meeting item rather than guessing. The imported Meeting preparation
 entry displays **Date not provided**; it does not become a dated calendar event.
