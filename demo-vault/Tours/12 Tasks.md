@@ -183,3 +183,5 @@ Complete one of the practice tasks below. Enter a short outcome in Completion de
 ## Archive a closed task
 
 Create a scratch Task named **Practice archive**, then mark it complete and optionally record an outcome. Its note moves to `archive/tasks`; an open tab follows it. Check that links still open the note. Use **Undo** in the operation notice or Task history to restore its original folder and status. Try Cancelled as well. A repeating Task archives the finished occurrence while its next occurrence stays active. Inline checkboxes remain in their own notes. Existing closed notes are not moved automatically.
+
+Click an inline task checkbox and choose **In progress** or **On hold** from the status dropdown. Try **Cancel task** and confirm, or use **Dismiss** to leave it unchanged. Open a Task note and use its **Status** toolbar button to choose **Done** and add optional completion details.

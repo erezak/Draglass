@@ -4,7 +4,7 @@ Tasks is a bundled core plugin, enabled by default for each vault. Turn it on or
 
 ## Capture and promote
 
-A Markdown checkbox is an inline task. Code fences, indented code, HTML blocks, YAML and drawings are excluded. Supported inline states in this slice are unchecked and completed. Structured metadata uses the following text on the same line:
+A Markdown checkbox is an inline task. Code fences, indented code, HTML blocks, YAML and drawings are excluded. Inline tasks support To do, In progress, On hold, Done and Cancelled. In Markdown, non-binary statuses appear as a trailing marker, for example `[status: on-hold]`, after any other metadata. Clicking a task checkbox opens the status dialog. Use **Cancel task** to select Cancelled, then confirm, or use **Dismiss** to leave the task unchanged. A Task note also has a **Status** button in its toolbar. Moving to Done offers optional completion details. Structured metadata uses the following text on the same line:
 
 ```md
 - [ ] Inspect the kit 📅 2026-11-01 ⏳ 2026-10-30 🛫 2026-10-29 ⏫ 🆔 field-kit

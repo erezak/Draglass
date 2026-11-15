@@ -10,3 +10,12 @@ test('invalid completion details fail before any writes',async t=>{const {vault,
 
 test('ordered and quoted inline tasks keep their list structure around completion details',async t=>{for(const raw of ['1. [ ] Ordered','> - [ ] Quoted']){const {vault,service}=await setup(t);await vault.create('A.md',raw+'\n');await service.update((await tasks(vault))[0],{status:'done',completionDetails:'Completed outcome'});const text=(await vault.read('A.md')).text;assert.equal((await tasks(vault)).length,1);assert.match(text,/Completed outcome/);assert.ok(text.startsWith(raw.replace('[ ]','[x]')));if(raw.startsWith('1.'))assert.match(text,/\n   > /);else assert.match(text,/\n>   > /);}});
 test('worker task lookup resolves a checkbox reference to its canonical Task note',async t=>{const {vault}=await setup(t);await vault.create('A.md','- [ ] [[Work]]\n- [ ] Other');await vault.create('Work.md','---\ntype: Task\nstatus: todo\n---\n# Work');const {KnowledgeService}=require('../core/backend/client.cjs'),worker=new KnowledgeService(vault.root);t.after(()=>worker.close());const result=await worker.request('tasks',{location:{path:'A.md',line:1}});assert.equal(result.items.length,1);assert.equal(result.items[0].path,'Work.md');assert.equal(result.items[0].kind,'note');await assert.rejects(worker.request('tasks',{location:{path:'../escape.md',line:1}}),/Invalid task location/);});
+test('inline tasks retain every status in Markdown and Undo restores the prior status',async t=>{
+ const {vault,service}=await setup(t);await vault.create('A.md','- [ ] Review draft 📅 2026-12-14');
+ for(const status of ['in-progress','on-hold','cancelled','todo','done']){
+  const [task]=await tasks(vault),result=await service.update(task,{status});
+  const [updated]=await tasks(vault);
+  assert.equal(updated.status,status);assert.equal(updated.title,'Review draft');assert.equal(updated.due,'2026-12-14');
+  if(status==='cancelled'){await service.undo(result.operation.id);assert.equal((await tasks(vault))[0].status,'on-hold');}
+ }
+});

@@ -592,3 +592,31 @@ test('Clear model chats confirms the selected connection and reloads saved histo
  assert.equal(provider,'api');
  assert.doesNotMatch($('chat-messages').textContent,/Old chat/);
 });
+
+test('checkbox dialog can cancel a task without recording completion details',async t=>{
+ const h=await harness(t,{text:'- [ ] Review draft'}),$=id=>h.d.getElementById(id);
+ const check=h.d.querySelector('.cm-live-checkbox');check.checked=true;check.dispatchEvent(new h.w.Event('change',{bubbles:true}));
+ await until(()=>$('task-completion-dialog').open);
+ assert.deepEqual([...$('task-completion-status').options].map(o=>o.value),['todo','in-progress','on-hold','done','cancelled']);
+ $('task-completion-details').value='Do not save this';
+ $('task-completion-cancel-task').click();assert.equal($('task-completion-status').value,'cancelled');
+ assert.equal($('task-completion-extra').hidden,true);
+ $('task-completion-dialog').querySelector('form').dispatchEvent(new h.w.Event('submit',{cancelable:true}));
+ await until(()=>h.saved.some(n=>n.text.includes('[status: cancelled]')));
+ assert.doesNotMatch(h.saved.at(-1).text,/Do not save this/);
+});
+
+test('Task note status button opens the same dialog in Reading view and records completion',async t=>{
+ const h=await harness(t,{text:'---\ntype: Task\nstatus: on-hold\n---\n# A\n'}),$=id=>h.d.getElementById(id);
+ assert.equal($('task-note-status').hidden,false);
+ assert.equal($('task-note-status').textContent,'Status: On hold');
+ $('preview-button').click();$('task-note-status').click();
+ await until(()=>$('task-completion-dialog').open);
+ assert.equal($('task-completion-status').value,'on-hold');
+ $('task-completion-status').value='done';$('task-completion-status').dispatchEvent(new h.w.Event('change'));
+ assert.equal($('task-completion-extra').hidden,false);
+ $('task-completion-details').value='Reviewed the draft.';
+ $('task-completion-dialog').querySelector('form').dispatchEvent(new h.w.Event('submit',{cancelable:true}));
+ await until(()=>h.saved.some(n=>n.text.includes('Reviewed the draft.')));
+ assert.equal($('task-note-status').textContent,'Status: Done');
+});

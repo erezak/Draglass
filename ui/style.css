@@ -452,3 +452,5 @@ body[data-text-alignment=start] .cm-live-preview .cm-line.cm-live-prose {text-al
 
 #chat-clear-model { white-space:nowrap; }
 .chat-top:has(#chat-clear-model) { flex-wrap:wrap; }
+
+[data-pane-id="task-note-status"] {white-space:nowrap}
