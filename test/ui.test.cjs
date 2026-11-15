@@ -593,17 +593,17 @@ test('Clear model chats confirms the selected connection and reloads saved histo
  assert.doesNotMatch($('chat-messages').textContent,/Old chat/);
 });
 
-test('checkbox dialog can cancel a task without recording completion details',async t=>{
+test('checkbox dialog can cancel a task and record the reason',async t=>{
  const h=await harness(t,{text:'- [ ] Review draft'}),$=id=>h.d.getElementById(id);
  const check=h.d.querySelector('.cm-live-checkbox');check.checked=true;check.dispatchEvent(new h.w.Event('change',{bubbles:true}));
  await until(()=>$('task-completion-dialog').open);
  assert.deepEqual([...$('task-completion-status').options].map(o=>o.value),['todo','in-progress','on-hold','done','cancelled']);
- $('task-completion-details').value='Do not save this';
+ $('task-completion-details').value='Plans changed.';
  $('task-completion-cancel-task').click();assert.equal($('task-completion-status').value,'cancelled');
- assert.equal($('task-completion-extra').hidden,true);
+ assert.equal($('task-completion-extra').hidden,false);
  $('task-completion-dialog').querySelector('form').dispatchEvent(new h.w.Event('submit',{cancelable:true}));
  await until(()=>h.saved.some(n=>n.text.includes('[status: cancelled]')));
- assert.doesNotMatch(h.saved.at(-1).text,/Do not save this/);
+ assert.match(h.saved.at(-1).text,/Status update: \d{4}-\d{2}-\d{2} \d{2}:\d{2} · Cancelled\*\*\n  > Plans changed\./);
 });
 
 test('Task note status button opens the same dialog in Reading view and records completion',async t=>{
@@ -619,4 +619,21 @@ test('Task note status button opens the same dialog in Reading view and records 
  $('task-completion-dialog').querySelector('form').dispatchEvent(new h.w.Event('submit',{cancelable:true}));
  await until(()=>h.saved.some(n=>n.text.includes('Reviewed the draft.')));
  assert.equal($('task-note-status').textContent,'Status: Done');
+});
+
+test('Task note status dialog saves a dated update without changing the status',async t=>{
+ const h=await harness(t,{text:'---\ntype: Task\nstatus: in-progress\n---\n# A\n'}),$=id=>h.d.getElementById(id);
+ $('task-note-status').click();
+ await until(()=>$('task-completion-dialog').open);
+ const dialog=$('task-completion-dialog'),submit=dialog.querySelector('[type=submit]');
+ assert.equal($('task-completion-status').value,'in-progress');
+ assert.equal(submit.disabled,true);
+ $('task-completion-details').value='Review scheduled.';
+ $('task-completion-details').dispatchEvent(new h.w.Event('input'));
+ assert.equal(submit.disabled,false);
+ assert.equal(submit.textContent,'Save update');
+ dialog.querySelector('form').dispatchEvent(new h.w.Event('submit',{cancelable:true}));
+ await until(()=>h.saved.some(n=>n.text.includes('Review scheduled.')));
+ assert.match(h.saved.at(-1).text,/Status update: \d{4}-\d{2}-\d{2} \d{2}:\d{2} · In progress/);
+ assert.equal($('task-note-status').textContent,'Status: In progress');
 });

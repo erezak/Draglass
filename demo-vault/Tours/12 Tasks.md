@@ -174,14 +174,14 @@ Embedded Previous/Next month controls navigate without changing this Markdown. T
 
 Calendar opens directly in the right pane. Grey dots show writing and red dots mark due tasks. Change Calendar by to Scheduled or Start: due-date red dots remain on their deadline days, with Also due details when needed.
 
-## Record an outcome
+## Record a status update
 
-Complete one of the practice tasks below. Enter a short outcome in Completion details, or leave it blank. Cancel keeps the task open. Try the same action on a Task note and through a linked checkbox. Inspect the dated body entry, then Undo from the notification or Task history. For a repeating task, verify that its successor does not inherit the outcome.
+Click the practice checkbox. Leave **To do** selected, enter a short progress note in **Status update**, and choose **Save update**. Check that the note appears with the local date and time below the still unchecked task. Open the dialog again, choose **Cancel task**, enter a reason, and confirm. Try the same actions from a Task note’s **Status** button and Undo from the notification or Task history.
 
-- [ ] Practice recording completion details
+- [ ] Practice recording a status update
 
 ## Archive a closed task
 
 Create a scratch Task named **Practice archive**, then mark it complete and optionally record an outcome. Its note moves to `archive/tasks`; an open tab follows it. Check that links still open the note. Use **Undo** in the operation notice or Task history to restore its original folder and status. Try Cancelled as well. A repeating Task archives the finished occurrence while its next occurrence stays active. Inline checkboxes remain in their own notes. Existing closed notes are not moved automatically.
 
-Click an inline task checkbox and choose **In progress** or **On hold** from the status dropdown. Try **Cancel task** and confirm, or use **Dismiss** to leave it unchanged. Open a Task note and use its **Status** toolbar button to choose **Done** and add optional completion details.
+Click an inline task checkbox and choose **In progress** or **On hold** from the status dropdown. Try **Cancel task** and confirm, or use **Dismiss** to leave it unchanged. Open a Task note and use its **Status** toolbar button to choose **Done** and record an optional outcome.

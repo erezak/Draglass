@@ -19,3 +19,41 @@ test('inline tasks retain every status in Markdown and Undo restores the prior s
   if(status==='cancelled'){await service.undo(result.operation.id);assert.equal((await tasks(vault))[0].status,'on-hold');}
  }
 });
+
+test('status-only notes preserve a recurring completion date and omit prior updates from the successor',async t=>{
+ const {vault,service}=await setup(t);
+ await vault.create('Repeat.md','---\ntype: Task\nstatus: on-hold\nrecurrence: every 1 day\n---\n# Repeat\n');
+ await service.update((await tasks(vault))[0],{statusUpdate:'Waiting for review.'});
+ await service.update((await tasks(vault))[0],{status:'done',statusUpdate:'Reviewed.'});
+ let found=await tasks(vault);
+ const done=found.find(t=>t.status==='done'),next=found.find(t=>t.status==='todo');
+ assert.doesNotMatch((await vault.read(next.path)).text,/Waiting for review/);
+ const result=await service.update(done,{status:'done',statusUpdate:'Filed the outcome.'});
+ found=await tasks(vault);
+ assert.equal(found.length,2);
+ assert.equal(found.find(t=>t.path===done.path).completed,done.completed);
+ const text=(await vault.read(done.path)).text;
+ assert.match(text,/Status update: \d{4}-\d{2}-\d{2} \d{2}:\d{2} · On hold\n\n> Waiting/);
+ assert.match(text,/Status update: \d{4}-\d{2}-\d{2} \d{2}:\d{2} · Done\n\n> Filed/);
+ await service.undo(result.operation.id);
+ assert.doesNotMatch((await vault.read(done.path)).text,/Filed/);
+});
+
+test('an inline status update leaves the checkbox intact and retains earlier completion details',async t=>{
+ const {vault,service}=await setup(t);
+ await vault.create('Work.md','- [ ] Work\n  - [ ] Subtask\n');
+ await service.update((await tasks(vault))[0],{status:'done',statusUpdate:'First outcome.'});
+ const task=(await tasks(vault))[0];
+ await service.update(task,{statusUpdate:'Filed the outcome.'});
+ const note=await vault.read('Work.md'),found=await tasks(vault);
+ assert.equal(found.length,2);
+ assert.equal(found[0].raw,task.raw);
+ assert.match(note.text,/Status update: \d{4}-\d{2}-\d{2} \d{2}:\d{2} · Done/);
+ assert.match(require('../core/briefing/follow-through.cjs').inlineDetails(note,found[0]),/First outcome/);
+});
+
+test('status updates use the local date and time on both completion and cancellation',()=>{
+ const {recordTaskUpdate}=require('../core/tasks/completion.cjs'),now=new Date(2026,10,15,8,5),task={kind:'note',status:'todo'};
+ assert.match(recordTaskUpdate('# Work\n',task,{status:'done',statusUpdate:'Delivered.'},now),/### 2026-11-15 08:05/);
+ assert.match(recordTaskUpdate('# Work\n',task,{status:'cancelled',statusUpdate:'No longer needed.'},now),/2026-11-15 08:05 · Cancelled/);
+});

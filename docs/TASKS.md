@@ -4,7 +4,7 @@ Tasks is a bundled core plugin, enabled by default for each vault. Turn it on or
 
 ## Capture and promote
 
-A Markdown checkbox is an inline task. Code fences, indented code, HTML blocks, YAML and drawings are excluded. Inline tasks support To do, In progress, On hold, Done and Cancelled. In Markdown, non-binary statuses appear as a trailing marker, for example `[status: on-hold]`, after any other metadata. Clicking a task checkbox opens the status dialog. Use **Cancel task** to select Cancelled, then confirm, or use **Dismiss** to leave the task unchanged. A Task note also has a **Status** button in its toolbar. Moving to Done offers optional completion details. Structured metadata uses the following text on the same line:
+A Markdown checkbox is an inline task. Code fences, indented code, HTML blocks, YAML and drawings are excluded. Inline tasks support To do, In progress, On hold, Done and Cancelled. In Markdown, non-binary statuses appear as a trailing marker, for example `[status: on-hold]`, after any other metadata. Clicking a task checkbox opens the status dialog. Use **Cancel task** to select Cancelled, then confirm, or use **Dismiss** to leave the task unchanged. A Task note also has a **Status** button in its toolbar. Both let you add an optional dated status update, even if the status stays the same. Structured metadata uses the following text on the same line:
 
 ```md
 - [ ] Inspect the kit 📅 2026-11-01 ⏳ 2026-10-30 🛫 2026-10-29 ⏫ 🆔 field-kit
@@ -158,7 +158,7 @@ Task note relationships can use `waiting_on`, `discuss_with` or neutral `mention
 
 ## Completion details
 
-Completing a task from Live Preview, a linked checkbox, Tasks lists, the matrix, Calendar, or the task editor asks for optional completion details. Complete with a blank field to skip, or Cancel to leave the task open. Inline details appear as a dated blockquote below the checkbox; Task notes receive a dated body entry. Undo restores the status and details together. Reopening keeps previous details, and recurring successors start without the previous outcome.
+The status dialog accepts an optional update for any status, including Done and Cancelled. To record progress without changing the status, keep the current value selected and choose **Save update**. **Dismiss** makes no changes. Draglass records the local date and time automatically. Inline updates appear below the checkbox; Task notes receive entries in the body. Undo restores the status and update together. Recurring successors start without the previous occurrence’s status updates.
 
 ## Closed task notes
 
