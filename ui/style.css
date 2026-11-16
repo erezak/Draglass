@@ -454,3 +454,94 @@ body[data-text-alignment=start] .cm-live-preview .cm-line.cm-live-prose {text-al
 .chat-top:has(#chat-clear-model) { flex-wrap:wrap; }
 
 [data-pane-id="task-note-status"] {white-space:nowrap}
+
+/* Native desktop adaptations of Minimal and Things. Mode still comes from the palette. */
+:root[data-theme-design="minimal"] :is(.app-header,.pane-tabs,.note-bar) {
+  background:var(--bg);
+}
+:root[data-theme-design="minimal"] .app-header {border-bottom-color:var(--border)}
+:root[data-theme-design="minimal"] .pane-tabs {padding-inline:6px;gap:0}
+:root[data-theme-design="minimal"] .tab {
+  border:0;border-radius:0;box-shadow:none;padding-block:6px;background:transparent;
+}
+:root[data-theme-design="minimal"] .tab.active {
+  background:transparent;box-shadow:inset 0 -2px var(--accent);
+}
+:root[data-theme-design="minimal"] #files .file-item.active {
+  color:var(--text);box-shadow:none;border-radius:3px;
+}
+:root[data-theme-design="minimal"] :is(#explorer,.context) :is(.section-label,.sidebar-footer) {
+  letter-spacing:normal;text-transform:none;
+}
+:root[data-theme-design="minimal"] .document-heading h1 {
+  font-size:1.45rem;font-weight:600;letter-spacing:-.015em;margin-block:14px 10px;
+}
+:root[data-theme-design="minimal"] :is(#reading,[data-pane-id=reading]) :is(h1,h2,h3,h4,h5,h6),
+:root[data-theme-design="minimal"] .cm-live-heading {
+  font-weight:600;letter-spacing:normal;line-height:1.35;
+}
+:root[data-theme-design="minimal"] :is(#reading,[data-pane-id=reading]) h1,
+:root[data-theme-design="minimal"] .cm-live-h1 {font-size:1.25em}
+:root[data-theme-design="minimal"] :is(#reading,[data-pane-id=reading]) h2,
+:root[data-theme-design="minimal"] .cm-live-h2 {font-size:1.12em}
+:root[data-theme-design="minimal"] :is(#reading,[data-pane-id=reading]) h3,
+:root[data-theme-design="minimal"] .cm-live-h3 {font-size:1.03em}
+:root[data-theme-design="minimal"] .cm-live-heading {padding-block:10px 3px}
+:root[data-theme-design="minimal"] :is(#reading,[data-pane-id=reading]) blockquote,
+:root[data-theme-design="minimal"] .cm-live-quote {
+  border-inline-start:1px solid var(--muted);background:transparent;color:var(--muted);font-style:normal;
+}
+:root[data-theme-design="minimal"] :is(.file-context,.note-menu-items,dialog) {
+  background:var(--bg);border-radius:5px;
+}
+
+:root[data-theme-design="things"] .workspace {
+  background:var(--panel);padding:6px;
+}
+:root[data-theme-design="things"] .workspace .editor-pane {
+  background:var(--bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;
+}
+:root[data-theme-design="things"] .pane-tabs {
+  background:var(--bg);gap:5px;padding-inline:8px;padding-block:5px;
+}
+:root[data-theme-design="things"] .tab {
+  border:1px solid transparent;border-radius:8px;padding-block:5px;
+}
+:root[data-theme-design="things"] .tab.active {
+  background:color-mix(in srgb,var(--accent) 13%,var(--bg));box-shadow:none;
+}
+:root[data-theme-design="things"] .tab.active .tab-name {color:var(--accent);font-weight:650}
+:root[data-theme-design="things"] .note-bar {background:var(--bg)}
+:root[data-theme-design="things"] #files .file-item.active {
+  color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,var(--panel));
+  box-shadow:none;border-radius:8px;font-weight:650;
+}
+:root[data-theme-design="things"] .discovery-tabs button {border-radius:999px}
+:root[data-theme-design="things"] .document-heading h1 {
+  font-size:1.9rem;font-weight:700;letter-spacing:-.035em;margin-block:21px 14px;
+}
+:root[data-theme-design="things"] :is(#reading,[data-pane-id=reading]) h1,
+:root[data-theme-design="things"] .cm-live-h1 {font-size:1.65em;font-weight:700}
+:root[data-theme-design="things"] :is(#reading,[data-pane-id=reading]) h2,
+:root[data-theme-design="things"] .cm-live-h2 {font-size:1.28em;font-weight:680}
+:root[data-theme-design="things"] :is(#reading,[data-pane-id=reading]) h3,
+:root[data-theme-design="things"] .cm-live-h3 {font-size:1.1em;font-weight:650}
+:root[data-theme-design="things"] :is(#reading,[data-pane-id=reading]) blockquote,
+:root[data-theme-design="things"] .cm-live-quote {
+  background:color-mix(in srgb,var(--accent) 8%,var(--bg));
+  border-inline-start:3px solid var(--accent);border-radius:0 7px 7px 0;
+}
+:root[data-theme-design="things"] :is(#reading,[data-pane-id=reading]) img:not([class]),
+:root[data-theme-design="things"] .embedded-image img {
+  border-radius:10px;box-shadow:0 5px 18px color-mix(in srgb,var(--text) 12%,transparent);
+}
+:root[data-theme-design="things"] :is(#reading,[data-pane-id=reading]) pre,
+:root[data-theme-design="things"] :is(.file-context,.note-menu-items,dialog) {
+  border-radius:12px;
+}
+:root[data-theme-design="things"] :is(pre,code,.cm-live-code-line,.cm-live-inline-code) {
+  font-family:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+}
+:root[data-theme-design="things"] #note-tags button {
+  border-radius:999px;
+}

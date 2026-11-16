@@ -1,8 +1,13 @@
 # Appearance themes
 
-Folio is the default identity and Light is the first-launch mode. Basalt, Tide and Prism are also included. Select a theme under **Settings → Appearance**, alongside Light, Dark or Follow system. Color mode comes first and filters the theme list to compatible choices. Theme selection and color mode are remembered with each vault; existing color-mode preferences survive the update. Detached files use the last workspace's theme on opening, with a local Light/Dark switch.
+Minimal is the default theme in both color modes, and Light remains the first-launch color mode. Things, Folio, Basalt, Tide and Prism are also included. Saved theme choices remain in place. Select a theme under **Settings → Appearance**, alongside Light, Dark or Follow system. Color mode comes first and filters the theme list to compatible choices. Theme selection and color mode are remembered with each vault; existing color-mode preferences survive the update. Detached files use the last workspace's theme on opening, with a local Light/Dark switch.
 
-A theme supports Light, Dark, or both. Mode compatibility changes palettes only. Font families, document width, line height, corner radius and component structure remain consistent between modes. Changing color mode filters out incompatible themes and selects Folio when the previous choice cannot support that mode. Restoring an unsupported combination or changing system mode uses Folio in the requested effective mode. The palette mode command respects compatibility.
+A theme supports Light, Dark, or both. Mode compatibility changes palettes only. Font families, document width, line height, corner radius and component structure remain consistent between modes. Changing color mode filters out incompatible themes and selects Minimal when the previous choice cannot support that mode. Restoring an unsupported combination or changing system mode uses Minimal in the requested effective mode. The palette mode command respects compatibility.
+
+Minimal and Things were selected by lifetime community theme downloads. The public totals do not distinguish light from dark use; both themes support both modes. These ports use native Draglass components and do not require companion plugins or load upstream stylesheets. Minimal uses compact headings, flush tabs, a quiet sidebar and thin quote rules. Things uses an inset editor, rounded tab and file selections, a larger title hierarchy, tinted quotes and image cards. Both designs carry across light and dark. Duplicating either built-in inherits its design; exported standalone JSON carries palette and typography tokens only. Some colors are adjusted for readable contrast.
+
+- [Minimal by Steph Ango](https://github.com/kepano/obsidian-minimal/tree/6d260b4e0ce60e9563b2d9a268310b88934d0384) · [MIT notice](../core/themes/licenses/Minimal.txt)
+- [Things by Colin Eckert](https://github.com/colineckert/obsidian-things/tree/98dd0d1de1cb02ad49390e3558ae82dd2c871200) · [MIT notice](../core/themes/licenses/Things.txt)
 
 ## Customize and share
 

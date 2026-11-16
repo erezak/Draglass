@@ -69,7 +69,7 @@
         "Tours/09 Search and settings.md",
         "Tours/20 Document search.md"
       ],
-      "exercise": "Find information and switch Light/Dark through the command palette or follow the system theme; compare four appearance themes, duplicate and edit overrides, test single-mode compatibility and import/export; verify theme font-size defaults, overrides and reset across mode changes; find and replace in the active document, test case/word/regex options, Undo, Reading view and independent split-pane queries"
+      "exercise": "Find information and switch Light/Dark through the command palette or follow the system theme; compare six appearance themes, including Minimal and Things in both modes, comparing tabs, heading hierarchy and blockquotes, duplicate and edit overrides, test single-mode compatibility and import/export; verify theme font-size defaults, overrides and reset across mode changes; find and replace in the active document, test case/word/regex options, Undo, Reading view and independent split-pane queries"
     },
     {
       "id": "onboarding",

@@ -27,7 +27,7 @@ The About panel identifies the installed Draglass version and uses the Draglass 
 
 ## Four appearance identities
 
-Open **Settings → Appearance** and compare Folio, Basalt, Tide and Prism. Folio is the default with a warm editorial document; its UI controls keep a sans-serif font. Switch between Light and Dark and check this note’s headings, properties, links, tables, completion popup, graph and right sidebar. The theme’s fonts and spacing stay consistent when switching modes.
+Open **Settings → Appearance** and compare Minimal, Things, Folio, Basalt, Tide and Prism. Start with Minimal, the default in both modes, then try Things and compare the inset workspace, rounded tabs, larger headings and tinted blockquotes with Minimal’s flush tabs, compact headings and thin quote rules. Folio remains available for a warm editorial look. Switch between Light and Dark and check this note’s headings, properties, links, tables, completion popup, graph and right sidebar. The theme’s fonts and spacing stay consistent when switching modes.
 
 Choose Folio and **Duplicate**, expand **Theme definition**, change its name and accent values, then **Save theme** and **Apply**. Custom definitions inherit omitted values from their parent. Try setting `"modes": ["dark"]`: switch Color mode to Light: the dark-only theme should disappear from the theme list, with Folio selected if needed. Switch back to Dark to select it again. Keep a readable accent/accentText pair.
 

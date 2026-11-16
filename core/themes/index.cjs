@@ -1,5 +1,6 @@
 // Pure theme definitions and resolution. No DOM, filesystem or Electron imports.
 const builtins=require('./builtins.json');
+const DEFAULT_THEME_ID='minimal';
 const colors=['bg','panel','text','muted','border','accent','accentText','hover','code','danger','success'];
 const fontKeys=['uiFont','documentFont','headingFont'];
 const numeric={documentFontSize:[12,28],uiFontSize:[10,20],codeFontSize:[10,28],radius:[0,16],lineHeight:[1.3,2.2],documentWidth:[600,1200]};
@@ -9,4 +10,4 @@ function resolve(id,definitions=builtins,stack=[]){if(stack.includes(id)||stack.
 function effectiveMode(theme,requested,systemDark=false){const mode=requested==='system'?(systemDark?'dark':'light'):requested;return theme.modes.includes(mode)?mode:theme.modes[0];}
 function variables(theme,mode){const p=theme[mode],v={};for(const [k,value]of Object.entries(p))v['--'+k.replace(/[A-Z]/g,c=>'-'+c.toLowerCase())]=value;Object.assign(v,{'--ui-font':theme.tokens.uiFont,'--document-font':theme.tokens.documentFont,'--heading-font':theme.tokens.headingFont,'--radius':theme.tokens.radius+'px','--document-line-height':String(theme.tokens.lineHeight),'--document-width':theme.tokens.documentWidth+'px','--completion-selected-text':p.accentText});const graph={inner:p.panel,outer:p.bg,grid:p.muted+'26',edge:p.muted,relation:p.text,'label-bg':p.bg+'ed',label:p.text,'label-focus':p.text,'mini-bg':p.panel+'ee','mini-border':p.border,'mini-viewport':p.accent+'99','node-outline':p.accent,error:p.danger};for(const [k,value]of Object.entries(graph))v['--graph-'+k]=value;return v;}
 function fontSizes(theme,preferences={}){const pick=(value,fallback,min,max)=>typeof value==='number'&&Number.isFinite(value)?Math.min(max,Math.max(min,value)):fallback;return {document:pick(preferences.fontSize,theme.tokens.documentFontSize,12,28),ui:pick(preferences.uiFontSize,theme.tokens.uiFontSize,10,20),code:pick(preferences.codeFontSize,theme.tokens.codeFontSize,10,28)};}
-module.exports={fontSizes,builtins,validate,resolve,effectiveMode,variables,validId};
+module.exports={DEFAULT_THEME_ID,fontSizes,builtins,validate,resolve,effectiveMode,variables,validId};

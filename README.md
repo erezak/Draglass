@@ -103,7 +103,7 @@ Task prerequisites use stable IDs across checkbox tasks and Task notes. Use the 
 
 Tasks support fixed and completion-relative recurrence for checkboxes and Task notes. Edit Repeat to configure a schedule and choose prerequisite carryover. Completing an occurrence creates its successor with preserved planning-date offsets; grouped Undo restores both together.
 
-Choose Folio, Basalt, Tide or Prism under Settings → Appearance. Folio is the first-launch default. Themes declare light/dark compatibility and may be duplicated, extended and imported/exported as JSON. See [Appearance themes](docs/THEMES.md).
+Choose Minimal, Things, Folio, Basalt, Tide or Prism under Settings → Appearance. Minimal is the default in Light and Dark. Themes declare light/dark compatibility and may be duplicated, extended and imported/exported as JSON. See [Appearance themes](docs/THEMES.md).
 
 Tasks distinguish user-set importance from calculated urgency. Open the task matrix from the command palette or Tasks pane, and inspect score explanations while keeping blockers visible.
 

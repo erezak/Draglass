@@ -1,8 +1,8 @@
 import {createDocumentFind,documentFindExtension} from './document-find.js';
 import {insertCallout,calloutCompletion} from './callouts/editor.js';
 import {createPdfExport} from './pdf-export.js';
-import {createAppearance} from './themes/appearance.js';
-const appearance=createAppearance();let appearanceId='folio',typography={};
+import {createAppearance,defaultThemeId} from './themes/appearance.js';
+const appearance=createAppearance();let appearanceId=defaultThemeId,typography={};
 import {revealNoteFragment} from './note-link-navigation.js';
 import {autocompletion,completionKeymap} from '@codemirror/autocomplete';
 import {wikiCompletion} from './note-link-completion.js';
@@ -73,7 +73,7 @@ let pendingFragment;api.onFragment(fragment=>{if(ready)jump(fragment);else pendi
 api.onCommand(command=>run(async()=>{if(command==='document-find'||command==='document-replace')documentFind.open(command==='document-replace');else if(command==='insert-mindmap'&&current&&!isDrawing(current.path,current.state.doc.toString())){if(reading)preview();insertMindMap(editor,current,diagrams.openMindMap);}else if(command==='insert-callout'){$('insert-callout').click();}else if(command==='export-pdf')await pdfExport.open();else if(command==='quit'||command==='close-tab')await close();else if(command==='preview')preview();else if(command==='source-mode')mode();else if(command==='open-file')await api.pick();else if(command==='open')await api.vault();else if(command==='reveal')await api.reveal();else status('This is a detached file. Open a vault for workspace commands.');}));
 run(async()=>{
  const note=await api.restore();typography=note.preferences||{};document.body.dataset.textAlignment=typography.textAlignment==='start'?'start':'justify';live=true;current=makeTab(note);tabs=[current];document.title=note.path+' · Detached · Draglass Editor';
- await appearance.load();appearanceId=typography.appearanceTheme||'folio';const preference=typography.theme||'light';document.documentElement.dataset.theme=preference==='system'?(window.matchMedia?.('(prefers-color-scheme: dark)').matches?'dark':'light'):preference;const applied=appearance.apply(appearanceId,preference,typography);$('theme').value=applied.mode;for(const option of $('theme').options)option.disabled=!applied.theme.modes.includes(option.value);
+ await appearance.load();appearanceId=typography.appearanceTheme||defaultThemeId;const preference=typography.theme||'light';document.documentElement.dataset.theme=preference==='system'?(window.matchMedia?.('(prefers-color-scheme: dark)').matches?'dark':'light'):preference;const applied=appearance.apply(appearanceId,preference,typography);$('theme').value=applied.mode;for(const option of $('theme').options)option.disabled=!applied.theme.modes.includes(option.value);
  $('file-name').textContent=note.path;$('file-path').textContent=note.absolute;$('file-path').title=note.absolute;
  editor=new EditorView({state:current.state,parent:$('editor')});await refresh();ready=true;status('Detached file · Autosave on');jump(pendingFragment||note.fragment);
 });
