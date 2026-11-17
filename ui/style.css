@@ -207,6 +207,31 @@ dialog{width:410px;max-width:90vw;background:var(--panel);color:var(--text);bord
 :root[data-appearance] .task-result-actions button:hover{background:var(--hover);color:var(--accent)}
 :root[data-appearance] .view-error,:root[data-appearance] .error{color:var(--danger)!important}
 :root[data-appearance] :is(dialog,.note-menu-items,.command-row){border-color:var(--border);border-radius:var(--radius)}
+
+/* The row owns the selection background; its buttons must not paint over it. */
+#command-results .command-row {--command-highlight:var(--accent);--command-highlight-text:var(--accent-text)}
+#command-results .command-row > button {background:transparent;color:inherit}
+#command-results .command-row:not(.selected):hover {background:var(--hover)}
+#command-results .command-row.selected {
+  background:var(--command-highlight);
+  color:var(--command-highlight-text);
+  box-shadow:inset 3px 0 var(--command-highlight-text);
+}
+#command-results .command-row.selected > button {opacity:1}
+#command-results .command-row.selected > button:disabled {font-style:italic}
+#command-results .command-row.selected kbd {
+  color:inherit;background:transparent;border-color:currentColor;
+}
+#command-results .command-row.selected > button:focus-visible {
+  outline:2px solid currentColor;outline-offset:-4px;
+}
+@media (forced-colors:active) {
+  #command-results .command-row.selected {
+    forced-color-adjust:none;
+    --command-highlight:Highlight;
+    --command-highlight-text:HighlightText;
+  }
+}
 :root[data-appearance] dialog{background:var(--bg);color:var(--text)}
 :root[data-appearance] .preferences-nav .selected{background:var(--hover);color:var(--accent);box-shadow:inset 2px 0 var(--accent)}
 :root[data-appearance] #preferences-dialog{width:min(900px,95vw)}
