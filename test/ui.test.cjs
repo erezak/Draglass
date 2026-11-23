@@ -462,6 +462,27 @@ test('outgoing web links use the external-opening bridge without changing the do
 test('task pane exposes neutral person mentions as navigable context',async t=>{const h=await harness(t,{text:'---\ntype: Task\nsubtype: ACTION\nid: mention-task\nname: Review a proposal\nstatus: todo\nrelationships:\n  - relation: mentions\n    target: "[[B]]"\n---\n# Proposal'});h.command('tasks-open');await until(()=>[...h.d.querySelectorAll('.task-reference')].some(e=>e.textContent==='Mentions B'));const link=[...h.d.querySelectorAll('.task-reference')].find(e=>e.textContent==='Mentions B');link.click();await until(()=>h.d.querySelector('#breadcrumb').textContent==='B.md');});
 
 const inlineScene=()=>JSON.stringify({...JSON.parse(emptyScene()),elements:[{id:'initial-box',type:'rectangle',x:0,y:0,width:100,height:50}]});
+test('labelled code fences highlight in Live Preview, Source and Reading without changing their text',async t=>{
+ const python='def report(name):\n    print("<hello>")';
+ const text='Intro\n\n```python\n'+python+'\n```\n\n```json\n{"enabled":true}\n```\n\n```unknown-format\n<script>no()</script>\n```';
+ const h=await harness(t,{text}),editor=h.view();
+ const live=h.d.querySelector('.cm-content');
+ await until(()=>live.querySelector('.hljs-keyword')?.textContent==='def');
+ assert.equal(live.querySelector('.hljs-string').textContent,'"<hello>"');
+ const from=text.indexOf('def report');
+ editor.dispatch({selection:{anchor:from,head:from+python.length}});
+ assert.equal(editor.state.sliceDoc(editor.state.selection.main.from,editor.state.selection.main.to),python);
+ assert.ok(live.querySelector('.hljs-keyword'));
+ h.command('source-mode');
+ await until(()=>h.d.querySelector('.cm-source-mode .hljs-keyword'));
+ h.d.querySelector('#preview-button').click();
+ await until(()=>h.d.querySelector('#reading .language-python .hljs-keyword'));
+ assert.equal(h.d.querySelector('#reading .language-python').textContent,python+'\n');
+ assert.equal(h.d.querySelector('#reading .language-json .hljs-keyword').textContent,'true');
+ assert.equal(h.d.querySelector('#reading .language-unknown-format').textContent,'<script>no()</script>\n');
+ assert.equal(h.d.querySelector('#reading .language-unknown-format script'),null);
+});
+
 test('inline Excalidraw fences and colon containers render as drawings without converting the Markdown note',async t=>{const text='# Intro\n\n```excalidraw\n'+inlineScene()+'\n```\n\n::: excalidraw\n'+inlineScene()+'\n:::\n\nAfter',h=await harness(t,{text,diagrams:diagramMock()});await until(()=>h.d.querySelectorAll('.inline-drawing-block svg').length===2);assert.equal(h.d.querySelector('#editor').hidden,false);assert.equal(h.saved.length,0);h.d.querySelector('#preview-button').click();await until(()=>h.d.querySelectorAll('#reading .inline-drawing-block svg').length===2);assert.equal(h.saved.length,0);assert.match(h.d.querySelector('#reading').textContent,/After/);});
 test('inline drawing canvas survives repeated edits and autosaves only its payload',async t=>{const text='# Intro\n\n```excalidraw\n'+inlineScene()+'\n```\n\nKeep after.',h=await harness(t,{text,diagrams:diagramMock()});await until(()=>h.d.querySelector('.inline-drawing-block svg'));[...h.d.querySelectorAll('.inline-drawing-block button')].find(b=>b.textContent==='Edit inline').click();await until(()=>h.d.querySelector('.drawing-canvas button'));const canvas=h.d.querySelector('.drawing-canvas');canvas.querySelector('button').click();await until(()=>h.view().state.doc.toString().includes('shape-1'));assert.equal(h.d.querySelector('.drawing-canvas'),canvas);canvas.querySelector('button').click();await until(()=>h.saved.length);const saved=h.view().state.doc.toString();assert.ok(saved.startsWith('# Intro\n\n```excalidraw\n'));assert.ok(saved.endsWith('\n```\n\nKeep after.'));assert.equal(require('../core/drawing-blocks.cjs').parse(require('../core/drawing-blocks.cjs').blocks(saved)[0]).scene.elements.length,3);assert.equal(h.d.querySelector('.drawing-canvas'),canvas);[...h.d.querySelectorAll('.inline-drawing-block button')].find(b=>b.textContent==='Done').click();await until(()=>!h.d.querySelector('.drawing-canvas'));});
 test('inline compressed Drawing sections retain their format while editing in reading view',async t=>{const text='# Intro\n\n## Drawing\n```compressed-json\n'+require('lz-string').compressToBase64(inlineScene())+'\n```\n\nKeep after.',h=await harness(t,{text,diagrams:diagramMock()});h.d.querySelector('#preview-button').click();await until(()=>h.d.querySelector('#reading .inline-drawing-block svg'));[...h.d.querySelectorAll('#reading .inline-drawing-block button')].find(b=>b.textContent==='Edit inline').click();await until(()=>h.d.querySelector('#reading .drawing-canvas button'));const canvas=h.d.querySelector('#reading .drawing-canvas');canvas.querySelector('button').click();await until(()=>h.saved.length);assert.equal(h.d.querySelector('#reading .drawing-canvas'),canvas);const saved=h.view().state.doc.toString(),block=require('../core/drawing-blocks.cjs').blocks(saved)[0];assert.equal(require('../core/drawing-blocks.cjs').parse(block).compressed,true);assert.equal(require('../core/drawing-blocks.cjs').parse(block).scene.elements.length,2);assert.ok(saved.endsWith('Keep after.'));});

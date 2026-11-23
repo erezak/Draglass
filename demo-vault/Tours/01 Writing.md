@@ -11,6 +11,19 @@ Open this note and check that Live Preview starts fully rendered, even on the ca
 
 Edit this note directly. Live Preview formats Markdown while keeping it editable; move the caret into **bold**, *italic*, ~~struck text~~ or `inline code` to see its syntax. Use the note menu for **Source** and **Reading view**. Nothing here is a screenshot of an editor.
 
+## Code fences
+
+Select part of the Python sample, then switch between light and dark. The selection
+should remain visible across the code background. Switch to Source or Reading
+view to see syntax colors there too. An unknown fence label leaves its content
+as plain code.
+
+```python
+def report(name):
+    # The sample stays editable in Live Preview.
+    print(f"Hello, {name}!")
+```
+
 ## One document title
 
 When the first level-one heading matches the filename, Draglass shows the authored heading once and hides the additional document title. Try renaming a practice note to match its H1, then change the heading to see the filename title return. Properties, breadcrumbs and the Markdown heading remain available.

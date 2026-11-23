@@ -192,6 +192,31 @@ dialog{width:410px;max-width:90vw;background:var(--panel);color:var(--text);bord
 :root[data-appearance] :is(td,th){border-color:var(--border)}
 :root[data-appearance] :is(pre,code,.cm-live-code-line,.cm-live-inline-code){background:var(--code);font-family:'SFMono-Regular',Consolas,monospace;color:var(--text)}
 :root[data-appearance] .cm-selectionBackground{background:var(--hover)!important}
+
+/* Code lines have opaque backgrounds. Draw the selection tint over those surfaces,
+   while leaving glyphs and the cursor visible and pointer handling untouched. */
+:root .cm-editor .cm-selectionLayer {z-index:1!important;pointer-events:none}
+:root .cm-editor .cm-selectionLayer .cm-selectionBackground {
+  background:color-mix(in srgb,var(--accent) 48%,transparent)!important;
+  box-shadow:inset 0 -1px color-mix(in srgb,var(--accent) 72%,transparent);
+}
+
+:root {
+  --syntax-keyword:#862969;--syntax-string:#276428;--syntax-number:#965008;
+  --syntax-comment:#5d6573;--syntax-name:#175890;--syntax-type:#12655f;
+}
+:root[data-theme=dark] {
+  --syntax-keyword:#f2aee6;--syntax-string:#aedfa5;--syntax-number:#f8c58c;
+  --syntax-comment:#aebbc9;--syntax-name:#9bd1ff;--syntax-type:#8ce0d5;
+}
+.draglass-syntax:is(.hljs-keyword,.hljs-selector-tag,.hljs-doctag,.hljs-meta) {color:var(--syntax-keyword)}
+.draglass-syntax:is(.hljs-string,.hljs-regexp,.hljs-addition,.hljs-selector-attr) {color:var(--syntax-string)}
+.draglass-syntax:is(.hljs-number,.hljs-literal,.hljs-symbol,.hljs-deletion) {color:var(--syntax-number)}
+.draglass-syntax:is(.hljs-comment,.hljs-quote) {color:var(--syntax-comment);font-style:italic}
+.draglass-syntax:is(.hljs-title,.hljs-section,.hljs-attr,.hljs-attribute,.hljs-selector-id,.hljs-link,.hljs-variable,.hljs-property) {color:var(--syntax-name)}
+.draglass-syntax:is(.hljs-type,.hljs-built_in,.hljs-name,.hljs-tag,.hljs-selector-class,.hljs-template-variable,.hljs-bullet) {color:var(--syntax-type)}
+.draglass-syntax.hljs-emphasis {font-style:italic}
+.draglass-syntax.hljs-strong {font-weight:700}
 :root[data-appearance] .chat-message.user{background:var(--hover);border-radius:var(--radius);padding:12px}
 :root[data-appearance] .chat-message.assistant{border-left:2px solid var(--accent);padding-left:12px}
 :root[data-appearance] .chat-top{border-bottom:1px solid var(--border)}

@@ -1,3 +1,4 @@
+import {createFencePainter} from './code-syntax.js';
 import {windowMarkdownTree} from './window-markdown.js';
 import mindMapModel from '../../core/mindmap.cjs';
 import inlineDrawingModel from '../../core/drawing-blocks.cjs';
@@ -117,7 +118,7 @@ function tableRows(node,state){
 }
 
 export function livePreview({enabled=true,windowContext,onTasks,tasksEnabled=()=>false,onTaskToggle,onFollow=()=>{},onExternal,onEmbed=()=>{},onCallout,onInlineDrawing,onMindMap,onDiagram=()=>{},embedRevision=()=>0}={}){
-  const mermaidCache=new Map(),calloutFolds=new Map();let linkDown;
+  const paintFence=createFencePainter(),mermaidCache=new Map(),calloutFolds=new Map();let linkDown;
   class TasksWidget extends WidgetType {constructor(source,revision){super();this.source=source;this.revision=revision;}eq(other){return this.source===other.source&&this.revision===other.revision;}get estimatedHeight(){return 220;}toDOM(view){const root=document.createElement('div');root.className='tasks-embed';Promise.resolve(onTasks(root,this.source)).then(()=>view.requestMeasure(),()=>view.requestMeasure());return root;}ignoreEvent(){return true;}}
 
   class InlineDrawingWidget extends WidgetType{constructor(block){super();this.block=block;}eq(other){return this.block.raw===other.block.raw&&this.block.from===other.block.from;}get estimatedHeight(){return 300;}toDOM(view){const root=document.createElement('div');root.className='cm-inline-drawing';const observer=typeof ResizeObserver==='function'?new ResizeObserver(()=>{if(root.isConnected)view.requestMeasure();}):null;observer?.observe(root);root._inlineObserver=observer;Promise.resolve(onInlineDrawing(root,this.block)).then(()=>view.requestMeasure(),()=>view.requestMeasure());return root;}updateDOM(root){return !!root._inlineEditing&&root._inlineExpectedSource===this.block.source;}destroy(root){root._inlineObserver?.disconnect();root._inlineDrawingDispose?.();}ignoreEvent(){return true;}}
@@ -131,7 +132,18 @@ export function livePreview({enabled=true,windowContext,onTasks,tasksEnabled=()=
   }
   class CalloutWidget extends WidgetType{updateDOM(root){if(root.querySelector('.inline-drawing-block .drawing-canvas')&&inlineDrawingModel.mask(root._renderText||'')===inlineDrawingModel.mask(this.block.markdown)){root._renderText=this.block.markdown;return true;}return false;}constructor(block,blocks,revision){super();Object.assign(this,{block,blocks,revision});}eq(other){return this.block.raw===other.block.raw&&this.block.from===other.block.from&&this.block.to===other.block.to&&this.revision===other.revision;}get estimatedHeight(){return this.block.fold==='-'?48:160;}toDOM(view){const root=document.createElement('div');root.className='cm-callout-widget';root.contentEditable='false';const measure=()=>{if(root.isConnected)view.requestMeasure();};const observer=typeof ResizeObserver==='function'?new ResizeObserver(measure):null;observer?.observe(root);root._calloutObserver=observer;const edit=index=>{if(view.state.readOnly)return;const block=this.blocks[index]||this.block;view.dispatch({selection:{anchor:block.bodyFrom},scrollIntoView:true});view.focus();};const type=index=>chooseCalloutType(view,this.blocks[index]||this.block,error=>{root.title=error.message;});Promise.resolve(onCallout?.(root,this.block.markdown,{folds:calloutFolds,foldPrefix:String(this.block.from),onTaskToggle:(relative,checked)=>{if(view.state.readOnly)return;const line=this.block.line+relative-1;if(onTaskToggle?.(line,checked)!==false&&onTaskToggle)return;const task=taskModel.inlineTasks({path:'note.md',text:view.state.doc.toString()}).find(t=>t.line===line);if(task){const from=view.state.doc.line(line).from+task.marker+1;view.dispatch({changes:{from,to:from+1,insert:checked?'x':' '}});}},onEdit:edit,onType:type,onMeasure:measure})).then(()=>{if(root.isConnected)for(const node of root.querySelectorAll('.callout[data-callout]'))decorateCallout(node);measure();},measure);return root;}destroy(root){root._calloutObserver?.disconnect();root.querySelectorAll('.inline-drawing-block').forEach(n=>n._inlineDrawingDispose?.());root.querySelectorAll('.mermaid-block,.mindmap-block').forEach(n=>{n._diagramDeactivate?.();n._diagramViewportDispose?.();n._diagramToken=null;});}ignoreEvent(){return true;}}
   function build(state){
-    if(!state.field(enabledField))return Decoration.none;
+
+    if(!state.field(enabledField)){
+      const ranges=[];
+      syntaxTree(state).iterate({enter(node){
+        if(node.name!=='FencedCode')return;
+        const parts=[];
+        for(let part=node.node.firstChild;part;part=part.nextSibling)parts.push(part);
+        paintFence(state,parts,(from,to,css)=>{if(to>from)ranges.push(Decoration.mark({class:css}).range(from,to));});
+        return false;
+      }});
+      return Decoration.set(ranges,true);
+    }
     const context=windowContext?.(),contextTree=context&&windowMarkdownTree(state.doc.toString(),context),initialCodeEnd=contextTree?.initialCodeEnd||0;const ranges=[],blocked=[],wiki=[],lineClasses=new Map();const front=frontmatter(state.doc.toString()),frontEnd=(!context||!context.offset)&&front.present&&!front.error?front.end:0;if(frontEnd)blocked.push([0,frontEnd]);
     const hide=(from,to,widget,briefingFence=false)=>{if(to>from)ranges.push(Decoration.replace(widget?{widget,briefingFence}:{briefingFence}).range(from,to));};
     const mark=(from,to,css,attributes)=>{if(to>from)ranges.push(Decoration.mark({class:css,attributes}).range(from,to));};
@@ -160,6 +172,7 @@ export function livePreview({enabled=true,windowContext,onTasks,tasksEnabled=()=
           if(!active){ranges.push(Decoration.replace({widget,block:true}).range(node.from,node.to));return false;}
           ranges.push(Decoration.widget({widget,block:true,side:1}).range(node.to));
         }
+        paintFence(state,parts,mark);
         eachLine(node.from,node.to,l=>line(l.from,'cm-live-code-line'));
         if(!active)for(const child of parts)if(child.name==='CodeMark')hide(child.from,child.to);
         return false;
