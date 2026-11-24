@@ -36,3 +36,5 @@ For custom names, quote a path segment: `["service.name":Beacon]` searches a lit
 ## New graphs and saved filters
 
 A newly opened Global Graph starts with all note types, including isolated notes. Try the filter `type:Task`, close the settings panel, and check the **Filtered** button in the graph footer. Click it to inspect or clear the active restrictions. Restoring that graph tab retains its own filter; opening a new Global Graph starts without the previous tab’s filters, exclusions or camera. Display and force preferences can still carry over.
+
+Try **Fit graph** in a wide pane, then resize the pane. The global graph spreads across the available width while keeping nodes round. Pan or zoom manually to keep that framing until you fit again.
