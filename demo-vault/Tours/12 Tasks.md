@@ -8,6 +8,16 @@ tags:
 
 Open **Tasks** using the checkbox icon in the right ribbon or **Open Tasks** in the command palette (Cmd/Ctrl+Shift+P). It opens in the right sidebar and collects ordinary checkboxes and notes whose YAML `type` is `Task`.
 
+## Tasks and decisions side by side
+
+Open **Tasks & Decisions** from the command palette. Tasks and their saved views
+are on the left; the **Pending** list of proposed Decision Records is on the right.
+Find [[Decisions/Choose briefing format|Choose briefing format]], switch to **Closed**
+to see [[Decisions/Keep provenance with observations|Keep provenance with observations]],
+then return to **Pending**. Try the checkbox beside a decision and cancel the dialog
+to leave the demo unchanged. To try a real resolution, use a scratch copy with
+`type: DecisionRecord` and `status: PROPOSED`.
+
 ## Try an inline action
 
 - [ ] Check the field kit 📅 2026-11-02 ⏫ 🆔 demo-field-kit

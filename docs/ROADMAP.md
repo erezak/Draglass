@@ -261,3 +261,10 @@ Explore the demo vault’s Field day board in the read-only web tour, or open it
 ## AI editing for existing mind maps · 0.42.6
 
 Read and edit map nodes and connectors directly through bounded tools; batch edits into a single review proposal without rewriting JSON through line tools.
+
+
+## Tasks & Decisions board
+
+Keep the existing task views and add a Decision Record column beside them. Filter
+by existing YAML status and record a disposition with an outcome on acceptance.
+Linked tasks and decision status remain independent.

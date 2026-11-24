@@ -304,6 +304,21 @@ dialog{width:410px;max-width:90vw;background:var(--panel);color:var(--text);bord
 .tool-view[data-kind="tasks"]>.tool-view-body{flex:1 0 auto;overflow:visible}
 .tool-view[data-kind="tasks"] .task-matrix{grid-template-columns:repeat(2,minmax(240px,1fr));align-items:start}
 .tool-view[data-kind="tasks"] .task-matrix>section{min-width:0}
+.work-board{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;min-width:0}
+.work-board-column{min-width:0}
+.work-board-column+ .work-board-column{border-inline-start:1px solid var(--border);min-height:100%}
+.work-board-column>h2{margin:0;padding:12px 16px;font-size:calc(var(--ui-font-size)*1.15);border-bottom:1px solid var(--border)}
+.work-board-column>.tool-view-body{overflow:visible}
+.decision-filter,.decision-pages{display:flex;gap:8px;padding:8px 16px}
+.decision-filter{border-bottom:1px solid var(--border);background:var(--panel)}
+.decision-filter select{padding:5px 8px}
+.decision-result{overflow-wrap:anywhere}
+@container (max-width:790px){.work-board{grid-template-columns:minmax(0,1fr)}.work-board-column+ .work-board-column{border-inline-start:0;border-block-start:1px solid var(--border);min-height:0}}
+@container (max-width:1240px){.tool-view[data-kind="tasks"] .work-board .task-matrix{grid-template-columns:minmax(0,1fr)}}
+.decision-row{display:flex;align-items:flex-start;gap:4px}
+.decision-row .decision-result{min-width:0;flex:1}
+.decision-resolve{flex:none;margin:4px 0 0 8px}
+
 #tasks-panel .task-workspace-controls{padding:10px;gap:8px}
 #tasks-panel .task-view-selector{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
 #tasks-panel .task-view-selector>label:first-child{grid-column:1/-1}

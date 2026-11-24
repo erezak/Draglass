@@ -370,6 +370,39 @@ test('task importance editor stages a structured value and matrix shows four qua
 test('task matrix pagination reaches the third page without losing actions or importance',async t=>{const h=await harness(t,{text:Array.from({length:120},(_,i)=>'- [ ] Work '+String(i).padStart(3,'0')+' ⭐ 🆔 task'+i).join('\n')});h.command('tasks-matrix');await until(()=>h.d.querySelectorAll('#task-matrix-body .task-result').length===50);const next=()=>[...h.d.querySelectorAll('#task-matrix-body button')].find(b=>b.textContent==='Next tasks');next().click();await until(()=>h.d.querySelector('#task-matrix-body .task-title')?.textContent==='Work 050');next().click();await until(()=>h.d.querySelectorAll('#task-matrix-body .task-result').length===20);assert.equal(h.d.querySelector('#task-matrix-body .task-title').textContent,'Work 100');assert.equal(next(),undefined);});
 
 
+test('Tasks & Decisions shows both columns and resolves a decision without completing tasks',async t=>{
+ const model=require('../core/decisions/query.cjs'),{resolveText}=require('../core/decisions/resolve.cjs');
+ let h;
+ h=await harness(t,{text:'- [ ] Check field kit',extraNotes:[{path:'Choice.md',title:'Choose route',text:'---\ntype: DecisionRecord\nstatus: PROPOSED\n---\n# Choose route',version:'1'}],actions:{
+  decisions:async args=>model.query(model.collect(h.notes),args),
+  resolveDecision:async args=>{const note=h.notes.find(n=>n.path===args.path);note.text=resolveText(note.text,args);note.version='2';return {...note};}
+ }});
+ h.command('tasks-workspace');
+ const board=()=>h.d.querySelector('.work-board');
+ await until(()=>board()?.querySelector('.decision-result')&&board().querySelector('.task-result'));
+ assert.deepEqual(Array.from(board().querySelectorAll('h2'),el=>el.textContent),['Tasks','Decisions']);
+ h.command('decisions-open');
+ await until(()=>h.d.activeElement?.textContent==='Decisions');
+ assert.equal(h.d.querySelectorAll('.work-board').length,1);
+ const resolve=()=>board().querySelector('.decision-resolve');
+ resolve().click();
+ const dialog=h.d.querySelector('#decision-resolution-title').closest('dialog');
+ dialog.querySelector('[data-cancel]').click();
+ assert.equal(dialog.open,false);
+ assert.ok(resolve());
+ resolve().click();
+ const form=dialog.querySelector('form');
+ form.elements.outcome.value='Use the north route';
+ form.dispatchEvent(new h.w.Event('submit',{bubbles:true,cancelable:true}));
+ await until(()=>!dialog.open&&!board().querySelector('.decision-result')&&/No proposed decisions/.test(board().textContent));
+ assert.match(h.notes.find(n=>n.path==='Choice.md').text,/status: ACCEPTED/);
+ assert.ok(board().querySelector('.task-result'));
+ const filter=board().querySelector('[aria-label="Decision status filter"]');
+ filter.value='closed';filter.dispatchEvent(new h.w.Event('change'));
+ await until(()=>board().querySelector('.decision-result')?.textContent.includes('ACCEPTED'));
+ assert.equal(resolve(),null);
+});
+
 test('task workspace combines filters, layout and saved views without changing note data',async t=>{
  const h=await harness(t,{text:'- [ ] Focus ⭐ ⏫ 🆔 focus\n- [ ] Other 🆔 other\n- [x] Finished'});h.command('tasks-workspace');await until(()=>h.d.querySelector('[data-kind="tasks"] .task-result'));
  const root=h.d.querySelector('.tool-view[data-kind="tasks"]'),choose=(label,value)=>{const el=root.querySelector('[aria-label="'+label+'"]');el.value=value;el.dispatchEvent(new h.w.Event('change'));};

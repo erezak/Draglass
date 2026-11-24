@@ -26,3 +26,21 @@ test('AI worker queries return bounded pages with draft overlays and named prove
  const search=await service.request('aiSearch',{query:'term',drafts});assert.equal(search.items[0].path,'A.md');assert.equal(search.items[0].text,undefined);const connections=await service.request('aiConnections',{path:'B.md',drafts});assert.ok(connections.items.some(e=>e.named&&e.sources.some(s=>s.quote==='Confirmed')));assert.doesNotMatch(JSON.stringify(connections),/UNSAVED/);assert.ok(Buffer.byteLength(JSON.stringify(connections))<=6000);assert.match(await fs.readFile(path.join(root,'A.md'),'utf8'),/Original/);
 });
 test('worker search shares nested YAML and relationship selectors with graph snapshots',async t=>{const root=await fixture(t);await fs.writeFile(path.join(root,'A.md'),'---\ntype: Task\ncustom:\n  score: 7\nrelationships:\n  - relation: depends_on\n    target: "[[B]]"\n---\n# A');const worker=new KnowledgeService(root);t.after(()=>worker.close());for(const query of ['type:Task','[custom.score:>=7]','relation:depends_on','{type:Task}'])assert.deepEqual((await worker.request('search',{query})).map(n=>n.path),['A.md'],query);const snapshot=await worker.request('graph');assert.equal(snapshot.notes.find(n=>n.path==='A.md').text.includes('custom:'),true);});
+
+test('decision board uses type and status, overlays drafts, and resolves only the selected Decision Record',async t=>{
+ const root=await fixture(t),index=new KnowledgeIndex(root);
+ const decision=(status,outcome)=>['---','type: DecisionRecord',...(status?['status: '+status]:[]),...(outcome?['outcome: '+outcome]:[]),'---','## Context','Retain this body.',''].join('\n');
+ for(const [name,status] of [['Policy wording','PROPOSED'],['Confirm dates','DEFERRED'],['Keep a log','ACCEPTED'],['Pick a color','']])await fs.writeFile(path.join(root,name+'.md'),decision(status));
+ let result=await index.query('decisions');
+ assert.deepEqual(result.items.map(x=>x.path),['Policy wording.md']);
+ assert.deepEqual(result.counts,{pending:1,deferred:1,closed:1,unclassified:1,all:4});
+ assert.equal((await index.query('decisions',{drafts:[{path:'Pick a color.md',text:decision('PROPOSED')}]})).counts.pending,2);
+ const {resolve}=require('../core/decisions/resolve.cjs'),vault=new Vault(root),pathName='Policy wording.md';
+ await assert.rejects(resolve(vault,{path:pathName,expectedStatus:'PROPOSED',status:'ACCEPTED'}),/State what was decided/);
+ const resultNote=await resolve(vault,{path:pathName,expectedStatus:'PROPOSED',status:'ACCEPTED',outcome:'Keep the current wording'});
+ assert.match(resultNote.text,/outcome: Keep the current wording/);
+ assert.match(resultNote.text,/Retain this body/);
+ await assert.rejects(resolve(vault,{path:pathName,expectedStatus:'PROPOSED',status:'REJECTED'}),/status changed/);
+ result=await index.query('decisions',{filter:'closed'});
+ assert.deepEqual(result.items.map(x=>x.path),['Keep a log.md','Policy wording.md']);
+});

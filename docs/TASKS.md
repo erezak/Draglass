@@ -120,7 +120,9 @@ Score explanations retain their expanded or collapsed state during refreshes wit
 
 ## Saved views and task workspace · 0.30.0
 
-Run **Open task workspace** from Cmd/Ctrl+Shift+P, or choose **Open workspace** in the right Tasks sidebar. The workspace is an ordinary main tab: split, move or pin it alongside notes. **Open Tasks** continues to open the right sidebar. Reissuing Open task workspace focuses the existing Tasks tab in the active group. Closing and reopening the workspace uses its last edited state.
+Run **Open Tasks & Decisions** from Cmd/Ctrl+Shift+P, or choose **Open workspace** in the right Tasks sidebar. The workspace is an ordinary main tab: split, move or pin it alongside notes. **Open Tasks** continues to open the right sidebar. Reissuing Open task workspace focuses the existing Tasks tab in the active group. Closing and reopening the workspace uses its last edited state.
+
+Tasks appear on the left; Decision Records appear on the right. **Open Decisions on the board** opens the same board and focuses that column. The default **Pending** filter means `PROPOSED`; **Deferred**, **Closed**, **Needs status**, and **All** are separate filters. Use the checkbox next to a proposed or deferred decision to choose Accepted, Rejected, or Withdrawn. Acceptance requires a written outcome. Resolving a decision does not change any linked task.
 
 Choose **View** for built-in Open tasks, Ready to work, Blocked and This week perspectives, or one of your named views. Expand **Filters** to combine status, priority, importance, prerequisite/actionability and due/scheduled/start dates. Each date supports before today, today, the next seven calendar days including today, this calendar week, no date, has date or an inclusive From/Through range. An empty endpoint is unbounded. This week is Monday through Sunday using the device-local day; it is not a rolling seven-day window. Dates remain relative in saved queries.
 
