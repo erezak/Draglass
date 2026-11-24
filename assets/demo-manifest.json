@@ -61,7 +61,7 @@
       "notes": [
         "Tours/08 Organize and recover.md"
       ],
-      "exercise": "Organize ordinary files; inspect .draglass/recovery and .draglass/trash after a practice edit/delete, restore the note, and confirm vault-private data shares one folder"
+      "exercise": "Organize ordinary files; inspect .draglass/recovery and .draglass/trash after a practice edit/delete, restore the note, and confirm vault-private data shares one folder; open a Markdown copy outside the vault, expand Properties, edit a field and inspect YAML in Source mode"
     },
     {
       "id": "search-settings",

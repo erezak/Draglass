@@ -20,7 +20,7 @@ The default trash stays inside the vault; system trash is available in Settings.
 
 ## Open files outside a vault
 
-Use Open file to select a Markdown or Excalidraw file outside the demo. It opens in a detached window with an explicit label and distinct appearance. Detached Markdown starts in Live Preview. Its relative links resolve beside that file. This exercise needs a file outside the vault; it does not pretend that a bundled example is detached.
+Use Open file to select a Markdown or Excalidraw file outside the demo. It opens in a detached window with an explicit label and distinct appearance. Detached Markdown starts in Live Preview with Properties collapsed. Copy this tour outside the demo vault, open **Properties**, edit a field or add a practice property, and check the original file was saved. Choose **YAML** to see the raw metadata in Source mode. Relative links still resolve beside the detached file. This exercise needs a file outside the vault; it does not pretend that a bundled example is detached.
 
 Open [[Tours/09 Search and settings]] next.
 

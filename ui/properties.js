@@ -1,3 +1,4 @@
+import {mountPropertiesMarkup} from './properties-markup.js';
 import {propertyTypeControl,compactPropertyValue} from './properties-view.js';
 import ontology from '../core/plugins/ontology.cjs';
 import {initRelationshipEditor} from './relationship-editor.js';
@@ -11,8 +12,9 @@ export function propertiesExtension(visible){
  return StateField.define({create:decorations,update:(_value,tr)=>decorations(tr.state),provide:field=>EditorView.decorations.from(field)});
 }
 export function initProperties({getCurrent,getNotes,getPreferences,getMode,isDrawing,isLocked,onEdit,onPreferences,onUndo,onError,onSource,onSearch}){
+ const root=document.getElementById('properties');mountPropertiesMarkup(root);
  const relationships=initRelationshipEditor({getCurrent,getNotes,isLocked,onEdit:(tab,text)=>{onEdit(tab,text);render(true);},onError});
- const root=document.getElementById('properties'),body=document.getElementById('property-rows'),message=document.getElementById('property-error');let last='',path='',editing=false,collapsed=true;root.classList.add('properties-panel');
+ const body=document.getElementById('property-rows'),message=document.getElementById('property-error');let last='',path='',editing=false,collapsed=true;root.classList.add('properties-panel');
  root.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&!e.altKey&&['z','y'].includes(e.key.toLowerCase())){e.preventDefault();onUndo(e.shiftKey||e.key.toLowerCase()==='y');render(true);}});
  const fail=e=>{message.textContent=e.message;onError(e);};
  function apply(change){if(isLocked())return;const tab=getCurrent();if(!tab||tab.path!==path)return;try{editing=true;onEdit(tab,(Array.isArray(change)?change:[change]).reduce((text,c)=>changeProperty(text,c),tab.state.doc.toString()));last=tab.path+'\0'+tab.state.doc.toString()+'\0'+isLocked();renderTagChips(tab.state.doc.toString());message.textContent='';}catch(e){fail(e);}finally{editing=false;}}
@@ -37,7 +39,7 @@ export function initProperties({getCurrent,getNotes,getPreferences,getMode,isDra
  if(focus){const row=[...body.children].find(r=>r.dataset.key===focus.key),el=row?.querySelector('[data-part="'+focus.part+'"]');if(el){el.focus();try{el.setSelectionRange(focus.start,focus.end);}catch{}}}
  renderTagChips(text);relationships.render();
  }
- function renderTagChips(text){ const tags=document.getElementById('note-tags');tags.replaceChildren();for(const tag of metadata.tagsFor(text)){const button=document.createElement('button');button.textContent='#'+tag;button.onclick=()=>onSearch('tag:#'+tag);tags.append(button);}}
+ function renderTagChips(text){ const tags=document.getElementById('note-tags');tags.replaceChildren();for(const tag of metadata.tagsFor(text)){const chip=document.createElement(onSearch?'button':'span');chip.textContent='#'+tag;if(onSearch)chip.onclick=()=>onSearch('tag:#'+tag);tags.append(chip);}}
 
  function syncDisclosure(){const content=document.getElementById('property-content'),button=document.getElementById('property-collapse');content.hidden=collapsed;button.setAttribute('aria-expanded',String(!collapsed));button.setAttribute('aria-controls','property-content');button.title=collapsed?'Expand properties':'Collapse properties';root.dataset.collapsed=String(collapsed);}
  function collapse(){collapsed=true;for(const detail of body.querySelectorAll('.property-structured'))detail.open=false;syncDisclosure();}

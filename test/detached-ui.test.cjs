@@ -26,7 +26,7 @@ test('detached external updates replace pending edits and failed saves keep the 
 });
 test('standalone detached Excalidraw editing uses the same autosave path',async t=>{
  const scene=JSON.parse(require('../core/drawings.cjs').emptyDrawing()),h=await harness(t,{path:'Canvas.excalidraw',text:JSON.stringify(scene)});
- assert.equal(h.d.querySelector('#source-mode').disabled,true);assert.equal(h.d.querySelector('#drawing-editor').hidden,false);assert.equal(h.drawingChanges.length,1);
+ assert.equal(h.d.querySelector('#source-mode').disabled,true);assert.equal(h.d.querySelector('#drawing-editor').hidden,false);assert.equal(h.d.querySelector('#properties').hidden,true);assert.equal(h.drawingChanges.length,1);
  h.drawingChanges[0]({...scene,appState:{...scene.appState,viewBackgroundColor:'#fff000'}});await until(()=>h.saved.length===1);assert.equal(h.saved[0].path,'Canvas.excalidraw');assert.match(h.saved[0].text,/#fff000/);
 });
 
@@ -47,6 +47,51 @@ test('detached Markdown starts in Live Preview independently of the vault editin
  mode.click();assert.equal(mode.textContent,'Live Preview');assert.equal(h.view().state.doc.toString(),text);
  h.view().dispatch({changes:{from:text.length,insert:' More text.'}});await until(()=>h.saved.length===1);assert.equal(h.saved[0].text,text+' More text.');
  h.command('quit');await until(()=>h.closed());
+});
+
+test('detached Live Preview folds YAML into shared editable properties and saves the original file',async t=>{
+ const {readMetadata,frontmatter}=require('../core/metadata.cjs');
+ const text='---\n# keep this comment\nstatus: Draft\ncreated_at: "2026-10-24T12:00:00.123Z"\n---\n# Outside\n\nKeep this body.';
+ const h=await harness(t,{text}),$=id=>h.d.getElementById(id);
+ assert.equal($('properties').hidden,false);
+ assert.equal($('property-content').hidden,true);
+ assert.equal($('property-collapse').dataset.count,'2');
+ assert.doesNotMatch($('editor').textContent,/status: Draft/);
+ assert.equal(h.view().state.selection.main.head,frontmatter(text).end);
+ $('property-collapse').click();
+ const value=key=>$('property-rows').querySelector('[data-key="'+key+'"] .property-value');
+ assert.equal(value('created_at').readOnly,true);
+ assert.equal(value('status').value,'Draft');
+ value('status').value='Ready';
+ value('status').dispatchEvent(new h.w.Event('input',{bubbles:true}));
+ await until(()=>h.saved.length===1);
+ assert.equal(h.saved[0].path,'Outside.md');
+ assert.equal(readMetadata(h.saved[0].text).values.status,'Ready');
+ assert.match(h.saved[0].text,/# keep this comment/);
+ assert.equal(frontmatter(h.saved[0].text).body,frontmatter(text).body);
+ $('property-source').click();
+ assert.equal($('properties').hidden,true);
+ assert.match($('editor').textContent,/status: Ready/);
+ $('source-mode').click();
+ assert.equal($('properties').hidden,false);
+ assert.doesNotMatch($('editor').textContent,/status: Ready/);
+ $('preview-button').click();
+ assert.equal($('properties').hidden,true);
+ await until(()=>$('reading').querySelector('h1')?.textContent==='Outside');
+ assert.equal(h.saved.length,1);
+});
+
+test('detached notes without frontmatter can add a typed property',async t=>{
+ const h=await harness(t,{text:'# Note\n\nBody.'}),$=id=>h.d.getElementById(id);
+ $('property-add').click();
+ $('property-new-name').value='priority';
+ $('property-new-type').value='number';
+ $('property-new-type').dispatchEvent(new h.w.Event('change'));
+ $('property-new-value').value='3';
+ $('property-form').dispatchEvent(new h.w.Event('submit',{bubbles:true,cancelable:true}));
+ await until(()=>h.saved.length===1);
+ assert.equal(require('../core/metadata.cjs').readMetadata(h.saved[0].text).values.priority,3);
+ assert.equal($('property-content').hidden,false);
 });
 
 test('detached autosave absorbs server timestamps without a save loop or caret jump',async t=>{const {stampNote}=require('../core/note-timestamps.cjs'),{frontmatter}=require('../core/metadata.cjs');let old='# Initial';const h=await harness(t,{text:old,write:async(p,text)=>{const result=stampNote(p,text,{old,createdAt:Date.parse('2020-01-01T00:00:00Z')});old=result.text;return result;}});h.view().dispatch({changes:{from:0,to:h.view().state.doc.length,insert:'Edited body'},selection:{anchor:6}});await until(()=>h.view().state.doc.toString().includes('updated_at:'));assert.equal(frontmatter(h.view().state.doc.toString()).body,'Edited body');assert.equal(h.view().state.selection.main.head,frontmatter(h.view().state.doc.toString()).end+6);await wait(900);assert.equal(h.saved.length,1);assert.equal(h.d.querySelector('#dirty').textContent,'Saved automatically');});
