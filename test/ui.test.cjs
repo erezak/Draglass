@@ -575,6 +575,29 @@ test('failed chat restores only its origin draft and never replaces another note
 test('large vault notes open through the windowed editor without requesting their complete body',async t=>{const opened=[];const h=await harness(t,{extraNotes:[{path:'Large.md',title:'Large',text:'',version:'large',paged:true,size:9*1024**3}],actions:{openPaged:async path=>{opened.push(path);}}});const original=h.w.vaultAPI.read;h.w.vaultAPI.read=async path=>{assert.notEqual(path,'Large.md');return original(path);};h.d.querySelector('[data-path="Large.md"]').click();await until(()=>opened.length===1);assert.equal(opened[0],'Large.md');assert.equal(h.d.getElementById('title').textContent,'A');});
 test('vault Live Preview starts fully rendered despite automatic focus, then reveals syntax on keyboard intent',async t=>{const text='# First heading\n\n**Body**\n',h=await harness(t,{text}),view=h.view();assert.equal(view.state.selection.main.head,0);assert.equal(h.d.querySelector('.cm-content').textContent.includes('# First heading'),false);view.focus();await wait(30);assert.equal(h.d.querySelector('.cm-content').textContent.includes('# First heading'),false);view.contentDOM.dispatchEvent(new h.w.Event('beforeinput',{bubbles:true}));assert.equal(h.d.querySelector('.cm-content').textContent.includes('# First heading'),true);assert.equal(view.state.sliceDoc(),text);await wait(700);assert.equal(h.saved.length,0);});
 test('a background vault refresh preserves fully rendered initial text while restoring the caret',async t=>{const h=await harness(t,{text:'# Original\n\nBody\n'});h.notes[0].text='# Refreshed\n\nBody\n';h.notes[0].version='2';await h.changed();await until(()=>h.view().state.sliceDoc().includes('Refreshed'));assert.equal(h.d.querySelector('.cm-content').textContent.includes('# Refreshed'),false);assert.equal(h.saved.length,0);h.view().dispatch({selection:{anchor:0}});assert.equal(h.d.querySelector('.cm-content').textContent.includes('# Refreshed'),true);});
+test('Live Preview renders superscript in headings and subscript in prose without interpreting other HTML',async t=>{
+ const text='# Dependency environments <sup>name pending</sup>: Problems and demo\n\nH<sub>2</sub>O\n\n`<sup>literal</sup>` and <sup>unclosed\n\n<sup onclick="window.ran=true">attributed</sup>';
+ const h=await harness(t,{text}),view=h.view(),root=h.d.querySelector('#editor');
+ assert.equal(root.querySelector('.cm-live-heading sup')?.textContent,'name pending');
+ assert.equal(root.querySelector('sub')?.textContent,'2');
+ assert.equal(root.querySelectorAll('sup').length,1);
+ assert.match(root.textContent,/<sup>literal<\/sup>.*<sup>unclosed/);
+ assert.ok(root.textContent.includes('<sup onclick='));
+ view.dispatch({selection:{anchor:text.indexOf('name pending')+4}});
+ assert.equal(root.querySelector('.cm-live-heading sup'),null);
+ assert.match(root.querySelector('.cm-live-heading').textContent,/<sup>name pending<\/sup>/);
+ assert.equal(view.state.doc.toString(),text);
+ h.command('source-mode');
+ await until(()=>root.querySelector('.cm-source-mode'));
+ assert.equal(root.querySelector('sub'),null);
+ assert.match(root.textContent,/<sub>2<\/sub>/);
+ h.d.querySelector('#preview-button').click();
+ await until(()=>h.d.querySelector('#reading h1 sup')?.textContent==='name pending');
+ assert.equal(h.d.querySelector('#reading sub')?.textContent,'2');
+ assert.equal(h.d.querySelector('#reading [onclick]'),null);
+ assert.equal(h.saved.length,0);
+});
+
 test('a matching first H1 replaces the additional filename title without changing Markdown or properties',async t=>{const text='---\ntype: Concept\n---\n# A\n\nBody\n',h=await harness(t,{text});assert.equal(h.d.querySelector('#title').closest('.document-heading').hidden,true);assert.equal(h.d.querySelector('#title').textContent,'A');assert.ok(h.d.querySelector('.cm-live-h1'));assert.equal(h.d.querySelector('#properties').hidden,false);h.d.querySelector('#preview-button').click();await until(()=>h.d.querySelector('#reading h1'));assert.equal(h.d.querySelector('#reading h1').textContent,'A');assert.equal(h.d.querySelector('#title').closest('.document-heading').hidden,true);assert.equal(h.view().state.sliceDoc(),text);await wait(700);assert.equal(h.saved.length,0);});
 test('title matching uses rendered ATX and Setext text while ignoring fenced, quoted and YAML examples',async t=>{for(const text of ['# **A** ###\n\nBody','A\n===\n\nBody','# &#65;\n\nBody','# a\n\nBody']){const h=await harness(t,{text});assert.equal(h.d.querySelector('#title').closest('.document-heading').hidden,true,text);}for(const text of ['```md\n# A\n```\n\n# Different','> # A\n\n# Different','## A\n\nBody','# A!\n\nBody','---\nexample: |\n  # A\n---\n# Different']){const h=await harness(t,{text});assert.equal(h.d.querySelector('#title').closest('.document-heading').hidden,false,text);}});
 test('editing a matching H1 restores the filename title immediately and Undo hides it again',async t=>{const text='# A\n\nBody\n',h=await harness(t,{text}),view=h.view();assert.equal(h.d.querySelector('#title').closest('.document-heading').hidden,true);view.dispatch({changes:{from:2,to:3,insert:'Different'}});assert.equal(h.d.querySelector('#title').closest('.document-heading').hidden,false);view.contentDOM.dispatchEvent(new h.w.KeyboardEvent('keydown',{key:'z',ctrlKey:true,bubbles:true,cancelable:true}));assert.equal(h.d.querySelector('#title').closest('.document-heading').hidden,true);assert.equal(view.state.sliceDoc(),text);});

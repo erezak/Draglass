@@ -11,6 +11,12 @@ Open this note and check that Live Preview starts fully rendered, even on the ca
 
 Edit this note directly. Live Preview formats Markdown while keeping it editable; move the caret into **bold**, *italic*, ~~struck text~~ or `inline code` to see its syntax. Use the note menu for **Source** and **Reading view**. Nothing here is a screenshot of an editor.
 
+## Superscript and subscript
+
+Use <sup>raised text</sup> and H<sub>2</sub>O in a heading or paragraph.
+Live Preview renders the formatting; place the cursor inside the formatted
+text or switch to Source to see the tags.
+
 ## Code fences
 
 Select part of the Python sample, then switch between light and dark. The selection

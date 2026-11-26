@@ -181,6 +181,21 @@ export function livePreview({enabled=true,windowContext,onTasks,tasksEnabled=()=
         const level=name.at(-1);line(node.from,'cm-live-heading cm-live-h'+level);
         if(!active)for(const child of parts)if(child.name==='HeaderMark'){let end=child.to;if(state.sliceDoc(end,end+1)===' ')end++;hide(child.from,end);}
       }
+      // Use editor marks for the two semantic inline tags. Never interpret
+      // note text as HTML, and keep unmatched tags and attributes visible.
+      const scripts=[];
+      for(const child of parts){
+        if(child.name!=='HTMLTag')continue;
+        const tag=/^<(\/?)(sup|sub)[ \t]*>$/i.exec(state.sliceDoc(child.from,child.to));
+        if(!tag)continue;
+        const kind=tag[2].toLowerCase();
+        if(!tag[1]){scripts.push({node:child,kind});continue;}
+        if(scripts.at(-1)?.kind!==kind){scripts.length=0;continue;}
+        const open=scripts.pop().node;
+        if(open.to===child.from||intersects(state,open.from,child.to))continue;
+        hide(open.from,open.to);hide(child.from,child.to);
+        ranges.push(Decoration.mark({tagName:kind}).range(open.to,child.from));
+      }
       const styles={StrongEmphasis:'cm-live-strong',Emphasis:'cm-live-emphasis',Strikethrough:'cm-live-strike',InlineCode:'cm-live-inline-code'};
       if(styles[name]){mark(node.from,node.to,styles[name]);if(!active)for(const child of parts)if(['EmphasisMark','StrikethroughMark','CodeMark'].includes(child.name))hide(child.from,child.to);if(name==='InlineCode'){blocked.push([node.from,node.to]);return false;}}
       if(name==='Paragraph'&&node.parent?.name==='Document')eachLine(node.from,node.to,l=>line(l.from,'cm-live-prose'));
